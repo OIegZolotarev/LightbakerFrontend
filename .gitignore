@@ -13,3 +13,4 @@ src/.vs/LightBakerFrontend/v16/.suo
 *.ilk
 *.recipe
 build/Debug/LightBakerFrontend.res
+bin/LightBakerFrontend.exe

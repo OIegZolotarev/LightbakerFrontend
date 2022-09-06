@@ -27,8 +27,16 @@ class MainWindow
 		AddOmni = 0,
 		AddSpot,
 		AddDirect,
-		BakeScene
+		BakeScene,
+		MaxIcons
 	};
+
+	GLuint m_ToolbarIcons[ToolbarIcons::MaxIcons];
+
+	bool RenderToolbarIcon(GLuint iconId);
+
+	float RenderMainMenu();
+	void RenderMainToolbar(float menuHeight);
 
 	std::string m_strTitle;
 	SDL_Window* m_pSDLWindow;
@@ -48,13 +56,13 @@ class MainWindow
 	void GL_BeginFrame();	
 	void RenderGUI();
 	void LimitToTargetFPS();
+
 public:
 	MainWindow(const char* title, glm::vec2 defaultSize);
 	~MainWindow();
 
 	void MainLoop();
 
-private:
-	float RenderMainMenu();
+
 };
 

@@ -53,6 +53,9 @@
     <ClCompile Include="commands_registry.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="file_system.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -93,6 +96,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="commands_registry.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="file_system.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

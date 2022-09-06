@@ -174,6 +174,36 @@ float MainWindow::RenderMainMenu()
 	return size;
 }
 
+void MainWindow::RenderMainToolbar(float menuHeight)
+{
+	ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
+	ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));
+
+	ImGui::Begin("##Main≈oolbar", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+
+	if (RenderToolbarIcon(m_ToolbarIcons[AddOmni]))
+	{
+
+	}
+
+	if (RenderToolbarIcon(m_ToolbarIcons[AddSpot]))
+	{
+
+	}
+
+	if (RenderToolbarIcon(m_ToolbarIcons[AddDirect]))
+	{
+
+	}
+
+	if (RenderToolbarIcon(m_ToolbarIcons[BakeScene]))
+	{
+
+	}
+
+	ImGui::End();
+}
+
 void MainWindow::RenderGUI()
 {
 	glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
@@ -184,8 +214,9 @@ void MainWindow::RenderGUI()
 
 	ImGui::NewFrame();
 
-	float menuHeight = RenderMainMenu();
-
+	float		menuHeight = RenderMainMenu();
+	RenderMainToolbar(menuHeight);
+	
 	static bool bShowDebug = true;
 
 	if (bShowDebug)
@@ -197,6 +228,12 @@ void MainWindow::RenderGUI()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+bool MainWindow::RenderToolbarIcon(GLuint iconId)
+{
+	ImGui::SameLine();
+	return ImGui::ImageButton((ImTextureID)iconId, ImVec2(16, 16));
 }
 
 bool MainWindow::HandleEvents(bool loop)

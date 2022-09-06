@@ -6,6 +6,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <functional>
 
 #include "../include/glm/glm/glm.hpp"
 
@@ -14,4 +15,6 @@
 #endif
 
 #pragma warning(disable:4244)
+
+typedef unsigned char byte;
 

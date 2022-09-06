@@ -3,10 +3,11 @@
 
 CCommandsRegistry::CCommandsRegistry()
 {
-
+	m_vecCommandDescriptor.clear();
 }
 
 CCommandsRegistry::~CCommandsRegistry()
 {
-
+	m_vecCommandDescriptor.clear();
+	m_vecCommandDescriptor.shrink_to_fit();
 }
