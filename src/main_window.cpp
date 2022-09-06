@@ -1,5 +1,6 @@
 #include "ui_common.h"
 #include "main_window.h"
+#include "application.h"
 
 SDL_Cursor* g_EmptyCursor;
 char g_IMGuiIniPath[1024];
@@ -103,6 +104,76 @@ void MainWindow::MainLoop()
 	}
 }
 
+float MainWindow::RenderMainMenu()
+{
+	float size = 0;
+
+	if (ImGui::BeginMainMenuBar())
+	{
+		if (ImGui::BeginMenu("File"))
+		{
+			if (ImGui::MenuItem("Load model...", "Ctrl-O"))
+			{
+				// TODO
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::BeginMenu("Recent"))
+			{
+				ImGui::MenuItem("( none )");
+
+				ImGui::EndMenu();
+			}
+
+			ImGui::Separator();
+
+			if (ImGui::MenuItem("Exit"))
+			{				
+				m_bTerminated = true;
+			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("View"))
+		{
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Windows"))
+		{
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Help"))
+		{
+			if (ImGui::MenuItem("About..."))
+			{
+				//m_pPopupsManager->ShowPopup(PopupWindows::AboutApplicationDialog);
+			}
+
+			if (ImGui::MenuItem("Style editor..."))
+			{
+				//m_pPopupsManager->ShowPopup(PopupWindows::StyleEditor);
+			}
+
+			if (ImGui::MenuItem("Style selector..."))
+			{
+				//m_pPopupsManager->ShowPopup(PopupWindows::StyleChooser);
+			}
+
+			ImGui::EndMenu();
+		}
+
+		size = ImGui::GetWindowHeight();
+
+		ImGui::EndMainMenuBar();
+	}
+
+	return size;
+}
+
 void MainWindow::RenderGUI()
 {
 	glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
@@ -112,6 +183,8 @@ void MainWindow::RenderGUI()
 	ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
 
 	ImGui::NewFrame();
+
+	float menuHeight = RenderMainMenu();
 
 	static bool bShowDebug = true;
 
@@ -130,12 +203,9 @@ bool MainWindow::HandleEvents(bool loop)
 {
 	SDL_Event event;
 	while (SDL_PollEvent(&event))
-	{
-		// without it you won't have keyboard input and other things
+	{		
 		ImGui_ImplSDL2_ProcessEvent(&event);
-		// you might also want to check io.WantCaptureMouse and io.WantCaptureKeyboard
-		// before processing events
-
+		
 		bool bIgnorableEvent = true;
 
 		switch (event.type)

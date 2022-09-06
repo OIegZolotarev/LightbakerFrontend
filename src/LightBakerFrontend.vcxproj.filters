@@ -50,6 +50,9 @@
     <ClCompile Include="scene_renderer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="commands_registry.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -87,6 +90,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="scene_renderer.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="commands_registry.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

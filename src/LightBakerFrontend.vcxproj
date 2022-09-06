@@ -163,6 +163,7 @@
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="application.cpp" />
+    <ClCompile Include="commands_registry.cpp" />
     <ClCompile Include="main_window.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="win_main.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="application.h" />
+    <ClInclude Include="commands_registry.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="main_window.h" />
     <ClInclude Include="resource.h" />

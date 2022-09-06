@@ -18,8 +18,18 @@ struct timersData
 };
 
 
+
 class MainWindow
 {
+
+	enum ToolbarIcons
+	{
+		AddOmni = 0,
+		AddSpot,
+		AddDirect,
+		BakeScene
+	};
+
 	std::string m_strTitle;
 	SDL_Window* m_pSDLWindow;
 
@@ -44,5 +54,7 @@ public:
 
 	void MainLoop();
 
+private:
+	float RenderMainMenu();
 };
 

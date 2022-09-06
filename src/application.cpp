@@ -2,7 +2,7 @@
 
 Application::Application()
 {
-
+	m_pCommandsRegistry = new CCommandsRegistry;
 }
 
 Application::~Application()
@@ -25,4 +25,9 @@ Application* Application::Instance()
 {
 	static Application* sInstance = new Application;
 	return sInstance;
+}
+
+CCommandsRegistry* Application::CommandsRegistry()
+{
+	return m_pCommandsRegistry;
 }
