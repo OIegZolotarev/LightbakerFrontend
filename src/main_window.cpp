@@ -49,15 +49,13 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
 	io.MouseDrawCursor = true;
 
-	char* p = SDL_GetPrefPath("QuiteOldOrange", "Orange3DViewer");
+	char* p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
 	sprintf_s(g_IMGuiIniPath, sizeof(g_IMGuiIniPath), "%s/imgui.ini", p);
 
 	io.IniFilename = g_IMGuiIniPath;
 
-
 	// setup Dear ImGui style
 	ImGui::StyleColorsClassic();
-
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 
