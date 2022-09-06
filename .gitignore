@@ -5,3 +5,11 @@ src/.vs/LightBakerFrontend/v16/Browse.VC.db-shm
 src/.vs/LightBakerFrontend/v16/Browse.VC.db
 src/.vs/LightBakerFrontend/v16/.suo
 *.ipch
+*.obj
+*.pdb
+*.idb
+*.log
+*.tlog
+*.ilk
+*.recipe
+build/Debug/LightBakerFrontend.res
