@@ -11,7 +11,7 @@ class FileData
 	size_t m_offset;
 public:
 
-	FileData(byte* data, size_t length, char* name);
+	FileData(byte* data, size_t length, const char* name);
 	~FileData();
 
 	size_t Length();
@@ -37,10 +37,37 @@ T* FileData::Read(size_t nElements)
 	return (T*)&m_pData[retOffset];
 }
 
+class IArchive
+{
+protected:
+	std::string m_FileName;
+	std::string m_BaseName;
+
+	std::vector<const char*> m_lstFiles;
+
+	bool m_bHideFromUser = false;
+
+public:
+	IArchive(const char* fileName);
+	virtual ~IArchive();
+
+	virtual FileData* LoadFile(const char* name);
+	std::string& ArchiveFileName();
+
+	const char* BaseFileName();
+	const std::vector<const char*> AllFiles();
+
+	bool IsHidden();	
+};
+
 class FileSystem
 {
+	std::vector<IArchive*> m_vecArchiveProviders;
+
 public:
 	FileSystem();
 	~FileSystem();
+
+	FileData* LoadFile(const char* fileName);
 };
 

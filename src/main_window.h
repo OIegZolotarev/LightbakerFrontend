@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "ui_common.h"
+#include "scene_renderer.h"
 
 struct timersData
 {
@@ -57,12 +58,26 @@ class MainWindow
 	void RenderGUI();
 	void LimitToTargetFPS();
 
+	class SceneRenderer* m_pSceneRenderer;
+
+	std::vector<IEventHandler*> m_vEventHandlers;
+
 public:
 	MainWindow(const char* title, glm::vec2 defaultSize);
 	~MainWindow();
 
 	void MainLoop();
 
+	int		Width() { return m_iWindowWidth;  }
+	int		Height() { return m_iWindowHeight; }
+	
+	SDL_Window* Handle()
+	{
+		return m_pSDLWindow;
+	}
 
+	float FrameDelta();
+private:
+	bool PropagateControlsEvent(SDL_Event& e);
 };
 

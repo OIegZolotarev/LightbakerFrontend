@@ -73,11 +73,15 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 	int32_t cursorData[2] = { 0, 0 };
 	g_EmptyCursor = SDL_CreateCursor((Uint8*)cursorData, (Uint8*)cursorData, 8, 8, 4, 4);
 	SDL_SetCursor(g_EmptyCursor);
+
+	m_pSceneRenderer = new SceneRenderer(this);
+	m_vEventHandlers.push_back(m_pSceneRenderer);
 }
 
 MainWindow::~MainWindow()
 {
-
+	FreeVector(m_vEventHandlers);
+	delete m_pSceneRenderer;
 }
 
 void MainWindow::MainLoop()
@@ -95,13 +99,37 @@ void MainWindow::MainLoop()
 		UpdateTimers();
 		GL_BeginFrame();
 		
-		//m_pSceneRenderer->RenderScene();
+		m_pSceneRenderer->RenderScene();
 
 		RenderGUI();
 
 		LimitToTargetFPS();
 		SDL_GL_SwapWindow(m_pSDLWindow);
 	}
+}
+
+float MainWindow::FrameDelta()
+{
+	return m_TimersData.frame_delta / 1000;
+}
+
+bool MainWindow::PropagateControlsEvent(SDL_Event& event)
+{
+
+	bool bWasHandled = false;
+
+	for (auto& it : m_vEventHandlers)
+	{
+		int result = it->HandleEvent(bWasHandled, event);
+
+		bWasHandled = bWasHandled | result & EVENT_HANDLED;
+
+		if (result & EVENT_CONSUMED)
+			break;
+
+	}
+
+	return bWasHandled;
 }
 
 float MainWindow::RenderMainMenu()
@@ -288,7 +316,7 @@ bool MainWindow::HandleEvents(bool loop)
 			}
 			// TODO: implement
 // 			m_pCommandsRegistry->OnKeyDown();
-// 			if (PropagateControlsEvent(event)) break;
+ 			if (PropagateControlsEvent(event)) break;
 			break;
 
 		case SDL_MOUSEMOTION:
@@ -297,12 +325,20 @@ bool MainWindow::HandleEvents(bool loop)
 		case SDL_MOUSEWHEEL:
 		case SDL_KEYUP:
 			// TODO: implement
-			//PropagateControlsEvent(event);
+			PropagateControlsEvent(event);
 			break;
 
 		case (SDL_DROPFILE):
 		{
-			// TODO: implement
+			char* dropped_filedir;
+
+			// In case if dropped file
+			dropped_filedir = event.drop.file;
+			// Shows directory of dropped file
+
+			m_pSceneRenderer->LoadModel(dropped_filedir);
+
+			SDL_free(dropped_filedir);    // Free dropped_filedir memory
 		}
 		}
 	}		
