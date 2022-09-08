@@ -114,6 +114,9 @@ FileData* FileSystem::LoadFile(const char* fileName)
 
 	FILE* fp = fopen(fileName,"rb");
 
+	if (!fp)
+		return pResult;
+
 	size_t length = 0;
 	byte* data = 0;
 

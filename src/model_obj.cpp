@@ -88,6 +88,11 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 			return faceA->material_id > faceB->material_id;
 		});
 
+	FILE* fp = 0;
+	fopen_s(&fp,"lights_test.txt", "wt");
+	ExportLightDefs(fp);
+	fclose(fp);
+
 }
 
 ModelOBJ::~ModelOBJ()
@@ -544,7 +549,7 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 	fprintf(fp, "### LightBaker 3000 lights definition\n\n");
 	
 	fprintf(fp, "#lm_size %d %d\n", m_LightmapDimensions[0], m_LightmapDimensions[1]);
-	fprintf(fp, "#env_color %f %f %f\n\n", m_EnvColor[0],m_EnvColor[1],m_EnvColor[1]);
+	fprintf(fp, "#env_color %.3f %.3f %.3f\n\n", m_EnvColor[0],m_EnvColor[1],m_EnvColor[1]);
 
 	fprintf(fp, "#lights_start\n");
 
@@ -576,7 +581,7 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 		if (it.flags & LF_RECT)		lightBaseType += "_rect";
 
 
-		fprintf(fp,"%s\t\t\t%f %f %f\t\t\t%f %f %f\t\t\t%f\t\t\t%f %f %f\t\t\t%f %f\t\t\t%d\t\t\t",
+		fprintf(fp,"%s\t%.3f %.3f %.3f\t%.3f %.3f %.3f\t%.3f\t%.3f %.3f %.3f\t%.3f %.3f\t%d\t",
 				lightBaseType.c_str(),
 				it.pos[0], it.pos[1], it.pos[2],
 				it.color[0], it.color[1], it.color[2],
@@ -591,10 +596,10 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 		case LightTypes::Spot:
 			if (it.flags & LF_RECT)
 			{
-				fprintf(fp, "%f %f\n",it.size[0],it.size[1]);
+				fprintf(fp, "%.3f %.3f\n",it.size[0],it.size[1]);
 			}
 			else
-				fprintf(fp, "%f\n", it.size[0]);
+				fprintf(fp, "%.3f\n", it.size[0]);
 					
 			break;
 		case LightTypes::Direct:

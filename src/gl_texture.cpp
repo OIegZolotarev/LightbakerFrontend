@@ -72,8 +72,10 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 
 void FreeGLTexture(gltexture_t*texture)
 {
-	glDeleteTextures(1, &texture->gl_texnum);
-	delete texture;
+// Not really needed...
+// 	if (texture)
+// 		glDeleteTextures(1, &texture->gl_texnum);
+// 	delete texture;
 }
 
 void FreeGLTextures()
