@@ -15,6 +15,9 @@
     <Filter Include="Исходные файлы\GLAD">
       <UniqueIdentifier>{3d599df9-3a49-403a-ad28-2b9a13fa5f5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\ImGUIFileDialog">
+      <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -60,6 +63,15 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="model_obj.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_texture.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
+      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image_impl.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,6 +128,16 @@
     <ClInclude Include="model_obj.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="gl_texture.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h">
+      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h">
+      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

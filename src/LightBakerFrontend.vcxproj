@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp" />
     <ClCompile Include="..\include\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl.cpp" />
     <ClCompile Include="..\include\imgui\imgui.cpp" />
@@ -170,12 +171,15 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="commands_registry.cpp" />
     <ClCompile Include="file_system.cpp" />
+    <ClCompile Include="gl_texture.cpp" />
     <ClCompile Include="main_window.cpp" />
     <ClCompile Include="model_obj.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="win_main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h" />
+    <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
     <ClInclude Include="..\include\imgui\imconfig.h" />
     <ClInclude Include="..\include\imgui\imgui.h" />
     <ClInclude Include="..\include\imgui\imgui_internal.h" />
@@ -189,10 +193,13 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="file_system.h" />
     <ClInclude Include="event_handler.h" />
+    <ClInclude Include="gl_texture.h" />
+    <ClInclude Include="lights.h" />
     <ClInclude Include="main_window.h" />
     <ClInclude Include="model_obj.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="scene_renderer.h" />
+    <ClCompile Include="stb_image_impl.cpp" />
     <ClInclude Include="ui_common.h" />
   </ItemGroup>
   <ItemGroup>

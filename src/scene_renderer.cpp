@@ -7,12 +7,14 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
+	
 }
 
 SceneRenderer::~SceneRenderer()
 {
-	delete m_pCamera;
+	FreeVector(m_vecSceneLightDefs);
 
+	delete m_pCamera;
 	if (m_pSceneModel) delete m_pSceneModel;
 }
 

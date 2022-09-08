@@ -68,6 +68,8 @@ public:
 	FileSystem();
 	~FileSystem();
 
-	FileData* LoadFile(const char* fileName);
+	[[nodiscard]] FileData* LoadFile(const char* fileName);
+	std::string BaseName(std::string& fullPath);
+	std::string ParentPath(std::string& param1);
 };
 

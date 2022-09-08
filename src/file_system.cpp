@@ -129,3 +129,19 @@ FileData* FileSystem::LoadFile(const char* fileName)
 
 	return pResult;
 }
+
+std::string FileSystem::BaseName(std::string& fullPath)
+{
+	std::filesystem::path p = std::filesystem::path(fullPath);
+	auto c = std::filesystem::canonical(p);
+		
+	return { c.stem().u8string() };
+}
+
+std::string FileSystem::ParentPath(std::string& fullPath)
+{
+	std::filesystem::path p = std::filesystem::path(fullPath);
+	auto c = std::filesystem::canonical(p);
+
+	return { c.parent_path().u8string() };
+}

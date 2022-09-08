@@ -1,1 +1,1 @@
-LightBaker3000.exe sample.obj sample.png -samples 256 -rnm -rgba16
+LightBaker3000.exe emmision.obj sample.png -samples 256 -rnm -rgba16
