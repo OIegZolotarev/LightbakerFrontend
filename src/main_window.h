@@ -3,6 +3,7 @@
 #include "common.h"
 #include "ui_common.h"
 #include "scene_renderer.h"
+#include "console.h"
 
 struct timersData
 {
@@ -22,6 +23,30 @@ struct timersData
 
 class MainWindow
 {
+public:
+	MainWindow(const char* title, glm::vec2 defaultSize);
+	~MainWindow();
+
+	void MainLoop();
+
+	int		Width() { return m_iWindowWidth;  }
+	int		Height() { return m_iWindowHeight; }
+	
+	SDL_Window* Handle()
+	{
+		return m_pSDLWindow;
+	}
+
+	float FrameDelta();
+
+	DebugConsole* Console()
+	{
+		return &m_Console;
+	}
+
+	class SceneRenderer* GetSceneRenderer();
+
+private:
 
 	enum ToolbarIcons
 	{
@@ -37,7 +62,7 @@ class MainWindow
 	bool RenderToolbarIcon(GLuint iconId);
 
 	float RenderMainMenu();
-	void RenderMainToolbar(float menuHeight);
+	float RenderMainToolbar(float menuHeight);
 
 	std::string m_strTitle;
 	SDL_Window* m_pSDLWindow;
@@ -54,7 +79,7 @@ class MainWindow
 	bool HandleEvents(bool loop);
 
 	void UpdateTimers();
-	void GL_BeginFrame();	
+	void GL_BeginFrame();
 	void RenderGUI();
 	void LimitToTargetFPS();
 
@@ -62,22 +87,15 @@ class MainWindow
 
 	std::vector<IEventHandler*> m_vEventHandlers;
 
-public:
-	MainWindow(const char* title, glm::vec2 defaultSize);
-	~MainWindow();
-
-	void MainLoop();
-
-	int		Width() { return m_iWindowWidth;  }
-	int		Height() { return m_iWindowHeight; }
-	
-	SDL_Window* Handle()
-	{
-		return m_pSDLWindow;
-	}
-
-	float FrameDelta();
-private:
 	bool PropagateControlsEvent(SDL_Event& e);
+	void InitCommands();
+
+	bool m_bShowConsole = true;
+	DebugConsole m_Console;
+
+	void InitBackend();
+
+	ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags, const ImGuiWindowClass* window_class);
+
 };
 

@@ -8,6 +8,21 @@
 
 class SceneRenderer: public IEventHandler
 {	
+public:
+	SceneRenderer(class MainWindow* pTargetWindow);
+	~SceneRenderer();
+
+	void	RenderScene();
+	int		HandleEvent(bool bWasHandled, SDL_Event& e) override;
+	float	FrameDelta();
+	void	LoadModel(char* dropped_filedir);
+
+	bool	IsModelLoaded();
+	
+	std::string GetModelFileName();
+	std::string GetModelTextureName();
+
+private:
 	void Debug_DrawGround();
 
 	class Camera*		m_pCamera;
@@ -16,14 +31,10 @@ class SceneRenderer: public IEventHandler
 	ModelOBJ* m_pSceneModel = nullptr;
 
 	std::vector<lightDef_t> m_vecSceneLightDefs;
+	void DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint);
+
 
 public:
-	SceneRenderer(MainWindow * pTargetWindow);
-	~SceneRenderer();
-
-	void RenderScene();	
-	int HandleEvent(bool bWasHandled, SDL_Event& e) override;
-	float FrameDelta();
-	void LoadModel(char* dropped_filedir);
+	void ReloadModel();
 };
 

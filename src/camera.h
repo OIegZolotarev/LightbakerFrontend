@@ -143,7 +143,12 @@ public:
 
 	int			HandleEvent(bool bWasHandled, SDL_Event& e) override;
 
+	glm::vec3	GetRightVector();
+	glm::vec3	GetUpVector();
+
 private:
 	int m_MoveSpeeds[3];
 	void UpdateOrientation();
+
+	
 };

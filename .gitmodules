@@ -4,9 +4,15 @@
 [submodule "include/imgui"]
 	path = include/imgui
 	url = https://github.com/ocornut/imgui
-	branch = docking
+	branch = Docking
 	
 [submodule "include/ImGuiFileDialog"]
 	path = include/ImGuiFileDialog
 	url = https://github.com/aiekick/ImGuiFileDialog
 	branch = Lib_Only
+[submodule "include/libexecstream"]
+	path = include/libexecstream
+	url = https://github.com/Yhgenomics/libexecstream
+[submodule "include/tiny-process-library"]
+	path = include/tiny-process-library
+	url = http://gitlab.com/eidheim/tiny-process-library

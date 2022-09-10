@@ -18,6 +18,9 @@
     <Filter Include="Исходные файлы\ImGUIFileDialog">
       <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\tiny-proccess-library">
+      <UniqueIdentifier>{bba0812e-0c84-49d1-a57e-f6832ee12063}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -73,6 +76,18 @@
     </ClCompile>
     <ClCompile Include="stb_image_impl.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="common_resources.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\tiny-process-library\process_win.cpp">
+      <Filter>Исходные файлы\tiny-proccess-library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\tiny-process-library\process.cpp">
+      <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -138,6 +153,15 @@
       <Filter>Исходные файлы\ImGUIFileDialog</Filter>
     </ClInclude>
     <ClInclude Include="lights.h" />
+    <ClInclude Include="common_resources.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="console.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\tiny-process-library\process.hpp">
+      <Filter>Исходные файлы\tiny-proccess-library</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

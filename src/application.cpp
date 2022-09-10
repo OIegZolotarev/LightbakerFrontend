@@ -1,4 +1,7 @@
 #include "application.h"
+#include "../tiny-process-library/process.hpp"
+#include <thread>
+#include <corecrt_malloc.h>
 
 Application::Application()
 {
@@ -46,6 +49,45 @@ void Application::EPICFAIL(const char* format, ...)
 	exit(1);
 }
 
+void Application::ExecuteBaking()
+{
+	if (!m_pMainWindow->GetSceneRenderer()->IsModelLoaded())
+		return;
+
+
+	const char* cmdTemplate = "%s/lb3k/LightBaker3000.exe %s %s -samples %d -rnm -rgba16";
+
+	auto fileName	 = m_pMainWindow->GetSceneRenderer()->GetModelFileName();
+	auto diffuseName = m_pMainWindow->GetSceneRenderer()->GetModelTextureName();
+
+	m_pFileSystem->ChangeCurrentDirectoryToFileDirectory(fileName);
+	
+	char cmd[4096];
+	sprintf_s(cmd, cmdTemplate,
+		SDL_GetBasePath() ,
+		fileName.c_str(), 
+		diffuseName.c_str(),256);
+
+	Con_Printf("[FRONTEND] Baking started\n");
+	Con_Printf("[FRONTEND] cmd: %s\n",cmd);
+
+
+	TinyProcessLib::Process process1a(cmd, "", [](const char* bytes, size_t n)
+		{
+			char* dup = (char*)malloc(sizeof(char) * (n + 1));
+			memcpy(dup, bytes, n);
+			dup[n] = 0;
+			Con_Printf(dup);
+			free(dup);
+		});
+
+	process1a.get_exit_status();
+
+	m_pMainWindow->GetSceneRenderer()->ReloadModel();
+
+	Con_Printf("[FRONTEND] Baking finished");
+}
+
 Application* Application::Instance()
 {
 	static Application* sInstance = new Application;
@@ -54,5 +96,5 @@ Application* Application::Instance()
 
 CCommandsRegistry* Application::CommandsRegistry()
 {
-	return m_pCommandsRegistry;
+	return Instance()->m_pCommandsRegistry;
 }

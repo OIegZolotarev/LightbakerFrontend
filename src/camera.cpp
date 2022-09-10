@@ -9,7 +9,7 @@
 Camera::Camera(SceneRenderer * pSceneRenderer)
 {
 	m_Origin = { 0,0,0 };
-	m_Angles = { 90,0,0 };
+	m_Angles = { 0,0,0 };
 	
 	m_matModelView = glm::mat4(1.f);
 	m_matProjection = glm::mat4(1.f);
@@ -307,6 +307,16 @@ void Camera::UpdateOrientation()
 
 }
 
+glm::vec3 Camera::GetRightVector()
+{
+	return m_vRight;
+}
+
+glm::vec3 Camera::GetUpVector()
+{
+	return m_vUp;
+}
+
 void Camera::SetupKeystrokesVHE()
 {
 	CameraCommandKeyStroke* keystrokeMoveForward = new CameraCommandKeyStroke();
@@ -541,14 +551,16 @@ void Camera::SetupModelViewMatrix()
 
 	glm::mat4 ident;
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
-	m_matModelView *= ident;
+//#define QUAKE_STYLE
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
-	m_matModelView *= ident;
-
+#ifdef QUAKE_STYLE
+ 	ident = glm::mat4(1);
+ 	ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
+ 	m_matModelView *= ident;
+ 
+ 	ident = glm::mat4(1);
+ 	ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
+ 	m_matModelView *= ident;
 
 	ident = glm::mat4(1);
 	ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
@@ -561,6 +573,17 @@ void Camera::SetupModelViewMatrix()
 	ident = glm::mat4(1);
 	ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
 	m_matModelView *= ident;
+#else
+	ident = glm::mat4(1);
+	ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
+	m_matModelView *= ident;
+
+	ident = glm::mat4(1);
+	ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
+	m_matModelView *= ident;
+
+
+#endif
 
 	m_matModelView = glm::translate(m_matModelView, -m_Origin);
 

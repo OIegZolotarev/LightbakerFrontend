@@ -69,7 +69,9 @@ public:
 	~FileSystem();
 
 	[[nodiscard]] FileData* LoadFile(const char* fileName);
+	[[nodiscard]] FileData* LoadFile(std::string& fileName);
 	std::string BaseName(std::string& fullPath);
 	std::string ParentPath(std::string& param1);
+	void ChangeCurrentDirectoryToFileDirectory(const std::string& fileName);
 };
 

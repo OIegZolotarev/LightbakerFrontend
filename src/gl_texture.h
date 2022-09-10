@@ -4,8 +4,8 @@
 #include "file_system.h"
 
 typedef struct gltexture_s
-{
-	char file_name[128];
+{	
+	std::string file_name;
 
 	int width;
 	int height;
@@ -17,6 +17,8 @@ typedef struct gltexture_s
 
 }gltexture_t;
 
+
 gltexture_t*	LoadGLTexture(FileData* pFileData, bool force = false);
+void			GLReloadTexture(gltexture_t*);
 void			FreeGLTexture(gltexture_t*);
 void			FreeGLTextures();

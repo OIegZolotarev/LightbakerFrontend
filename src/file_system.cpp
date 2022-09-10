@@ -5,6 +5,7 @@
 #include "common.h"
 #include "file_system.h"
 #include <filesystem>
+#include <direct.h>
 
 FileData::FileData(byte* data, size_t length, const char* name)
 {
@@ -133,6 +134,11 @@ FileData* FileSystem::LoadFile(const char* fileName)
 	return pResult;
 }
 
+FileData* FileSystem::LoadFile(std::string& fileName)
+{
+	return LoadFile(fileName.c_str());
+}
+
 std::string FileSystem::BaseName(std::string& fullPath)
 {
 	std::filesystem::path p = std::filesystem::path(fullPath);
@@ -147,4 +153,16 @@ std::string FileSystem::ParentPath(std::string& fullPath)
 	auto c = std::filesystem::canonical(p);
 
 	return { c.parent_path().u8string() };
+}
+
+void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileName)
+{
+	std::filesystem::path p = std::filesystem::path(fileName);
+	auto c = std::filesystem::canonical(p);
+	std::string path = { c.parent_path().u8string() };
+#ifdef WIN32
+	_chdir(path.c_str());
+#else
+	chdir(path.c_str());
+#endif
 }

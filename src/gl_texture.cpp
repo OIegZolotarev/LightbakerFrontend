@@ -1,7 +1,8 @@
 #include "..\include\ImGuiFileDialog\stb\stb_image.h"
 #include "gl_texture.h"
+#include "application.h"
 
-
+void GLReloadTexture(gltexture_t* r, FileData* sourceFile);
 std::vector<gltexture_t*> g_vecGLTextures;
 
 gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
@@ -10,7 +11,8 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
-			if (!strcmp(it->file_name, sourceFile->Name().c_str()))
+			if (it->file_name == sourceFile->Name() 
+					&& it->gl_texnum != 0)
 				return it;
 		}
 	}
@@ -18,12 +20,29 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	gltexture_t* r = new gltexture_t;
 	memset(r, 0, sizeof(gltexture_t));
 
+	GLReloadTexture(r, sourceFile);
+	
+	g_vecGLTextures.push_back(r);
+
+	return r;
+}
+
+void GLReloadTexture(gltexture_t* t)
+{
+	FileData* pData = Application::GetFileSystem()->LoadFile(t->file_name.c_str());
+	GLReloadTexture(t, pData);
+	delete pData;
+}
+
+void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
+{
 	r->height = -1;
 	r->width = -1;
 	r->gl_texnum = 0;
+	r->file_name = sourceFile->Name();
 
 	if (!sourceFile)
-		return r;
+		return;
 
 	// Load from file
 	int image_width = 0;
@@ -35,7 +54,7 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), sourceFile->Length(), &image_width, &image_height, &comps, 4);
 
 	if (image_data == NULL)
-		return r;
+		return;
 
 	// Create a OpenGL texture identifier
 	GLuint image_texture;
@@ -52,9 +71,6 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-
-	
-	
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
 	stbi_image_free(image_data);
@@ -63,11 +79,7 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	r->width = image_width;
 	r->height = image_height;
 
-	strcpy_s(r->file_name, sourceFile->Name().c_str());
-
-	g_vecGLTextures.push_back(r);
-
-	return r;
+	return;
 }
 
 void FreeGLTexture(gltexture_t*texture)

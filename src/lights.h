@@ -1,4 +1,5 @@
 #pragma once
+#include "gl_texture.h"
 
 // Light flags from LB3k app
 
@@ -31,6 +32,9 @@ typedef struct lightDef_s
 	glm::vec2	size;
 
 	int			style = 0;
+
+	gltexture_s* editor_icon;
+
 }lightDef_t;
 
 

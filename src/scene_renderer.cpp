@@ -2,12 +2,12 @@
 #include "camera.h"
 #include "scene_renderer.h"
 #include "application.h"
+#include "common_resources.h"
 
 SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
-	
 }
 
 SceneRenderer::~SceneRenderer()
@@ -23,8 +23,20 @@ void SceneRenderer::RenderScene()
 	m_pCamera->Apply();
 
 	Debug_DrawGround();
-
+	
 	if (m_pSceneModel) m_pSceneModel->DrawDebug();
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		DrawBillboard(it.pos, glm::vec2(4, 4), it.editor_icon, it.color);
+	}
+
+
+	glDisable(GL_BLEND);
+	
 }
 
 int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event& e)
@@ -44,6 +56,71 @@ void SceneRenderer::LoadModel(char* dropped_filedir)
 
 	m_pSceneModel = new ModelOBJ(Application::GetFileSystem()->LoadFile(dropped_filedir));
 
+	m_vecSceneLightDefs.clear();
+
+	auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
+
+	for (auto& it : modelLightDefs)
+		m_vecSceneLightDefs.push_back(it);
+
+}
+
+bool SceneRenderer::IsModelLoaded()
+{
+	return m_pSceneModel != nullptr;
+}
+
+std::string SceneRenderer::GetModelFileName()
+{
+	if (!m_pSceneModel)
+		return "";
+
+	return m_pSceneModel->GetModelFileName();
+}
+
+std::string SceneRenderer::GetModelTextureName()
+{
+	if (!m_pSceneModel)
+		return "";
+
+	return m_pSceneModel->GetModelTextureName();
+}
+
+void SceneRenderer::DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint)
+{
+	auto right = m_pCamera->GetRightVector();
+	auto up = m_pCamera->GetUpVector();
+
+	glm::vec3 pt;
+
+	int pointDef[4][2] =
+	{
+		{-1,-1},
+		{1,-1},
+		{1,1},
+		{-1,1},
+	};
+
+	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+	glColor3f(tint.x, tint.y, tint.z);	
+	glBegin(GL_QUADS);
+
+	for (int i = 0; i < 4; i++)
+	{
+		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float) pointDef[i][1]);
+		glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
+		glVertex3f(pt.x, pt.y, pt.z);
+	}
+
+	glEnd();
+}
+
+void SceneRenderer::ReloadModel()
+{
+	if (!m_pSceneModel)
+		return;
+
+	m_pSceneModel->ReloadTextures();
 }
 
 void SceneRenderer::Debug_DrawGround()
@@ -51,59 +128,26 @@ void SceneRenderer::Debug_DrawGround()
 	int dimensions = 1000;
 	int step = 10;
 
+	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 
 	glColor3f(1, 0, 0);
 
 	for (int x = -dimensions; x < dimensions; x += step)
 	{
-		glVertex3f(x, -dimensions, 0);
-		glVertex3f(x, dimensions, 0);
+		glVertex3f(x,0, -dimensions);
+		glVertex3f(x,0, dimensions);
 	}
 
 	glColor3f(0, 1, 0);
 
 	for (int y = -dimensions; y < dimensions; y += step)
 	{
-		glVertex3f(-dimensions, y, 0);
-		glVertex3f(dimensions, y, 0);
+		glVertex3f(-dimensions, 0, y);
+		glVertex3f(dimensions,	0, y);
 	}
 
 	glEnd();
-
-// 	glEnable(GL_DEPTH_TEST);
-// 	glDisable(GL_TEXTURE_2D);
-// 
-// 
-// 	glDisable(GL_CULL_FACE);
-// 
-// 	glEnable(GL_BLEND);
-// 	glBlendFunc(GL_ONE, GL_ONE);
-// 
-// 	glColor3f(1, 0, 1);
-// 	//glColor3ubv(&m_GroundColor[0]);
-// 
-// 	glBegin(GL_TRIANGLE_STRIP);
-// 
-// 	float z = -1;
-// 
-// 	glTexCoord2f(0.0f, 0.0f);
-// 	glVertex3f(-100.0f, 100.0f, z);
-// 
-// 	glTexCoord2f(0.0f, 1.0f);
-// 	glVertex3f(-100.0f, -100.0f, z);
-// 
-// 	glTexCoord2f(1.0f, 0.0f);
-// 	glVertex3f(100.0f, 100.0f, z);
-// 
-// 	glTexCoord2f(1.0f, 1.0f);
-// 	glVertex3f(100.0f, -100.0f, z);
-// 
-// 	glEnd();
-// 
-// 	glDisable(GL_BLEND);
-// 	glEnable(GL_CULL_FACE);
-
 
 	glEnable(GL_TEXTURE_2D);
 }

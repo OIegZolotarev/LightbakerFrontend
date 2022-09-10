@@ -14,9 +14,9 @@ class Application
 public:
 	// Конструкторы\доступ
 	~Application();
-	static Application*		Instance();
+	static Application*				Instance();
 
-	CCommandsRegistry*		CommandsRegistry();
+	static CCommandsRegistry*		CommandsRegistry();
 	
 
 	// Функционал
@@ -27,5 +27,19 @@ public:
 	static FileSystem* GetFileSystem();
 
 	static void EPICFAIL(const char* fmt, ...);
+
+	static DebugConsole* Console()
+	{
+		return Instance()->GetMainWindow()->Console();
+	}
+
+	void ExecuteBaking();
 };
 
+inline void Con_Printf(const char* fmt, ...)
+{
+	va_list args;
+	va_start(args, fmt);
+	Application::Console()->AddLog(fmt, args);
+	va_end(args);
+}

@@ -1,6 +1,10 @@
+
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "camera.h"
 #include "model_obj.h"
 #include "application.h"
+#include "common_resources.h"
 
 // for string delimiter
 std::vector<std::string> split(std::string s, std::string delimiter)
@@ -63,20 +67,37 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 		auto diffusePath = modelDir + "/" + baseName + ".png";
 
+		m_strModelName = pFileData->Name();
+		m_strDiffuseName = diffusePath;
+
 		FileData* data = 0;
 
+		defaultMaterial.diffuse_texture_path = diffusePath;
 		data = Application::GetFileSystem()->LoadFile(diffusePath.c_str());
 
 		if (data)
+		{
 			defaultMaterial.diffuse_texture = LoadGLTexture(data);
+			delete data;
+		}
 
-		auto lmPath = modelDir + "/" + baseName + "_lightmap_0.png";
-		data = Application::GetFileSystem()->LoadFile(lmPath.c_str());
+		for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+		{
+			auto lmPath = modelDir + "/" + baseName + "_lightmap_" +  std::to_string(i) + ".png";
+			data = Application::GetFileSystem()->LoadFile(lmPath.c_str());
 
-		if (data)
-			defaultMaterial.lightmap_texture = LoadGLTexture(data);
+			defaultMaterial.lightmap_texture_path[i] = lmPath;
+
+			if (data)
+			{
+				defaultMaterial.lightmap_texture[i] = LoadGLTexture(data);
+				delete data;
+			}
+		}
 
 		m_vMaterials.push_back(defaultMaterial);
+
+		
 
 	}
 
@@ -88,10 +109,10 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 			return faceA->material_id > faceB->material_id;
 		});
 
-	FILE* fp = 0;
-	fopen_s(&fp,"lights_test.txt", "wt");
-	ExportLightDefs(fp);
-	fclose(fp);
+// 	FILE* fp = 0;
+// 	fopen_s(&fp,"lights_test.txt", "wt");
+// 	ExportLightDefs(fp);
+// 	fclose(fp);
 
 }
 
@@ -100,7 +121,9 @@ ModelOBJ::~ModelOBJ()
 	for (auto& it : m_vMaterials)
 	{
 		FreeGLTexture(it.diffuse_texture);
-		FreeGLTexture(it.lightmap_texture);
+
+		for(int i = 0 ; i < MAX_LIGHT_STYLES; i++)
+			FreeGLTexture(it.lightmap_texture[i]);
 	}
 
 	FreeVector(m_vecFaces);
@@ -115,14 +138,19 @@ void ModelOBJ::DrawDebug()
 {
 	if (m_vecFaces.size() == 0)
 		return;
-	
-	glRotatef(90, 1, 0, 0);
-		
+			
 	size_t currentMaterial = m_vecFaces[0].material_id;
 	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
 
-	if (pMaterial->lightmap_texture)
-		glBindTexture(GL_TEXTURE_2D,pMaterial->lightmap_texture->gl_texnum);
+	bool bNoTextures = false;
+
+	if (pMaterial->lightmap_texture[0])
+	{
+		glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
+		bNoTextures = false;
+	}
+	else
+		bNoTextures = true;
 
 	glColor3f(1, 1, 1);
 
@@ -135,32 +163,39 @@ void ModelOBJ::DrawDebug()
 			currentMaterial = face.material_id;
 			mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
 
-			if (pMaterial->lightmap_texture)
-				glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture->gl_texnum);
+			if (pMaterial->lightmap_texture[0])
+			{
+				glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
+				bNoTextures = false;
+			}
+			else
+				bNoTextures = true;
 		}
 		
 		glTexCoord2fv(&m_vecUVData[(face.uv- 1) * m_UVSize]);
-		//glColor3fv(&m_vecVertsData[(face.norm - 1) * 3]);		
+
+		if (bNoTextures)
+		{
+			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+			glColor3f(
+				(norm[0] + 1) / 2,
+				(norm[1] + 1) / 2,
+				(norm[2] + 1) / 2);
+		}
 		glVertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
 	}
 
 	glEnd();
 
-	glDisable(GL_TEXTURE_2D);
-	glPointSize(10);
 
-	glBegin(GL_POINTS);
-
-	for (auto it : m_vParsedLightDefs)
-	{
-		glColor3fv(&it.color[0]);
-		glVertex3fv(&it.pos[0]);
-	}
-
-	glEnd();
 	glEnable(GL_TEXTURE_2D);
 
-	glRotatef(-90, 1, 0, 0);
+	
+}
+
+std::vector<lightDef_t>& ModelOBJ::ParsedLightDefs()
+{
+	return m_vParsedLightDefs;
 }
 
 void ModelOBJ::ParseData(FileData* pFileData)
@@ -268,7 +303,7 @@ void ModelOBJ::ParseNormal(std::string& s)
 
 	if (normSize != 3)
 	{
-		// TODO: error message
+		Con_Printf("[ERROR] Normal is not 3 component!");
 	}
 }
 
@@ -306,7 +341,7 @@ void ModelOBJ::ParseUV(std::string& s)
 	{
 		if (newUVSize != m_UVSize)
 		{
-			// Inconsistent size...
+			Con_Printf("[WARN] Inconsistent UV size!");
 		}
 	}
 	else
@@ -347,7 +382,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 	{
 		if (newVertSize != m_VertSize)
 		{
-			// Inconsistent size...
+			Con_Printf("[WARN] Inconsistent vertex size!");
 		}
 	}
 	else
@@ -373,7 +408,7 @@ void ModelOBJ::ParseFace(std::string& s)
 
 		if (elements.size() == 0)
 		{
-			Application::EPICFAIL("Error while parsing obj");
+			Con_Printf("[ERROR] Malformed \"f\" command");
 		}
 
 		face.vert = stoi(elements[0]);
@@ -442,7 +477,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	{
 		if (tokens.size() != 3)
 		{
-			// Con_Printf("Malformed #lm_size command");
+			Con_Printf("[ERROR] Malformed #lm_size command");
 			return;
 		}
 
@@ -456,7 +491,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	{
 		if (tokens.size() != 4)
 		{
-			// Con_Printf("Malformed #env_color command");
+			Con_Printf("[ERROR] Malformed #env_color command");
 			return;
 		}
 
@@ -492,8 +527,27 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	auto typeInfo = split(tokens[0], "_");
 
 	if		(typeInfo[0] == "#omni")		newLight.type = LightTypes::Omni;
-	else if (typeInfo[0] == "#direct")	newLight.type = LightTypes::Direct;
+	else if (typeInfo[0] == "#direct")		newLight.type = LightTypes::Direct;
 	else if (typeInfo[0] == "#spot")		newLight.type = LightTypes::Spot;
+
+	newLight.editor_icon = nullptr;
+
+	switch (newLight.type)
+	{
+	case LightTypes::Omni:
+		newLight.editor_icon = GetCommonIcon(CommonIcons::OmniLight);
+		break;
+	case LightTypes::Spot:
+		newLight.editor_icon = GetCommonIcon(CommonIcons::SpotLight);
+		break;
+	case LightTypes::Direct:
+		newLight.editor_icon = GetCommonIcon(CommonIcons::DirectLight);
+		break;
+	default:
+		break;
+
+	}
+
 
 	// Parse flags
 	for (size_t i = 1; i < typeInfo.size(); i++)
@@ -612,4 +666,167 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 	}
 
 	fprintf(fp, "#lights_end\n");
+}
+
+void ModelOBJ::ExportVerticles(FILE* fp)
+{
+	fprintf(fp, "\n# %d verticles start", m_vecVertsData.size() / m_VertSize);
+
+	size_t offset = 0;
+
+	while (offset < m_vecVertsData.size())
+	{
+		fprintf(fp,"v ");
+
+		for (size_t i = 0; i < m_VertSize; i++)
+		{
+			fprintf(fp, "%.4f ", m_vecVertsData[offset + i]);
+		}
+
+		fprintf(fp, "\n");
+
+		offset += m_VertSize;
+	}
+
+	fprintf(fp, "\n# %d verticles end", m_vecVertsData.size() / m_VertSize);
+}
+
+void ModelOBJ::ExportNormals(FILE* fp)
+{
+	fprintf(fp, "\n# %d normals start", m_vecNormalsData.size() / 3);
+
+	size_t offset = 0;
+
+	while (offset < m_vecNormalsData.size())
+	{
+		float* f = &m_vecNormalsData[offset];
+
+		fprintf(fp, "vn %.4f %.4f %.4f\n",f[0],f[1],f[2]);
+		offset += 3;
+	}
+
+	fprintf(fp, "\n# %d normals end", m_vecNormalsData.size() / 3);
+}
+
+void ModelOBJ::ExportUV(FILE* fp)
+{
+	fprintf(fp, "\n# %d UV start", m_vecUVData.size() / m_UVSize);
+
+	size_t offset = 0;
+
+	while (offset < m_vecUVData.size())
+	{
+		float* f = &m_vecUVData[offset];
+
+		fprintf(fp, "vt ");
+
+		for (size_t i = 0; i < m_UVSize; i++)
+		{
+			fprintf(fp, "%.4f ", m_vecUVData[offset + i]);
+		}
+
+		fprintf(fp, "\n");
+
+
+		offset += m_UVSize;
+	}
+
+	fprintf(fp, "\n# %d UV end", m_vecUVData.size() / m_UVSize);
+}
+
+void ModelOBJ::ExportFaces(FILE* fp)
+{
+	fprintf(fp, "\n# %d faces start", m_vecFaces.size() / 3);
+
+	for (size_t i = 0; i < m_vecFaces.size(); i += 3)
+	{
+		fprintf(fp, "f ");
+
+		for (int j = 0; j < 3; j++)
+		{
+			auto & f = m_vecFaces[i + j];
+			
+			if (f.vert)
+				fprintf(fp,"%d",f.vert);
+
+			if (f.uv)
+				fprintf(fp, "/%d", f.uv);
+
+			if (f.norm)
+			{
+				if (!f.uv)
+					fprintf(fp, "//%d", f.norm);
+				else
+					fprintf(fp, "/%d", f.uv);
+			}
+		}
+
+		fprintf(fp, " \n");
+	}
+
+	fprintf(fp, "\n# %d faces end", m_vecFaces.size() / 3);
+}
+
+void ModelOBJ::ReloadTextures()
+{
+	for (auto& it : m_vMaterials)
+	{
+		if (it.diffuse_texture)
+			GLReloadTexture(it.diffuse_texture);
+		else
+		{
+			FileData* pData = Application::GetFileSystem()->LoadFile(it.diffuse_texture_path);
+
+			if (pData)
+			{
+				it.diffuse_texture = LoadGLTexture(pData);
+				delete pData;
+			}
+			
+		}
+
+		for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+		{
+			if (it.lightmap_texture[i])
+				GLReloadTexture(it.lightmap_texture[i]);
+			else
+			{
+				FileData* pData = Application::GetFileSystem()->LoadFile(it.lightmap_texture_path[i]);
+
+				if (pData)
+				{
+					it.lightmap_texture[i] = LoadGLTexture(pData);
+					delete pData;
+				}
+			}
+		}
+			
+	}
+}
+
+void ModelOBJ::Export(const char* fileName)
+{
+	FILE* fp = nullptr;
+	fp = fopen(fileName, "wt");
+
+	if (!fp)
+		Application::EPICFAIL("Error while opening file %s for exporting!", fileName);
+
+	ExportLightDefs(fp);
+	ExportVerticles(fp);
+	ExportNormals(fp);
+	ExportUV(fp);
+	ExportFaces(fp);
+
+	fclose(fp);
+}
+
+std::string ModelOBJ::GetModelFileName()
+{
+	return m_strModelName;
+}
+
+std::string ModelOBJ::GetModelTextureName()
+{
+	return m_strDiffuseName;
 }
