@@ -59,8 +59,8 @@ IArchive::IArchive(const char* fileName)
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
 
-	m_FileName = { c.u8string() };
-	m_BaseName = { c.filename().u8string() };
+	m_FileName = c.string();
+	m_BaseName = c.filename().string();
 }
 
 IArchive::~IArchive()
@@ -144,7 +144,7 @@ std::string FileSystem::BaseName(std::string& fullPath)
 	std::filesystem::path p = std::filesystem::path(fullPath);
 	auto c = std::filesystem::canonical(p);
 		
-	return { c.stem().u8string() };
+	return c.stem().string();
 }
 
 std::string FileSystem::ParentPath(std::string& fullPath)
@@ -152,14 +152,14 @@ std::string FileSystem::ParentPath(std::string& fullPath)
 	std::filesystem::path p = std::filesystem::path(fullPath);
 	auto c = std::filesystem::canonical(p);
 
-	return { c.parent_path().u8string() };
+	return c.parent_path().string();
 }
 
 void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileName)
 {
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
-	std::string path = { c.parent_path().u8string() };
+	std::string path = c.parent_path().string();
 #ifdef WIN32
 	_chdir(path.c_str());
 #else

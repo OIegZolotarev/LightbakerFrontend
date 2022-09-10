@@ -89,6 +89,9 @@
     <ClCompile Include="..\include\tiny-process-library\process.cpp">
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClCompile>
+    <ClCompile Include="lb3k_wrapper.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -161,6 +164,9 @@
     </ClInclude>
     <ClInclude Include="..\include\tiny-process-library\process.hpp">
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
+    </ClInclude>
+    <ClInclude Include="lb3k_wrapper.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
