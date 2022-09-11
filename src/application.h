@@ -11,6 +11,9 @@ class Application
 
 	Application();
 
+	bool m_bWaitingForBakingToFinish;
+	bool m_bBakingFinished = true;
+
 public:
 	// Конструкторы\доступ
 	~Application();
@@ -34,6 +37,9 @@ public:
 	}
 
 	void ExecuteBaking();
+	void CheckIfBakngFinished();
+	void NotifyBakingFinished(int code);
+
 };
 
 inline void Con_Printf(const char* fmt, ...)

@@ -3,6 +3,7 @@
 #include "application.h"
 #include "common_resources.h"
 #include "imgui_internal.h"
+#include "properties_editor.h"
 
 const char* strDockspace = "DockSpace";
 ImGuiID gIDMainDockspace = 0;
@@ -151,6 +152,7 @@ void MainWindow::MainLoop()
 
 	while (!m_bTerminated)
 	{
+		Application::Instance()->CheckIfBakngFinished();
 		m_bTerminated = !HandleEvents(!m_bTerminated);
 		
 		UpdateTimers();
@@ -349,7 +351,7 @@ void MainWindow::RenderGUI()
 		m_Console.Draw("Console output", &m_bShowConsole);
 	}
 
-	
+	RenderPropertiesEditor();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

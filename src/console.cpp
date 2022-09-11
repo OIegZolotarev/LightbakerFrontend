@@ -15,6 +15,8 @@ void DebugConsole::Clear()
 
 void DebugConsole::AddLog(const char* fmt, ...)
 {
+	SDL_AtomicLock(&lock);
+
 	int old_size = Buf.size();
 	va_list args;
 	va_start(args, fmt);
@@ -22,24 +24,36 @@ void DebugConsole::AddLog(const char* fmt, ...)
 	va_end(args);
 	for (int new_size = Buf.size(); old_size < new_size; old_size++)
 		if (Buf[old_size] == '\n')
+		{
 			LineOffsets.push_back(old_size + 1);
+		}
+
+	SDL_AtomicUnlock(&lock);
 }
 
 void DebugConsole::AddLog(const char* fmt, va_list& args)
 {
+	SDL_AtomicLock(&lock);
+
 	int old_size = Buf.size();
 	Buf.appendfv(fmt, args);
 	for (int new_size = Buf.size(); old_size < new_size; old_size++)
 		if (Buf[old_size] == '\n')
+		{
+			
 			LineOffsets.push_back(old_size + 1);
+		}
+
+	SDL_AtomicUnlock(&lock);
 }
 
 void DebugConsole::Draw(const char* title, bool* p_open /*= NULL*/)
 {
-
+	SDL_AtomicLock(&lock);
 
 	if (!ImGui::Begin(title, p_open, 0))
 	{
+		SDL_AtomicUnlock(&lock);
 		ImGui::End();
 		return;
 	}
@@ -117,5 +131,7 @@ void DebugConsole::Draw(const char* title, bool* p_open /*= NULL*/)
 		ImGui::SetScrollHereY(1.0f);
 	ImGui::EndChild();
 	ImGui::End();
+
+	SDL_AtomicUnlock(&lock);
 }
 

@@ -11,6 +11,8 @@
 //  my_log.Draw("title");
 struct DebugConsole
 {
+	SDL_SpinLock lock = 0;
+
 	ImGuiTextBuffer     Buf;
 	ImGuiTextFilter     Filter;
 	ImVector<int>       LineOffsets; // Index to lines offset. We maintain this with AddLog() calls.

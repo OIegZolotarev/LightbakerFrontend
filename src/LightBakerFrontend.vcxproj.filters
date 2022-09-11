@@ -92,6 +92,12 @@
     <ClCompile Include="lb3k_wrapper.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="lights.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="properties_editor.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -121,7 +127,6 @@
     <ClInclude Include="..\lib\glad\glad.h">
       <Filter>Исходные файлы\GLAD</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h" />
     <ClInclude Include="application.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -155,7 +160,6 @@
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h">
       <Filter>Исходные файлы\ImGUIFileDialog</Filter>
     </ClInclude>
-    <ClInclude Include="lights.h" />
     <ClInclude Include="common_resources.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -166,6 +170,18 @@
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClInclude>
     <ClInclude Include="lb3k_wrapper.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="object_props.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="properties_editor.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

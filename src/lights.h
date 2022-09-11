@@ -1,5 +1,6 @@
 #pragma once
 #include "gl_texture.h"
+#include "object_props.h"
 
 // Light flags from LB3k app
 
@@ -36,5 +37,28 @@ typedef struct lightDef_s
 	gltexture_s* editor_icon;
 
 }lightDef_t;
+
+enum LightProperties
+{
+	Type = 0,
+	Flags,
+	Pos,
+	Color,
+	Intensity,
+	Angles,
+	ConeA,
+	ConeB,
+	Size,
+	Style
+};
+
+class LightPropertiesBinding : IObjectPropertiesBinding
+{
+	// TODO: weak ref?
+	lightDef_t* m_pLightDef = nullptr;
+public:
+	void FillProperties(std::vector<propsData_t>& collection) override;
+	void UpdateObjectProperties(std::vector<propsData_t>& collection) override;
+};
 
 

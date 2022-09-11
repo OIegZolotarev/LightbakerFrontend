@@ -2,6 +2,8 @@
 #include "../tiny-process-library/process.hpp"
 #include <thread>
 #include <corecrt_malloc.h>
+#include <SDL_thread.h>
+#include <functional>
 
 Application::Application()
 {
@@ -49,6 +51,33 @@ void Application::EPICFAIL(const char* format, ...)
 	exit(1);
 }
 
+int BakeThread(void*args)
+{
+	TinyProcessLib::Process process1a((char*)args, "", [](const char* bytes, size_t n)
+		{
+			char* dup = (char*)malloc(sizeof(char) * (n + 1));
+			memcpy(dup, bytes, n);
+			dup[n] = 0;
+
+			// Make progress output a bit nicer
+			for (size_t i = 0; i <(n - 1); i++)
+			{
+				if (dup[i] == '\r' && dup[i + 1] != '\n')
+					dup[i] = '\n';
+			}
+ 						
+			Con_Printf(dup);
+			// Ќаверное довольно плохое решение =/ - 30 миллисекунд будет не всегда хватать (на более мощном процессоре\GPU чем у мен€);
+			SDL_Delay(30);
+			free(dup);
+		});
+
+	int code = process1a.get_exit_status();
+	Application::Instance()->NotifyBakingFinished(code);
+
+	return code;
+}
+
 void Application::ExecuteBaking()
 {
 	if (!m_pMainWindow->GetSceneRenderer()->IsModelLoaded())
@@ -60,9 +89,12 @@ void Application::ExecuteBaking()
 	auto fileName	 = m_pMainWindow->GetSceneRenderer()->GetModelFileName();
 	auto diffuseName = m_pMainWindow->GetSceneRenderer()->GetModelTextureName();
 
-	m_pFileSystem->ChangeCurrentDirectoryToFileDirectory(fileName);
+	fileName = "sample.obj";
+	diffuseName = "sample.png";
+
+	//m_pFileSystem->ChangeCurrentDirectoryToFileDirectory(fileName);
 	
-	char cmd[4096];
+	static char cmd[4096];
 	sprintf_s(cmd, cmdTemplate,
 		SDL_GetBasePath() ,
 		fileName.c_str(), 
@@ -71,21 +103,30 @@ void Application::ExecuteBaking()
 	Con_Printf("[FRONTEND] Baking started\n");
 	Con_Printf("[FRONTEND] cmd: %s\n",cmd);
 
+	m_bBakingFinished = false;
+	m_bWaitingForBakingToFinish = true;
+	SDL_Thread* threadID = SDL_CreateThread(BakeThread, "LightBaker3k thread", (void*)cmd);
+	
+	//Con_Printf("[FRONTEND] Baking finished");
+}
 
-	TinyProcessLib::Process process1a(cmd, "", [](const char* bytes, size_t n)
-		{
-			char* dup = (char*)malloc(sizeof(char) * (n + 1));
-			memcpy(dup, bytes, n);
-			dup[n] = 0;
-			Con_Printf(dup);
-			free(dup);
-		});
+void Application::CheckIfBakngFinished()
+{
+	if (!m_bWaitingForBakingToFinish && m_bBakingFinished)
+		return;
 
-	process1a.get_exit_status();
+	if (!m_bBakingFinished)
+		return;
+
+	m_bWaitingForBakingToFinish = false;
+	Con_Printf("[FRONTEND] Baking finished");
 
 	m_pMainWindow->GetSceneRenderer()->ReloadModel();
+}
 
-	Con_Printf("[FRONTEND] Baking finished");
+void Application::NotifyBakingFinished(int code)
+{
+	m_bBakingFinished = true;
 }
 
 Application* Application::Instance()
