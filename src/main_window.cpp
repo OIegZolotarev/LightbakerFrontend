@@ -351,7 +351,7 @@ void MainWindow::RenderGUI()
 		m_Console.Draw("Console output", &m_bShowConsole);
 	}
 
-	RenderPropertiesEditor();
+	ObjectPropertiesEditor::Instance()->RenderEditor();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

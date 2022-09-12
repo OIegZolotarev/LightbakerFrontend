@@ -52,13 +52,14 @@ enum LightProperties
 	Style
 };
 
+typedef std::shared_ptr<lightDef_t> lightDefPtr_t;
+typedef std::weak_ptr<lightDef_t>	lightDefWPtr_t;
+
 class LightPropertiesBinding : IObjectPropertiesBinding
 {
-	// TODO: weak ref?
-	lightDef_t* m_pLightDef = nullptr;
+	lightDefWPtr_t m_pwLightDef;
 public:
 	void FillProperties(std::vector<propsData_t>& collection) override;
 	void UpdateObjectProperties(std::vector<propsData_t>& collection) override;
 };
-
 

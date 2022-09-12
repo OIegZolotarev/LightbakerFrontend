@@ -4,6 +4,7 @@
 #include <corecrt_malloc.h>
 #include <SDL_thread.h>
 #include <functional>
+#include "properties_editor.h"
 
 Application::Application()
 {
@@ -15,6 +16,8 @@ Application::~Application()
 {
 	if (m_pMainWindow) delete m_pMainWindow;
 	delete m_pFileSystem;
+
+	delete ObjectPropertiesEditor::Instance();
 }
 
 void Application::Run()

@@ -31,7 +31,7 @@ void SceneRenderer::RenderScene()
 
 	for (auto& it : m_vecSceneLightDefs)
 	{
-		DrawBillboard(it.pos, glm::vec2(4, 4), it.editor_icon, it.color);
+		DrawBillboard(it->pos, glm::vec2(4, 4), it->editor_icon, it->color);
 	}
 
 
@@ -61,7 +61,7 @@ void SceneRenderer::LoadModel(char* dropped_filedir)
 	auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
 
 	for (auto& it : modelLightDefs)
-		m_vecSceneLightDefs.push_back(it);
+		m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
 
 }
 

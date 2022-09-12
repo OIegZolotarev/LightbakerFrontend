@@ -24,7 +24,7 @@ typedef struct propsData_s
 	PropertiesTypes type;
 	std::string display_name;
 
-	std::vector<enumValuePair_t> m_EnumValues;
+	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
 	union data
 	{
@@ -47,6 +47,11 @@ typedef struct propsData_s
 		display_name = _displayName;
 
 		memset(&value, 0, sizeof(value));
+	}
+
+	propsData_s()
+	{
+		memset(this, 0, sizeof(*this));
 	}
 
 }propsData_t;

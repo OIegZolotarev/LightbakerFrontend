@@ -22,6 +22,7 @@ public:
 	std::string GetModelFileName();
 	std::string GetModelTextureName();
 
+	void ReloadModel();
 private:
 	void Debug_DrawGround();
 
@@ -30,11 +31,8 @@ private:
 
 	ModelOBJ* m_pSceneModel = nullptr;
 
-	std::vector<lightDef_t> m_vecSceneLightDefs;
+	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
 	void DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint);
 
-
-public:
-	void ReloadModel();
 };
 
