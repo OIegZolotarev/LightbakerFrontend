@@ -3,6 +3,7 @@
 #include "scene_renderer.h"
 #include "application.h"
 #include "common_resources.h"
+#include "selection_3d.h"
 
 SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
@@ -20,21 +21,25 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::RenderScene()
 {
+	auto selectionManager = SelectionManager::Instance();
 	m_pCamera->Apply();
 
+	selectionManager->NewFrame(this);
 	Debug_DrawGround();
 	
 	if (m_pSceneModel) m_pSceneModel->DrawDebug();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	glDepthMask(GL_FALSE);
 
 	for (auto& it : m_vecSceneLightDefs)
 	{
-		DrawBillboard(it->pos, glm::vec2(4, 4), it->editor_icon, it->color);
+		DrawBillboard(it->pos, glm::vec2(4, 4), it->editor_icon, it->color);		
+		selectionManager->PushObject(it);
 	}
 
-
+	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
 	
 }
@@ -113,6 +118,46 @@ void SceneRenderer::DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* te
 	}
 
 	glEnd();
+}
+
+void SceneRenderer::DrawBillboardSelection(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, int index)
+{
+	auto right = m_pCamera->GetRightVector();
+	auto up = m_pCamera->GetUpVector();
+
+	glm::vec3 pt;
+
+	int pointDef[4][2] =
+	{
+		{-1,-1},
+		{1,-1},
+		{1,1},
+		{-1,1},
+	};
+
+	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+	glColor4ubv((GLubyte*)&index);
+	glBegin(GL_QUADS);
+
+	for (int i = 0; i < 4; i++)
+	{
+		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
+		glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
+		glVertex3f(pt.x, pt.y, pt.z);
+	}
+
+	glEnd();
+}
+
+lightDefWPtr_t SceneRenderer::GetLightWeakRef(lightDef_s* param1)
+{
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		if (it.get() == param1)
+			return lightDefWPtr_t(it);
+	}
+
+	return lightDefWPtr_t();
 }
 
 void SceneRenderer::ReloadModel()

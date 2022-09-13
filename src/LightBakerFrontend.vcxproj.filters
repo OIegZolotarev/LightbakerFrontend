@@ -98,6 +98,9 @@
     <ClCompile Include="properties_editor.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="selection_3d.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -182,6 +185,9 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="properties_editor.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="selection_3d.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

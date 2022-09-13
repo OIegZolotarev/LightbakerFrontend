@@ -5,7 +5,6 @@
 #include "lights.h"
 #include "model_obj.h"
 
-
 class SceneRenderer: public IEventHandler
 {	
 public:
@@ -23,6 +22,11 @@ public:
 	std::string GetModelTextureName();
 
 	void ReloadModel();
+
+	void DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint);
+	void DrawBillboardSelection(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, int index);
+
+	lightDefWPtr_t GetLightWeakRef(lightDef_s* param1);
 private:
 	void Debug_DrawGround();
 
@@ -32,7 +36,7 @@ private:
 	ModelOBJ* m_pSceneModel = nullptr;
 
 	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
-	void DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint);
+	
 
 };
 

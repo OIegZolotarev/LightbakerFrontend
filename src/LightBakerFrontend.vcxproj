@@ -186,6 +186,7 @@
     <ClCompile Include="model_obj.cpp" />
     <ClCompile Include="properties_editor.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
+    <ClCompile Include="selection_3d.cpp" />
     <ClCompile Include="win_main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -217,6 +218,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="scene_renderer.h" />
     <ClCompile Include="stb_image_impl.cpp" />
+    <ClInclude Include="selection_3d.h" />
     <ClInclude Include="ui_common.h" />
   </ItemGroup>
   <ItemGroup>

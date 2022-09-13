@@ -136,6 +136,19 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 	return gIDMainDockspace;
 }
 
+int* MainWindow::GetGLViewport()
+{
+	// TODO: make it flexible way
+	static int sViewport[4];
+
+	sViewport[0] = 0;
+	sViewport[1] = 0;
+	sViewport[2] = m_iWindowWidth;
+	sViewport[3] = m_iWindowHeight;
+
+	return sViewport;
+}
+
 MainWindow::~MainWindow()
 {
 	FreeVector(m_vEventHandlers);
@@ -414,16 +427,23 @@ bool MainWindow::HandleEvents(bool loop)
 				break;
 			}
 			// TODO: implement
-// 			m_pCommandsRegistry->OnKeyDown();
- 			if (PropagateControlsEvent(event)) break;
+			if (PropagateControlsEvent(event)) break;
 			break;
 
 		case SDL_MOUSEMOTION:
 		case SDL_MOUSEBUTTONDOWN:
+
+			if (event.button.button & SDL_BUTTON_LEFT)
+				if (SelectionManager::Instance()->SelectHoveredObject())
+				break;
+
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEWHEEL:
 		case SDL_KEYUP:
 			// TODO: implement
+
+			
+
 			PropagateControlsEvent(event);
 			break;
 

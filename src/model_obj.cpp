@@ -531,22 +531,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	else if (typeInfo[0] == "#spot")		newLight.type = LightTypes::Spot;
 
 	newLight.editor_icon = nullptr;
-
-	switch (newLight.type)
-	{
-	case LightTypes::Omni:
-		newLight.editor_icon = GetCommonIcon(CommonIcons::OmniLight);
-		break;
-	case LightTypes::Spot:
-		newLight.editor_icon = GetCommonIcon(CommonIcons::SpotLight);
-		break;
-	case LightTypes::Direct:
-		newLight.editor_icon = GetCommonIcon(CommonIcons::DirectLight);
-		break;
-	default:
-		break;
-
-	}
+	newLight.UpdateEditorIcon();
 
 
 	// Parse flags

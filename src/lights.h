@@ -1,6 +1,7 @@
 #pragma once
 #include "gl_texture.h"
 #include "object_props.h"
+#include "selection_3d.h"
 
 // Light flags from LB3k app
 
@@ -18,8 +19,12 @@ enum class LightTypes
 	Direct
 };
 
-typedef struct lightDef_s
+// TODO: нужно ли оставить привязки свойств или же сделать этот объект провайдером свойств?
+typedef class lightDef_s : public ISelectableObject
 {
+public:
+	void UpdateEditorIcon();
+
 	LightTypes	type = LightTypes::Omni;
 	int			flags = 0;
 
@@ -35,6 +40,13 @@ typedef struct lightDef_s
 	int			style = 0;
 
 	gltexture_s* editor_icon;
+
+
+	void OnHovered() override;
+	void OnMouseMove(glm::vec2 delta) override;
+	void OnUnhovered() override;
+	void RenderForSelection(int objectId, class SceneRenderer*) override;
+	void OnSelect() override;
 
 }lightDef_t;
 
@@ -55,10 +67,12 @@ enum LightProperties
 typedef std::shared_ptr<lightDef_t> lightDefPtr_t;
 typedef std::weak_ptr<lightDef_t>	lightDefWPtr_t;
 
-class LightPropertiesBinding : IObjectPropertiesBinding
+class LightPropertiesBinding : public IObjectPropertiesBinding
 {
 	lightDefWPtr_t m_pwLightDef;
 public:
+	LightPropertiesBinding(lightDefWPtr_t ref);
+
 	void FillProperties(std::vector<propsData_t>& collection) override;
 	void UpdateObjectProperties(std::vector<propsData_t>& collection) override;
 };

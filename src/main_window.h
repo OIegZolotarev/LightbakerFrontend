@@ -46,6 +46,8 @@ public:
 
 	class SceneRenderer* GetSceneRenderer();
 
+	int* GetGLViewport();
+
 private:
 
 	enum ToolbarIcons

@@ -33,11 +33,15 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding* pBindings)
 {
 	if (m_pPropertiesBinding)
 		delete m_pPropertiesBinding;
+
+	m_vPropsData.clear();
+	m_pPropertiesBinding = pBindings;
+	m_pPropertiesBinding->FillProperties(m_vPropsData);
 }
 
 void ObjectPropertiesEditor::UpdateProperty(propsData_t* it)
 {
-	
+	m_pPropertiesBinding->UpdateObjectProperties(m_vPropsData);
 }
 
 void ObjectPropertiesEditor::RenderFlagsEditor()
@@ -130,7 +134,7 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 					{
 						it.value.asInt = i;
 						it.m_TempLabel = (char*)enumValue.first.c_str();
-						UpdateProperty(it);
+						UpdateProperty(&it);
 					}
 
 					i++;
@@ -182,7 +186,7 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 		break;
 	case PropertiesTypes::ColorRGBA:
 		if (ImGui::ColorEdit4("##value", &it.value.asColorRGB.x))
-			UpdateProperty(it);
+			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::Float:
 		if (ImGui::DragFloat("##value", &it.value.asFloat, 0.01f))

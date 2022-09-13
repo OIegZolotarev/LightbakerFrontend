@@ -54,6 +54,77 @@ typedef struct propsData_s
 		memset(this, 0, sizeof(*this));
 	}
 
+	int FindEnumValueIndex(int enumValue)
+	{
+		int i = 0;
+
+		for (auto& it : m_EnumOrFlagsValues)
+		{
+			if (it.second == enumValue)
+				return i;
+
+			i++;
+		}
+
+		return -1;
+	}
+
+	void SetEnumIndexFromValue(int value)
+	{
+		this->value.asEnum = FindEnumValueIndex(value);
+	}
+
+	int GetEnumValue()
+	{
+		if (!m_EnumOrFlagsValues.size())
+			return 0;
+#pragma warning(disable:4018)
+		if (value.asEnum > (m_EnumOrFlagsValues.size() - 1))
+			return 0;
+
+		return m_EnumOrFlagsValues[value.asEnum].second;
+	}
+
+	int GetFlags()
+	{
+		return value.asFlags;
+	}
+
+	glm::vec3 GetPosition()
+	{
+		return value.asPosition;
+	}
+
+	glm::vec3 GetColorRGB()
+	{
+		return value.asColorRGB;
+	}
+
+	glm::vec4 GetColorRGBA()
+	{
+		return value.asColorRGBA;
+	}
+
+	float GetFloat()
+	{
+		return value.asFloat;
+	}
+
+	glm::vec3 GetAngles()
+	{
+		return value.asAngles;
+	}
+
+	int GetInt()
+	{
+		return value.asInt;
+	}
+
+	float GetSizeX()
+	{
+		return value.asFloat;
+	}
+
 }propsData_t;
 
 
