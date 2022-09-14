@@ -10,6 +10,7 @@ typedef struct mobjface_s
 	unsigned short norm;
 
 	size_t material_id;
+	size_t group_id;
 }mobjface_t;
 
 #define MAX_LIGHT_STYLES 4
@@ -53,6 +54,8 @@ private:
 	std::vector<mobjface_t>		m_vecFaces;
 	std::vector<mobjmaterial_t> m_vMaterials;
 	std::vector<lightDef_t>		m_vParsedLightDefs;
+	
+	std::vector<std::string> m_vecGroups;
 
 	void ParseData(FileData* pFileData);
 	void ParseCommand(std::string & buffer);
@@ -73,5 +76,9 @@ private:
 
 	std::string m_strModelName;
 	std::string m_strDiffuseName;
+	void ParseGroup(std::string& buffer);
+public:
+	void ClearLightDefinitions();
+	void AddLight(lightDefPtr_t& it);
 };
 

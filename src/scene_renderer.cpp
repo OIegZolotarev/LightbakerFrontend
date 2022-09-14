@@ -160,6 +160,21 @@ lightDefWPtr_t SceneRenderer::GetLightWeakRef(lightDef_s* param1)
 	return lightDefWPtr_t();
 }
 
+void SceneRenderer::ExportModelForCompiling(const char* path)
+{
+	if (!m_pSceneModel)
+		return;
+
+	m_pSceneModel->ClearLightDefinitions();
+	
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		m_pSceneModel->AddLight(it);
+	}
+
+	m_pSceneModel->Export(path);
+}
+
 void SceneRenderer::ReloadModel()
 {
 	if (!m_pSceneModel)

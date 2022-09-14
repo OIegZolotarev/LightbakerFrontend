@@ -5,6 +5,7 @@
 #include "model_obj.h"
 #include "application.h"
 #include "common_resources.h"
+#include <intsafe.h>
 
 // for string delimiter
 std::vector<std::string> split(std::string s, std::string delimiter)
@@ -24,6 +25,15 @@ std::vector<std::string> split(std::string s, std::string delimiter)
 	return res;
 }
 
+bool EmptyString(std::string& s)
+{
+	for (int i = 0; i < s.length(); i++)
+		if (s[i] > 32)
+			return false;
+
+	return true;
+}
+
 std::vector<std::string> split_whitespaces(std::string & s)
 {
 	std::string token;
@@ -35,7 +45,7 @@ std::vector<std::string> split_whitespaces(std::string & s)
 	{
 		if (*p < 33)
 		{
-			if (!token.empty())
+			if (!EmptyString(token))
 			{
 				res.push_back(token);
 				token = "";
@@ -90,7 +100,7 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 			if (data)
 			{
-				defaultMaterial.lightmap_texture[i] = LoadGLTexture(data);
+				defaultMaterial.lightmap_texture[i] = LoadGLTexture(data,true);
 				delete data;
 			}
 		}
@@ -106,7 +116,10 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 			const mobjface_t* faceA = static_cast<const mobjface_t*>(pa);
 			const mobjface_t* faceB = static_cast<const mobjface_t*>(pb);
 
-			return faceA->material_id > faceB->material_id;
+			if (faceA->group_id == faceB->group_id)
+				return faceA->material_id > faceB->material_id;
+			else
+				return faceA->group_id > faceB->group_id;
 		});
 
 // 	FILE* fp = 0;
@@ -131,7 +144,7 @@ ModelOBJ::~ModelOBJ()
 	FreeVector(m_vecUVData);
 	FreeVector(m_vecVertsData);
 	FreeVector(m_vParsedLightDefs);
-
+	FreeVector(m_vecGroups);
 }
 
 void ModelOBJ::DrawDebug()
@@ -152,6 +165,9 @@ void ModelOBJ::DrawDebug()
 	else
 		bNoTextures = true;
 
+	if (bNoTextures)
+		glDisable(GL_TEXTURE_2D);
+
 	glColor3f(1, 1, 1);
 
 	glBegin(GL_TRIANGLES);
@@ -169,7 +185,9 @@ void ModelOBJ::DrawDebug()
 				bNoTextures = false;
 			}
 			else
-				bNoTextures = true;
+			{
+				glDisable(GL_TEXTURE_2D);
+			}
 		}
 		
 		glTexCoord2fv(&m_vecUVData[(face.uv- 1) * m_UVSize]);
@@ -260,7 +278,7 @@ void ModelOBJ::ParseCommand(std::string& buffer)
 		// object
 		break;
 	case 'g':
-		// group
+		ParseGroup(buffer);
 		break;
 	case 'u':
 		// usemtl
@@ -284,7 +302,7 @@ void ModelOBJ::ParseNormal(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!token.empty())
+		if (!EmptyString(token))
 		{
 			m_vecNormalsData.push_back(stof(token));
 			normSize++;
@@ -295,7 +313,7 @@ void ModelOBJ::ParseNormal(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!token.empty())
+	if (!EmptyString(token))
 	{
 		m_vecNormalsData.push_back(stof(token));
 		normSize++;
@@ -320,7 +338,7 @@ void ModelOBJ::ParseUV(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!token.empty())
+		if (!EmptyString(token))
 		{
 			m_vecUVData.push_back(stof(token));
 			newUVSize++;
@@ -331,7 +349,7 @@ void ModelOBJ::ParseUV(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!token.empty())
+	if (!EmptyString(token))
 	{
 		m_vecUVData.push_back(stof(token));
 		newUVSize++;
@@ -361,7 +379,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!token.empty())
+		if (!EmptyString(token))
 		{
 			m_vecVertsData.push_back(stof(token));
 			newVertSize++;
@@ -372,7 +390,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!token.empty())
+	if (!EmptyString(token))
 	{
 		m_vecVertsData.push_back(stof(token));
 		newVertSize++;
@@ -387,6 +405,20 @@ void ModelOBJ::ParseVertex(std::string& s)
 	}
 	else
 		m_VertSize = newVertSize;
+}
+
+
+void ModelOBJ::ParseGroup(std::string& buffer)
+{
+	auto tokens = split_whitespaces(buffer);
+
+	if (tokens.size() != 2)
+	{
+		Con_Printf("Malformed group command: %s\n", buffer.c_str());
+		return;
+	}
+
+	m_vecGroups.push_back(tokens[1]);
 }
 
 void ModelOBJ::ParseFace(std::string& s)
@@ -426,6 +458,8 @@ void ModelOBJ::ParseFace(std::string& s)
 		}
 
 		face.material_id = m_vMaterials.size();
+		face.group_id = m_vecGroups.size();
+
 
 		m_vecFaces.push_back(face);
 	};
@@ -436,7 +470,7 @@ void ModelOBJ::ParseFace(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!token.empty())
+		if (!EmptyString(token))
 		{
 			parseFaceDef();
 		}
@@ -446,7 +480,7 @@ void ModelOBJ::ParseFace(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!token.empty())
+	if (!EmptyString(token))
 	{
 		parseFaceDef();
 	}
@@ -655,17 +689,20 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 
 void ModelOBJ::ExportVerticles(FILE* fp)
 {
-	fprintf(fp, "\n# %d verticles start", m_vecVertsData.size() / m_VertSize);
+	fprintf(fp, "\n# %d verticles start\n", m_vecVertsData.size() / m_VertSize);
 
 	size_t offset = 0;
 
 	while (offset < m_vecVertsData.size())
 	{
-		fprintf(fp,"v ");
+		fprintf(fp,"v  ");
 
 		for (size_t i = 0; i < m_VertSize; i++)
 		{
-			fprintf(fp, "%.4f ", m_vecVertsData[offset + i]);
+			if (i == (m_VertSize - 1))
+				fprintf(fp, "%.4f", m_vecVertsData[offset + i]);
+			else				
+				fprintf(fp, "%.4f ", m_vecVertsData[offset + i]);
 		}
 
 		fprintf(fp, "\n");
@@ -673,12 +710,12 @@ void ModelOBJ::ExportVerticles(FILE* fp)
 		offset += m_VertSize;
 	}
 
-	fprintf(fp, "\n# %d verticles end", m_vecVertsData.size() / m_VertSize);
+	fprintf(fp, "\n# %d verticles end\n", m_vecVertsData.size() / m_VertSize);
 }
 
 void ModelOBJ::ExportNormals(FILE* fp)
 {
-	fprintf(fp, "\n# %d normals start", m_vecNormalsData.size() / 3);
+	fprintf(fp, "\n# %d normals start\n", m_vecNormalsData.size() / 3);
 
 	size_t offset = 0;
 
@@ -690,12 +727,12 @@ void ModelOBJ::ExportNormals(FILE* fp)
 		offset += 3;
 	}
 
-	fprintf(fp, "\n# %d normals end", m_vecNormalsData.size() / 3);
+	fprintf(fp, "\n# %d normals end\n", m_vecNormalsData.size() / 3);
 }
 
 void ModelOBJ::ExportUV(FILE* fp)
 {
-	fprintf(fp, "\n# %d UV start", m_vecUVData.size() / m_UVSize);
+	fprintf(fp, "\n# %d UV start\n", m_vecUVData.size() / m_UVSize);
 
 	size_t offset = 0;
 
@@ -703,11 +740,14 @@ void ModelOBJ::ExportUV(FILE* fp)
 	{
 		float* f = &m_vecUVData[offset];
 
-		fprintf(fp, "vt ");
+		fprintf(fp, "vt  ");
 
 		for (size_t i = 0; i < m_UVSize; i++)
 		{
-			fprintf(fp, "%.4f ", m_vecUVData[offset + i]);
+			if (i == m_UVSize - 1)
+				fprintf(fp, "%.4f", m_vecUVData[offset + i]);
+			else
+				fprintf(fp, "%.4f ", m_vecUVData[offset + i]);
 		}
 
 		fprintf(fp, "\n");
@@ -716,15 +756,23 @@ void ModelOBJ::ExportUV(FILE* fp)
 		offset += m_UVSize;
 	}
 
-	fprintf(fp, "\n# %d UV end", m_vecUVData.size() / m_UVSize);
+	fprintf(fp, "\n# %d UV end\n", m_vecUVData.size() / m_UVSize);
 }
 
 void ModelOBJ::ExportFaces(FILE* fp)
 {
-	fprintf(fp, "\n# %d faces start", m_vecFaces.size() / 3);
+	fprintf(fp, "\n# %d faces start\n", m_vecFaces.size() / 3);
+
+	size_t lastGroup = 0;
 
 	for (size_t i = 0; i < m_vecFaces.size(); i += 3)
 	{
+		if (m_vecFaces[i].group_id != lastGroup)
+		{
+			lastGroup = m_vecFaces[i].group_id;
+			fprintf(fp, "g %s\n", m_vecGroups[lastGroup - 1].c_str());
+		}
+
 		fprintf(fp, "f ");
 
 		for (int j = 0; j < 3; j++)
@@ -742,14 +790,27 @@ void ModelOBJ::ExportFaces(FILE* fp)
 				if (!f.uv)
 					fprintf(fp, "//%d", f.norm);
 				else
-					fprintf(fp, "/%d", f.uv);
+					fprintf(fp, "/%d", f.norm);
 			}
+
+			fprintf(fp, "  ");
 		}
 
 		fprintf(fp, " \n");
 	}
 
 	fprintf(fp, "\n# %d faces end", m_vecFaces.size() / 3);
+}
+
+
+void ModelOBJ::ClearLightDefinitions()
+{
+	m_vParsedLightDefs.clear();
+}
+
+void ModelOBJ::AddLight(lightDefPtr_t& it)
+{
+	m_vParsedLightDefs.push_back(*it);
 }
 
 void ModelOBJ::ReloadTextures()

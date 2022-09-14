@@ -92,8 +92,13 @@ void Application::ExecuteBaking()
 	auto fileName	 = m_pMainWindow->GetSceneRenderer()->GetModelFileName();
 	auto diffuseName = m_pMainWindow->GetSceneRenderer()->GetModelTextureName();
 
-	fileName = "sample.obj";
+	fileName = "edited.obj";
 	diffuseName = "sample.png";
+
+	char export_path[4096];
+	sprintf_s(export_path, "%s/lb3k/%s", SDL_GetBasePath(), "edited.obj");
+
+	m_pMainWindow->GetSceneRenderer()->ExportModelForCompiling(export_path);
 
 	//m_pFileSystem->ChangeCurrentDirectoryToFileDirectory(fileName);
 	
@@ -124,7 +129,12 @@ void Application::CheckIfBakngFinished()
 	m_bWaitingForBakingToFinish = false;
 	Con_Printf("[FRONTEND] Baking finished");
 
-	m_pMainWindow->GetSceneRenderer()->ReloadModel();
+	char export_path[4096];
+	sprintf_s(export_path, "%s/lb3k/%s", SDL_GetBasePath(), "edited.obj");
+
+	m_pMainWindow->GetSceneRenderer()->LoadModel(export_path);
+
+	//m_pMainWindow->GetSceneRenderer()->ReloadModel();
 }
 
 void Application::NotifyBakingFinished(int code)

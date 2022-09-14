@@ -434,8 +434,17 @@ bool MainWindow::HandleEvents(bool loop)
 		case SDL_MOUSEBUTTONDOWN:
 
 			if (event.button.button & SDL_BUTTON_LEFT)
-				if (SelectionManager::Instance()->SelectHoveredObject())
-				break;
+			{
+				if (!ImGui::GetHoveredID())
+				{
+
+					if (SelectionManager::Instance()->SelectHoveredObject())
+					{
+						break;
+					}
+				}
+			}
+			
 
 		case SDL_MOUSEBUTTONUP:
 		case SDL_MOUSEWHEEL:

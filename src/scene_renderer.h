@@ -27,6 +27,9 @@ public:
 	void DrawBillboardSelection(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, int index);
 
 	lightDefWPtr_t GetLightWeakRef(lightDef_s* param1);
+	
+	void ExportModelForCompiling(const char* path);
+
 private:
 	void Debug_DrawGround();
 
@@ -36,7 +39,5 @@ private:
 	ModelOBJ* m_pSceneModel = nullptr;
 
 	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
-	
-
 };
 
