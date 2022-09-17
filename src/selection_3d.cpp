@@ -136,3 +136,8 @@ SelectionManager::SelectionManager()
 }
 
 
+void ISelectableObject::InvokeSelect()
+{
+	m_bSelected = true;
+	OnSelect();
+}

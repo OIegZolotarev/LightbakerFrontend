@@ -233,19 +233,19 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddDirectLight, "+Direct", GetCommonIcon(CommonIcons::DirectLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-
+			m_pSceneRenderer->AddNewLight(LightTypes::Direct);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddOmniLight, "+Omni", GetCommonIcon(CommonIcons::OmniLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-
+			m_pSceneRenderer->AddNewLight(LightTypes::Omni);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddSpotLight, "+Spot", GetCommonIcon(CommonIcons::SpotLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-
+			m_pSceneRenderer->AddNewLight(LightTypes::Spot);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,

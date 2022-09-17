@@ -145,6 +145,7 @@ public:
 
 	glm::vec3	GetRightVector();
 	glm::vec3	GetUpVector();
+	glm::vec3	GetForwardVector();
 
 private:
 	int m_MoveSpeeds[3];

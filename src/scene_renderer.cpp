@@ -265,3 +265,24 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 
 	glTranslatef(-ptr->pos[0], -ptr->pos[1], -ptr->pos[2]);
 }
+
+void SceneRenderer::AddNewLight(LightTypes type)
+{
+	lightDef_s* newLight = new lightDef_s;
+	
+
+	newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
+	newLight->type = type;
+	newLight->UpdateEditorIcon();
+	newLight->intensity = 10;
+
+	float hue = (float)rand() / 32768.f;
+
+	ImGui::ColorConvertHSVtoRGB(hue, 1, 1,
+		newLight->color.x,
+		newLight->color.y,
+		newLight->color.z);
+
+	m_vecSceneLightDefs.push_back(lightDefPtr_t(newLight));
+	newLight->InvokeSelect();
+}

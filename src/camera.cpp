@@ -327,6 +327,11 @@ glm::vec3 Camera::GetUpVector()
 	return m_vUp;
 }
 
+glm::vec3 Camera::GetForwardVector()
+{
+	return m_vForward;
+}
+
 void Camera::SetupKeystrokesVHE()
 {
 	CameraCommandKeyStroke* keystrokeMoveForward = new CameraCommandKeyStroke();

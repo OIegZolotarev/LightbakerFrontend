@@ -32,6 +32,7 @@ public:
 
 	class Camera* GetCamera();
 
+	void AddNewLight(LightTypes type);
 private:
 	void Debug_DrawGround();
 
@@ -47,5 +48,6 @@ private:
 	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
 
 	
+
 };
 
