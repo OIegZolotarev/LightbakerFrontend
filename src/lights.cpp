@@ -42,6 +42,10 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 	p.value.asPosition = ptr->pos;
 	collection.push_back(p);
 
+	p = propsData_s(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
+	p.value.asAngles = ptr->anglesDirection;
+	collection.push_back(p);
+
 	p = propsData_s(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
 	p.value.asColorRGB = ptr->color;
 	collection.push_back(p);
@@ -50,9 +54,7 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 	p.value.asFloat = ptr->intensity;
 	collection.push_back(p);
 
-	p = propsData_s(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
-	p.value.asAngles = ptr->anglesDirection;
-	collection.push_back(p);
+
 
 	p = propsData_s(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
 	p.value.asFloat = ptr->cones[0];
@@ -68,14 +70,16 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 
 }
 
-void LightPropertiesBinding::UpdateObjectProperties(std::vector<propsData_t>& collection)
+void LightPropertiesBinding::UpdateObjectProperties(propsData_t * props,size_t num)
 {
 	auto ptr = m_pwLightDef.lock();
 	if (!ptr)
 		return;
 
-	for (auto& it : collection)
+	for (size_t i = 0; i < num; i++)
 	{
+		auto it = props[i];
+
 		switch (it.id)
 		{
 		case LightProperties::Type:
@@ -111,6 +115,11 @@ void LightPropertiesBinding::UpdateObjectProperties(std::vector<propsData_t>& co
 			break;
 		}
 	}
+}
+
+bool LightPropertiesBinding::IsObjectValid()
+{
+	return m_pwLightDef.lock() != nullptr;
 }
 
 void lightDef_s::UpdateEditorIcon()

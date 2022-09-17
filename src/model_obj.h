@@ -2,6 +2,7 @@
 #include "file_system.h"
 #include "gl_texture.h"
 #include "scene_renderer.h"
+#include "gl_backend.h"
 
 typedef struct mobjface_s
 {
@@ -23,6 +24,9 @@ typedef struct mobjmaterial_s
 	std::string  diffuse_texture_path;
 	std::string  lightmap_texture_path[MAX_LIGHT_STYLES];
 
+	size_t first_face;
+	size_t num_faces;
+
 }mobjmaterial_t;
 
 class ModelOBJ
@@ -40,6 +44,9 @@ public:
 
 	void ReloadTextures();
 	void Export(const char* fileName);
+
+	void ClearLightDefinitions();
+	void AddLight(lightDefPtr_t& it);
 
 private:
 	size_t m_VertSize = 0;
@@ -77,8 +84,9 @@ private:
 	std::string m_strModelName;
 	std::string m_strDiffuseName;
 	void ParseGroup(std::string& buffer);
-public:
-	void ClearLightDefinitions();
-	void AddLight(lightDefPtr_t& it);
+
+
+	void BuildDrawMesh();
+	DrawMesh mesh;
 };
 

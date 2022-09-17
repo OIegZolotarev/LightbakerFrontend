@@ -47,7 +47,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 		int mx, my;
 
 		SDL_GetMouseState(&mx, &my);
-		int* viewport	= Application::GetMainWindow()->GetGLViewport();
+		int* viewport	= Application::GetMainWindow()->Get3DGLViewport();
 		int h			= Application::GetMainWindow()->Height();
 
 		mx -= viewport[0];
@@ -80,8 +80,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 				}
 				else
 				{
-					ptr->OnUnhovered();
-					ptr->m_bSelected = false;
+					ptr->OnUnhovered();					
 					ptr->m_bHovered = false;
 				}
 			}
@@ -117,6 +116,12 @@ bool SelectionManager::SelectHoveredObject()
 {
 	if (auto ptr = m_pLastSelectedObject.lock())
 	{
+		for (size_t i = 0; i < m_vObjects.size(); i++)
+		{
+			if (auto ptr_other = m_vObjects[i].lock())
+				ptr_other->m_bSelected = false;
+		}
+
 		ptr->m_bSelected = true;
 		ptr->OnSelect();
 		return true;

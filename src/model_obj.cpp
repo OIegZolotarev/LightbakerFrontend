@@ -6,6 +6,7 @@
 #include "application.h"
 #include "common_resources.h"
 #include <intsafe.h>
+#include "gl_backend.h"
 
 // for string delimiter
 std::vector<std::string> split(std::string s, std::string delimiter)
@@ -122,10 +123,7 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 				return faceA->group_id > faceB->group_id;
 		});
 
-// 	FILE* fp = 0;
-// 	fopen_s(&fp,"lights_test.txt", "wt");
-// 	ExportLightDefs(fp);
-// 	fclose(fp);
+	BuildDrawMesh();
 
 }
 
@@ -149,65 +147,86 @@ ModelOBJ::~ModelOBJ()
 
 void ModelOBJ::DrawDebug()
 {
-	if (m_vecFaces.size() == 0)
-		return;
-			
-	size_t currentMaterial = m_vecFaces[0].material_id;
-	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
 
-	bool bNoTextures = false;
-
-	if (pMaterial->lightmap_texture[0])
-	{
-		glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
-		bNoTextures = false;
-	}
-	else
-		bNoTextures = true;
-
-	if (bNoTextures)
-		glDisable(GL_TEXTURE_2D);
-
-	glColor3f(1, 1, 1);
-
-	glBegin(GL_TRIANGLES);
-	
-	for (auto& face : m_vecFaces)
-	{
-		if (face.material_id != currentMaterial)
-		{
-			currentMaterial = face.material_id;
-			mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
-
-			if (pMaterial->lightmap_texture[0])
-			{
-				glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
-				bNoTextures = false;
-			}
-			else
-			{
-				glDisable(GL_TEXTURE_2D);
-			}
-		}
-		
-		glTexCoord2fv(&m_vecUVData[(face.uv- 1) * m_UVSize]);
-
-		if (bNoTextures)
-		{
-			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
-			glColor3f(
-				(norm[0] + 1) / 2,
-				(norm[1] + 1) / 2,
-				(norm[2] + 1) / 2);
-		}
-		glVertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
-	}
-
-	glEnd();
-
+#if 1
+	mesh.Bind();
 
 	glEnable(GL_TEXTURE_2D);
 
+	for (auto& it : m_vMaterials)
+	{
+		if (it.lightmap_texture[0])
+			glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
+		else
+			glBindTexture(GL_TEXTURE_2D, 0);
+
+		mesh.Draw(it.first_face, it.num_faces);
+	}
+
+	mesh.Unbind();
+#else
+ 	if (m_vecFaces.size() == 0)
+ 		return;
+ 
+ 	if (m_vecVertsData.size() == 0)
+ 		return;
+ 			
+ 	size_t currentMaterial = m_vecFaces[0].material_id;
+ 	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
+ 
+ 	bool bNoTextures = false;
+ 
+ 	if (pMaterial->lightmap_texture[0])
+ 	{
+ 		glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
+ 		bNoTextures = false;
+ 	}
+ 	else
+ 		bNoTextures = true;
+ 
+ 	if (bNoTextures)
+ 		glDisable(GL_TEXTURE_2D);
+ 
+ 	glColor3f(1, 1, 1);
+ 
+ 	glBegin(GL_TRIANGLES);
+ 	
+ 	for (auto& face : m_vecFaces)
+ 	{
+ 		if (face.material_id != currentMaterial)
+ 		{
+ 			currentMaterial = face.material_id;
+ 			mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
+ 
+ 			if (pMaterial->lightmap_texture[0])
+ 			{
+ 				glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
+ 				bNoTextures = false;
+ 			}
+ 			else
+ 			{
+ 				glDisable(GL_TEXTURE_2D);
+ 			}
+ 		}
+ 		
+ 		glTexCoord2fv(&m_vecUVData[(face.uv- 1) * m_UVSize]);
+ 
+ 		if (bNoTextures)
+ 		{
+ 			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+ 			glColor3f(
+ 				(norm[0] + 1) / 2,
+ 				(norm[1] + 1) / 2,
+ 				(norm[2] + 1) / 2);
+ 		}
+ 		glVertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
+ 	}
+ 
+ 	glEnd();
+ 
+ 
+ 	glEnable(GL_TEXTURE_2D);
+#endif
 	
 }
 
@@ -811,6 +830,67 @@ void ModelOBJ::ClearLightDefinitions()
 void ModelOBJ::AddLight(lightDefPtr_t& it)
 {
 	m_vParsedLightDefs.push_back(*it);
+}
+
+void ModelOBJ::BuildDrawMesh()
+{
+	if (m_vecFaces.size() == 0)
+		return;
+
+	if (m_vecVertsData.size() == 0)
+		return;
+
+	bool bNoTextures = false;
+
+	size_t currentMaterial = m_vecFaces[0].material_id;
+	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
+	
+	if (pMaterial->lightmap_texture[0])			
+		bNoTextures = false;	
+	else
+		bNoTextures = true;
+
+	
+	pMaterial->first_face = mesh.CurrentElement();
+
+	mesh.Begin(GL_TRIANGLES);
+	mesh.Color4f(1, 1, 1, 1);
+
+	for (auto& face : m_vecFaces)
+	{
+		if (face.material_id != currentMaterial)
+		{
+			pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
+
+			currentMaterial = face.material_id;
+			pMaterial = &m_vMaterials[currentMaterial];
+
+			pMaterial->first_face = mesh.CurrentElement();
+
+			if (pMaterial->lightmap_texture[0])
+				bNoTextures = false;
+			else
+				bNoTextures = true;			
+		}
+
+		mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
+
+		if (bNoTextures)
+		{
+			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+			mesh.Color3f(
+				(norm[0] + 1) / 2,
+				(norm[1] + 1) / 2,
+				(norm[2] + 1) / 2);
+		}
+				
+		mesh.Vertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
+	}
+
+	pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
+
+	mesh.End();
+
 }
 
 void ModelOBJ::ReloadTextures()

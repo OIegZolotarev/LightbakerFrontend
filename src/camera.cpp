@@ -151,11 +151,21 @@ void Camera::SetupCommonKeystrokesCallbacks()
 			if (bHit)
 			{
 				
+				auto windowHandle = Application::GetMainWindow()->Handle();
+				auto viewport = Application::GetMainWindow()->Get3DGLViewport();
+
 				int winWidth = Application::GetMainWindow()->Width();
 				int winHeight = Application::GetMainWindow()->Height();
 
-				SDL_RaiseWindow(Application::GetMainWindow()->Handle());
-				SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
+				SDL_ShowCursor(SDL_DISABLE);
+
+				SDL_RaiseWindow(windowHandle);
+				SDL_WarpMouseInWindow(windowHandle, winWidth / 2, winHeight / 2);
+							
+
+				SDL_ShowCursor(SDL_ENABLE);
+
+
 
 				m_bFPSNavigation = !m_bFPSNavigation;
 			}
@@ -528,8 +538,10 @@ void Camera::SetupPerspectiveMatrix()
 
 	double fov = glm::radians(m_flFov);
 
-	float width = Application::GetMainWindow()->Width();
-	float height = Application::GetMainWindow()->Height();
+	auto vp = Application::GetMainWindow()->Get3DGLViewport();
+
+	float width = vp[2];
+	float height = vp[3];
 
 	if (!width || !height)
 		return;

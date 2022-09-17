@@ -74,6 +74,11 @@ public:
 	LightPropertiesBinding(lightDefWPtr_t ref);
 
 	void FillProperties(std::vector<propsData_t>& collection) override;
-	void UpdateObjectProperties(std::vector<propsData_t>& collection) override;
+	void UpdateObjectProperties(propsData_t * data, size_t num) override;
+
+
+
+	bool IsObjectValid() override;
+
 };
 

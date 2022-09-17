@@ -2,6 +2,8 @@
 #include "object_props.h"
 #include "properties_editor.h"
 #include "lights.h"
+#include "application.h"
+#include "Camera.h"
 
 ObjectPropertiesEditor::ObjectPropertiesEditor()
 {
@@ -37,11 +39,68 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding* pBindings)
 	m_vPropsData.clear();
 	m_pPropertiesBinding = pBindings;
 	m_pPropertiesBinding->FillProperties(m_vPropsData);
+
+	SetupGuizmo();
 }
 
 void ObjectPropertiesEditor::UpdateProperty(propsData_t* it)
 {
-	m_pPropertiesBinding->UpdateObjectProperties(m_vPropsData);
+	m_pPropertiesBinding->UpdateObjectProperties(it,1);
+}
+
+void ObjectPropertiesEditor::RenderGuizmo()
+{
+	if (!CheckObjectValidity()) return;
+
+	if (!m_pGuizmoProperty) return;
+		
+	ImGuizmo::BeginFrame();
+	Camera* cam = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera();
+
+	
+	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], false);
+}
+
+bool ObjectPropertiesEditor::CheckObjectValidity()
+{
+	if (!m_pPropertiesBinding)
+		return false;
+
+	if (!m_pPropertiesBinding->IsObjectValid())
+	{
+		m_vPropsData.clear();
+		delete m_pPropertiesBinding;
+		m_pPropertiesBinding = nullptr;
+		return false;
+	}
+
+	return true;
+}
+
+void ObjectPropertiesEditor::SetupGuizmo()
+{
+	m_pGuizmoProperty = FindFirstPropertyByType(PropertiesTypes::Position);
+
+	if (!m_pGuizmoProperty)
+	{
+		ImGuizmo::Enable(false);
+		return;
+	}
+
+	ImGuizmo::Enable(true);
+	m_matGuizmo = glm::translate(glm::mat4(1.f), m_pGuizmoProperty->GetPosition());
+
+}
+
+propsData_t* ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
+{
+	for (auto& it : m_vPropsData)
+	{
+		if (it.type == type)
+			return &it;
+	}
+
+	return nullptr;
 }
 
 void ObjectPropertiesEditor::RenderFlagsEditor()
@@ -71,10 +130,10 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 {
 	if (ImGui::Begin("Properties"))
 	{
+		CheckObjectValidity();
+
 		if (m_vPropsData.size() > 0)
-		{
-			
-			
+		{		
 			if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
 			{
 				int i = 0;
@@ -109,8 +168,9 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 				ImGui::Text("Object has no properties");
 		}
 
-		ImGui::End();
+		
 	}
+	ImGui::End();
 }
 
 void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
@@ -209,3 +269,101 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 
 	}
 }
+
+void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition)
+{
+	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
+	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+	static bool useSnap = false;
+	static float snap[3] = { 1.f, 1.f, 1.f };
+	static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
+	static float boundsSnap[] = { 0.1f, 0.1f, 0.1f };
+	static bool boundSizing = false;
+	static bool boundSizingSnap = false;
+
+	if (editTransformDecomposition)
+	{
+		if (ImGui::IsKeyPressed(90))
+			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		if (ImGui::IsKeyPressed(69))
+			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+		if (ImGui::IsKeyPressed(82)) // r Key
+			mCurrentGizmoOperation = ImGuizmo::SCALE;
+		if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
+			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Rotate", mCurrentGizmoOperation == ImGuizmo::ROTATE))
+			mCurrentGizmoOperation = ImGuizmo::ROTATE;
+		ImGui::SameLine();
+		if (ImGui::RadioButton("Scale", mCurrentGizmoOperation == ImGuizmo::SCALE))
+			mCurrentGizmoOperation = ImGuizmo::SCALE;
+		if (ImGui::RadioButton("Universal", mCurrentGizmoOperation == ImGuizmo::UNIVERSAL))
+			mCurrentGizmoOperation = ImGuizmo::UNIVERSAL;
+		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+		ImGui::InputFloat3("Tr", matrixTranslation);
+		ImGui::InputFloat3("Rt", matrixRotation);
+		ImGui::InputFloat3("Sc", matrixScale);
+		ImGuizmo::RecomposeMatrixFromComponents(matrixTranslation, matrixRotation, matrixScale, matrix);
+
+		if (mCurrentGizmoOperation != ImGuizmo::SCALE)
+		{
+			if (ImGui::RadioButton("Local", mCurrentGizmoMode == ImGuizmo::LOCAL))
+				mCurrentGizmoMode = ImGuizmo::LOCAL;
+			ImGui::SameLine();
+			if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
+				mCurrentGizmoMode = ImGuizmo::WORLD;
+		}
+		if (ImGui::IsKeyPressed(83))
+			useSnap = !useSnap;
+		ImGui::Checkbox("##UseSnap", &useSnap);
+		ImGui::SameLine();
+
+		switch (mCurrentGizmoOperation)
+		{
+		case ImGuizmo::TRANSLATE:
+			ImGui::InputFloat3("Snap", &snap[0]);
+			break;
+		case ImGuizmo::ROTATE:
+			ImGui::InputFloat("Angle Snap", &snap[0]);
+			break;
+		case ImGuizmo::SCALE:
+			ImGui::InputFloat("Scale Snap", &snap[0]);
+			break;
+		}
+		ImGui::Checkbox("Bound Sizing", &boundSizing);
+		if (boundSizing)
+		{
+			ImGui::PushID(3);
+			ImGui::Checkbox("##BoundSizing", &boundSizingSnap);
+			ImGui::SameLine();
+			ImGui::InputFloat3("Snap", boundsSnap);
+			ImGui::PopID();
+		}
+	}
+
+	ImGuiIO& io = ImGui::GetIO();
+	float viewManipulateRight = io.DisplaySize.x;
+	float viewManipulateTop = 0;
+
+	auto win = Application::GetMainWindow()->Get3DGLViewport();
+	auto h = Application::GetMainWindow()->Height();
+
+
+	ImGuizmo::SetRect(win[0], h - win[1] - win[3], win[2], win[3]);	
+	bool bChanged = ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
+
+	if (bChanged)
+	{
+		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
+		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+
+		m_pGuizmoProperty->value.asPosition.x = matrixTranslation[0];
+		m_pGuizmoProperty->value.asPosition.y = matrixTranslation[1];
+		m_pGuizmoProperty->value.asPosition.z = matrixTranslation[2];
+
+		UpdateProperty(m_pGuizmoProperty);
+	}
+	
+}
+

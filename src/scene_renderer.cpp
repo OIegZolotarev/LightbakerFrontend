@@ -4,11 +4,16 @@
 #include "application.h"
 #include "common_resources.h"
 #include "selection_3d.h"
+#include "draw_utils.h"
+#include "..\include\ImGuizmo\ImGuizmo.h"
 
 SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
+
+	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
+	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
 }
 
 SceneRenderer::~SceneRenderer()
@@ -17,6 +22,8 @@ SceneRenderer::~SceneRenderer()
 
 	delete m_pCamera;
 	if (m_pSceneModel) delete m_pSceneModel;
+
+	if (m_pUnitBoundingBox) delete m_pUnitBoundingBox;
 }
 
 void SceneRenderer::RenderScene()
@@ -33,11 +40,21 @@ void SceneRenderer::RenderScene()
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 
+	lightDefWPtr_t selection;
+
 	for (auto& it : m_vecSceneLightDefs)
 	{
 		DrawBillboard(it->pos, glm::vec2(4, 4), it->editor_icon, it->color);		
 		selectionManager->PushObject(it);
+
+		if (it->IsSelected())
+		{
+			selection = it;
+			
+		}
 	}
+	if (selection.lock())
+		DrawBoundingBoxAroundLight(selection);
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
@@ -175,6 +192,11 @@ void SceneRenderer::ExportModelForCompiling(const char* path)
 	m_pSceneModel->Export(path);
 }
 
+Camera* SceneRenderer::GetCamera()
+{
+	return m_pCamera;
+}
+
 void SceneRenderer::ReloadModel()
 {
 	if (!m_pSceneModel)
@@ -210,4 +232,36 @@ void SceneRenderer::Debug_DrawGround()
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+}
+
+void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
+{
+	auto ptr = pObject.lock();
+	
+	if (!ptr)
+		return;
+
+	glTranslatef(ptr->pos[0], ptr->pos[1], ptr->pos[2]);
+	
+
+	glDisable(GL_BLEND);
+	glDisable(GL_TEXTURE_2D);
+	glColor4f(1-ptr->color[0], 1 - ptr->color[1], 1 - ptr->color[2],1);
+
+	glPushMatrix();
+	glScalef(4, 4, 4);
+	m_pUnitBoundingBox->BindAndDraw();
+	glPopMatrix();
+	
+
+	glPushMatrix();
+
+	float f = sqrt(ptr->intensity);
+
+	glScalef(f, f, f);
+	m_pIntensitySphere->BindAndDraw();
+	glPopMatrix();
+	
+
+	glTranslatef(-ptr->pos[0], -ptr->pos[1], -ptr->pos[2]);
 }

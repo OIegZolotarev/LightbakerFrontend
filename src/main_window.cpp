@@ -4,6 +4,8 @@
 #include "common_resources.h"
 #include "imgui_internal.h"
 #include "properties_editor.h"
+#include "Camera.h"
+
 
 const char* strDockspace = "DockSpace";
 ImGuiID gIDMainDockspace = 0;
@@ -131,22 +133,32 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 	auto c = ImGui::DockBuilderGetCentralNode(ImGui::GetID("DockSpace"));
 
+	if (c)
+	{
+		m_i3DViewport[0] = (int)c->Pos.x;
+		m_i3DViewport[1] = (int)m_iWindowHeight - (int)(c->Pos.y + c->Size.y);
+		m_i3DViewport[2] = (int)c->Size.x;
+		m_i3DViewport[3] = (int)c->Size.y;
+
+		//glViewport()
+
+	}
+	else
+	{
+		m_i3DViewport[0] = 0;
+		m_i3DViewport[1] = 0;
+		m_i3DViewport[2] = m_iWindowWidth;
+		m_i3DViewport[3] = m_iWindowWidth;
+	}
+
 	ImGui::End();
 
 	return gIDMainDockspace;
 }
 
-int* MainWindow::GetGLViewport()
+int* MainWindow::Get3DGLViewport()
 {
-	// TODO: make it flexible way
-	static int sViewport[4];
-
-	sViewport[0] = 0;
-	sViewport[1] = 0;
-	sViewport[2] = m_iWindowWidth;
-	sViewport[3] = m_iWindowHeight;
-
-	return sViewport;
+	return m_i3DViewport;
 }
 
 MainWindow::~MainWindow()
@@ -344,11 +356,15 @@ void MainWindow::RenderGUI()
 	ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
 
 	ImGui::NewFrame();
+	
 
 	float		menuHeight = RenderMainMenu();
 	float		toolbarHeight = RenderMainToolbar(menuHeight);
 	
 	DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
+	
+	ObjectPropertiesEditor::Instance()->RenderGuizmo();
+	
 
 	static bool bShowDebug = true;
 
@@ -365,6 +381,7 @@ void MainWindow::RenderGUI()
 	}
 
 	ObjectPropertiesEditor::Instance()->RenderEditor();
+	
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -488,6 +505,11 @@ void MainWindow::GL_BeginFrame()
 	glDisable(GL_MULTISAMPLE);
 	glClearColor(0.25, .25, .25, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glViewport(m_i3DViewport[0], 
+			   m_i3DViewport[1], 
+			   m_i3DViewport[2], 
+			   m_i3DViewport[3]);
 }
 
 void MainWindow::UpdateTimers()

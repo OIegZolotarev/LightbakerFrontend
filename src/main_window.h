@@ -46,7 +46,7 @@ public:
 
 	class SceneRenderer* GetSceneRenderer();
 
-	int* GetGLViewport();
+	int* Get3DGLViewport();
 
 private:
 
@@ -99,5 +99,6 @@ private:
 
 	ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags, const ImGuiWindowClass* window_class);
 
+	int m_i3DViewport[4];
 };
 

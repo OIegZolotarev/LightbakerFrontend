@@ -21,6 +21,9 @@
     <Filter Include="Исходные файлы\tiny-proccess-library">
       <UniqueIdentifier>{bba0812e-0c84-49d1-a57e-f6832ee12063}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\ImGuizmo">
+      <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -100,6 +103,15 @@
     </ClCompile>
     <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="draw_utils.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
+      <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +201,15 @@
     </ClInclude>
     <ClInclude Include="selection_3d.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_backend.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="draw_utils.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h">
+      <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

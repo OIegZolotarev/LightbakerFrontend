@@ -30,6 +30,8 @@ public:
 	
 	void ExportModelForCompiling(const char* path);
 
+	class Camera* GetCamera();
+
 private:
 	void Debug_DrawGround();
 
@@ -39,5 +41,11 @@ private:
 	ModelOBJ* m_pSceneModel = nullptr;
 
 	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
+
+	DrawMesh*	m_pUnitBoundingBox;
+	DrawMesh*	m_pIntensitySphere;
+	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
+
+	
 };
 

@@ -132,5 +132,9 @@ class IObjectPropertiesBinding
 {
 public:
 	virtual void FillProperties(std::vector<propsData_t>& collection) = 0;
-	virtual void UpdateObjectProperties(std::vector<propsData_t>& collection) = 0;
+	virtual void UpdateObjectProperties(propsData_t * props,size_t num) = 0;
+
+	virtual bool IsObjectValid(){
+		return true;
+	}
 };

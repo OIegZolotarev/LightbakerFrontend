@@ -17,6 +17,15 @@ class ObjectPropertiesEditor
 
 	void RenderPropertyControl(propsData_t& it);
 
+	void EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition);
+	void UpdateProperty(propsData_t* it);
+
+	glm::mat4 m_matGuizmo = glm::mat4(1);
+	propsData_t* m_pGuizmoProperty = nullptr;
+
+	bool CheckObjectValidity();
+	void SetupGuizmo();
+	propsData_t* FindFirstPropertyByType(PropertiesTypes type);
 public:
 
 	static ObjectPropertiesEditor* Instance();
@@ -24,6 +33,9 @@ public:
 
 	void RenderEditor();
 	void LoadObject(IObjectPropertiesBinding* pBindings);
-private:
-	void UpdateProperty(propsData_t* it);
+
+	void RenderGuizmo();
+
+
+
 };

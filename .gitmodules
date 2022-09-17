@@ -16,3 +16,6 @@
 [submodule "include/tiny-process-library"]
 	path = include/tiny-process-library
 	url = http://gitlab.com/eidheim/tiny-process-library
+[submodule "include/ImGuizmo"]
+	path = include/ImGuizmo
+	url = https://github.com/CedricGuillemet/ImGuizmo
