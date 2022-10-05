@@ -6,10 +6,13 @@
 #include <functional>
 #include "properties_editor.h"
 
+#include <nlohmann/json.hpp>
+
 Application::Application()
 {
-	m_pCommandsRegistry = new CCommandsRegistry;
-	m_pFileSystem = new FileSystem;
+	m_pCommandsRegistry =	new CCommandsRegistry;
+	m_pFileSystem =			new FileSystem;	
+	m_pPersistentStorage =	nullptr;
 }
 
 Application::~Application()
@@ -18,10 +21,12 @@ Application::~Application()
 	delete m_pFileSystem;
 
 	delete ObjectPropertiesEditor::Instance();
+	delete m_pPersistentStorage;
 }
 
 void Application::Run()
 {
+	m_pPersistentStorage =	new PersistentStorage;
 	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
 	m_pMainWindow->MainLoop();
 }
@@ -140,6 +145,11 @@ void Application::CheckIfBakngFinished()
 void Application::NotifyBakingFinished(int code)
 {
 	m_bBakingFinished = true;
+}
+
+PersistentStorage* Application::GetPersistentStorage()
+{
+	return Instance()->m_pPersistentStorage;
 }
 
 Application* Application::Instance()

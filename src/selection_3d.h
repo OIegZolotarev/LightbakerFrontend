@@ -16,11 +16,13 @@ public:
 	virtual void OnUnhovered() = 0;
 	virtual	void OnMouseMove(glm::vec2 delta) = 0;
 	virtual void OnSelect() = 0;
+	virtual	void OnUnSelect() = 0;
 
 	bool IsSelected() { return m_bSelected; }
 	bool IsHovered() { return m_bHovered; }
 
 	void InvokeSelect();
+	
 };
 
 typedef std::weak_ptr<ISelectableObject> ISelectableObjectWeakRef;
@@ -46,4 +48,5 @@ public:
 
 	~SelectionManager();
 	bool SelectHoveredObject();
+	void UnSelect();
 };

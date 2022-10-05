@@ -168,3 +168,8 @@ void lightDef_s::OnSelect()
 	LightPropertiesBinding* pBinding = new LightPropertiesBinding(sceneRenderer->GetLightWeakRef(this));
 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
 }
+
+void lightDef_s::OnUnSelect()
+{
+	ObjectPropertiesEditor::Instance()->UnloadObject();
+}

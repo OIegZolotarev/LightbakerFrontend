@@ -119,7 +119,10 @@ bool SelectionManager::SelectHoveredObject()
 		for (size_t i = 0; i < m_vObjects.size(); i++)
 		{
 			if (auto ptr_other = m_vObjects[i].lock())
+			{
 				ptr_other->m_bSelected = false;
+				ptr->OnUnSelect();
+			}
 		}
 
 		ptr->m_bSelected = true;
@@ -128,6 +131,16 @@ bool SelectionManager::SelectHoveredObject()
 	}
 
 	return false;
+}
+
+void SelectionManager::UnSelect()
+{
+	if (auto ptr = m_pLastSelectedObject.lock())
+	{
+		ptr->m_bSelected = false;
+		ptr->m_bHovered = false;
+		ptr->OnUnSelect();
+	}
 }
 
 SelectionManager::SelectionManager()
@@ -141,3 +154,4 @@ void ISelectableObject::InvokeSelect()
 	m_bSelected = true;
 	OnSelect();
 }
+

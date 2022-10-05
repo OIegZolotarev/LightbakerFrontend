@@ -7,4 +7,4 @@
 #include "../include/imgui/backends/imgui_impl_opengl3.h"
 #include "../include/imgui/backends/imgui_impl_sdl.h"
 #include "..\include\ImGuizmo\ImGuizmo.h"
-
+#include "../include/ImGuiFileDialog/ImGuiFileDialog.h"

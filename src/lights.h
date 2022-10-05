@@ -48,6 +48,9 @@ public:
 	void RenderForSelection(int objectId, class SceneRenderer*) override;
 	void OnSelect() override;
 
+
+	void OnUnSelect() override;
+
 }lightDef_t;
 
 enum LightProperties

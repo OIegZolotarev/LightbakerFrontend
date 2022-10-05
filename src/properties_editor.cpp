@@ -56,9 +56,18 @@ void ObjectPropertiesEditor::RenderGuizmo()
 		
 	ImGuizmo::BeginFrame();
 	Camera* cam = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera();
-
-	
+		
 	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], false);
+}
+
+void ObjectPropertiesEditor::UnloadObject()
+{
+	if (m_pPropertiesBinding)
+	{
+		delete m_pPropertiesBinding;
+		m_pPropertiesBinding = nullptr;
+		m_vPropsData.clear();
+	}
 }
 
 bool ObjectPropertiesEditor::CheckObjectValidity()

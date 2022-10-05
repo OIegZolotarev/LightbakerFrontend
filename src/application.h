@@ -1,7 +1,9 @@
 #pragma once
+
 #include "main_window.h"
 #include "commands_registry.h"
 #include "file_system.h"
+#include "persistent.h"
 
 class Application
 {
@@ -13,6 +15,8 @@ class Application
 
 	bool m_bWaitingForBakingToFinish;
 	bool m_bBakingFinished = true;
+
+	PersistentStorage*	m_pPersistentStorage;
 
 public:
 	// Конструкторы\доступ
@@ -40,6 +44,8 @@ public:
 	void CheckIfBakngFinished();
 	void NotifyBakingFinished(int code);
 
+
+	static PersistentStorage* GetPersistentStorage();
 };
 
 inline void Con_Printf(const char* fmt, ...)

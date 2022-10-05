@@ -13,11 +13,16 @@ LightBaker3000::LightBaker3000(const std::string& exeLocation)
 	m_strEXELocation = exeLocation;
 }
 
+LightBaker3000::~LightBaker3000()
+{
+
+}
+
 std::string LightBaker3000::BuildOptionsString(bool objModel)
 {
 	std::string result;
 
-	switch (m_lmSettings.lm_type)
+	switch (m_Settings.m_lmSettings.lm_type)
 	{
 	case LightMapTypes::Regular:		
 		break;
@@ -49,35 +54,35 @@ std::string LightBaker3000::BuildOptionsString(bool objModel)
 
 	if (objModel)
 	{
-		result += std::format(" -width {}", m_lmSettings.width);
-		result += std::format(" -height {}", m_lmSettings.height);
+		result += std::format(" -width {}", m_Settings.m_lmSettings.size[0]);
+		result += std::format(" -height {}", m_Settings.m_lmSettings.size[1]);
 	}
 
-	result += std::format(" -samples {}", m_flSamples);
-	result += std::format(" -max_dist {}", m_flMaxDistAO);
-	result += std::format(" -smooth_angle {}", m_flBSPSmootAngle);
+	result += std::format(" -samples {}", m_Settings.m_iSamples);
+	result += std::format(" -max_dist {}", m_Settings.m_flMaxDistAO);
+	result += std::format(" -smooth_angle {}", m_Settings.m_flBSPSmootAngle);
 
-	result += std::format(" -multiplier {}", m_flPPMultiplier);
-	result += std::format(" -gamma {}", m_flGamma);
-	result += std::format(" -padding {}", m_iPaddingSize);
-	result += std::format(" -noise_blur_radius {}", m_iNoiseBlurRadius);
-	result += std::format(" -noise_blur_threshold {}", m_iNoiseBlurThreshold);
+	result += std::format(" -multiplier {}", m_Settings.m_flPPMultiplier);
+	result += std::format(" -gamma {}", m_Settings.m_flGamma);
+	result += std::format(" -padding {}", m_Settings.m_iPaddingSize);
+	result += std::format(" -noise_blur_radius {}", m_Settings.m_iNoiseBlurRadius);
+	result += std::format(" -noise_blur_threshold {}", m_Settings.m_iNoiseBlurThreshold);
 
-	result += std::format(" -blur {}", m_iBlurRadius);
+	result += std::format(" -blur {}", m_Settings.m_iBlurRadius);
 
-	result += std::format(" -seams_iterations {}", m_iSeamsIteration);
-	result += std::format(" -seams_angle  {}", m_flSeamsAngle);
+	result += std::format(" -seams_iterations {}", m_Settings.m_iSeamsIteration);
+	result += std::format(" -seams_angle  {}", m_Settings.m_iSeamsAngle);
 
 
 
 	flagsMapping_s flagsMapping[] = 
 	{
 		{BKF_16BIT_BUFFER,				"-bit16f"},
-		{BKF_NO_GI,						"-no_gi"},
-		{BKF_NO_SHADOW_TERMINATOR_FIX,	"-no_terminator_fix"},
+		{BKF_GI,						"-no_gi"},
+		{BKF_SHADOW_TERMINATOR_FIX,		"-no_terminator_fix"},
 		{BSPF_GFX_ENV_SKY_COLOR,		"-env_sky"},
 		{BSPF_ENV_DYNLIGHT_GI,			"-env_dynlight_gi"},
-		{BSPF_ENV_STATIC_SHADOW,		"-env_static_shadows"},
+		{BSPF_ENV_STATIC_SHADOWS,		"-env_static_shadows"},
 		{BSPF_BAKE_LIGHTPROBES,			"-lightprobes"},
 		{PPF_EXP_TONEMAPPING,			"-tonemapping"},
 		{PPF_LOG_COMPRESS,				"-log_compress"},
@@ -89,11 +94,28 @@ std::string LightBaker3000::BuildOptionsString(bool objModel)
 
 	for (auto& it : flagsMapping)
 	{
-		if (m_iFlags & it.flag)
+		if (it.flag == BKF_GI)
+		{
+			if (!(m_Settings.m_iFlags & it.flag))
+			{
+				result += " ";
+				result += it.cmdKey;
+			}
+		}
+		else if (it.flag == BKF_SHADOW_TERMINATOR_FIX)
+		{
+			if (!(m_Settings.m_iFlags & it.flag))
+			{
+				result += " ";
+				result += it.cmdKey;
+			}
+		}
+		else if (m_Settings.m_iFlags & it.flag)
 		{
 			result += " ";
 			result += it.cmdKey;
 		}
+				
 	}
 
 	return result;

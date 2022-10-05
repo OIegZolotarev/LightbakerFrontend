@@ -19,3 +19,9 @@
 [submodule "include/ImGuizmo"]
 	path = include/ImGuizmo
 	url = https://github.com/CedricGuillemet/ImGuizmo
+[submodule "include/json"]
+	path = include/json
+	url = https://github.com/nlohmann/json
+[submodule "include/better-enums"]
+	path = include/better-enums
+	url = https://github.com/aantron/better-enums

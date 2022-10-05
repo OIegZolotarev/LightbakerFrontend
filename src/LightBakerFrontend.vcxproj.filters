@@ -24,6 +24,9 @@
     <Filter Include="Исходные файлы\ImGuizmo">
       <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Popups">
+      <UniqueIdentifier>{9b762dee-0bd6-4480-918c-9886b78e670e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -112,6 +115,21 @@
     </ClCompile>
     <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
       <Filter>Исходные файлы\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="persistent.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_popups.h">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_popups.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="custom_font.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_lb3k_config.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -210,6 +228,22 @@
     </ClInclude>
     <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h">
       <Filter>Исходные файлы\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="persistent.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_font.h" />
+    <ClInclude Include="popup_lb3k_config.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="enum_iterator.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\better-enums\enum.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_helpers.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

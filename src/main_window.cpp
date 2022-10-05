@@ -5,6 +5,7 @@
 #include "imgui_internal.h"
 #include "properties_editor.h"
 #include "Camera.h"
+#include "imgui_popups.h"
 
 
 const char* strDockspace = "DockSpace";
@@ -139,9 +140,6 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 		m_i3DViewport[1] = (int)m_iWindowHeight - (int)(c->Pos.y + c->Size.y);
 		m_i3DViewport[2] = (int)c->Size.x;
 		m_i3DViewport[3] = (int)c->Size.y;
-
-		//glViewport()
-
 	}
 	else
 	{
@@ -251,7 +249,8 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
 		[]()
 		{
-			Application::Instance()->ExecuteBaking();
+			//Application::Instance()->ExecuteBaking();
+			PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
 		}));
 }
 
@@ -265,14 +264,29 @@ float MainWindow::RenderMainMenu()
 		{
 			if (ImGui::MenuItem("Load model...", "Ctrl-O"))
 			{
-				// TODO
+				
 			}
 
 			ImGui::Separator();
 
 			if (ImGui::BeginMenu("Recent"))
 			{
-				ImGui::MenuItem("( none )");
+				auto& mru = Application::GetPersistentStorage()->GetMRUFiles();
+
+				if (mru.size() == 0)
+				{
+					ImGui::MenuItem(" ( none ) ");
+				}
+				else
+				{
+					for (auto& it : mru)
+					{
+						if (ImGui::MenuItem(it.c_str()))
+						{
+							m_pSceneRenderer->LoadModel((char*)it.c_str());
+						}
+					}
+				}
 
 				ImGui::EndMenu();
 			}
@@ -382,6 +396,7 @@ void MainWindow::RenderGUI()
 
 	ObjectPropertiesEditor::Instance()->RenderEditor();
 	
+	PopupsManager::Instance()->RenderPopups();
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -441,6 +456,7 @@ bool MainWindow::HandleEvents(bool loop)
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_ESCAPE:
+				SelectionManager::Instance()->UnSelect();
 				break;
 			}
 			// TODO: implement
@@ -454,7 +470,6 @@ bool MainWindow::HandleEvents(bool loop)
 			{
 				if (!ImGui::GetHoveredID())
 				{
-
 					if (SelectionManager::Instance()->SelectHoveredObject())
 					{
 						break;
