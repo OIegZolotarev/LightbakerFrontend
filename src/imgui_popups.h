@@ -4,6 +4,7 @@
 enum class PopupWindows
 {
 	LightBaker3KConfig = 0,
+	LoadfileDialog
 };
 
 class IImGUIPopup

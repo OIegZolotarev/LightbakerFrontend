@@ -1,6 +1,9 @@
 #pragma once
 
 #include "common.h"
+#include "shader_program.h"
+#include "helper_geometry_shader.h"
+
 
 typedef struct drawVert_s 
 {
@@ -67,4 +70,20 @@ public:
 		return m_Data.size();
 	}
 	void BindAndDraw();
+};
+
+
+
+
+class GLBackend
+{
+	GLBackend();
+
+	HelperGeometryShaderProgram* m_pHelperGeometryShader = nullptr;
+
+public:
+	static GLBackend* Instance();
+	~GLBackend();
+
+	HelperGeometryShaderProgram* HelperGeometryShader();
 };

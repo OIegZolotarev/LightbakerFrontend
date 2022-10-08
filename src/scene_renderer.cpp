@@ -32,7 +32,12 @@ void SceneRenderer::RenderScene()
 	m_pCamera->Apply();
 
 	selectionManager->NewFrame(this);
-	Debug_DrawGround();
+
+	auto pers = Application::Instance()->GetPersistentStorage();
+	auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
+
+	if (showGround->GetAsBool())
+		Debug_DrawGround();
 	
 	if (m_pSceneModel) m_pSceneModel->DrawDebug();
 
@@ -71,7 +76,7 @@ float SceneRenderer::FrameDelta()
 	return m_pTargetWindow->FrameDelta();
 }
 
-void SceneRenderer::LoadModel(char* dropped_filedir)
+void SceneRenderer::LoadModel(const char* dropped_filedir)
 {
 	Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
 
@@ -243,29 +248,26 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	if (!ptr)
 		return;
 
-	glTranslatef(ptr->pos[0], ptr->pos[1], ptr->pos[2]);
 	
+	auto shader = GLBackend::Instance()->HelperGeometryShader();
 
-	glDisable(GL_BLEND);
-	glDisable(GL_TEXTURE_2D);
-	glColor4f(1-ptr->color[0], 1 - ptr->color[1], 1 - ptr->color[2],1);
+	shader->Bind();
+	
+	shader->SetProjection(m_pCamera->GetProjectionMatrix());	
+	shader->SetView(m_pCamera->GetViewMatrix());
+	shader->SetColor(glm::vec4(glm::vec3(1,1,1) - ptr->color,1));
+	shader->SetOrigin(ptr->pos);
+	shader->SetScale(4);
 
-	glPushMatrix();
-	glScalef(4, 4, 4);
 	m_pUnitBoundingBox->BindAndDraw();
-	glPopMatrix();
-	
 
-	glPushMatrix();
 
 	float f = sqrt(ptr->intensity);
+	shader->SetScale(f);
 
-	glScalef(f, f, f);
 	m_pIntensitySphere->BindAndDraw();
-	glPopMatrix();
-	
 
-	glTranslatef(-ptr->pos[0], -ptr->pos[1], -ptr->pos[2]);
+	shader->Unbind();
 }
 
 void SceneRenderer::AddNewLight(LightTypes type)

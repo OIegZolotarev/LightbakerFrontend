@@ -103,6 +103,28 @@ CCommand* CCommandsRegistry::GetCommandByInternalIndex(int index)
 	return m_vecCommandDescriptor[index];
 }
 
+CCommand* CCommandsRegistry::FindCommandByGlobalId(GlobalCommands id)
+{
+	for (auto& it : m_vecCommandDescriptor)
+	{
+		if (it->GetId() == id)
+			return it;
+	}
+
+	return 0;
+}
+
+void CCommandsRegistry::RenderCommandAsMenuItem(GlobalCommands cmdId)
+{
+	CCommand* cmd = FindCommandByGlobalId(cmdId);
+	assert(cmd);
+
+	if (ImGui::MenuItem(cmd->GetDescription(), ""))
+	{
+		cmd->Execute();
+	}
+}
+
 CCommand::CCommand(GlobalCommands id, const char* description, gltexture_t* icon, int flags, pfnCommandCallback callback) :
 	m_eCommandId(id),
 	m_pIcon(icon),
@@ -137,4 +159,14 @@ void CCommand::RenderImGUI(int size)
 	}
 
 
+}
+
+GlobalCommands CCommand::GetId()
+{
+	return m_eCommandId;
+}
+
+const char* CCommand::GetDescription()
+{
+	return m_szDescription;
 }

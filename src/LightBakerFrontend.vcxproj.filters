@@ -24,9 +24,6 @@
     <Filter Include="Исходные файлы\ImGuizmo">
       <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Popups">
-      <UniqueIdentifier>{9b762dee-0bd6-4480-918c-9886b78e670e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -131,6 +128,12 @@
     <ClCompile Include="popup_lb3k_config.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="helper_geometry_shader.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_loadfile_dialog.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -232,10 +235,6 @@
     <ClInclude Include="persistent.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="custom_font.h" />
-    <ClInclude Include="popup_lb3k_config.h">
-      <Filter>Исходные файлы\Popups</Filter>
-    </ClInclude>
     <ClInclude Include="enum_iterator.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -243,6 +242,21 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="imgui_helpers.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="helper_geometry_shader.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_program.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_font.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_loadfile_dialog.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_lb3k_config.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>

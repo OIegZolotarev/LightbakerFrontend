@@ -12,8 +12,8 @@ enum class PropertiesTypes
 	Float,
 	Angles,
 	Int,
-	SizeX,
-	
+	SizeX,	
+	Bool
 };
 
 typedef std::pair<std::string, int> enumValuePair_t;
@@ -23,6 +23,7 @@ typedef struct propsData_s
 	int id;
 	PropertiesTypes type;
 	std::string display_name;
+	std::string group_id;
 
 	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
@@ -36,15 +37,17 @@ typedef struct propsData_s
 		float asFloat;
 		glm::vec3 asAngles;
 		int asInt;
+		bool asBool;
 	}value;
 
 	char* m_TempLabel = 0;
 
-	propsData_s(int _id, PropertiesTypes _type, std::string _displayName)
+	propsData_s(int _id, PropertiesTypes _type, std::string _displayName, std::string _group_id = "")
 	{
 		id = _id;
 		type = _type;
 		display_name = _displayName;
+		group_id = _group_id;
 
 		memset(&value, 0, sizeof(value));
 	}
@@ -123,6 +126,11 @@ typedef struct propsData_s
 	float GetSizeX()
 	{
 		return value.asFloat;
+	}
+
+	bool GetAsBool()
+	{
+		return value.asBool;
 	}
 
 }propsData_t;

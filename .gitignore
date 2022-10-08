@@ -13,4 +13,8 @@ src/.vs/LightBakerFrontend/v16/.suo
 *.ilk
 *.recipe
 build/Debug/LightBakerFrontend.res
-bin/LightBakerFrontend.exe
+bin/*
+build/*
+build/Release/LightBakerFrontend.ipdb
+build/Release/LightBakerFrontend.iobj
+build/Debug/imgui_popups.h.ifc

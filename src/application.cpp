@@ -55,7 +55,12 @@ void Application::EPICFAIL(const char* format, ...)
 	vsprintf_s(tmp, sizeof(tmp), format, argp);
 	va_end(argp);
 
-	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EPIC FAIL", tmp, Application::GetMainWindow()->Handle());
+	SDL_Window* window = nullptr;
+
+	if (Application::GetMainWindow())
+		window = Application::GetMainWindow()->Handle();
+
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "EPIC FAIL", tmp, window);
 	exit(1);
 }
 
@@ -135,7 +140,7 @@ void Application::CheckIfBakngFinished()
 	Con_Printf("[FRONTEND] Baking finished");
 
 	char export_path[4096];
-	sprintf_s(export_path, "%s/lb3k/%s", SDL_GetBasePath(), "edited.obj");
+	sprintf_s(export_path, "%slb3k/%s", SDL_GetBasePath(), "edited.obj");
 
 	m_pMainWindow->GetSceneRenderer()->LoadModel(export_path);
 

@@ -11,10 +11,12 @@ public:
 	SceneRenderer(class MainWindow* pTargetWindow);
 	~SceneRenderer();
 
+	class Camera* GetCamera();
+
 	void	RenderScene();
 	int		HandleEvent(bool bWasHandled, SDL_Event& e) override;
 	float	FrameDelta();
-	void	LoadModel(char* dropped_filedir);
+	void LoadModel(const char* dropped_filedir);
 
 	bool	IsModelLoaded();
 	
@@ -29,15 +31,13 @@ public:
 	lightDefWPtr_t GetLightWeakRef(lightDef_s* param1);
 	
 	void ExportModelForCompiling(const char* path);
-
-	class Camera* GetCamera();
-
 	void AddNewLight(LightTypes type);
+
 private:
 	void Debug_DrawGround();
 
 	class Camera*		m_pCamera;
-	class MainWindow* m_pTargetWindow;
+	class MainWindow*	m_pTargetWindow;
 
 	ModelOBJ* m_pSceneModel = nullptr;
 
@@ -46,8 +46,5 @@ private:
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
 	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
-
-	
-
 };
 

@@ -125,9 +125,15 @@ bool SelectionManager::SelectHoveredObject()
 			}
 		}
 
-		ptr->m_bSelected = true;
-		ptr->OnSelect();
-		return true;
+		if (ptr->IsHovered())
+		{
+			ptr->m_bSelected = true;
+			ptr->OnSelect();
+			return true;
+		}
+
+		return false;
+		
 	}
 
 	return false;

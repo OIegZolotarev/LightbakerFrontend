@@ -7,6 +7,12 @@
 
 PersistentStorage::PersistentStorage()
 {
+	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
+	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::BackgroundColor, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
+
+	auto setting = GetSetting(ApplicationSettings::BackgroundColor);
+	setting->value.asColorRGBA = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+
 	LoadFromFile();
 }
 
@@ -36,11 +42,15 @@ void PersistentStorage::LoadFromFile()
 			}
 		}
 
+		if (j.contains("ApplicationSettings"))
+			ParseApplicationSettings(j["ApplicationSettings"]);
+		
+
 	}
 	catch (std::exception& e)
 	{
 		e;
-		Application::EPICFAIL(e.what());
+		//Application::EPICFAIL(e.what());
 	}
 
 	delete fd;
@@ -53,13 +63,18 @@ PersistentStorage::~PersistentStorage()
 
 void PersistentStorage::PushMRUFile(const char* fileName)
 {
+	auto p = std::filesystem::path(fileName);
+	auto f = std::filesystem::canonical(p);
+
+	std::string canonicalFileName = { f.string() };
+
 	for (auto& it : m_lstMRUFiles)
 	{
-		if (!_stricmp(it.c_str(), fileName))
+		if (!_stricmp(it.c_str(), canonicalFileName.c_str()))
 			return;
 	}
 
-	m_lstMRUFiles.push_front(fileName);
+	m_lstMRUFiles.push_front(canonicalFileName);
 
 	while (m_lstMRUFiles.size() > 10)
 		m_lstMRUFiles.pop_back();
@@ -68,6 +83,182 @@ void PersistentStorage::PushMRUFile(const char* fileName)
 std::list<std::string>& PersistentStorage::GetMRUFiles()
 {
 	return m_lstMRUFiles;
+}
+
+propsData_t* PersistentStorage::GetSetting(ApplicationSettings id)
+{
+	for (auto& it : m_ApplicationProps)
+	{
+		if (it.id == (int)id)
+			return &it;
+	}
+
+	return nullptr;
+}
+
+nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j, propsData_t& it)
+{
+	nlohmann::json prop_descriptor;
+
+	prop_descriptor["id"] = it.id;
+	prop_descriptor["display_name"] = it.display_name;
+	prop_descriptor["type"] = it.type;
+	
+
+	switch (it.type)
+	{
+	case PropertiesTypes::Enum:
+		prop_descriptor["value"] = it.value.asEnum;
+		break;
+	case PropertiesTypes::Flags:
+		prop_descriptor["value"] = it.value.asFlags;
+		break;
+	case PropertiesTypes::Position:
+		{
+			nlohmann::json field;
+
+			field["x"] = it.value.asPosition[0];
+			field["y"] = it.value.asPosition[1];
+			field["z"] = it.value.asPosition[2];
+			
+			prop_descriptor["value"] = field;
+		}
+		break;
+	case PropertiesTypes::ColorRGB:
+	{
+		nlohmann::json field;
+
+		field["r"] = it.value.asColorRGB[0];
+		field["g"] = it.value.asColorRGB[1];
+		field["b"] = it.value.asColorRGB[2];
+
+		prop_descriptor["value"] = field;
+	}
+		break;
+	case PropertiesTypes::ColorRGBA:
+	{
+		nlohmann::json field;
+
+		field["r"] = it.value.asColorRGBA[0];
+		field["g"] = it.value.asColorRGBA[1];
+		field["b"] = it.value.asColorRGBA[2];
+		field["a"] = it.value.asColorRGBA[3];
+
+		prop_descriptor["value"] = field;
+	}
+		break;
+	case PropertiesTypes::Float:
+		prop_descriptor["value"] = it.value.asFloat;
+		break;
+	case PropertiesTypes::Angles:
+	{
+		nlohmann::json field;
+
+		field["x"] = it.value.asAngles[0];
+		field["y"] = it.value.asAngles[1];
+		field["z"] = it.value.asAngles[2];
+		
+		prop_descriptor["value"] = field;
+	}
+		break;
+	case PropertiesTypes::Int:
+		prop_descriptor["value"] = it.value.asInt;
+		break;
+	case PropertiesTypes::SizeX:
+		prop_descriptor["value"] = it.value.asFloat;
+		break;
+	case PropertiesTypes::Bool:
+		prop_descriptor["value"] = it.value.asBool;
+		break;
+	default:
+		break;
+
+	}
+
+	return prop_descriptor;
+}
+
+void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
+{
+	for (auto& it : j)
+	{
+		int id = it["id"];
+
+		propsData_t* descriptor = GetSetting((ApplicationSettings)id);
+
+		if (!descriptor)
+			continue;
+
+		if (it["type"] != descriptor->type)
+			continue;
+
+		switch (descriptor->type)
+		{
+		case PropertiesTypes::Enum:
+			//prop_descriptor["value"] = it.value.asEnum;
+			descriptor->value.asEnum = it["value"];
+			break;
+		case PropertiesTypes::Flags:
+			descriptor->value.asFloat = it["value"];
+			break;
+		case PropertiesTypes::Position:
+		{
+			nlohmann::json value = it["value"];
+
+			descriptor->value.asPosition[0] = value["x"];
+			descriptor->value.asPosition[1] = value["y"];
+			descriptor->value.asPosition[2] = value["z"];
+		}
+		break;
+		case PropertiesTypes::ColorRGB:
+		{
+			nlohmann::json value = it["value"];
+
+			descriptor->value.asColorRGB[0] = value["r"];
+			descriptor->value.asColorRGB[1] = value["g"];
+			descriptor->value.asColorRGB[2] = value["b"];
+		}
+		break;
+		case PropertiesTypes::ColorRGBA:
+		{
+			nlohmann::json value = it["value"];
+
+			descriptor->value.asColorRGBA[0] = value["r"];
+			descriptor->value.asColorRGBA[1] = value["g"];
+			descriptor->value.asColorRGBA[2] = value["b"];
+			descriptor->value.asColorRGBA[3] = value["a"];
+		}
+		break;
+		case PropertiesTypes::Float:
+			//prop_descriptor["value"] = it.value.asFloat;
+			descriptor->value.asFloat = it["value"];
+			break;
+		case PropertiesTypes::Angles:
+		{
+			nlohmann::json value = it["value"];
+
+			descriptor->value.asAngles[0] = value["x"];
+			descriptor->value.asAngles[1] = value["y"];
+			descriptor->value.asAngles[2] = value["z"];
+		}
+		break;
+		case PropertiesTypes::Int:
+			descriptor->value.asInt = it["value"];
+			break;
+		case PropertiesTypes::SizeX:
+			descriptor->value.asFloat = it["value"];
+			break;
+		case PropertiesTypes::Bool:
+			descriptor->value.asBool = it["value"];
+			break;
+		default:
+			break;
+
+		}
+
+		//prop_descriptor["display_name"] = it.display_name;
+		//prop_descriptor["type"] = it.type;
+	}
 }
 
 void PersistentStorage::SaveToFile()
@@ -80,8 +271,8 @@ void PersistentStorage::SaveToFile()
 	{		
 		nlohmann::json j;		
 		j["MRU"] = m_lstMRUFiles;
-
-		std::string data = j.dump(4);
+		
+		
 
 		FILE* fp = 0;
 		
@@ -90,6 +281,16 @@ void PersistentStorage::SaveToFile()
 		if (!fp)
 			return;
 
+		std::list<nlohmann::json> props;
+
+		for (auto& it : m_ApplicationProps)
+		{
+			props.push_back(SerializeApplicationProperty(j,it));
+		}
+
+		j["ApplicationSettings"] = props;
+
+		std::string data = j.dump(4);
 		fprintf(fp, "%s", data.c_str());
 		fclose(fp);
 	}

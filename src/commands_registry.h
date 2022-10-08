@@ -7,7 +7,8 @@ enum class GlobalCommands
 	AddSpotLight,
 	AddDirectLight,
 	LoadFile,
-	Bake
+	Bake,
+	ToggleGround
 };
 
 typedef std::function<void()> pfnCommandCallback;
@@ -26,11 +27,12 @@ class CCommand
 
 public:
 	CCommand(GlobalCommands id, const char* description, gltexture_t* icon, int flags, pfnCommandCallback callback);
-	void Execute();
-
-	int Flags() { return m_iFlags; }
 	
-	void RenderImGUI(int size = 32);
+	void				Execute();
+	int					Flags() { return m_iFlags; }	
+	void				RenderImGUI(int size = 32);
+	GlobalCommands		GetId();
+	const char*			GetDescription();
 };
 
 class CCommandsRegistry
@@ -45,5 +47,8 @@ public:
 
 	std::vector<int>&	GetMainToolbarCommands();
 	CCommand*			GetCommandByInternalIndex(int index);
+	CCommand*			FindCommandByGlobalId(GlobalCommands id);
+
+	void				RenderCommandAsMenuItem(GlobalCommands cmdId);
 };
 

@@ -184,6 +184,7 @@
     <ClCompile Include="gl_backend.cpp" />
     <ClCompile Include="file_system.cpp" />
     <ClCompile Include="gl_texture.cpp" />
+    <ClCompile Include="helper_geometry_shader.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="lb3k_wrapper.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="model_obj.cpp" />
     <ClCompile Include="persistent.cpp" />
     <ClCompile Include="popup_lb3k_config.cpp" />
+    <ClCompile Include="popup_loadfile_dialog.cpp" />
     <ClCompile Include="properties_editor.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="selection_3d.cpp" />
@@ -223,9 +225,11 @@
     <ClInclude Include="file_system.h" />
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="gl_texture.h" />
+    <ClInclude Include="helper_geometry_shader.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="persistent.h" />
     <ClInclude Include="popup_lb3k_config.h" />
+    <ClInclude Include="popup_loadfile_dialog.h" />
     <ClInclude Include="properties_editor.h" />
     <ClInclude Include="object_props.h" />
     <ClInclude Include="lb3k_wrapper.h" />
@@ -236,6 +240,7 @@
     <ClInclude Include="scene_renderer.h" />
     <ClCompile Include="stb_image_impl.cpp" />
     <ClInclude Include="selection_3d.h" />
+    <ClInclude Include="shader_program.h" />
     <ClInclude Include="ui_common.h" />
   </ItemGroup>
   <ItemGroup>

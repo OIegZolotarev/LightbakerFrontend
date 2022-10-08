@@ -1,5 +1,6 @@
 #include "gl_backend.h"
 #include <stddef.h>
+#include "application.h"
 
 DrawMesh::DrawMesh(int flags)
 {
@@ -51,21 +52,36 @@ void DrawMesh::End()
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), GL_STATIC_DRAW);
 	
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, xyz));
+ 	glEnableClientState(GL_VERTEX_ARRAY);
+ 	glVertexPointer(3, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, xyz));
+ 
+ 	if (!(m_iFlags * DrawMeshFlags::NoUV))
+ 	{
+ 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+ 		glTexCoordPointer(2, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, uv));
+ 	}
+ 	
+ 	if (!(m_iFlags & DrawMeshFlags::NoColor))
+ 	{
+ 		glEnableClientState(GL_COLOR_ARRAY);
+ 		glColorPointer(4, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, color));
+ 	}
 
-	if (!(m_iFlags * DrawMeshFlags::NoUV))
-	{
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glTexCoordPointer(2, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, uv));
-	}
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void*)offsetof(drawVert_t, xyz));
+	glEnableVertexAttribArray(0);
+
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void*)offsetof(drawVert_t, normal));
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void*)offsetof(drawVert_t, tangent));
+	glEnableVertexAttribArray(2);
 	
-	if (!(m_iFlags & DrawMeshFlags::NoColor))
-	{
-		glEnableClientState(GL_COLOR_ARRAY);
-		glColorPointer(4, GL_FLOAT, sizeof(drawVert_t), (void*)offsetof(drawVert_t, color));
-	}
-	
+	glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void*)offsetof(drawVert_t, color));
+	glEnableVertexAttribArray(3);
+
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void*)offsetof(drawVert_t, uv));
+	glEnableVertexAttribArray(4);
+
 
 	m_NumElements = m_Data.size();
 	FreeVector(m_Data);
@@ -186,4 +202,106 @@ void DrawMesh::BindAndDraw()
 	Bind();
 	Draw();
 	Unbind();
+}
+
+GLuint ShaderProgram::MakeShader(const char* fileName, GLuint type)
+{	
+	auto fd = Application::GetFileSystem()->LoadFile(fileName);
+
+	if (!fd)
+		return 0;
+
+	
+	auto src = std::string(std::string_view((char*)fd->Data(), fd->Length()));
+	auto ptr = src.c_str();
+
+	GLuint result = glCreateShader(type);
+	glShaderSource(result, 1, &ptr, NULL);
+	glCompileShader(result);
+
+	int  success;
+	char infoLog[512];
+	glGetShaderiv(result, GL_COMPILE_STATUS, &success);
+
+	if (!success)
+	{
+		glGetShaderInfoLog(result, 512, NULL, infoLog);
+		printf("MakeShader(): failed on \"%s\":\n%s", fileName, infoLog);
+	}
+
+	delete fd;
+
+	return result;
+}
+
+ShaderProgram::ShaderProgram()
+{
+	m_uiProgramId = glCreateProgram();
+}
+
+ShaderProgram::~ShaderProgram()
+{
+	if (m_uiVertexShader) glDeleteShader(m_uiVertexShader);
+	if (m_uiGeometryShader) glDeleteShader(m_uiGeometryShader);
+	if (m_uiFragmentShader) glDeleteShader(m_uiFragmentShader);
+
+	glDeleteProgram(m_uiProgramId);
+}
+
+bool ShaderProgram::AttachVertexShader(const char* fileName)
+{
+	m_uiVertexShader = MakeShader(fileName,GL_VERTEX_SHADER);
+	return m_uiVertexShader != 0;
+}
+
+bool ShaderProgram::AttachFragmentShader(const char* fileName)
+{
+	m_uiFragmentShader = MakeShader(fileName, GL_FRAGMENT_SHADER);
+	return m_uiFragmentShader != 0;
+}
+
+bool ShaderProgram::AttachGeometryShader(const char* fileName)
+{
+	//m_uiGeometryShader = MakeShader(fileName, GL_GEOMETRY_SHADER);
+	return m_uiGeometryShader != 0;
+}
+
+void ShaderProgram::LinkProgram()
+{
+	if (m_uiVertexShader)		glAttachShader(m_uiProgramId, m_uiVertexShader);
+	if (m_uiFragmentShader)		glAttachShader(m_uiProgramId, m_uiFragmentShader);
+	if (m_uiGeometryShader)		glAttachShader(m_uiProgramId, m_uiGeometryShader);
+	
+	glLinkProgram(m_uiProgramId);
+}
+
+void ShaderProgram::Bind()
+{
+	glUseProgram(m_uiProgramId);
+}
+
+void ShaderProgram::Unbind()
+{
+	glUseProgram(0);
+}
+
+GLBackend::GLBackend()
+{
+	m_pHelperGeometryShader = new HelperGeometryShaderProgram;
+}
+
+GLBackend* GLBackend::Instance()
+{
+	static GLBackend* pInstance = new GLBackend;
+	return pInstance;
+}
+
+GLBackend::~GLBackend()
+{
+	if (m_pHelperGeometryShader) delete m_pHelperGeometryShader;
+}
+
+HelperGeometryShaderProgram* GLBackend::HelperGeometryShader()
+{
+	return m_pHelperGeometryShader;
 }

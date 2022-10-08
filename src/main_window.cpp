@@ -37,7 +37,7 @@ void MainWindow::InitBackend()
 	}
 
 	std::string glsl_version = "";
-	glsl_version = "#version 150";
+	glsl_version = "#version 330";
 
 	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_iWindowWidth, m_iWindowHeight, window_flags);
@@ -93,10 +93,16 @@ void MainWindow::InitBackend()
 	ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
 	ImGui_ImplOpenGL3_Init(glsl_version.c_str());
 
-
 	int32_t cursorData[2] = { 0, 0 };
 	g_EmptyCursor = SDL_CreateCursor((Uint8*)cursorData, (Uint8*)cursorData, 8, 8, 4, 4);
 	SDL_SetCursor(g_EmptyCursor);
+
+	// Force backend to initialize
+	GLBackend::Instance();
+
+	m_Console.AddLog("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
+	m_Console.AddLog("GL_VERSION: %s\n", glGetString(GL_VERSION));
+	
 }
 
 ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags, const ImGuiWindowClass* window_class)
@@ -225,7 +231,7 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LoadFile, "Load...", GetCommonIcon(CommonIcons::LoadFile), CMD_ON_MAINTOOLBAR, 
 	[&]()
 	{
-
+			PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
 	}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddDirectLight, "+Direct", GetCommonIcon(CommonIcons::DirectLight), CMD_ON_MAINTOOLBAR,
@@ -249,8 +255,18 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
 		[]()
 		{
-			//Application::Instance()->ExecuteBaking();
-			PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
+			Application::Instance()->ExecuteBaking();
+			//PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ToggleGround, "Toggle ground", 0, 0,
+		[]()
+		{	
+			auto pers = Application::Instance()->GetPersistentStorage();
+			auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
+
+			showGround->value.asBool = !showGround->value.asBool;
+
 		}));
 }
 
@@ -303,6 +319,8 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("View"))
 		{
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::ToggleGround);
+
 			ImGui::EndMenu();
 		}
 
