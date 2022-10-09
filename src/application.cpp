@@ -19,8 +19,7 @@ Application::~Application()
 {
 	if (m_pMainWindow) delete m_pMainWindow;
 	delete m_pFileSystem;
-
-	delete ObjectPropertiesEditor::Instance();
+		
 	delete m_pPersistentStorage;
 }
 
@@ -155,6 +154,16 @@ void Application::NotifyBakingFinished(int code)
 PersistentStorage* Application::GetPersistentStorage()
 {
 	return Instance()->m_pPersistentStorage;
+}
+
+bool Application::DelayedInitDone()
+{
+	return Instance()->m_bDelayedInitDone;
+}
+
+void Application::FlagDelayedInitDone()
+{
+	m_bDelayedInitDone = true;
 }
 
 Application* Application::Instance()

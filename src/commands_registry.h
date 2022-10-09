@@ -8,7 +8,8 @@ enum class GlobalCommands
 	AddDirectLight,
 	LoadFile,
 	Bake,
-	ToggleGround
+	ToggleGround,
+	DeleteSelection
 };
 
 typedef std::function<void()> pfnCommandCallback;

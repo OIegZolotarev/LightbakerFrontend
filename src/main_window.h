@@ -4,6 +4,7 @@
 #include "ui_common.h"
 #include "scene_renderer.h"
 #include "console.h"
+#include "igui_panel.h"
 
 struct timersData
 {
@@ -19,7 +20,20 @@ struct timersData
 	int num_frames_this_second = 0;
 };
 
+typedef struct defaultDockSides_s
+{
+	ImGuiID idDockLeftTop;
+	ImGuiID idDockLeftBottom;
 
+	ImGuiID idDockRightTop;
+	ImGuiID idDockRightBottom;
+
+	ImGuiID idDockUpLeft;
+	ImGuiID idDockUpRight;
+
+	ImGuiID idDockBottomLeft;
+	ImGuiID idDockBottomRight;
+}defaultDockSides_t;
 
 class MainWindow
 {
@@ -29,25 +43,27 @@ public:
 
 	void MainLoop();
 
-	int		Width() { return m_iWindowWidth;  }
-	int		Height() { return m_iWindowHeight; }
-	
-	SDL_Window* Handle()
-	{
-		return m_pSDLWindow;
-	}
+	int		Width();
+	int		Height();
+
+	SDL_Window* Handle();
 
 	float FrameDelta();
 
-	DebugConsole* Console()
-	{
-		return &m_Console;
-	}
+	DebugConsole* Console();
 
 	class SceneRenderer* GetSceneRenderer();
 
 	int* Get3DGLViewport();
 
+	void UpdateDocks();
+
+	defaultDockSides_s* GetDockSides()
+	{
+		return &m_defaultDockSides;
+	}
+
+	int GetFPS();
 private:
 
 	enum ToolbarIcons
@@ -97,8 +113,15 @@ private:
 
 	void InitBackend();
 
+	void InitDocks();
+
 	ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags, const ImGuiWindowClass* window_class);
 
 	int m_i3DViewport[4];
+	
+	defaultDockSides_s m_defaultDockSides;
+
+	std::vector<IGUIPanel*> m_vPanels;
+
 };
 

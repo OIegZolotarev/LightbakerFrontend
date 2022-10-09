@@ -1,12 +1,13 @@
 #pragma once
 #include "object_props.h"
+#include "igui_panel.h"
 
-class ObjectPropertiesEditor
+class ObjectPropertiesEditor : public IGUIPanel
 {
 	ObjectPropertiesEditor();
 
 	IObjectPropertiesBinding* m_pPropertiesBinding = nullptr;
-	ImGuiID m_FlagsEditorID;
+	ImGuiID m_FlagsEditorID = 0;
 
 	std::vector<propsData_t> m_vPropsData;
 
@@ -26,17 +27,20 @@ class ObjectPropertiesEditor
 	bool CheckObjectValidity();
 	void SetupGuizmo();
 	propsData_t* FindFirstPropertyByType(PropertiesTypes type);
+
+	void RenderEditor();
+
 public:
 
 	static ObjectPropertiesEditor* Instance();
 	~ObjectPropertiesEditor();;
-
-	void RenderEditor();
+		
 	void LoadObject(IObjectPropertiesBinding* pBindings);
-
-	void RenderGuizmo();
-
-
-
 	void UnloadObject();
+	
+	void RenderGuizmo();
+	
+	DockPanels GetDockSide() override;
+	void Render() override;
+
 };

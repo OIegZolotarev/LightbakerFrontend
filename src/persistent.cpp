@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include "application.h"
 #include <string>
+#include "igui_panel.h"
 
 
 PersistentStorage::PersistentStorage()
@@ -44,12 +45,45 @@ void PersistentStorage::LoadFromFile()
 
 		if (j.contains("ApplicationSettings"))
 			ParseApplicationSettings(j["ApplicationSettings"]);
-		
+// 	
+// 		std::list<nlohmann::json> panels_state;
+// 
+// 		for (auto& it : PanelsId::_values())
+// 		{
+// 			if (it._value == PanelsId::None)
+// 				continue;
+// 
+// 			if (it._value == PanelsId::MaxPanels)
+// 				continue;
+// 
+// 			nlohmann::json panel_desc;
+// 			panel_desc["Valid"] = m_bPanelsValid[it._value];
+// 			panel_desc["Id"] = it._to_string();
+// 
+// 			panels_state.push_back(panel_desc);
+// 		}
+// 
+// 		j["PanelsState"] = panels_state;
+
+		if (j.contains("PanelsState"))
+		{
+			auto items = j["PanelsState"];
+
+			for (auto it : items)
+			{
+				PanelsId id = PanelsId::_from_string(it["Id"].get<std::string>().c_str());
+				bool isValid = it["Valid"];
+
+				m_bPanelsValid[id._value] = isValid;
+
+			}
+		}
 
 	}
 	catch (std::exception& e)
 	{
 		e;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Exception while parsing persistent data", e.what(), 0);
 		//Application::EPICFAIL(e.what());
 	}
 
@@ -261,6 +295,16 @@ void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
 	}
 }
 
+bool PersistentStorage::IsPanelAtValidPosition(PanelsId id)
+{
+	return m_bPanelsValid[id._value];
+}
+
+void PersistentStorage::FlagPanelIsAtValidPosition(PanelsId id)
+{
+	m_bPanelsValid[id._value] = true;
+}
+
 void PersistentStorage::SaveToFile()
 {
 	char persistent_file[1024];
@@ -272,8 +316,6 @@ void PersistentStorage::SaveToFile()
 		nlohmann::json j;		
 		j["MRU"] = m_lstMRUFiles;
 		
-		
-
 		FILE* fp = 0;
 		
 		fopen_s(&fp, persistent_file, "wb");
@@ -289,6 +331,26 @@ void PersistentStorage::SaveToFile()
 		}
 
 		j["ApplicationSettings"] = props;
+
+		std::list<nlohmann::json> panels_state;
+
+		for (auto& it : PanelsId::_values())
+		{
+			if (it._value == PanelsId::None)
+				continue;
+
+			if (it._value == PanelsId::MaxPanels)
+				continue;
+
+			nlohmann::json panel_desc;
+			panel_desc["Valid"] = m_bPanelsValid[it._value];
+			panel_desc["Id"] = it._to_string();
+
+			panels_state.push_back(panel_desc);
+		}
+
+		j["PanelsState"] = panels_state;
+
 
 		std::string data = j.dump(4);
 		fprintf(fp, "%s", data.c_str());

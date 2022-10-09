@@ -5,10 +5,8 @@
 #include "application.h"
 #include "Camera.h"
 
-ObjectPropertiesEditor::ObjectPropertiesEditor()
+ObjectPropertiesEditor::ObjectPropertiesEditor(): IGUIPanel(PanelsId::ObjectProperties,(char*)"Object properties")
 {
-	m_FlagsEditorID = ImGui::GetID("Flags");
-
 	//LightPropertiesBinding b;
 	//b.FillProperties(m_vPropsData);
 }
@@ -22,11 +20,17 @@ ObjectPropertiesEditor* ObjectPropertiesEditor::Instance()
 ObjectPropertiesEditor::~ObjectPropertiesEditor()
 {
 	if (m_pPropertiesBinding)
+	{
 		delete m_pPropertiesBinding;
+		m_pPropertiesBinding = 0;
+	}
 }
 
 void ObjectPropertiesEditor::RenderEditor()
 {
+	if (!m_FlagsEditorID)
+		m_FlagsEditorID = ImGui::GetID("Flags");
+
 	RenderPropetiesPane();
 	RenderFlagsEditor();
 }
@@ -34,7 +38,10 @@ void ObjectPropertiesEditor::RenderEditor()
 void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding* pBindings)
 {
 	if (m_pPropertiesBinding)
+	{
 		delete m_pPropertiesBinding;
+		m_pPropertiesBinding = 0;
+	}
 
 	m_vPropsData.clear();
 	m_pPropertiesBinding = pBindings;
@@ -68,6 +75,16 @@ void ObjectPropertiesEditor::UnloadObject()
 		m_pPropertiesBinding = nullptr;
 		m_vPropsData.clear();
 	}
+}
+
+DockPanels ObjectPropertiesEditor::GetDockSide()
+{
+	return DockPanels::RightTop;
+}
+
+void ObjectPropertiesEditor::Render()
+{
+	RenderEditor();
 }
 
 bool ObjectPropertiesEditor::CheckObjectValidity()
@@ -137,7 +154,7 @@ void ObjectPropertiesEditor::RenderFlagsEditor()
 
 void ObjectPropertiesEditor::RenderPropetiesPane()
 {
-	if (ImGui::Begin("Properties"))
+	if (ImGui::Begin(m_strPanelTitle))
 	{
 		CheckObjectValidity();
 

@@ -4,6 +4,7 @@
 #include "commands_registry.h"
 #include "file_system.h"
 #include "persistent.h"
+#include "lb3k_wrapper.h"
 
 class Application
 {
@@ -13,10 +14,14 @@ class Application
 
 	Application();
 
-	bool m_bWaitingForBakingToFinish;
+	bool m_bWaitingForBakingToFinish = false;
 	bool m_bBakingFinished = true;
 
 	PersistentStorage*	m_pPersistentStorage;
+
+	LightBaker3000*		m_pLightBakerApplication;
+
+	bool m_bDelayedInitDone = false;
 
 public:
 	// Конструкторы\доступ
@@ -46,6 +51,9 @@ public:
 
 
 	static PersistentStorage* GetPersistentStorage();
+	static bool DelayedInitDone();
+
+	void FlagDelayedInitDone();
 };
 
 inline void Con_Printf(const char* fmt, ...)

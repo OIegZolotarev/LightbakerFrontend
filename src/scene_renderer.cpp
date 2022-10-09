@@ -290,3 +290,38 @@ void SceneRenderer::AddNewLight(LightTypes type)
 	m_vecSceneLightDefs.push_back(lightDefPtr_t(newLight));
 	newLight->InvokeSelect();
 }
+
+std::vector<lightDefPtr_t>& SceneRenderer::GetSceneObjects()
+{
+	return m_vecSceneLightDefs;
+}
+
+void SceneRenderer::HintSelected(lightDefWPtr_t weakRef)
+{
+	m_pCurrentSelection = weakRef;
+}
+
+lightDefWPtr_t SceneRenderer::GetSelection()
+{
+	return m_pCurrentSelection;	
+}
+
+void SceneRenderer::DeleteLight(lightDefWPtr_t l)
+{
+	auto ptr = l.lock();
+
+	if (!ptr)
+		return;
+
+	auto pos = std::remove_if(m_vecSceneLightDefs.begin(), m_vecSceneLightDefs.end(), [&](lightDefPtr_t& it)
+		{
+			return it == ptr;
+		});
+
+	m_vecSceneLightDefs.erase(pos);
+}
+
+void SceneRenderer::DoDeleteSelection()
+{
+	DeleteLight(GetSelection());
+}

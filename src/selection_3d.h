@@ -49,4 +49,7 @@ public:
 	~SelectionManager();
 	bool SelectHoveredObject();
 	void UnSelect();
+	void UnSelectEverythingBut(ISelectableObject* param1);
+private:
+	ISelectableObject* m_pSelectionInvokedObject;
 };

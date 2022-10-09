@@ -179,12 +179,15 @@
     <ClCompile Include="commands_registry.cpp" />
     <ClCompile Include="common_resources.cpp" />
     <ClCompile Include="console.cpp" />
+    <ClCompile Include="console_output_panel.cpp" />
     <ClCompile Include="custom_font.cpp" />
+    <ClCompile Include="debug_panel.cpp" />
     <ClCompile Include="draw_utils.cpp" />
     <ClCompile Include="gl_backend.cpp" />
     <ClCompile Include="file_system.cpp" />
     <ClCompile Include="gl_texture.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
+    <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="lb3k_wrapper.cpp" />
@@ -195,6 +198,7 @@
     <ClCompile Include="popup_lb3k_config.cpp" />
     <ClCompile Include="popup_loadfile_dialog.cpp" />
     <ClCompile Include="properties_editor.cpp" />
+    <ClCompile Include="scene_objects_panel.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="selection_3d.cpp" />
     <ClCompile Include="win_main.cpp" />
@@ -218,7 +222,9 @@
     <ClInclude Include="common.h" />
     <ClInclude Include="common_resources.h" />
     <ClInclude Include="console.h" />
+    <ClInclude Include="console_output_panel.h" />
     <ClInclude Include="custom_font.h" />
+    <ClInclude Include="debug_panel.h" />
     <ClInclude Include="draw_utils.h" />
     <ClInclude Include="enum_iterator.h" />
     <ClInclude Include="gl_backend.h" />
@@ -226,6 +232,7 @@
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="gl_texture.h" />
     <ClInclude Include="helper_geometry_shader.h" />
+    <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="persistent.h" />
     <ClInclude Include="popup_lb3k_config.h" />
@@ -237,6 +244,7 @@
     <ClInclude Include="main_window.h" />
     <ClInclude Include="model_obj.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="scene_objects_panel.h" />
     <ClInclude Include="scene_renderer.h" />
     <ClCompile Include="stb_image_impl.cpp" />
     <ClInclude Include="selection_3d.h" />

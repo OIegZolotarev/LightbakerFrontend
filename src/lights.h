@@ -51,6 +51,8 @@ public:
 
 	void OnUnSelect() override;
 
+	const char* Description();
+
 }lightDef_t;
 
 enum LightProperties

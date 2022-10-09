@@ -33,6 +33,16 @@ public:
 	void ExportModelForCompiling(const char* path);
 	void AddNewLight(LightTypes type);
 
+	std::vector<lightDefPtr_t>& GetSceneObjects();
+
+	void HintSelected(lightDefWPtr_t weakRef);
+	lightDefWPtr_t GetSelection();
+
+
+	void DeleteLight(lightDefWPtr_t l);
+
+
+	void DoDeleteSelection();
 private:
 	void Debug_DrawGround();
 
@@ -46,5 +56,6 @@ private:
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
 	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
+	lightDefWPtr_t m_pCurrentSelection;
 };
 

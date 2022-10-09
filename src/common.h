@@ -4,6 +4,12 @@
 
 #define NOMINMAX
 
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
+
 #include <stdlib.h>
 #include <vector>
 #include <list>
@@ -15,10 +21,6 @@
 #include "../include/glm/glm/gtx/quaternion.hpp"
 #include "../include/glm/glm/ext/matrix_transform.hpp"
 #include "../include/glm/glm/mat4x4.hpp"
-
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #include <glad/glad.h>
 

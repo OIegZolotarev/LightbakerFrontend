@@ -165,11 +165,36 @@ void lightDef_s::OnSelect()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 
-	LightPropertiesBinding* pBinding = new LightPropertiesBinding(sceneRenderer->GetLightWeakRef(this));
+	auto weakRef = sceneRenderer->GetLightWeakRef(this);
+
+	sceneRenderer->HintSelected(weakRef);
+
+	LightPropertiesBinding* pBinding = new LightPropertiesBinding(weakRef);
 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
 }
 
 void lightDef_s::OnUnSelect()
 {
 	ObjectPropertiesEditor::Instance()->UnloadObject();
+}
+
+const char* lightDef_s::Description()
+{
+	switch (type)
+	{
+	case LightTypes::Omni:
+		return "Omnidirectional";
+		break;
+	case LightTypes::Spot:
+		return "Spotlight";
+		break;
+	case LightTypes::Direct:
+		return "Direct";
+		break;
+	default:
+		break;
+		
+	}
+
+	return "Bad";
 }

@@ -6,6 +6,9 @@
 #include "properties_editor.h"
 #include "Camera.h"
 #include "imgui_popups.h"
+#include "scene_objects_panel.h"
+#include "console_output_panel.h"
+#include "debug_panel.h"
 
 
 const char* strDockspace = "DockSpace";
@@ -25,6 +28,20 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 	m_vEventHandlers.push_back(m_pSceneRenderer);
 
 	InitCommands();
+
+	m_vPanels.push_back(ObjectPropertiesEditor::Instance());
+	m_vPanels.push_back(new SceneObjectPanel);
+	m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
+	m_vPanels.push_back(new DebugPanel);
+}
+
+MainWindow::~MainWindow()
+{
+	FreeVector(m_vEventHandlers);
+	delete m_pSceneRenderer;
+
+	ClearPointersVector(m_vPanels);
+
 }
 
 void MainWindow::InitBackend()
@@ -102,7 +119,38 @@ void MainWindow::InitBackend()
 
 	m_Console.AddLog("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
 	m_Console.AddLog("GL_VERSION: %s\n", glGetString(GL_VERSION));
+
+}
+
+void MainWindow::InitDocks()
+{
+	ImGuiViewport* viewport = ImGui::GetMainViewport();
+
+	auto dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
+
+	ImGui::DockBuilderRemoveNode(gIDMainDockspace); // clear any previous layout
+	ImGui::DockBuilderAddNode(gIDMainDockspace, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
+	ImGui::DockBuilderSetNodeSize(gIDMainDockspace, viewport->Size);
+
 	
+	auto idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
+	ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockUpLeft, &m_defaultDockSides.idDockUpRight);
+
+	auto idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
+	ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockBottomLeft, &m_defaultDockSides.idDockBottomRight);
+
+	auto idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
+	ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
+
+	auto idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
+	ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockRightTop, &m_defaultDockSides.idDockRightBottom);
+
+	//m_idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
+	//m_idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
+	//m_idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
+	//m_idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
+
+	ImGui::DockBuilderFinish(gIDMainDockspace);
 }
 
 ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags, const ImGuiWindowClass* window_class)
@@ -155,20 +203,25 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 		m_i3DViewport[3] = m_iWindowWidth;
 	}
 
+
 	ImGui::End();
 
 	return gIDMainDockspace;
 }
 
+void MainWindow::UpdateDocks()
+{
+	ImGui::DockBuilderFinish(gIDMainDockspace);
+}
+
+int MainWindow::GetFPS()
+{
+	return m_TimersData.actual_fps;
+}
+
 int* MainWindow::Get3DGLViewport()
 {
 	return m_i3DViewport;
-}
-
-MainWindow::~MainWindow()
-{
-	FreeVector(m_vEventHandlers);
-	delete m_pSceneRenderer;
 }
 
 void MainWindow::MainLoop()
@@ -178,6 +231,7 @@ void MainWindow::MainLoop()
 	m_TimersData.frames_until_init = 3;
 	m_TimersData.fps_accum = 0;
 	m_TimersData.num_frames_this_second = 0;
+
 
 	while (!m_bTerminated)
 	{
@@ -191,15 +245,34 @@ void MainWindow::MainLoop()
 
 		RenderGUI();
 
-
 		LimitToTargetFPS();
 		SDL_GL_SwapWindow(m_pSDLWindow);
 	}
 }
 
+int MainWindow::Width()
+{
+	return m_iWindowWidth;
+}
+
+int MainWindow::Height()
+{
+	return m_iWindowHeight;
+}
+
+SDL_Window* MainWindow::Handle()
+{
+	return m_pSDLWindow;
+}
+
 float MainWindow::FrameDelta()
 {
 	return m_TimersData.frame_delta / 1000;
+}
+
+DebugConsole* MainWindow::Console()
+{
+	return &m_Console;
 }
 
 SceneRenderer* MainWindow::GetSceneRenderer()
@@ -268,6 +341,13 @@ void MainWindow::InitCommands()
 			showGround->value.asBool = !showGround->value.asBool;
 
 		}));
+
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DeleteSelection, "Delete", 0, 0,
+		[&]()
+		{
+			m_pSceneRenderer->DoDeleteSelection();
+		}));
 }
 
 float MainWindow::RenderMainMenu()
@@ -313,6 +393,18 @@ float MainWindow::RenderMainMenu()
 			{				
 				m_bTerminated = true;
 			}
+
+			ImGui::EndMenu();
+		}
+
+		if (ImGui::BeginMenu("Edit"))
+		{
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddOmniLight);
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddSpotLight);
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddDirectLight);
+
+			ImGui::Separator();
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::DeleteSelection);
 
 			ImGui::EndMenu();
 		}
@@ -387,8 +479,23 @@ void MainWindow::RenderGUI()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
 
+
+	static int delayInit = 3;
+
 	ImGui::NewFrame();
 	
+	if (delayInit > 0)
+	{
+		delayInit--;
+
+		if (delayInit == 0)
+		{
+			InitDocks();
+			Application::Instance()->FlagDelayedInitDone();
+		}
+
+
+	}
 
 	float		menuHeight = RenderMainMenu();
 	float		toolbarHeight = RenderMainToolbar(menuHeight);
@@ -398,23 +505,11 @@ void MainWindow::RenderGUI()
 	ObjectPropertiesEditor::Instance()->RenderGuizmo();
 	
 
-	static bool bShowDebug = true;
-
-	if (bShowDebug)
-	{
-		ImGui::Begin("Debug", &bShowDebug);
-		ImGui::Text("FPS: %d\n", m_TimersData.actual_fps);
-		ImGui::End();
-	}
-
-	if (m_bShowConsole)
-	{
-		m_Console.Draw("Console output", &m_bShowConsole);
-	}
-
-	ObjectPropertiesEditor::Instance()->RenderEditor();
-	
+	for (auto& it : m_vPanels)
+		it->InvokeRender();
+		
 	PopupsManager::Instance()->RenderPopups();
+	
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

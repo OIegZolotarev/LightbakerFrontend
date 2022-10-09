@@ -38,11 +38,20 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 			if (auto ptr = m_vObjects[i].lock())
 			{
 				ptr->RenderForSelection(objectId, pRenderer);
+
+				if (m_pSelectionInvokedObject)
+				{
+					if (ptr.get() != m_pSelectionInvokedObject)
+						ptr->m_bSelected = false;
+				}
+
 			}
 		}
 
 		if (m_vObjects.size() > 0)
 			glFinish();
+
+		m_pSelectionInvokedObject = nullptr;
 
 		int mx, my;
 
@@ -149,6 +158,11 @@ void SelectionManager::UnSelect()
 	}
 }
 
+void SelectionManager::UnSelectEverythingBut(ISelectableObject* object)
+{
+	m_pSelectionInvokedObject = object;
+}
+
 SelectionManager::SelectionManager()
 {
 
@@ -159,5 +173,7 @@ void ISelectableObject::InvokeSelect()
 {
 	m_bSelected = true;
 	OnSelect();
+
+	SelectionManager::Instance()->UnSelectEverythingBut(this);
 }
 
