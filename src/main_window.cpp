@@ -87,8 +87,6 @@ void MainWindow::InitBackend()
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 
 	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
-
-	ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
 	io.MouseDrawCursor = true;
 
 	char* p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
@@ -186,7 +184,7 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 	ImGui::DockSpace(gIDMainDockspace, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
 
 
-	auto c = ImGui::DockBuilderGetCentralNode(ImGui::GetID("DockSpace"));
+	auto c = ImGui::DockBuilderGetCentralNode(gIDMainDockspace);
 
 	if (c)
 	{
@@ -479,23 +477,24 @@ void MainWindow::RenderGUI()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
 
-
-	static int delayInit = 3;
+	static int delayInit = 2;
 
 	ImGui::NewFrame();
-	
+
 	if (delayInit > 0)
 	{
 		delayInit--;
 
+		auto pers = Application::GetPersistentStorage();
 		if (delayInit == 0)
 		{
-			InitDocks();
+			if (pers->IsFreshFile()) InitDocks();
 			Application::Instance()->FlagDelayedInitDone();
 		}
-
-
 	}
+	
+	auto it = ImGui::FindOrCreateWindowSettings("Scene objects");
+
 
 	float		menuHeight = RenderMainMenu();
 	float		toolbarHeight = RenderMainToolbar(menuHeight);
@@ -510,6 +509,8 @@ void MainWindow::RenderGUI()
 		
 	PopupsManager::Instance()->RenderPopups();
 	
+	ImGui::ShowDemoWindow();
+
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

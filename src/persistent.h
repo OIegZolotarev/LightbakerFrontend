@@ -38,4 +38,7 @@ public:
 	
 	bool IsPanelAtValidPosition(PanelsId id);
 	void FlagPanelIsAtValidPosition(PanelsId id);
+	bool IsFreshFile();
+private:
+	bool m_bFreshFile;
 };

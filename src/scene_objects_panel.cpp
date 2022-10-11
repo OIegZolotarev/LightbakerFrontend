@@ -30,14 +30,20 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 				for (auto& it : sceneObjects)
 				{
 					ImGui::PushID((void*)it.get());
-					ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
+
+					auto col = ImVec4(it->color[0], it->color[1], it->color[2], 1);
+
+					//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
+
+					ImGui::ColorEdit4("ColorPreview", (float*)&col, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip  |ImGuiColorEditFlags_NoPicker  | ImGuiColorEditFlags_NoLabel);
+					ImGui::SameLine();
 
 					if (ImGui::Selectable(it->Description(), it->IsSelected()))
 					{
 						it->InvokeSelect();
 					}
 
-					ImGui::PopStyleColor();
+					//ImGui::PopStyleColor();
 					ImGui::PopID();
 				}
 

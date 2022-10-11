@@ -17,6 +17,9 @@ void DebugPanel::Render()
 	int fps = Application::GetMainWindow()->GetFPS();
 
 	ImGui::Begin("Debug");
+
+	//ImGui::LoadIniSettingsFromDisk
+
 	ImGui::Text("FPS: %d\n", fps);
 	ImGui::End();
 }

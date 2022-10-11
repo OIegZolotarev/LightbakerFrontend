@@ -26,7 +26,12 @@ void PersistentStorage::LoadFromFile()
 	FileData* fd = Application::Instance()->GetFileSystem()->LoadFile(persistent_file);
 
 	if (!fd)
+	{
+		m_bFreshFile = true;
 		return;
+	}
+
+	m_bFreshFile = false;
 	
 	try
 	{
@@ -303,6 +308,11 @@ bool PersistentStorage::IsPanelAtValidPosition(PanelsId id)
 void PersistentStorage::FlagPanelIsAtValidPosition(PanelsId id)
 {
 	m_bPanelsValid[id._value] = true;
+}
+
+bool PersistentStorage::IsFreshFile()
+{
+	return m_bFreshFile;
 }
 
 void PersistentStorage::SaveToFile()
