@@ -76,21 +76,39 @@ float SceneRenderer::FrameDelta()
 	return m_pTargetWindow->FrameDelta();
 }
 
-void SceneRenderer::LoadModel(const char* dropped_filedir)
+void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 {
-	Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
+	if (dropped_filedir)
+		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
+
+	
+	FileData* fd = nullptr;
+
+	if (dropped_filedir)	
+		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
+	else
+	{
+		auto s = GetModelFileName();
+		const char* n = s.c_str();
+		fd = Application::GetFileSystem()->LoadFile(n);
+	}
+
 
 	if (m_pSceneModel)
 		delete m_pSceneModel;
 
-	m_pSceneModel = new ModelOBJ(Application::GetFileSystem()->LoadFile(dropped_filedir));
+	m_pSceneModel = new ModelOBJ(fd);
+		
 
-	m_vecSceneLightDefs.clear();
+	if (!keepLights)
+	{
+		m_vecSceneLightDefs.clear();
 
-	auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
+		auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
 
-	for (auto& it : modelLightDefs)
-		m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
+		for (auto& it : modelLightDefs)
+			m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
+	}
 
 }
 
@@ -196,7 +214,16 @@ void SceneRenderer::ExportModelForCompiling(const char* path)
 		m_pSceneModel->AddLight(it);
 	}
 
-	m_pSceneModel->Export(path);
+	auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
+
+	m_pSceneModel->SetLightmapDimensions(settings->m_lmSettings.size[0], settings->m_lmSettings.size[1]);
+
+	if (path)
+		m_pSceneModel->Export(path);
+	else
+		m_pSceneModel->Export(m_pSceneModel->GetModelFileName().c_str());
+
+
 }
 
 Camera* SceneRenderer::GetCamera()

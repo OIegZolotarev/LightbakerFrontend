@@ -73,5 +73,10 @@ public:
 	std::string BaseName(std::string& fullPath);
 	std::string ParentPath(std::string& param1);
 	void ChangeCurrentDirectoryToFileDirectory(const std::string& fileName);
+
+	std::string BaseDirectoryFromFileName(const char* modelFileName);
+	bool FileExists(std::string fileName);
+
+	int CopyFile(const char* srcPath, const char* dstPath);
 };
 

@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "..\include\better-enums\enum.h"
+#include <nlohmann/json.hpp>
 
 BETTER_ENUM(LightMapTypes, int, Regular = 1, DeluxeTangent, DeluxeWorld, DeluxeUnity, RNM, AO, BentNormals, Curvature)
 BETTER_ENUM(LightMapFileFormat, int, PNG_RGB8,\
@@ -35,15 +36,14 @@ typedef struct lightBakerSettings_s
 	struct
 	{
 		int32_t size[2] = {1024,1024};
-		
-
+	
 		LightMapTypes lm_type = LightMapTypes::RNM;
 		LightMapFileFormat file_format = LightMapFileFormat::PNG_RGB8;
 	}m_lmSettings;
 
 	int m_iFlags = PPF_DELUXEMAP_DELAMBERT | BSPF_BAKE_LIGHTPROBES | BSPF_ENV_DYNLIGHT_GI | BSPF_ENV_STATIC_SHADOWS | BSPF_GFX_ENV_SKY_COLOR;
 
-	float m_flBSPSmootAngle = 30.f;
+	float m_flBSPSmoothAngle = 30.f;
 	int	  m_iPaddingSize = 8;
 	int   m_iDenoiserRadius = 4;
 	float m_flPPMultiplier = 1;
@@ -60,6 +60,10 @@ typedef struct lightBakerSettings_s
 
 	int m_iSeamsIteration = 0;
 	int m_iSeamsAngle = 1;
+
+	nlohmann::json ToJSON();
+	void FromJSON(nlohmann::json& json);
+
 }lightBakerSettings_t;
 
 class LightBaker3000
@@ -78,5 +82,7 @@ public:
 	{
 		return &m_Settings;
 	}
+
+	void ExecuteBaking(const char* modelFileName);
 };
 

@@ -54,6 +54,11 @@ public:
 	static bool DelayedInitDone();
 
 	void FlagDelayedInitDone();
+
+	LightBaker3000* GetLightBakerApplication();
+	static bool IsWaitingForBakerToFinish();
+	static void FlagToDoBakingAgain();
+	bool m_bDoBakingAgain = false;
 };
 
 inline void Con_Printf(const char* fmt, ...)

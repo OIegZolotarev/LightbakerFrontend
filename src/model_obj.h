@@ -48,6 +48,8 @@ public:
 	void ClearLightDefinitions();
 	void AddLight(lightDefPtr_t& it);
 
+	void SetLightmapDimensions(int w, int h);
+
 private:
 	size_t m_VertSize = 0;
 	size_t m_UVSize = 0;

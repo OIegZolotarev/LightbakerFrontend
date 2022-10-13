@@ -20,7 +20,7 @@ class PersistentStorage
 
 	std::list<std::string>	m_lstMRUFiles;
 	void						SaveToFile();
-	void						LoadFromFile();
+	void						LoadFromFile(class Application * appInstance);
 	
 	std::vector<propsData_t> m_ApplicationProps;
 
@@ -28,7 +28,7 @@ class PersistentStorage
 
 public:
 	
-	PersistentStorage();
+	PersistentStorage(class Application * appInstance);
 	~PersistentStorage();
 
 	void						PushMRUFile(const char* fileName);

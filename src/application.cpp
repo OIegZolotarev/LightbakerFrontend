@@ -7,12 +7,15 @@
 #include "properties_editor.h"
 
 #include <nlohmann/json.hpp>
+#include "lb3k_wrapper.h"
 
 Application::Application()
 {
 	m_pCommandsRegistry =	new CCommandsRegistry;
 	m_pFileSystem =			new FileSystem;	
 	m_pPersistentStorage =	nullptr;
+
+	m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
 
 Application::~Application()
@@ -20,12 +23,14 @@ Application::~Application()
 	if (m_pMainWindow) delete m_pMainWindow;
 	delete m_pFileSystem;
 		
+	
 	delete m_pPersistentStorage;
+	delete m_pLightBakerApplication;
 }
 
 void Application::Run()
 {
-	m_pPersistentStorage =	new PersistentStorage;
+	m_pPersistentStorage =	new PersistentStorage(this);
 	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
 	m_pMainWindow->MainLoop();
 }
@@ -63,40 +68,23 @@ void Application::EPICFAIL(const char* format, ...)
 	exit(1);
 }
 
-int BakeThread(void*args)
-{
-	TinyProcessLib::Process process1a((char*)args, "", [](const char* bytes, size_t n)
-		{
-			char* dup = (char*)malloc(sizeof(char) * (n + 1));
-			memcpy(dup, bytes, n);
-			dup[n] = 0;
 
-			// Make progress output a bit nicer
-			for (size_t i = 0; i <(n - 1); i++)
-			{
-				if (dup[i] == '\r' && dup[i + 1] != '\n')
-					dup[i] = '\n';
-			}
- 						
-			Con_Printf(dup);
-			// Ќаверное довольно плохое решение =/ - 30 миллисекунд будет не всегда хватать (на более мощном процессоре\GPU чем у мен€);
-			SDL_Delay(30);
-			free(dup);
-		});
-
-	int code = process1a.get_exit_status();
-	Application::Instance()->NotifyBakingFinished(code);
-
-	return code;
-}
 
 void Application::ExecuteBaking()
 {
-	if (!m_pMainWindow->GetSceneRenderer()->IsModelLoaded())
+	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
+
+	if (!sceneRenderer->IsModelLoaded())
 		return;
+	
 
+	m_bBakingFinished = false;
+	m_bWaitingForBakingToFinish = true;
 
-	const char* cmdTemplate = "%s/lb3k/LightBaker3000.exe %s %s -samples %d -rnm -rgba16";
+	sceneRenderer->ExportModelForCompiling(nullptr);	
+	m_pLightBakerApplication->ExecuteBaking(sceneRenderer->GetModelFileName().c_str());
+	
+/*	const char* cmdTemplate = "%s/lb3k/LightBaker3000.exe %s %s -samples %d -rnm -rgba16";
 
 	auto fileName	 = m_pMainWindow->GetSceneRenderer()->GetModelFileName();
 	auto diffuseName = m_pMainWindow->GetSceneRenderer()->GetModelTextureName();
@@ -124,7 +112,7 @@ void Application::ExecuteBaking()
 	m_bWaitingForBakingToFinish = true;
 	SDL_Thread* threadID = SDL_CreateThread(BakeThread, "LightBaker3k thread", (void*)cmd);
 	
-	//Con_Printf("[FRONTEND] Baking finished");
+	//Con_Printf("[FRONTEND] Baking finished");*/
 }
 
 void Application::CheckIfBakngFinished()
@@ -136,12 +124,19 @@ void Application::CheckIfBakngFinished()
 		return;
 
 	m_bWaitingForBakingToFinish = false;
-	Con_Printf("[FRONTEND] Baking finished");
 
-	char export_path[4096];
-	sprintf_s(export_path, "%slb3k/%s", SDL_GetBasePath(), "edited.obj");
+	if (m_bDoBakingAgain)
+	{
+		m_bDoBakingAgain = false;
+		ExecuteBaking();
+		Con_Printf("[FRONTEND] Need to rebake scene");
+	}
+	else
+	{
+		Con_Printf("[FRONTEND] Baking finished");
+		m_pMainWindow->GetSceneRenderer()->LoadModel(nullptr, true);
+	}
 
-	m_pMainWindow->GetSceneRenderer()->LoadModel(export_path);
 
 	//m_pMainWindow->GetSceneRenderer()->ReloadModel();
 }
@@ -164,6 +159,21 @@ bool Application::DelayedInitDone()
 void Application::FlagDelayedInitDone()
 {
 	m_bDelayedInitDone = true;
+}
+
+LightBaker3000* Application::GetLightBakerApplication()
+{
+	return m_pLightBakerApplication;
+}
+
+bool Application::IsWaitingForBakerToFinish()
+{
+	return Instance()->m_bWaitingForBakingToFinish;
+}
+
+void Application::FlagToDoBakingAgain()
+{
+	Instance()->m_bDoBakingAgain = true;
 }
 
 Application* Application::Instance()

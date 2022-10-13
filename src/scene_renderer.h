@@ -16,7 +16,7 @@ public:
 	void	RenderScene();
 	int		HandleEvent(bool bWasHandled, SDL_Event& e) override;
 	float	FrameDelta();
-	void LoadModel(const char* dropped_filedir);
+	void LoadModel(const char* dropped_filedir, bool keepLight = false);
 
 	bool	IsModelLoaded();
 	

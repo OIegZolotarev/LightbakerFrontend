@@ -6,6 +6,7 @@
 #include "file_system.h"
 #include <filesystem>
 #include <direct.h>
+#include <corecrt_io.h>
 
 FileData::FileData(byte* data, size_t length, const char* name)
 {
@@ -165,4 +166,40 @@ void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileNa
 #else
 	chdir(path.c_str());
 #endif
+}
+
+std::string FileSystem::BaseDirectoryFromFileName(const char* modelFileName)
+{
+	std::filesystem::path p = std::filesystem::path(modelFileName);
+	auto c = std::filesystem::canonical(p);
+	std::string path = c.parent_path().string();
+
+	return path;
+}
+
+bool FileSystem::FileExists(std::string fileName)
+{
+	return _access(fileName.c_str(),0) == 0;
+}
+
+int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
+{
+	FILE* f1, * f2;
+
+	f1 = fopen(srcPath, "rb");
+	f2 = fopen(dstPath, "wb");
+
+	char            buffer[BUFSIZ];
+	size_t          n;
+
+	while ((n = fread(buffer, sizeof(char), sizeof(buffer), f1)) > 0)
+	{
+		if (fwrite(buffer, sizeof(char), n, f2) != n)
+			return -1;
+	}
+
+	fclose(f1);
+	fclose(f2);
+
+	return 0;
 }

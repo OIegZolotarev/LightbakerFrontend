@@ -326,8 +326,8 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
 		[]()
 		{
-			Application::Instance()->ExecuteBaking();
-			//PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
+			//Application::Instance()->ExecuteBaking();
+			PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ToggleGround, "Toggle ground", 0, 0,

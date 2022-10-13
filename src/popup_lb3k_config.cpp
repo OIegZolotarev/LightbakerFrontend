@@ -3,6 +3,7 @@
 #include "enum_iterator.h"
 #include "lb3k_wrapper.h"
 #include "imgui_helpers.h"
+#include "application.h"
 
 
 
@@ -27,13 +28,14 @@ void LB3kConfigPopup::Render()
 	if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_AlwaysAutoResize))
 		return;
 
-	static lightBakerSettings_t info;
-
-	RenderSettingsControls(&info);
+	
+	
+	RenderSettingsControls(Application::Instance()->GetLightBakerApplication()->Settings());
 
 	if (ImGui::Button("Bake!"))
 	{		
 		m_bVisible = false;
+		Application::Instance()->ExecuteBaking();
 	}
 
 	ImGui::SameLine();
@@ -95,7 +97,7 @@ void LB3kConfigPopup::RenderSettingsControls(lightBakerSettings_t * pSettings)
 
 		ImGui::CheckboxFlags("env_dynlight GI", &pSettings->m_iFlags, BSPF_ENV_DYNLIGHT_GI);
 		ImGui::CheckboxFlags("env_static shadows", &pSettings->m_iFlags, BSPF_ENV_STATIC_SHADOWS);
-		ImGui::InputFloat("Smooth angle", &pSettings->m_flBSPSmootAngle);
+		ImGui::InputFloat("Smooth angle", &pSettings->m_flBSPSmoothAngle);
 
 		ImGui::TableSetColumnIndex(1);
 

@@ -6,7 +6,7 @@
 #include "igui_panel.h"
 
 
-PersistentStorage::PersistentStorage()
+PersistentStorage::PersistentStorage(Application * appInstance)
 {
 	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
 	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::BackgroundColor, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
@@ -14,10 +14,10 @@ PersistentStorage::PersistentStorage()
 	auto setting = GetSetting(ApplicationSettings::BackgroundColor);
 	setting->value.asColorRGBA = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
 
-	LoadFromFile();
+	LoadFromFile(appInstance);
 }
 
-void PersistentStorage::LoadFromFile()
+void PersistentStorage::LoadFromFile(Application* appInstance)
 {
 	char persistent_file[1024];
 	char* p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
@@ -50,6 +50,11 @@ void PersistentStorage::LoadFromFile()
 
 		if (j.contains("ApplicationSettings"))
 			ParseApplicationSettings(j["ApplicationSettings"]);
+
+		if (j.contains("BakerSettings"))
+		{
+			appInstance->GetLightBakerApplication()->Settings()->FromJSON(j["BakerSettings"]);
+		}
 // 	
 // 		std::list<nlohmann::json> panels_state;
 // 
@@ -361,6 +366,7 @@ void PersistentStorage::SaveToFile()
 
 		j["PanelsState"] = panels_state;
 
+		j["BakerSettings"] = Application::Instance()->GetLightBakerApplication()->Settings()->ToJSON();
 
 		std::string data = j.dump(4);
 		fprintf(fp, "%s", data.c_str());

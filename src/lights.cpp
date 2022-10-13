@@ -70,7 +70,7 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 
 }
 
-void LightPropertiesBinding::UpdateObjectProperties(propsData_t * props,size_t num)
+void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t num)
 {
 	auto ptr = m_pwLightDef.lock();
 	if (!ptr)
@@ -115,6 +115,23 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t * props,size_t n
 			break;
 		}
 	}
+
+	if (!Application::IsWaitingForBakerToFinish())
+	{
+		auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
+		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
+
+
+		settings->m_lmSettings.size[0] = 128;
+		settings->m_lmSettings.size[1] = 128;
+
+		Application::Instance()->ExecuteBaking();
+
+		settings->m_lmSettings.size[0] = oldSize[0];
+		settings->m_lmSettings.size[1] = oldSize[1];
+	}
+	else
+		Application::FlagToDoBakingAgain();
 }
 
 bool LightPropertiesBinding::IsObjectValid()

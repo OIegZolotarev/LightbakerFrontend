@@ -832,6 +832,12 @@ void ModelOBJ::AddLight(lightDefPtr_t& it)
 	m_vParsedLightDefs.push_back(*it);
 }
 
+void ModelOBJ::SetLightmapDimensions(int w, int h)
+{
+	m_LightmapDimensions[0] = w;
+	m_LightmapDimensions[1] = h;
+}
+
 void ModelOBJ::BuildDrawMesh()
 {
 	if (m_vecFaces.size() == 0)
@@ -873,15 +879,22 @@ void ModelOBJ::BuildDrawMesh()
 				bNoTextures = true;			
 		}
 
-		mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
+		if (!bNoTextures)
+		{
+			if (m_vecUVData.size() > 0)
+				mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
+		}
 
 		if (bNoTextures)
 		{
-			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
-			mesh.Color3f(
-				(norm[0] + 1) / 2,
-				(norm[1] + 1) / 2,
-				(norm[2] + 1) / 2);
+			if (m_vecNormalsData.size() > 0)
+			{
+				float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+				mesh.Color3f(
+					(norm[0] + 1) / 2,
+					(norm[1] + 1) / 2,
+					(norm[2] + 1) / 2);
+			}
 		}
 				
 		mesh.Vertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
@@ -940,8 +953,10 @@ void ModelOBJ::Export(const char* fileName)
 
 	ExportLightDefs(fp);
 	ExportVerticles(fp);
-	ExportNormals(fp);
-	ExportUV(fp);
+	
+	if (m_vecUVData.size() > 0)  ExportNormals(fp);
+	if (m_vecUVData.size() > 0) ExportUV(fp);
+
 	ExportFaces(fp);
 
 	fclose(fp);
