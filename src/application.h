@@ -56,6 +56,8 @@ public:
 	void FlagDelayedInitDone();
 
 	LightBaker3000* GetLightBakerApplication();
+	
+	static void	ScheduleCompilationIfNecceseary();
 	static bool IsWaitingForBakerToFinish();
 	static void FlagToDoBakingAgain();
 	bool m_bDoBakingAgain = false;

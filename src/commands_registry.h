@@ -9,7 +9,8 @@ enum class GlobalCommands
 	LoadFile,
 	Bake,
 	ToggleGround,
-	DeleteSelection
+	DeleteSelection,
+	ResetLayout,
 };
 
 typedef std::function<void()> pfnCommandCallback;

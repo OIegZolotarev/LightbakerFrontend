@@ -166,6 +166,32 @@ LightBaker3000* Application::GetLightBakerApplication()
 	return m_pLightBakerApplication;
 }
 
+void Application::ScheduleCompilationIfNecceseary()
+{
+	auto inst = Instance();
+
+	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::DynamicallyRecompileLighting))
+		return;
+
+	if (!Application::IsWaitingForBakerToFinish())
+	{
+		
+
+		auto settings = inst->GetLightBakerApplication()->Settings();
+		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
+
+		settings->m_lmSettings.size[0] = 128;
+		settings->m_lmSettings.size[1] = 128;
+
+		inst->ExecuteBaking();
+
+		settings->m_lmSettings.size[0] = oldSize[0];
+		settings->m_lmSettings.size[1] = oldSize[1];
+	}
+	else
+		FlagToDoBakingAgain();
+}
+
 bool Application::IsWaitingForBakerToFinish()
 {
 	return Instance()->m_bWaitingForBakingToFinish;

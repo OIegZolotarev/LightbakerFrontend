@@ -80,3 +80,8 @@ void IGUIPanel::Render()
 {
 
 }
+
+void IGUIPanel::InvalidatePosition()
+{
+	ResetPosition();
+}

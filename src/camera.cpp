@@ -4,6 +4,7 @@
 
 
 #include "application.h"
+#include <algorithm>
 
 
 Camera::Camera(SceneRenderer * pSceneRenderer)
@@ -309,6 +310,10 @@ void Camera::UpdateOrientation()
 
 		m_Angles[PITCH] += yDelta / 10;
 		m_Angles[YAW] += xDelta / 10;
+
+		//Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
+
+		m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
 		SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 

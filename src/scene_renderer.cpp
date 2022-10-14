@@ -349,6 +349,9 @@ void SceneRenderer::DeleteLight(lightDefWPtr_t l)
 }
 
 void SceneRenderer::DoDeleteSelection()
-{
+{	
 	DeleteLight(GetSelection());
+	Application::ScheduleCompilationIfNecceseary();
+	
+
 }

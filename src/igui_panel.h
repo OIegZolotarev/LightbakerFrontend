@@ -35,5 +35,6 @@ public:
 	virtual void Render();
 
 	virtual DockPanels GetDockSide() = 0;
+	void InvalidatePosition();
 };
 

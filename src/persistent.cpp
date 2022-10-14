@@ -11,8 +11,13 @@ PersistentStorage::PersistentStorage(Application * appInstance)
 	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
 	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::BackgroundColor, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
 
+	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::DynamicallyRecompileLighting, PropertiesTypes::Bool, "dynamically recompile lighting", "Compiling"));
+
 	auto setting = GetSetting(ApplicationSettings::BackgroundColor);
 	setting->value.asColorRGBA = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+
+	setting = GetSetting(ApplicationSettings::DynamicallyRecompileLighting);
+	setting->value.asBool = true;
 
 	LoadFromFile(appInstance);
 }
@@ -138,6 +143,14 @@ propsData_t* PersistentStorage::GetSetting(ApplicationSettings id)
 	}
 
 	return nullptr;
+}
+
+bool PersistentStorage::GetSettingBool(ApplicationSettings id)
+{
+	propsData_t* p = GetSetting(id);
+	assert(p);
+
+	return p->value.asBool;
 }
 
 nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j, propsData_t& it)

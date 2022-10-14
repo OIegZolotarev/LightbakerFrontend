@@ -346,7 +346,22 @@ void MainWindow::InitCommands()
 		{
 			m_pSceneRenderer->DoDeleteSelection();
 		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ResetLayout,"Reset layout", 0, 0,
+		[&]()
+		{
+
+			InitDocks();
+
+			for (auto& it : m_vPanels)
+			{
+				it->InvalidatePosition();
+			}
+		}));
+
 }
+
+
 
 float MainWindow::RenderMainMenu()
 {
@@ -356,10 +371,7 @@ float MainWindow::RenderMainMenu()
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::MenuItem("Load model...", "Ctrl-O"))
-			{
-				
-			}
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::LoadFile);
 
 			ImGui::Separator();
 
@@ -416,6 +428,9 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("Windows"))
 		{
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::ResetLayout);
+
+
 			ImGui::EndMenu();
 		}
 
@@ -509,7 +524,9 @@ void MainWindow::RenderGUI()
 		
 	PopupsManager::Instance()->RenderPopups();
 	
+#ifdef DEBUG
 	ImGui::ShowDemoWindow();
+#endif
 
 
 	ImGui::Render();

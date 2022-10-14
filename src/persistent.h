@@ -9,7 +9,8 @@
 enum class ApplicationSettings
 {
 	ShowGround = 0,
-	BackgroundColor
+	BackgroundColor,
+	DynamicallyRecompileLighting
 };
 
 
@@ -35,6 +36,8 @@ public:
 	std::list<std::string>&		GetMRUFiles();
 		
 	propsData_t * GetSetting(ApplicationSettings id);
+
+	bool	GetSettingBool(ApplicationSettings id);
 	
 	bool IsPanelAtValidPosition(PanelsId id);
 	void FlagPanelIsAtValidPosition(PanelsId id);

@@ -116,22 +116,7 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 		}
 	}
 
-	if (!Application::IsWaitingForBakerToFinish())
-	{
-		auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
-		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
-
-
-		settings->m_lmSettings.size[0] = 128;
-		settings->m_lmSettings.size[1] = 128;
-
-		Application::Instance()->ExecuteBaking();
-
-		settings->m_lmSettings.size[0] = oldSize[0];
-		settings->m_lmSettings.size[1] = oldSize[1];
-	}
-	else
-		Application::FlagToDoBakingAgain();
+	Application::ScheduleCompilationIfNecceseary();
 }
 
 bool LightPropertiesBinding::IsObjectValid()
