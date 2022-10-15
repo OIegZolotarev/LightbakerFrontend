@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "common.h"
 #include "lights.h"
 #include "scene_renderer.h"
@@ -19,55 +24,108 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 	if (!ptr)
 		return;
 
-	propsData_t p = propsData_s(LightProperties::Type, PropertiesTypes::Enum, "Type");
+	propsData_t p;
+	
+	MakeLightTypeProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightFlagsProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightPosProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightAnglesProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightColorProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightIntensityProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeConeAProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeConeBProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeSizeProperty(p, ptr);
+	collection.push_back(p);
+
+	MakeLightStyleProperty(p, ptr);
+	collection.push_back(p);
+
+}
+
+void LightPropertiesBinding::MakeLightStyleProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Style, PropertiesTypes::Int, "Style");
+	p.value.asInt = ptr->style;
+}
+
+void LightPropertiesBinding::MakeSizeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Size, PropertiesTypes::SizeX, "Size");
+	p.value.asFloat = ptr->size.x;
+}
+
+void LightPropertiesBinding::MakeConeBProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
+	p.value.asFloat = ptr->cones[1];
+}
+
+void LightPropertiesBinding::MakeConeAProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
+	p.value.asFloat = ptr->cones[0];
+}
+
+void LightPropertiesBinding::MakeLightIntensityProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
+	p.value.asFloat = ptr->intensity;
+}
+
+void LightPropertiesBinding::MakeLightColorProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
+	p.value.asColorRGB = ptr->color;
+}
+
+void LightPropertiesBinding::MakeLightAnglesProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
+	p.value.asAngles = ptr->anglesDirection;
+}
+
+void LightPropertiesBinding::MakeLightPosProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Pos, PropertiesTypes::Position, "Pos");
+	p.value.asPosition = ptr->pos;
+}
+
+void LightPropertiesBinding::MakeLightFlagsProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Euler", LF_EULER));
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Dyn", LF_DYN));
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("XYZ", LF_XYZ));
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Linear", LF_LINEAR));
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Disk", LF_DISK));
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Rect", LF_RECT));
+	p.value.asFlags = ptr->flags;
+}
+
+void LightPropertiesBinding::MakeLightTypeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+{
+	p = propsData_s(LightProperties::Type, PropertiesTypes::Enum, "Type");
 
 	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Omni", (int)LightTypes::Omni));
 	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Spot", (int)LightTypes::Spot));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Direct", (int)LightTypes::Direct));	
+	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Direct", (int)LightTypes::Direct));
 	p.SetEnumIndexFromValue((int)ptr->type);
-	
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Euler",	LF_EULER));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Dyn",		LF_DYN));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("XYZ",		LF_XYZ));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Linear",	LF_LINEAR));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Disk",		LF_DISK));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Rect",		LF_RECT));
-	p.value.asFlags = ptr->flags;
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Pos, PropertiesTypes::Position, "Pos");
-	p.value.asPosition = ptr->pos;
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
-	p.value.asAngles = ptr->anglesDirection;
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
-	p.value.asColorRGB = ptr->color;
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
-	p.value.asFloat = ptr->intensity;
-	collection.push_back(p);
-
-
-
-	p = propsData_s(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
-	p.value.asFloat = ptr->cones[0];
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
-	p.value.asFloat = ptr->cones[1];
-	collection.push_back(p);
-
-	p = propsData_s(LightProperties::Size, PropertiesTypes::SizeX, "Size");
-	p.value.asFloat = ptr->size.x;
-	collection.push_back(p);
-
 }
 
 void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t num)
@@ -76,52 +134,79 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 	if (!ptr)
 		return;
 
+	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+
 	for (size_t i = 0; i < num; i++)
 	{
 		auto it = props[i];
 
+		propsData_t oldValue;
+
 		switch (it.id)
 		{
 		case LightProperties::Type:
+			MakeLightTypeProperty(oldValue, ptr);
 			ptr->type = (LightTypes)it.GetEnumValue();
 			ptr->UpdateEditorIcon();
 			break;
 		case LightProperties::Flags:
+			MakeLightFlagsProperty(oldValue, ptr);
 			ptr->flags = it.GetFlags();
 			break;
 		case LightProperties::Pos:
+			MakeLightPosProperty(oldValue, ptr);
 			ptr->pos = it.GetPosition();
 			break;
 		case LightProperties::Color:
+			MakeLightColorProperty(oldValue, ptr);
 			ptr->color = it.GetColorRGB();
 			break;
 		case LightProperties::Intensity:
+			MakeLightIntensityProperty(oldValue, ptr);
 			ptr->intensity = it.GetFloat();
 			break;
 		case LightProperties::Angles:
+			MakeLightAnglesProperty(oldValue, ptr);
 			ptr->anglesDirection = it.GetAngles();
 			break;
 		case LightProperties::ConeA:
+			MakeConeAProperty(oldValue, ptr);
 			ptr->cones[0] = it.GetFloat();
 			break;
 		case LightProperties::ConeB:
+			MakeConeBProperty(oldValue, ptr);
 			ptr->cones[1] = it.GetFloat();
 			break;
 		case LightProperties::Size:
+			MakeSizeProperty(oldValue, ptr);
 			ptr->size[0] = it.GetFloat();
 			break;
 		case LightProperties::Style:
+			MakeLightStyleProperty(oldValue, ptr);
 			ptr->style = it.GetInt();
 			break;
 		}
 	}
 
-	Application::ScheduleCompilationIfNecceseary();
 }
 
 bool LightPropertiesBinding::IsObjectValid()
 {
 	return m_pwLightDef.lock() != nullptr;
+}
+
+int LightPropertiesBinding::GetSerialNumber()
+{
+	auto ptr = m_pwLightDef.lock();
+
+	if (!ptr) return 0;
+
+	return ptr->serial_number;
+}
+
+void LightPropertiesBinding::OnPropertyChangeSavedToHistory()
+{
+	Application::ScheduleCompilationIfNecceseary();
 }
 
 void lightDef_s::UpdateEditorIcon()
@@ -185,7 +270,7 @@ const char* lightDef_s::Description()
 	switch (type)
 	{
 	case LightTypes::Omni:
-		return "Omnidirectional";
+		return "Omni directional";
 		break;
 	case LightTypes::Spot:
 		return "Spotlight";

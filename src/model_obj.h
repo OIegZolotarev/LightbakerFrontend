@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #pragma once
 #include "file_system.h"
 #include "gl_texture.h"

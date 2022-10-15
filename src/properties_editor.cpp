@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "ui_common.h"
 #include "object_props.h"
 #include "properties_editor.h"
@@ -85,6 +90,22 @@ DockPanels ObjectPropertiesEditor::GetDockSide()
 void ObjectPropertiesEditor::Render()
 {
 	RenderEditor();
+}
+
+int ObjectPropertiesEditor::CurrentSerialNumber()
+{
+	if (!m_pPropertiesBinding)
+		return -1;
+
+	return m_pPropertiesBinding->GetSerialNumber();
+}
+
+void ObjectPropertiesEditor::ReloadPropertyValue(int id)
+{
+	m_vPropsData.clear();	
+	m_pPropertiesBinding->FillProperties(m_vPropsData);
+
+	SetupGuizmo();
 }
 
 bool ObjectPropertiesEditor::CheckObjectValidity()
@@ -201,6 +222,8 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
 void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 {
+	propsData_t oldValue = it;
+
 	switch (it.type)
 	{
 	case PropertiesTypes::Enum:
@@ -293,6 +316,23 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 	default:
 		break;
 
+	}
+
+	if (ImGui::IsItemActivated())
+	{
+		// Here we record old value when item is actived for the first time.
+		m_OldPropertyValue = oldValue;
+	}
+
+	if (ImGui::IsItemDeactivatedAfterEdit())
+	{
+		// Here we can save undo (to undo stack or something). Triggered once just after user stops editing. 
+		// RecordUndo(oldValue, value);
+
+		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, it));
+
+		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
 	}
 }
 
@@ -389,6 +429,23 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 		m_pGuizmoProperty->value.asPosition.z = matrixTranslation[2];
 
 		UpdateProperty(m_pGuizmoProperty);
+	}
+
+	if (!m_bGuizmoEdited && ImGuizmo::IsUsing())
+	{
+		// Here we record old value when item is actived for the first time.
+		m_OldPropertyValue = *m_pGuizmoProperty;
+		m_bGuizmoEdited = true;
+	}
+
+	if (!ImGuizmo::IsUsing() && m_bGuizmoEdited)
+	{
+		m_bGuizmoEdited = false;
+
+		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, *m_pGuizmoProperty));
+
+		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
 	}
 	
 }

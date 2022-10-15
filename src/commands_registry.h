@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #pragma once
 #include "gl_texture.h"
 
@@ -11,6 +16,8 @@ enum class GlobalCommands
 	ToggleGround,
 	DeleteSelection,
 	ResetLayout,
+	Undo,
+	Redo
 };
 
 typedef std::function<void()> pfnCommandCallback;
@@ -22,19 +29,27 @@ typedef std::function<void()> pfnCommandCallback;
 class CCommand
 {
 	char				m_szDescription[32];
+	char				m_szKeyStroke[32];
+
+	int					m_rKeys[6 + 3] = { -1 };
+
+
 	int					m_iFlags;
 	gltexture_t*		m_pIcon;
 	GlobalCommands		m_eCommandId;
 	pfnCommandCallback	m_pfnCallback;
 
 public:
-	CCommand(GlobalCommands id, const char* description, gltexture_t* icon, int flags, pfnCommandCallback callback);
+	CCommand(GlobalCommands id, const char* description,const char* keyStroke, gltexture_t* icon, int flags, pfnCommandCallback callback);
 	
 	void				Execute();
 	int					Flags() { return m_iFlags; }	
 	void				RenderImGUI(int size = 32);
 	GlobalCommands		GetId();
 	const char*			GetDescription();
+
+	bool IsKeystrokeActive(const uint8_t* kbState);
+	const char* GetShortcutDescription();
 };
 
 class CCommandsRegistry
@@ -52,5 +67,8 @@ public:
 	CCommand*			FindCommandByGlobalId(GlobalCommands id);
 
 	void				RenderCommandAsMenuItem(GlobalCommands cmdId);
+
+
+	bool				OnKeyDown();
 };
 

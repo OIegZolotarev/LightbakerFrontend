@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "ui_common.h"
 #include "popup_lb3k_config.h"
 #include "enum_iterator.h"

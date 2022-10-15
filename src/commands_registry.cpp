@@ -1,7 +1,16 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "common.h"
 #include "commands_registry.h"
 #include "ui_common.h"
 #include "..\include\imgui\imgui_internal.h"
+#include "application.h"
+#include "text_utils.h"
+
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
 namespace ImGui
 {
@@ -119,19 +128,95 @@ void CCommandsRegistry::RenderCommandAsMenuItem(GlobalCommands cmdId)
 	CCommand* cmd = FindCommandByGlobalId(cmdId);
 	assert(cmd);
 
-	if (ImGui::MenuItem(cmd->GetDescription(), ""))
+	if (ImGui::MenuItem(cmd->GetDescription(), cmd->GetShortcutDescription()))
 	{
 		cmd->Execute();
 	}
 }
 
-CCommand::CCommand(GlobalCommands id, const char* description, gltexture_t* icon, int flags, pfnCommandCallback callback) :
+bool CCommandsRegistry::OnKeyDown()
+{
+	auto kbState = SDL_GetKeyboardState(nullptr);
+
+	for (auto& cmd : m_vecCommandDescriptor)
+	{
+		if (cmd->IsKeystrokeActive(kbState))
+		{
+			cmd->Execute();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+CCommand::CCommand(GlobalCommands id, const char* description,const char* keyStroke, gltexture_t* icon, int flags, pfnCommandCallback callback) :
 	m_eCommandId(id),
 	m_pIcon(icon),
 	m_iFlags(flags),
 	m_pfnCallback(callback)
 {
 	strcpy_s(m_szDescription,description);
+	if (keyStroke)
+		strcpy_s(m_szKeyStroke, keyStroke);
+	else
+		*m_szKeyStroke = 0;
+
+
+	for (auto& it : m_rKeys)
+		it = -1;
+
+	if (keyStroke)
+	{ 
+		auto items = TextUtils::SplitTextSimple(keyStroke, strlen(keyStroke), '-');
+
+		auto addKey = [&](int keyId) -> bool
+		{
+			int  i = 0;
+			for (int i = 0; i < ARRAY_SIZE(m_rKeys); i++)
+			{
+				if (m_rKeys[i] == -1)
+				{
+					m_rKeys[i] = keyId;
+					return true;
+				}
+			}
+
+			return false;
+		};
+
+		auto it = items.begin();
+
+		while (it != items.end())
+		{
+			bool r = false;
+
+			auto keyCode = SDL_GetKeyFromName((*it).c_str());
+			auto scanCode = SDL_GetScancodeFromKey(keyCode);
+
+			// Stupid workaround for RUS keyboard layout
+			if ((*it).c_str()[0] == '`')
+			{
+				keyCode = 1073742048;
+				scanCode = SDL_SCANCODE_GRAVE;
+			}
+
+			if (keyCode == SDLK_UNKNOWN)
+				Application::EPICFAIL("Bad shortcut for command \"%s\" - unknown key %s", m_szDescription, (*it).c_str());
+
+			if (scanCode == SDLK_UNKNOWN)
+				Application::EPICFAIL("Bad shortcut for command \"%s\" - unknown key %s", m_szDescription, (*it).c_str());
+
+			r = addKey(scanCode);
+
+			if (!r)
+				Application::EPICFAIL("Bad shortcut for command \"%s\" - key stroke is too long", m_szDescription);
+
+			it++;
+		}
+	}
+
+
 }
 
 void CCommand::Execute()
@@ -169,4 +254,32 @@ GlobalCommands CCommand::GetId()
 const char* CCommand::GetDescription()
 {
 	return m_szDescription;
+}
+
+bool CCommand::IsKeystrokeActive(const uint8_t* kbState)
+{
+	if (m_rKeys[0] == -1) // No hotkey assigned
+		return false;
+
+	bool bValidStroke = true;
+
+	for (auto& key : m_rKeys)
+	{
+		if (key == -1) // Reached end of key combo
+			break;
+
+		if (!kbState[key])
+		{
+			bValidStroke = false;
+			break;
+		}
+
+	}
+	
+	return bValidStroke;
+}
+
+const char* CCommand::GetShortcutDescription()
+{
+	return m_szKeyStroke;
 }

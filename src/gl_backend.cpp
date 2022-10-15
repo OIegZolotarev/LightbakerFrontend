@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "gl_backend.h"
 #include <stddef.h>
 #include "application.h"

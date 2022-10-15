@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #pragma once
 
 #include "common.h"
@@ -145,4 +150,11 @@ public:
 	virtual bool IsObjectValid(){
 		return true;
 	}
+
+	virtual int	GetSerialNumber()
+	{
+		return 0;
+	}
+
+	virtual void OnPropertyChangeSavedToHistory() {};
 };

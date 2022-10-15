@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "application.h"
 #include "ui_common.h"
 #include "helper_geometry_shader.h"

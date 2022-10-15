@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "custom_font.h"
 
 const char IGFD_compressed_data_base85[3950 + 1] =

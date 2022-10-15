@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "common.h"
 #include "camera.h"
 #include "scene_renderer.h"
@@ -14,6 +19,8 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
+
+	m_pEditHistory = new CEditHistory;
 }
 
 SceneRenderer::~SceneRenderer()
@@ -24,6 +31,8 @@ SceneRenderer::~SceneRenderer()
 	if (m_pSceneModel) delete m_pSceneModel;
 
 	if (m_pUnitBoundingBox) delete m_pUnitBoundingBox;
+
+	delete m_pEditHistory;
 }
 
 void SceneRenderer::RenderScene()
@@ -98,7 +107,8 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		delete m_pSceneModel;
 
 	m_pSceneModel = new ModelOBJ(fd);
-		
+	
+	m_serialNubmerCounter = 1;
 
 	if (!keepLights)
 	{
@@ -107,7 +117,10 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
 
 		for (auto& it : modelLightDefs)
+		{
+			it.serial_number = AllocSerialNumber();
 			m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
+		}
 	}
 
 }
@@ -297,6 +310,22 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	shader->Unbind();
 }
 
+int SceneRenderer::AllocSerialNumber()
+{
+	return m_serialNubmerCounter++;
+}
+
+lightDefWPtr_t SceneRenderer::GetLightBySerialNumber(int serialNumber)
+{
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		if (it->serial_number == serialNumber)
+			return lightDefWPtr_t(it);
+	}
+
+	return lightDefWPtr_t();
+}
+
 void SceneRenderer::AddNewLight(LightTypes type)
 {
 	lightDef_s* newLight = new lightDef_s;
@@ -313,6 +342,8 @@ void SceneRenderer::AddNewLight(LightTypes type)
 		newLight->color.x,
 		newLight->color.y,
 		newLight->color.z);
+
+	newLight->serial_number = AllocSerialNumber();
 
 	m_vecSceneLightDefs.push_back(lightDefPtr_t(newLight));
 	newLight->InvokeSelect();
@@ -354,4 +385,9 @@ void SceneRenderer::DoDeleteSelection()
 	Application::ScheduleCompilationIfNecceseary();
 	
 
+}
+
+CEditHistory* SceneRenderer::GetEditHistory() const
+{
+	return m_pEditHistory;
 }

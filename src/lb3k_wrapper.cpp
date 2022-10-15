@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #include "common.h"
 #include "lb3k_wrapper.h"
 #include <format>

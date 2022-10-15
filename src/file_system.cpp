@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #if WIN32
 #define _CRT_SECURE_NO_WARNINGS
 #endif

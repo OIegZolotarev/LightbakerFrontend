@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian		
+*/
+
 #include "ui_common.h"
 #include "main_window.h"
 #include "application.h"
@@ -299,38 +304,38 @@ bool MainWindow::PropagateControlsEvent(SDL_Event& event)
 
 void MainWindow::InitCommands()
 {
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LoadFile, "Load...", GetCommonIcon(CommonIcons::LoadFile), CMD_ON_MAINTOOLBAR, 
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonIcons::LoadFile), CMD_ON_MAINTOOLBAR, 
 	[&]()
 	{
 			PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
 	}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddDirectLight, "+Direct", GetCommonIcon(CommonIcons::DirectLight), CMD_ON_MAINTOOLBAR,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonIcons::DirectLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
 			m_pSceneRenderer->AddNewLight(LightTypes::Direct);
 		}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddOmniLight, "+Omni", GetCommonIcon(CommonIcons::OmniLight), CMD_ON_MAINTOOLBAR,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddOmniLight, "+Omni", 0, GetCommonIcon(CommonIcons::OmniLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
 			m_pSceneRenderer->AddNewLight(LightTypes::Omni);
 		}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddSpotLight, "+Spot", GetCommonIcon(CommonIcons::SpotLight), CMD_ON_MAINTOOLBAR,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddSpotLight, "+Spot", 0, GetCommonIcon(CommonIcons::SpotLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
 			m_pSceneRenderer->AddNewLight(LightTypes::Spot);
 		}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", 0, GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
 		[]()
 		{
 			//Application::Instance()->ExecuteBaking();
 			PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
 		}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ToggleGround, "Toggle ground", 0, 0,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ToggleGround, "Toggle ground", 0, 0, 0,
 		[]()
 		{	
 			auto pers = Application::Instance()->GetPersistentStorage();
@@ -341,13 +346,13 @@ void MainWindow::InitCommands()
 		}));
 
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DeleteSelection, "Delete", 0, 0,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DeleteSelection, "Delete", "Delete", 0, 0,
 		[&]()
 		{
 			m_pSceneRenderer->DoDeleteSelection();
 		}));
 
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ResetLayout,"Reset layout", 0, 0,
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ResetLayout,"Reset layout", 0, 0, 0,
 		[&]()
 		{
 
@@ -359,6 +364,17 @@ void MainWindow::InitCommands()
 			}
 		}));
 
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Undo, "Undo", "Left Ctrl-Z", 0, 0,
+		[&]()
+		{
+			GetSceneRenderer()->GetEditHistory()->Undo();
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Redo, "Redo", "Left Ctrl-Y", 0, 0,
+		[&]()
+		{
+			GetSceneRenderer()->GetEditHistory()->Redo();
+		}));
 }
 
 
@@ -409,6 +425,11 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
+
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Undo);
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Redo);
+
+			ImGui::Separator();
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddOmniLight);
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddSpotLight);
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddDirectLight);
@@ -590,7 +611,9 @@ bool MainWindow::HandleEvents(bool loop)
 				SelectionManager::Instance()->UnSelect();
 				break;
 			}
-			// TODO: implement
+			
+			if (Application::CommandsRegistry()->OnKeyDown()) break;
+
 			if (PropagateControlsEvent(event)) break;
 			break;
 

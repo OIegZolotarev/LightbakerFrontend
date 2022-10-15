@@ -1,9 +1,15 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #pragma once
 
 #include "common.h"
 #include "main_window.h"
 #include "lights.h"
 #include "model_obj.h"
+#include "edit_history.h"
 
 class SceneRenderer: public IEventHandler
 {	
@@ -43,11 +49,14 @@ public:
 
 
 	void DoDeleteSelection();
+	CEditHistory* GetEditHistory() const;
 private:
 	void Debug_DrawGround();
 
 	class Camera*		m_pCamera;
 	class MainWindow*	m_pTargetWindow;
+
+	CEditHistory* m_pEditHistory;
 
 	ModelOBJ* m_pSceneModel = nullptr;
 
@@ -57,5 +66,11 @@ private:
 	DrawMesh*	m_pIntensitySphere;
 	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
 	lightDefWPtr_t m_pCurrentSelection;
+
+	int m_serialNubmerCounter = 1;
+
+	int AllocSerialNumber();
+public:
+	lightDefWPtr_t GetLightBySerialNumber(int serialNumber);
 };
 

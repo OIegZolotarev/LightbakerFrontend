@@ -1,7 +1,10 @@
-﻿#include "common.h"
+﻿/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
+#include "common.h"
 #include "camera.h"
-
-
 
 #include "application.h"
 #include <algorithm>

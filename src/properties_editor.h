@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 #pragma once
 #include "object_props.h"
 #include "igui_panel.h"
@@ -23,12 +28,15 @@ class ObjectPropertiesEditor : public IGUIPanel
 
 	glm::mat4 m_matGuizmo = glm::mat4(1);
 	propsData_t* m_pGuizmoProperty = nullptr;
+	bool m_bGuizmoEdited = false;
 
 	bool CheckObjectValidity();
 	void SetupGuizmo();
 	propsData_t* FindFirstPropertyByType(PropertiesTypes type);
 
 	void RenderEditor();
+
+	propsData_t m_OldPropertyValue;
 
 public:
 
@@ -43,4 +51,6 @@ public:
 	DockPanels GetDockSide() override;
 	void Render() override;
 
+	int CurrentSerialNumber();
+	void ReloadPropertyValue(int id);
 };

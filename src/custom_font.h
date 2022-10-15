@@ -1,3 +1,8 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2022 CrazyRussian
+*/
+
 //Header Generated with https://github.com/aiekick/ImGuiFontStudio
 //Based on https://github.com/juliettef/IconFontCppHeaders
 //for Language c++
