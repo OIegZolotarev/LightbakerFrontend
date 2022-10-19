@@ -5,6 +5,7 @@
 
 #pragma once
 #include "object_props.h"
+#include "lights.h"
 
 class IEditAction
 {
@@ -26,6 +27,16 @@ class CPropertyChangeAction : public IEditAction
 public:
 	CPropertyChangeAction(int serialNumber, propsData_t oldValue, propsData_t newValue);
 	
+	void Redo() override;
+	void Undo() override;
+};
+
+class CDeleteLightAction : public IEditAction
+{
+	lightDef_t m_Light;
+public:
+	CDeleteLightAction(lightDef_t * pLight);
+
 	void Redo() override;
 	void Undo() override;
 };

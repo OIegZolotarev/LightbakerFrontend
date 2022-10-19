@@ -452,6 +452,8 @@ void ModelOBJ::ParseFace(std::string& s)
 	bool hasUV = m_vecUVData.size() > 0;
 	bool hasNorm = m_vecNormalsData.size() > 0;
 
+	std::vector<mobjface_t> parsed;
+
 	auto parseFaceDef = [&]()
 	{
 		if (token[0] == '\r')
@@ -485,7 +487,7 @@ void ModelOBJ::ParseFace(std::string& s)
 		face.group_id = m_vecGroups.size();
 
 
-		m_vecFaces.push_back(face);
+		parsed.push_back(face);
 	};
 
 	s.erase(0, 1);
@@ -508,8 +510,16 @@ void ModelOBJ::ParseFace(std::string& s)
 	{
 		parseFaceDef();
 	}
+		
+	// Triangluate
 
-
+	for (int i = 0; i < parsed.size() - 2; i++)
+	{
+		m_vecFaces.push_back(parsed[0]);
+		m_vecFaces.push_back(parsed[i + 1]);
+		m_vecFaces.push_back(parsed[i + 2]);
+	}
+	
 }
 
 void ModelOBJ::ParseLightDef(std::string& buffer)
@@ -909,6 +919,11 @@ void ModelOBJ::BuildDrawMesh()
 
 	mesh.End();
 
+}
+
+DrawMesh* ModelOBJ::GetDrawMesh()
+{
+	return &mesh;
 }
 
 void ModelOBJ::ReloadTextures()

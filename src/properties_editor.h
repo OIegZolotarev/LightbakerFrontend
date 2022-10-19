@@ -27,7 +27,9 @@ class ObjectPropertiesEditor : public IGUIPanel
 	void UpdateProperty(propsData_t* it);
 
 	glm::mat4 m_matGuizmo = glm::mat4(1);
-	propsData_t* m_pGuizmoProperty = nullptr;
+	propsData_t* m_pGuizmoPropertyPosition = nullptr;
+	propsData_t* m_pGuizmoPropertyRotation = nullptr;
+
 	bool m_bGuizmoEdited = false;
 
 	bool CheckObjectValidity();
@@ -37,6 +39,7 @@ class ObjectPropertiesEditor : public IGUIPanel
 	void RenderEditor();
 
 	propsData_t m_OldPropertyValue;
+	propsData_t m_OldPropertyValue2;
 
 public:
 
@@ -53,4 +56,6 @@ public:
 
 	int CurrentSerialNumber();
 	void ReloadPropertyValue(int id);
+private:
+	int m_GizmoMode;
 };

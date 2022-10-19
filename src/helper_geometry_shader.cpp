@@ -19,11 +19,6 @@ void HelperGeometryShaderProgram::SetView(float * matrix)
 	glUniformMatrix4fv(m_unView, 1, GL_FALSE, matrix);
 }
 
-void HelperGeometryShaderProgram::SetOrigin(glm::vec3& pos)
-{
-	glUniform3fv(m_unOrigin, 1, &pos[0]);
-}
-
 void HelperGeometryShaderProgram::SetProjection(float* matrix)
 {
 	glUniformMatrix4fv(m_unProjection, 1, GL_FALSE, matrix);
@@ -39,6 +34,11 @@ void HelperGeometryShaderProgram::SetScale(float param1)
 	glUniform3f(m_unScale, param1, param1, param1);
 }
 
+void HelperGeometryShaderProgram::SetTransform(glm::mat4x4& mat)
+{
+	glUniformMatrix4fv(m_unTransform, 1,GL_FALSE, &mat[0][0]);
+}
+
 HelperGeometryShaderProgram::HelperGeometryShaderProgram()
 {
 	AttachVertexShader("res/glprogs/helper_geometry.vert");
@@ -49,7 +49,7 @@ HelperGeometryShaderProgram::HelperGeometryShaderProgram()
 	m_unProjection			= glGetUniformLocation(m_uiProgramId, "projection");
 	m_unView				= glGetUniformLocation(m_uiProgramId, "view");
 	m_unScale				= glGetUniformLocation(m_uiProgramId, "scale");
-	m_unOrigin				= glGetUniformLocation(m_uiProgramId, "origin");
+	m_unTransform			= glGetUniformLocation(m_uiProgramId, "transform");	
 	m_unColorOverride		= glGetUniformLocation(m_uiProgramId, "colorOverride");
 
 

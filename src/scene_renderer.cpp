@@ -19,7 +19,13 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
-
+	
+	
+	auto fd = Application::GetFileSystem()->LoadFile("res/mesh/arrow.obj");
+	
+	m_pDirectionModel = new ModelOBJ(fd);
+	m_pDirectionArrow = m_pDirectionModel->GetDrawMesh();
+	
 	m_pEditHistory = new CEditHistory;
 }
 
@@ -33,6 +39,9 @@ SceneRenderer::~SceneRenderer()
 	if (m_pUnitBoundingBox) delete m_pUnitBoundingBox;
 
 	delete m_pEditHistory;
+
+	delete m_pDirectionModel; m_pDirectionModel = 0;
+	m_pDirectionArrow = 0;
 }
 
 void SceneRenderer::RenderScene()
@@ -118,11 +127,18 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 
 		for (auto& it : modelLightDefs)
 		{
-			it.serial_number = AllocSerialNumber();
-			m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
+			int sn = AllocSerialNumber();
+			AddLightToSceneWithSerialNumber(it, sn);
+
 		}
 	}
 
+}
+
+void SceneRenderer::AddLightToSceneWithSerialNumber(lightDef_t& it, int sn)
+{
+	it.serial_number = sn;
+	m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
 }
 
 bool SceneRenderer::IsModelLoaded()
@@ -287,7 +303,6 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	
 	if (!ptr)
 		return;
-
 	
 	auto shader = GLBackend::Instance()->HelperGeometryShader();
 
@@ -296,16 +311,33 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	shader->SetProjection(m_pCamera->GetProjectionMatrix());	
 	shader->SetView(m_pCamera->GetViewMatrix());
 	shader->SetColor(glm::vec4(glm::vec3(1,1,1) - ptr->color,1));
-	shader->SetOrigin(ptr->pos);
+	
+	
+	glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f),ptr->pos);
+	//mat = glm::mat4x4(1);
+	
+
 	shader->SetScale(4);
+	shader->SetTransform(mat);
 
-	m_pUnitBoundingBox->BindAndDraw();
+	//m_pUnitBoundingBox->BindAndDraw();
 
+	auto mat1 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[0]), glm::vec3(1, 0, 0));
+	auto mat2 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[1]), glm::vec3(0, 1, 0));
+	auto mat3 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[2]), glm::vec3(0, 0, 1));
 
+	mat *= mat1;	
+	mat *= mat2;	
+	mat *= mat3;
+	
+		
+	shader->SetTransform(mat);
+	m_pDirectionArrow->BindAndDraw();
+	
 	float f = sqrt(ptr->intensity);
 	shader->SetScale(f);
 
-	m_pIntensitySphere->BindAndDraw();
+	//m_pIntensitySphere->BindAndDraw();
 
 	shader->Unbind();
 }
@@ -324,6 +356,12 @@ lightDefWPtr_t SceneRenderer::GetLightBySerialNumber(int serialNumber)
 	}
 
 	return lightDefWPtr_t();
+}
+
+void SceneRenderer::DeleteLightWithSerialNumber(int serialNumber)
+{
+	auto lightPtr = GetLightBySerialNumber(serialNumber);
+	DeleteLight(lightPtr);
 }
 
 void SceneRenderer::AddNewLight(LightTypes type)
@@ -375,16 +413,23 @@ void SceneRenderer::DeleteLight(lightDefWPtr_t l)
 		{
 			return it == ptr;
 		});
+		
 
 	m_vecSceneLightDefs.erase(pos);
 }
 
 void SceneRenderer::DoDeleteSelection()
 {	
-	DeleteLight(GetSelection());
-	Application::ScheduleCompilationIfNecceseary();
-	
+	auto sel = GetSelection();
+	auto ptr = sel.lock();
 
+	if (!ptr)
+		return;
+
+	m_pEditHistory->PushAction(new CDeleteLightAction(ptr.get()));
+
+	DeleteLight(sel);
+	Application::ScheduleCompilationIfNecceseary();
 }
 
 CEditHistory* SceneRenderer::GetEditHistory() const

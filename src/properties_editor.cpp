@@ -64,12 +64,12 @@ void ObjectPropertiesEditor::RenderGuizmo()
 {
 	if (!CheckObjectValidity()) return;
 
-	if (!m_pGuizmoProperty) return;
+	if (!m_pGuizmoPropertyPosition) return;
 		
 	ImGuizmo::BeginFrame();
 	Camera* cam = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera();
 		
-	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], false);
+	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], true);
 }
 
 void ObjectPropertiesEditor::UnloadObject()
@@ -126,16 +126,31 @@ bool ObjectPropertiesEditor::CheckObjectValidity()
 
 void ObjectPropertiesEditor::SetupGuizmo()
 {
-	m_pGuizmoProperty = FindFirstPropertyByType(PropertiesTypes::Position);
+	m_pGuizmoPropertyPosition = FindFirstPropertyByType(PropertiesTypes::Position);
 
-	if (!m_pGuizmoProperty)
+	m_GizmoMode = 0;
+
+	if (!m_pGuizmoPropertyPosition)
 	{
 		ImGuizmo::Enable(false);
 		return;
 	}
+	else
+		m_GizmoMode = ImGuizmo::TRANSLATE;
 
+	m_pGuizmoPropertyRotation = FindFirstPropertyByType(PropertiesTypes::Angles);
+
+	if (m_pGuizmoPropertyRotation)	
+		m_GizmoMode |= ImGuizmo::ROTATE;
+	
 	ImGuizmo::Enable(true);
-	m_matGuizmo = glm::translate(glm::mat4(1.f), m_pGuizmoProperty->GetPosition());
+	
+
+	glm::vec3 pos = m_pGuizmoPropertyPosition->GetPosition();
+	glm::vec3 ang = m_pGuizmoPropertyRotation->GetAngles();
+	glm::vec3 scale = glm::vec3(1.f);
+
+	ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang.x, &scale.x, &m_matGuizmo[0][0]);
 
 }
 
@@ -338,8 +353,8 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 
 void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition)
 {
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE);
-	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::LOCAL);
+	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::ROTATE);
+	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 	static bool useSnap = false;
 	static float snap[3] = { 1.f, 1.f, 1.f };
 	static float bounds[] = { -0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f };
@@ -416,6 +431,8 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 	auto h = Application::GetMainWindow()->Height();
 
 
+	ImGuizmo::AllowAxisFlip(false);
+
 	ImGuizmo::SetRect(win[0], h - win[1] - win[3], win[2], win[3]);	
 	bool bChanged = ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode, matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL, boundSizingSnap ? boundsSnap : NULL);
 
@@ -424,17 +441,30 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
 
-		m_pGuizmoProperty->value.asPosition.x = matrixTranslation[0];
-		m_pGuizmoProperty->value.asPosition.y = matrixTranslation[1];
-		m_pGuizmoProperty->value.asPosition.z = matrixTranslation[2];
+		m_pGuizmoPropertyPosition->value.asPosition.x = matrixTranslation[0];
+		m_pGuizmoPropertyPosition->value.asPosition.y = matrixTranslation[1];
+		m_pGuizmoPropertyPosition->value.asPosition.z = matrixTranslation[2];
 
-		UpdateProperty(m_pGuizmoProperty);
+		if (m_pGuizmoPropertyRotation)
+		{
+			auto angleMod = [](float f) -> float { if (f < 0) return f + 360; else if (f > 360) return f - 360; return f; };
+
+			m_pGuizmoPropertyRotation->value.asAngles.x = angleMod(matrixRotation[0]);
+			m_pGuizmoPropertyRotation->value.asAngles.y = angleMod(matrixRotation[1]);
+			m_pGuizmoPropertyRotation->value.asAngles.z = angleMod(matrixRotation[2]);
+
+			UpdateProperty(m_pGuizmoPropertyRotation);
+		}
+
+		UpdateProperty(m_pGuizmoPropertyPosition);
 	}
 
 	if (!m_bGuizmoEdited && ImGuizmo::IsUsing())
 	{
 		// Here we record old value when item is actived for the first time.
-		m_OldPropertyValue = *m_pGuizmoProperty;
+		m_OldPropertyValue = *m_pGuizmoPropertyPosition;
+		if (m_pGuizmoPropertyRotation)
+			m_OldPropertyValue2 = *m_pGuizmoPropertyRotation;
 		m_bGuizmoEdited = true;
 	}
 
@@ -443,9 +473,16 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 		m_bGuizmoEdited = false;
 
 		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
-		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, *m_pGuizmoProperty));
+		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, *m_pGuizmoPropertyPosition));
+
+		if (m_pGuizmoPropertyRotation)
+			history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue2, *m_pGuizmoPropertyRotation));
+		
 
 		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
+
+
+
 	}
 	
 }

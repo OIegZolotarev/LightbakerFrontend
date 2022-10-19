@@ -55,6 +55,7 @@ public:
 
 	void SetLightmapDimensions(int w, int h);
 
+	DrawMesh* GetDrawMesh();
 private:
 	size_t m_VertSize = 0;
 	size_t m_UVSize = 0;
@@ -95,5 +96,6 @@ private:
 
 	void BuildDrawMesh();
 	DrawMesh mesh;
+
 };
 

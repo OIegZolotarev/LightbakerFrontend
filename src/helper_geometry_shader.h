@@ -11,7 +11,8 @@ class HelperGeometryShaderProgram: public ShaderProgram
 {
 	GLuint m_unColorOverride;
 	GLuint m_unScale;
-	GLuint m_unOrigin;
+	GLuint m_unTransform;
+	
 	GLuint m_unView;
 	GLuint m_unProjection;
 
@@ -20,10 +21,10 @@ public:
 	~HelperGeometryShaderProgram();
 
 	void SetView(float* matrix);
-
-	void SetOrigin(glm::vec3& pos);
+	
 	void SetProjection(float* matrix);
 	void SetColor(glm::vec4 color);
 	void SetScale(float param1);
+	void SetTransform(glm::mat4x4& mat);
 };
 

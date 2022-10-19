@@ -27,7 +27,7 @@ public:
 	bool IsHovered() { return m_bHovered; }
 
 	void InvokeSelect();
-	
+	void SetSelected(bool state) { m_bSelected = state; }
 };
 
 typedef std::weak_ptr<ISelectableObject> ISelectableObjectWeakRef;

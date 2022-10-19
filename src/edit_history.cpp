@@ -102,6 +102,7 @@ void CEditHistory::Undo()
 	(*it)->Undo();
 	m_Position--;
 
+	Application::ScheduleCompilationIfNecceseary();
 }
 
 void CEditHistory::Redo()
@@ -117,4 +118,22 @@ void CEditHistory::Redo()
 
 	(*it)->Redo();
 	
+	Application::ScheduleCompilationIfNecceseary();
+}
+
+CDeleteLightAction::CDeleteLightAction(lightDef_t* pLight)
+{
+	m_Light = *pLight;
+
+	m_Light.SetSelected(false);
+}
+
+void CDeleteLightAction::Redo()
+{
+	Application::GetMainWindow()->GetSceneRenderer()->DeleteLightWithSerialNumber(m_Light.serial_number);
+}
+
+void CDeleteLightAction::Undo()
+{
+	Application::GetMainWindow()->GetSceneRenderer()->AddLightToSceneWithSerialNumber(m_Light, m_Light.serial_number);
 }

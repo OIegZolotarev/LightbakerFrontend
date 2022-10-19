@@ -24,6 +24,8 @@ public:
 	float	FrameDelta();
 	void LoadModel(const char* dropped_filedir, bool keepLight = false);
 
+	void AddLightToSceneWithSerialNumber(lightDef_t& it, int sn);
+
 	bool	IsModelLoaded();
 	
 	std::string GetModelFileName();
@@ -64,6 +66,11 @@ private:
 
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
+	
+	ModelOBJ*	m_pDirectionModel;
+	DrawMesh*	m_pDirectionArrow;
+
+
 	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
 	lightDefWPtr_t m_pCurrentSelection;
 
@@ -72,5 +79,6 @@ private:
 	int AllocSerialNumber();
 public:
 	lightDefWPtr_t GetLightBySerialNumber(int serialNumber);
+	void DeleteLightWithSerialNumber(int serialNumber);
 };
 
