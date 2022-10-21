@@ -12,7 +12,7 @@ std::vector<gltexture_t*> g_vecGLTextures;
 
 gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 {
-	if (!force)
+	if (!force && sourceFile)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
@@ -32,6 +32,27 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	return r;
 }
 
+gltexture_t* LoadGLTexture(const char* fileName, bool force)
+{
+	if (!force)
+	{
+		for (auto& it : g_vecGLTextures)
+		{
+			if (!_stricmp(it->file_name.c_str(),fileName)
+				&& it->gl_texnum != 0)
+				return it;
+		}
+	}
+
+	FileData* pData = Application::GetFileSystem()->LoadFile(fileName);
+	auto r = LoadGLTexture(pData, force);
+
+	if (pData)
+		delete pData;
+
+	return r;
+}
+
 void GLReloadTexture(gltexture_t* t)
 {
 	FileData* pData = Application::GetFileSystem()->LoadFile(t->file_name.c_str());
@@ -44,10 +65,12 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 	r->height = -1;
 	r->width = -1;
 	r->gl_texnum = 0;
-	r->file_name = sourceFile->Name();
+	
 
 	if (!sourceFile)
 		return;
+
+	r->file_name = sourceFile->Name();
 
 	// Load from file
 	int image_width = 0;

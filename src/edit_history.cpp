@@ -71,8 +71,9 @@ CEditHistory::~CEditHistory()
 
 void CEditHistory::PushAction(IEditAction* pAction)
 {
+#ifdef DEBUG_EDIT_HISTORY
 	Con_Printf("PushAction()\n");
-
+#endif 
 	if (m_Position == -1)
 		m_lstActions.clear();
 	else
@@ -87,7 +88,9 @@ void CEditHistory::PushAction(IEditAction* pAction)
 	m_lstActions.push_back(pAction);
 	m_Position = m_lstActions.size() - 1;
 
+#ifdef DEBUG_EDIT_HISTORY
 	Con_Printf("Actions stack size: %d\n", m_lstActions.size());
+#endif
 }
 
 void CEditHistory::Undo()

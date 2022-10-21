@@ -6,25 +6,17 @@
 #pragma once
 #include "shader_program.h"
 #include "common.h"
+#include "scene_shader.h"
 
-class HelperGeometryShaderProgram: public ShaderProgram
+class HelperGeometryShaderProgram: public ISceneShader
 {
-	GLuint m_unColorOverride;
-	GLuint m_unScale;
+	GLuint m_unColorOverride;	
 	GLuint m_unTransform;
-	
-	GLuint m_unView;
-	GLuint m_unProjection;
-
 public:
 	HelperGeometryShaderProgram();
 	~HelperGeometryShaderProgram();
-
-	void SetView(float* matrix);
-	
-	void SetProjection(float* matrix);
-	void SetColor(glm::vec4 color);
-	void SetScale(float param1);
+		
+	void SetColor(glm::vec4 color);	
 	void SetTransform(glm::mat4x4& mat);
 };
 

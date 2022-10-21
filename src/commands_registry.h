@@ -17,7 +17,8 @@ enum class GlobalCommands
 	DeleteSelection,
 	ResetLayout,
 	Undo,
-	Redo
+	Redo,
+	SceneScale
 };
 
 typedef std::function<void()> pfnCommandCallback;

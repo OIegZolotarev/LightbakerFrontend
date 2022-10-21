@@ -109,6 +109,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -124,6 +125,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions);MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,6 +141,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -154,6 +157,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);MICROSOFT_WINDOWS_WINBASE_H_DEFINE_INTERLOCKED_CPLUSPLUS_OVERLOADS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,7 +196,10 @@
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
+    <ClCompile Include="popup_scene_scale.cpp" />
+    <ClCompile Include="scene_shader.cpp" />
     <ClCompile Include="lb3k_wrapper.cpp" />
+    <ClCompile Include="lightmapped_scene_shader.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="main_window.cpp" />
     <ClCompile Include="model_obj.cpp" />
@@ -238,6 +245,9 @@
     <ClInclude Include="helper_geometry_shader.h" />
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
+    <ClInclude Include="popup_scene_scale.h" />
+    <ClInclude Include="scene_shader.h" />
+    <ClInclude Include="lightmapped_scene_shader.h" />
     <ClInclude Include="persistent.h" />
     <ClInclude Include="popup_lb3k_config.h" />
     <ClInclude Include="popup_loadfile_dialog.h" />

@@ -69,7 +69,7 @@ void ObjectPropertiesEditor::RenderGuizmo()
 	ImGuizmo::BeginFrame();
 	Camera* cam = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera();
 		
-	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], true);
+	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], false);
 }
 
 void ObjectPropertiesEditor::UnloadObject()
@@ -353,7 +353,8 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 
 void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition)
 {
-	static ImGuizmo::OPERATION mCurrentGizmoOperation(ImGuizmo::TRANSLATE | ImGuizmo::ROTATE);
+	ImGuizmo::OPERATION mCurrentGizmoOperation = m_pPropertiesBinding->GetMeaningfulGizmoOperationMode();
+
 	static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
 	static bool useSnap = false;
 	static float snap[3] = { 1.f, 1.f, 1.f };

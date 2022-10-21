@@ -8,6 +8,7 @@
 #include "common.h"
 #include "shader_program.h"
 #include "helper_geometry_shader.h"
+#include "lightmapped_scene_shader.h"
 
 
 typedef struct drawVert_s 
@@ -85,10 +86,12 @@ class GLBackend
 	GLBackend();
 
 	HelperGeometryShaderProgram* m_pHelperGeometryShader = nullptr;
+	LightMappedSceneShaderProgram* m_pLightmappedSceneShader = nullptr;
 
 public:
 	static GLBackend* Instance();
 	~GLBackend();
 
 	HelperGeometryShaderProgram* HelperGeometryShader();
+	LightMappedSceneShaderProgram* LightMappedSceneShader();
 };

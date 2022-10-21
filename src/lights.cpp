@@ -209,6 +209,25 @@ void LightPropertiesBinding::OnPropertyChangeSavedToHistory()
 	Application::ScheduleCompilationIfNecceseary();
 }
 
+ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
+{
+	auto ptr = m_pwLightDef.lock();
+
+	if (!ptr)
+		return (ImGuizmo::OPERATION)0;
+
+	switch (ptr->type)
+	{
+	case LightTypes::Spot:		
+		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
+	case LightTypes::Direct:
+		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
+	case LightTypes::Omni:
+		return ImGuizmo::TRANSLATE;
+	}
+
+}
+
 void lightDef_s::UpdateEditorIcon()
 {
 	switch (type)

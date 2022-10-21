@@ -157,4 +157,11 @@ public:
 	}
 
 	virtual void OnPropertyChangeSavedToHistory() {};
+
+	virtual ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode()
+	{
+		return (ImGuizmo::OPERATION)0;
+	}
+
+
 };

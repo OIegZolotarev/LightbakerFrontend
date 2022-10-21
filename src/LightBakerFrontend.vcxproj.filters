@@ -24,6 +24,12 @@
     <Filter Include="Исходные файлы\ImGuizmo">
       <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\shaders">
+      <UniqueIdentifier>{b0d749ae-a0f5-4083-9653-8f3311bd93b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Popups">
+      <UniqueIdentifier>{79dfe3a4-2732-4f60-b6c1-af22b80a52a5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -116,22 +122,7 @@
     <ClCompile Include="persistent.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="imgui_popups.h">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="imgui_popups.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="custom_font.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="popup_lb3k_config.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="helper_geometry_shader.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="popup_loadfile_dialog.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="scene_objects_panel.cpp">
@@ -154,6 +145,30 @@
     </ClCompile>
     <ClCompile Include="text_utils.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="helper_geometry_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="lightmapped_scene_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_popups.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_popups.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_loadfile_dialog.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_lb3k_config.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_scene_scale.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -265,19 +280,10 @@
     <ClInclude Include="imgui_helpers.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="helper_geometry_shader.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="shader_program.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="custom_font.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="popup_loadfile_dialog.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="popup_lb3k_config.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="scene_objects_panel.h">
@@ -297,6 +303,24 @@
     </ClInclude>
     <ClInclude Include="text_utils.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="helper_geometry_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="lightmapped_scene_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_loadfile_dialog.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_lb3k_config.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_scene_scale.h">
+      <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -41,6 +41,7 @@ public:
 	~ModelOBJ();
 
 	void DrawDebug();
+	void DrawShaded();
 
 	std::vector<lightDef_t>& ParsedLightDefs();
 
@@ -56,6 +57,12 @@ public:
 	void SetLightmapDimensions(int w, int h);
 
 	DrawMesh* GetDrawMesh();
+
+	float GetSceneScale()
+	{
+		return m_flSceneScale;
+	}
+
 private:
 	size_t m_VertSize = 0;
 	size_t m_UVSize = 0;
@@ -97,5 +104,6 @@ private:
 	void BuildDrawMesh();
 	DrawMesh mesh;
 
+	float m_flSceneScale = 1.f;
 };
 

@@ -22,6 +22,7 @@ typedef struct gltexture_s
 
 }gltexture_t;
 
+gltexture_t*	LoadGLTexture(const char* fileName, bool force = false);
 
 gltexture_t*	LoadGLTexture(FileData* pFileData, bool force = false);
 void			GLReloadTexture(gltexture_t*);

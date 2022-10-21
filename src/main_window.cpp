@@ -375,6 +375,15 @@ void MainWindow::InitCommands()
 		{
 			GetSceneRenderer()->GetEditHistory()->Redo();
 		}));
+
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::SceneScale, "Scene scale", "", 0, 0,
+		[&]()
+		{
+			PopupsManager::Instance()->ShowPopup(PopupWindows::SceneScaleDialog);
+		}));
+
+
 }
 
 
@@ -425,6 +434,8 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::SceneScale);
+			ImGui::Separator();
 
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Undo);
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Redo);

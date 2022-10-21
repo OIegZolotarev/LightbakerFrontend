@@ -46,12 +46,18 @@ public:
 	void HintSelected(lightDefWPtr_t weakRef);
 	lightDefWPtr_t GetSelection();
 
-
 	void DeleteLight(lightDefWPtr_t l);
-
 
 	void DoDeleteSelection();
 	CEditHistory* GetEditHistory() const;
+
+	lightDefWPtr_t GetLightBySerialNumber(int serialNumber);
+	void DeleteLightWithSerialNumber(int serialNumber);
+
+	float	GetSceneScale();	
+	void	SetSceneScale(float f);
+
+	void RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
 private:
 	void Debug_DrawGround();
 
@@ -77,8 +83,7 @@ private:
 	int m_serialNubmerCounter = 1;
 
 	int AllocSerialNumber();
-public:
-	lightDefWPtr_t GetLightBySerialNumber(int serialNumber);
-	void DeleteLightWithSerialNumber(int serialNumber);
+
+	float m_flSceneScale = 1.0f;
 };
 

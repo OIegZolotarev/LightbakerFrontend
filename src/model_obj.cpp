@@ -13,6 +13,9 @@
 #include <intsafe.h>
 #include "gl_backend.h"
 
+#define WHITE_PNG "res/textures/white.png"
+#define DUMMY_PNG "res/textures/dummy.png"
+
 // for string delimiter
 std::vector<std::string> split(std::string s, std::string delimiter)
 {
@@ -70,6 +73,9 @@ std::vector<std::string> split_whitespaces(std::string & s)
 
 ModelOBJ::ModelOBJ(FileData* pFileData)
 {
+	// TODO: incapsulate better way?
+	
+
 	ParseData(pFileData);
 
 	if (m_vMaterials.size() == 0)
@@ -89,26 +95,20 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 		FileData* data = 0;
 
 		defaultMaterial.diffuse_texture_path = diffusePath;
-		data = Application::GetFileSystem()->LoadFile(diffusePath.c_str());
+		defaultMaterial.diffuse_texture = LoadGLTexture(defaultMaterial.diffuse_texture_path.c_str());
 
-		if (data)
-		{
-			defaultMaterial.diffuse_texture = LoadGLTexture(data);
-			delete data;
-		}
-
+		if (defaultMaterial.diffuse_texture->width == -1)
+			defaultMaterial.diffuse_texture = LoadGLTexture(DUMMY_PNG);
+		
 		for (int i = 0; i < MAX_LIGHT_STYLES; i++)
 		{
-			auto lmPath = modelDir + "/" + baseName + "_lightmap_" +  std::to_string(i) + ".png";
-			data = Application::GetFileSystem()->LoadFile(lmPath.c_str());
-
+			auto lmPath = modelDir + "/" + baseName + "_lightmap_" +  std::to_string(i) + ".png";			
+			defaultMaterial.lightmap_texture[i] = LoadGLTexture(lmPath.c_str(), true);
 			defaultMaterial.lightmap_texture_path[i] = lmPath;
 
-			if (data)
-			{
-				defaultMaterial.lightmap_texture[i] = LoadGLTexture(data,true);
-				delete data;
-			}
+			if (defaultMaterial.lightmap_texture[i]->width == -1)
+				defaultMaterial.lightmap_texture[i] = LoadGLTexture(WHITE_PNG);
+
 		}
 
 		m_vMaterials.push_back(defaultMaterial);
@@ -130,6 +130,14 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 	BuildDrawMesh();
 
+	if (m_vecGroups.size() == 0)
+	{
+
+		for (auto& it : m_vecFaces)
+			it.group_id = 1;
+
+		m_vecGroups.push_back("default");
+	}
 }
 
 ModelOBJ::~ModelOBJ()
@@ -160,8 +168,8 @@ void ModelOBJ::DrawDebug()
 
 	for (auto& it : m_vMaterials)
 	{
-		if (it.lightmap_texture[0])
-			glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
+		if (it.diffuse_texture)
+			glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
 		else
 			glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -233,6 +241,48 @@ void ModelOBJ::DrawDebug()
  	glEnable(GL_TEXTURE_2D);
 #endif
 	
+}
+
+void ModelOBJ::DrawShaded()
+{
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+
+	mesh.Bind();
+
+	auto shader = GLBackend::Instance()->LightMappedSceneShader();
+	shader->Bind();
+	shader->SetScale(sceneRenderer->GetSceneScale());
+	shader->SetDefaultCamera();
+
+	glEnable(GL_TEXTURE_2D);
+
+	for (auto& it : m_vMaterials)
+	{
+		glActiveTexture(GL_TEXTURE0);		
+		{
+			if (it.diffuse_texture)
+				glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
+			else
+				glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		glActiveTexture(GL_TEXTURE1);		
+		{
+			if (it.lightmap_texture[0])
+				glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
+			else
+				glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		mesh.Draw(it.first_face, it.num_faces);
+	}
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	shader->Unbind();
+	mesh.Unbind();
 }
 
 std::vector<lightDef_t>& ModelOBJ::ParsedLightDefs()
@@ -545,7 +595,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	{
 		if (tokens.size() != 3)
 		{
-			Con_Printf("[ERROR] Malformed #lm_size command");
+			Con_Printf("[ERROR] Malformed #lm_size command\n");
 			return;
 		}
 
@@ -555,11 +605,23 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 		return;
 	}
 
+	if (tokens[0] == "#scene_scale")
+	{
+		if (tokens.size() != 2)
+		{
+			Con_Printf("[ERROR] Malformed #scene_scale command\n");
+			return;
+		}
+
+		m_flSceneScale = stof(tokens[1]);
+		return;
+	}
+
 	if (tokens[0] == "#env_color")
 	{
 		if (tokens.size() != 4)
 		{
-			Con_Printf("[ERROR] Malformed #env_color command");
+			Con_Printf("[ERROR] Malformed #env_color command\n");
 			return;
 		}
 
@@ -619,15 +681,15 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 			newLight.flags |= LF_RECT;
 	}
 
-	newLight.pos[0] = stof(tokens[1]);
-	newLight.pos[1] = stof(tokens[2]);
-	newLight.pos[2] = stof(tokens[3]);
+	newLight.pos[0] = stof(tokens[1]) * m_flSceneScale;
+	newLight.pos[1] = stof(tokens[2]) * m_flSceneScale;
+	newLight.pos[2] = stof(tokens[3]) * m_flSceneScale;
 
 	newLight.color[0] = stof(tokens[4]);
 	newLight.color[1] = stof(tokens[5]);
 	newLight.color[2] = stof(tokens[6]);
 
-	newLight.intensity = stof(tokens[7]);
+	newLight.intensity = stof(tokens[7]) * m_flSceneScale;
 
 	newLight.anglesDirection[0] = stof(tokens[8]);
 	newLight.anglesDirection[1] = stof(tokens[9]);
@@ -653,7 +715,12 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 
 void ModelOBJ::ExportLightDefs(FILE* fp)
 {
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	float scale = 1.0f / sceneRenderer->GetSceneScale();
+
 	fprintf(fp, "### LightBaker 3000 lights definition\n\n");
+
+	fprintf(fp, "#scene_scale %.3f\n\n", sceneRenderer->GetSceneScale());
 	
 	fprintf(fp, "#lm_size %d %d\n", m_LightmapDimensions[0], m_LightmapDimensions[1]);
 	fprintf(fp, "#env_color %.3f %.3f %.3f\n\n", m_EnvColor[0],m_EnvColor[1],m_EnvColor[1]);
@@ -688,11 +755,11 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 		if (it.flags & LF_RECT)		lightBaseType += "_rect";
 
 
-		fprintf(fp,"%s\t%.3f %.3f %.3f\t%.3f %.3f %.3f\t%.3f\t%.3f %.3f %.3f\t%.3f %.3f\t%d\t",
+		fprintf(fp,"%s\t%.6f %.6f %.6f\t%.6f %.6f %.6f\t%.6f\t%.6f %.3f %.6f\t%.6f %.6f\t%d\t",
 				lightBaseType.c_str(),
-				it.pos[0], it.pos[1], it.pos[2],
+				it.pos[0] * scale, it.pos[1] * scale, it.pos[2] * scale,
 				it.color[0], it.color[1], it.color[2],
-				it.intensity,
+				it.intensity * scale,
 				it.anglesDirection[0], it.anglesDirection[1], it.anglesDirection[2],
 				it.cones[0], it.cones[1],
 				it.style);
@@ -934,13 +1001,11 @@ void ModelOBJ::ReloadTextures()
 			GLReloadTexture(it.diffuse_texture);
 		else
 		{
-			FileData* pData = Application::GetFileSystem()->LoadFile(it.diffuse_texture_path);
-
-			if (pData)
-			{
-				it.diffuse_texture = LoadGLTexture(pData);
-				delete pData;
-			}
+			it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
+		
+			if (it.diffuse_texture->width == -1)
+				it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
+				
 			
 		}
 
@@ -950,13 +1015,10 @@ void ModelOBJ::ReloadTextures()
 				GLReloadTexture(it.lightmap_texture[i]);
 			else
 			{
-				FileData* pData = Application::GetFileSystem()->LoadFile(it.lightmap_texture_path[i]);
+				it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
 
-				if (pData)
-				{
-					it.lightmap_texture[i] = LoadGLTexture(pData);
-					delete pData;
-				}
+				if (it.lightmap_texture[i]->width == -1)
+					it.lightmap_texture[i] = LoadGLTexture(WHITE_PNG);
 			}
 		}
 			

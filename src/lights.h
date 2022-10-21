@@ -103,5 +103,8 @@ public:
 
 	int GetSerialNumber() override;
 	void OnPropertyChangeSavedToHistory() override;
+
+	ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
+
 };
 

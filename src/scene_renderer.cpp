@@ -11,6 +11,7 @@
 #include "selection_3d.h"
 #include "draw_utils.h"
 #include "..\include\ImGuizmo\ImGuizmo.h"
+#include "properties_editor.h"
 
 SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
@@ -57,7 +58,7 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	if (m_pSceneModel) m_pSceneModel->DrawDebug();
+	if (m_pSceneModel) m_pSceneModel->DrawShaded();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -96,6 +97,8 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 {
+	
+
 	if (dropped_filedir)
 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
 
@@ -111,12 +114,21 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		fd = Application::GetFileSystem()->LoadFile(n);
 	}
 
+	if (!fd)
+	{
+		// PopupError()
+		// RemoveFromMRU()
+		return;
+	}
+
 
 	if (m_pSceneModel)
 		delete m_pSceneModel;
 
 	m_pSceneModel = new ModelOBJ(fd);
 	
+	SetSceneScale(m_pSceneModel->GetSceneScale());
+
 	m_serialNubmerCounter = 1;
 
 	if (!keepLights)
@@ -129,7 +141,6 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		{
 			int sn = AllocSerialNumber();
 			AddLightToSceneWithSerialNumber(it, sn);
-
 		}
 	}
 
@@ -303,43 +314,58 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	
 	if (!ptr)
 		return;
-	
-	auto shader = GLBackend::Instance()->HelperGeometryShader();
 
-	shader->Bind();
-	
-	shader->SetProjection(m_pCamera->GetProjectionMatrix());	
-	shader->SetView(m_pCamera->GetViewMatrix());
-	shader->SetColor(glm::vec4(glm::vec3(1,1,1) - ptr->color,1));
-	
-	
-	glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f),ptr->pos);
-	//mat = glm::mat4x4(1);
-	
+	switch (ptr->type)
+	{
+	case LightTypes::Omni:
+		break;
+	case LightTypes::Spot:
+	{
 
-	shader->SetScale(4);
-	shader->SetTransform(mat);
+		auto shader = GLBackend::Instance()->HelperGeometryShader();
 
-	//m_pUnitBoundingBox->BindAndDraw();
+		shader->Bind();
+		shader->SetProjection(m_pCamera->GetProjectionMatrix());
+		shader->SetView(m_pCamera->GetViewMatrix());
+		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->color, 1));
 
-	auto mat1 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[0]), glm::vec3(1, 0, 0));
-	auto mat2 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[1]), glm::vec3(0, 1, 0));
-	auto mat3 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[2]), glm::vec3(0, 0, 1));
+		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->pos);
+		shader->SetScale(4);
+		shader->SetTransform(mat);
 
-	mat *= mat1;	
-	mat *= mat2;	
-	mat *= mat3;
-	
+		auto mat1 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[0]), glm::vec3(1, 0, 0));
+		auto mat2 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[1]), glm::vec3(0, 1, 0));
+		auto mat3 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[2]), glm::vec3(0, 0, 1));
+
+		mat *= mat1;
+		mat *= mat2;
+		mat *= mat3;
 		
-	shader->SetTransform(mat);
-	m_pDirectionArrow->BindAndDraw();
+		shader->SetTransform(mat);
+		m_pDirectionArrow->BindAndDraw();
+		shader->Unbind();
+	}
+		break;
+	case LightTypes::Direct:
+		break;
+	default:
+		break;
+
+	}
+
 	
-	float f = sqrt(ptr->intensity);
-	shader->SetScale(f);
 
-	//m_pIntensitySphere->BindAndDraw();
+// 
+// 	//m_pUnitBoundingBox->BindAndDraw();
+// 
 
-	shader->Unbind();
+// 	
+// 	float f = sqrt(ptr->intensity);
+// 	shader->SetScale(f);
+// 
+// 	//m_pIntensitySphere->BindAndDraw();
+// 
+
 }
 
 int SceneRenderer::AllocSerialNumber()
@@ -362,6 +388,30 @@ void SceneRenderer::DeleteLightWithSerialNumber(int serialNumber)
 {
 	auto lightPtr = GetLightBySerialNumber(serialNumber);
 	DeleteLight(lightPtr);
+}
+
+float SceneRenderer::GetSceneScale()
+{
+	return m_flSceneScale;
+}
+
+void SceneRenderer::SetSceneScale(float f)
+{
+	m_flSceneScale = f;
+}
+
+void SceneRenderer::RescaleLightPositions(float m_flScaleOriginal, float m_flScale)
+{
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		it->pos /= m_flScaleOriginal;
+		it->pos *= m_flScale;
+	}
+
+	ObjectPropertiesEditor::Instance()->UnloadObject();
+
+	// Not really necessary
+	//Application::ScheduleCompilationIfNecceseary();
 }
 
 void SceneRenderer::AddNewLight(LightTypes type)

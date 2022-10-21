@@ -9,7 +9,8 @@
 enum class PopupWindows
 {
 	LightBaker3KConfig = 0,
-	LoadfileDialog
+	LoadfileDialog,
+	SceneScaleDialog
 };
 
 class IImGUIPopup
@@ -33,6 +34,8 @@ public:
 	{
 		return m_Id;
 	}
+
+	virtual void OnOpen() {};
 };
 
 class PopupsManager
