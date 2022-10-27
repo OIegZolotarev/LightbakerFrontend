@@ -170,6 +170,9 @@
     <ClCompile Include="popup_scene_scale.cpp">
       <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
+    <ClCompile Include="geometry_selection_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -321,6 +324,9 @@
     </ClInclude>
     <ClInclude Include="popup_scene_scale.h">
       <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry_selection_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

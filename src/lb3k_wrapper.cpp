@@ -130,22 +130,43 @@ std::string LightBaker3000::BuildOptionsString(bool objModel)
 
 int BakeThread(void* args)
 {
-	TinyProcessLib::Process process1a((char*)args, "", [](const char* bytes, size_t n)
+
+	std::string captured = "";
+
+	TinyProcessLib::Process process1a((char*)args, "", [&](const char* bytes, size_t n)
 		{
 			char* dup = (char*)malloc(sizeof(char) * (n + 1));
 			memcpy(dup, bytes, n);
 			dup[n] = 0;
 
+			static char prevChar = 0;
+
 			// Make progress output a bit nicer
-			for (size_t i = 0; i < (n - 1); i++)
+			for (size_t i = 0; i < n; i++)
 			{
-				if (dup[i] == '\r' && dup[i + 1] != '\n')
-					dup[i] = '\n';
+
+				captured += dup[i];
+
+				if (dup[i] == '\n')
+				{
+					captured = "";
+				}
+
+				if (dup[i] != '\n' && prevChar == '\r')
+				{
+					//dup[i] = '\n';	
+					//__debugbreak();
+
+					Application::Instance()->ParseLightBakerProgressMessage(captured);
+
+					captured = dup[i];
+					Con_Printf("\n");
+				}
+
+				prevChar = dup[i];
 			}
 
 			Con_Printf(dup);
-			// Ќаверное довольно плохое решение =/ - 30 миллисекунд будет не всегда хватать (на более мощном процессоре\GPU чем у мен€);
-			SDL_Delay(30);
 			free(dup);
 		});
 

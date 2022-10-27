@@ -993,6 +993,51 @@ DrawMesh* ModelOBJ::GetDrawMesh()
 	return &mesh;
 }
 
+void ModelOBJ::OnHovered()
+{
+	
+}
+
+void ModelOBJ::OnMouseMove(glm::vec2 delta)
+{
+	
+}
+
+void ModelOBJ::OnSelect()
+{
+	//Con_Printf("ModelOBJ::OnSelect()\n");
+}
+
+void ModelOBJ::OnUnSelect()
+{
+	
+}
+
+void ModelOBJ::OnUnhovered()
+{
+	
+}
+
+void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
+{
+	auto shader = GLBackend::Instance()->GeometrySelectionShader();
+	
+	auto identity = glm::mat4(1);
+
+	shader->Bind();
+
+	shader->SetTransform(identity);
+	shader->SetScale(1);
+	shader->SetDefaultCamera();
+	shader->SetObjectId(objectId);
+
+	mesh.Bind();
+	mesh.Draw(0, m_vecFaces.size());	
+	
+	mesh.Unbind();
+	shader->Unbind();
+}
+
 void ModelOBJ::ReloadTextures()
 {
 	for (auto& it : m_vMaterials)

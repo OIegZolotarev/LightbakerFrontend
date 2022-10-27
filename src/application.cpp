@@ -13,6 +13,7 @@
 
 #include <nlohmann/json.hpp>
 #include "lb3k_wrapper.h"
+#include <regex>
 
 Application::Application()
 {
@@ -184,12 +185,16 @@ void Application::ScheduleCompilationIfNecceseary()
 
 		auto settings = inst->GetLightBakerApplication()->Settings();
 		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
+		int oldSamples = settings->m_iSamples;
 
-		settings->m_lmSettings.size[0] = 128;
-		settings->m_lmSettings.size[1] = 128;
+		settings->m_iSamples = 256;
+		settings->m_lmSettings.size[0] = 512;
+		settings->m_lmSettings.size[1] = 512;
+		
 
 		inst->ExecuteBaking();
 
+		settings->m_iSamples = oldSamples;
 		settings->m_lmSettings.size[0] = oldSize[0];
 		settings->m_lmSettings.size[1] = oldSize[1];
 	}
@@ -205,6 +210,23 @@ bool Application::IsWaitingForBakerToFinish()
 void Application::FlagToDoBakingAgain()
 {
 	Instance()->m_bDoBakingAgain = true;
+}
+
+void Application::ParseLightBakerProgressMessage(std::string & captured)
+{
+	//__debugbreak();
+	//Con_Printf("C: %s", captured.c_str());
+	m_strBakingStatus = captured;
+}
+
+void Application::ShowMouseCursor()
+{
+	ImGui::GetIO().MouseDrawCursor = true;
+}
+
+void Application::HideMouseCursor()
+{
+	ImGui::GetIO().MouseDrawCursor = false;
 }
 
 Application* Application::Instance()

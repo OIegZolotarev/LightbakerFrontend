@@ -28,6 +28,7 @@ class Application
 
 	bool m_bDelayedInitDone = false;
 
+	std::string m_strBakingStatus;
 public:
 	// Конструкторы\доступ
 	~Application();
@@ -66,6 +67,15 @@ public:
 	static bool IsWaitingForBakerToFinish();
 	static void FlagToDoBakingAgain();
 	bool m_bDoBakingAgain = false;
+	void ParseLightBakerProgressMessage(std::string & captured);
+
+
+	std::string& BakingStatusMessage()
+	{
+		return m_strBakingStatus;
+	}
+	void ShowMouseCursor();
+	void HideMouseCursor();
 };
 
 inline void Con_Printf(const char* fmt, ...)

@@ -34,7 +34,7 @@ typedef struct mobjmaterial_s
 
 }mobjmaterial_t;
 
-class ModelOBJ
+class ModelOBJ: public ISelectableObject
 {
 public:
 	ModelOBJ(FileData* pFileData);
@@ -62,6 +62,14 @@ public:
 	{
 		return m_flSceneScale;
 	}
+
+
+	void OnHovered() override;
+	void OnMouseMove(glm::vec2 delta) override;
+	void OnSelect() override;
+	void OnUnSelect() override;
+	void OnUnhovered() override;
+	void RenderForSelection(int objectId, class SceneRenderer*) override;
 
 private:
 	size_t m_VertSize = 0;

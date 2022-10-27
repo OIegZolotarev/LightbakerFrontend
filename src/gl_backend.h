@@ -9,6 +9,7 @@
 #include "shader_program.h"
 #include "helper_geometry_shader.h"
 #include "lightmapped_scene_shader.h"
+#include "geometry_selection_shader.h"
 
 
 typedef struct drawVert_s 
@@ -85,13 +86,15 @@ class GLBackend
 {
 	GLBackend();
 
-	HelperGeometryShaderProgram* m_pHelperGeometryShader = nullptr;
-	LightMappedSceneShaderProgram* m_pLightmappedSceneShader = nullptr;
+	HelperGeometryShaderProgram*			m_pHelperGeometryShader = nullptr;
+	LightMappedSceneShaderProgram*			m_pLightmappedSceneShader = nullptr;
+	GeometrySelectionShaderProgram*				m_pGeometrySelectionShader = nullptr;
 
 public:
 	static GLBackend* Instance();
 	~GLBackend();
 
-	HelperGeometryShaderProgram* HelperGeometryShader();
-	LightMappedSceneShaderProgram* LightMappedSceneShader();
+	HelperGeometryShaderProgram*		HelperGeometryShader();
+	GeometrySelectionShaderProgram*		GeometrySelectionShader();
+	LightMappedSceneShaderProgram*		LightMappedSceneShader();
 };

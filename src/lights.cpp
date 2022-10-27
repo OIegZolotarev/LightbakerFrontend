@@ -226,6 +226,8 @@ ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
 		return ImGuizmo::TRANSLATE;
 	}
 
+	return (ImGuizmo::OPERATION)0;
+
 }
 
 void lightDef_s::UpdateEditorIcon()

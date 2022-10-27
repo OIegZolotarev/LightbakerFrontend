@@ -540,9 +540,6 @@ void MainWindow::RenderGUI()
 		}
 	}
 	
-	auto it = ImGui::FindOrCreateWindowSettings("Scene objects");
-
-
 	float		menuHeight = RenderMainMenu();
 	float		toolbarHeight = RenderMainToolbar(menuHeight);
 	
@@ -555,7 +552,14 @@ void MainWindow::RenderGUI()
 		it->InvokeRender();
 		
 	PopupsManager::Instance()->RenderPopups();
-	
+
+	if (Application::IsWaitingForBakerToFinish())
+	{
+		float yBannerOffset = toolbarHeight + menuHeight + 8;
+		DrawBakingInProgressBanner(yBannerOffset);
+	}
+
+
 #ifdef DEBUG
 	ImGui::ShowDemoWindow();
 #endif
@@ -563,6 +567,34 @@ void MainWindow::RenderGUI()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainWindow::DrawBakingInProgressBanner(float yBannerOffset)
+{
+	ImGui::SetNextWindowPos(ImVec2(10, yBannerOffset));
+
+	auto txtColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+
+	float timestampSeconds = m_TimersData.timestamp_now / 1000000.f;
+
+	float bias = (sin(timestampSeconds / 2) + 1) / 2;
+
+	float rangeMin = 0.75f;
+	float rangeMax = 1.f;
+
+	float shade = rangeMin + (rangeMax - rangeMin) * bias;
+
+	txtColor.x *= shade;
+	txtColor.y *= shade;
+	txtColor.z *= shade;	
+
+	ImGui::PushStyleColor(ImGuiCol_Text, txtColor);
+	
+	ImGui::Begin("##BakingInProgressBanner", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
+	ImGui::Text("Baking in progress...");
+	ImGui::End();
+
+	ImGui::PopStyleColor();
 }
 
 bool MainWindow::RenderToolbarIcon(GLuint iconId)
@@ -620,6 +652,7 @@ bool MainWindow::HandleEvents(bool loop)
 			{
 			case SDLK_ESCAPE:
 				SelectionManager::Instance()->UnSelect();
+				ObjectPropertiesEditor::Instance()->UnloadObject();
 				break;
 			}
 			

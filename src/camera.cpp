@@ -297,6 +297,8 @@ void Camera::UpdateOrientation()
 {
 	if (m_bFPSNavigation)
 	{
+		Application::Instance()->HideMouseCursor();
+
 		int x, y;
 		SDL_GetMouseState(&x, &y);
 
@@ -321,7 +323,11 @@ void Camera::UpdateOrientation()
 		SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
 		m_Origin += (m_MoveSpeeds[0] * flFrameDelta) * m_vForward + (m_MoveSpeeds[1] * flFrameDelta) * m_vRight + (m_MoveSpeeds[2] * flFrameDelta) * m_vUp;
+
+		
 	}
+	else
+		Application::Instance()->ShowMouseCursor();
 
 }
 

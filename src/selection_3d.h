@@ -58,3 +58,5 @@ public:
 private:
 	ISelectableObject* m_pSelectionInvokedObject;
 };
+
+//#define DEBUG_3D_SELECTION 

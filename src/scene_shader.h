@@ -17,9 +17,7 @@ private:
 	GLuint m_unProjection = 0xffffffff;
 protected:
 	void InitCommonSceneUniforms();
-
 	void LinkSamplerToUnit(const char* sampleName, GLuint unitNumber);
-
 public:
 	ISceneShader();
 	~ISceneShader();

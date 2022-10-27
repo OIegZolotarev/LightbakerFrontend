@@ -35,7 +35,8 @@ SceneRenderer::~SceneRenderer()
 	FreeVector(m_vecSceneLightDefs);
 
 	delete m_pCamera;
-	if (m_pSceneModel) delete m_pSceneModel;
+	
+	
 
 	if (m_pUnitBoundingBox) delete m_pUnitBoundingBox;
 
@@ -50,7 +51,25 @@ void SceneRenderer::RenderScene()
 	auto selectionManager = SelectionManager::Instance();
 	m_pCamera->Apply();
 
+
 	selectionManager->NewFrame(this);
+
+#ifdef DEBUG_3D_SELECTION
+
+	if (m_pSceneModel)
+	{
+		selectionManager->PushObject(m_pSceneModel);
+	}
+
+	for (auto& it : m_vecSceneLightDefs)
+	{
+		
+		selectionManager->PushObject(it);
+	}
+
+	return;
+#endif
+	
 
 	auto pers = Application::Instance()->GetPersistentStorage();
 	auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
@@ -58,7 +77,11 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	if (m_pSceneModel) m_pSceneModel->DrawShaded();
+	if (m_pSceneModel)
+	{
+		m_pSceneModel->DrawShaded();
+		selectionManager->PushObject(m_pSceneModel);
+	}
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -121,11 +144,7 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		return;
 	}
 
-
-	if (m_pSceneModel)
-		delete m_pSceneModel;
-
-	m_pSceneModel = new ModelOBJ(fd);
+	m_pSceneModel = std::make_shared<ModelOBJ>(fd);
 	
 	SetSceneScale(m_pSceneModel->GetSceneScale());
 

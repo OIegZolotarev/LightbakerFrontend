@@ -66,7 +66,7 @@ private:
 
 	CEditHistory* m_pEditHistory;
 
-	ModelOBJ* m_pSceneModel = nullptr;
+	std::shared_ptr<ModelOBJ>  m_pSceneModel = nullptr;
 
 	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
 

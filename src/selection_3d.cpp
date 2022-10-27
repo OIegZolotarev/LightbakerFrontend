@@ -30,6 +30,9 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
+	
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(GL_TRUE);
 
 	//if (m_bDoSelectionTests)
 	{
@@ -109,9 +112,10 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 	m_vObjects.clear();
 	m_bDoSelectionTests = false;
 
-
+#ifndef DEBUG_3D_SELECTION
 	glClearColor(0.25, .25, .25, 1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+#endif	
 }
 
 void SelectionManager::SetTestsFlag(bool doTests, glm::vec2 testPoint)

@@ -104,6 +104,9 @@ private:
 	void UpdateTimers();
 	void GL_BeginFrame();
 	void RenderGUI();
+
+	void DrawBakingInProgressBanner(float yBannerOffset);
+
 	void LimitToTargetFPS();
 
 	class SceneRenderer* m_pSceneRenderer;
@@ -128,5 +131,6 @@ private:
 
 	std::vector<IGUIPanel*> m_vPanels;
 
+	float m_flBakingProgress = 0;
 };
 

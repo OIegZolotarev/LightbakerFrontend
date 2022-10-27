@@ -471,6 +471,12 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 	if (!ImGuizmo::IsUsing() && m_bGuizmoEdited)
 	{
+		float delta1 = glm::length(m_OldPropertyValue.value.asPosition - m_pGuizmoPropertyPosition->value.asPosition);
+		float delta2 = glm::length(m_OldPropertyValue2.value.asAngles - m_pGuizmoPropertyRotation->value.asAngles);
+
+		if (delta1 < glm::epsilon<float>() && delta2 < glm::epsilon<float>())
+			return;
+
 		m_bGuizmoEdited = false;
 
 		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
