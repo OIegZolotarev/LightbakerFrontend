@@ -279,6 +279,8 @@ void lightDef_s::OnSelect()
 
 	LightPropertiesBinding* pBinding = new LightPropertiesBinding(weakRef);
 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
+
+	
 }
 
 void lightDef_s::OnUnSelect()

@@ -392,6 +392,11 @@ int SceneRenderer::AllocSerialNumber()
 	return m_serialNubmerCounter++;
 }
 
+void SceneRenderer::FocusCameraOnObject(lightDefPtr_t& it)
+{
+	m_pCamera->LookAtPoint(it->pos);
+}
+
 lightDefWPtr_t SceneRenderer::GetLightBySerialNumber(int serialNumber)
 {
 	for (auto& it : m_vecSceneLightDefs)

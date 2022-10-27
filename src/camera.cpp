@@ -331,6 +331,11 @@ void Camera::UpdateOrientation()
 
 }
 
+void Camera::LookAtPoint(glm::vec3 pos)
+{
+	m_Origin = pos - m_vForward * 30.f;
+}
+
 glm::vec3 Camera::GetRightVector()
 {
 	return m_vRight;

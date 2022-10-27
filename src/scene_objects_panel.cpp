@@ -46,6 +46,7 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 					if (ImGui::Selectable(it->Description(), it->IsSelected()))
 					{
 						it->InvokeSelect();
+						sceneRenderer->FocusCameraOnObject(it);
 					}
 
 					//ImGui::PopStyleColor();

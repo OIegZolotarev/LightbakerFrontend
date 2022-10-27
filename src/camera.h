@@ -130,6 +130,9 @@ class Camera: public IEventHandler
 
 	class SceneRenderer*		m_pSceneRenderer;
 
+	int m_MoveSpeeds[3];
+	void UpdateOrientation();
+
 public:
 	Camera(SceneRenderer * pSceneRenderer);
 	~Camera();
@@ -152,9 +155,5 @@ public:
 	glm::vec3	GetUpVector();
 	glm::vec3	GetForwardVector();
 
-private:
-	int m_MoveSpeeds[3];
-	void UpdateOrientation();
-
-	
+	void LookAtPoint(glm::vec3 pos);
 };

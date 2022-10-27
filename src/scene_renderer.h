@@ -85,5 +85,7 @@ private:
 	int AllocSerialNumber();
 
 	float m_flSceneScale = 1.0f;
+public:
+	void FocusCameraOnObject(lightDefPtr_t& it);
 };
 
