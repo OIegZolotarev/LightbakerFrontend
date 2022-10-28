@@ -20,6 +20,7 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
+	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
 	
 	
 	auto fd = Application::GetFileSystem()->LoadFile("res/mesh/arrow.obj");
@@ -54,21 +55,21 @@ void SceneRenderer::RenderScene()
 
 	selectionManager->NewFrame(this);
 
-#ifdef DEBUG_3D_SELECTION
-
-	if (m_pSceneModel)
+	if (DEBUG_3D_SELECTION)
 	{
-		selectionManager->PushObject(m_pSceneModel);
-	}
+		if (m_pSceneModel)
+		{
+			selectionManager->PushObject(m_pSceneModel);
+		}
 
-	for (auto& it : m_vecSceneLightDefs)
-	{
-		
-		selectionManager->PushObject(it);
-	}
+		for (auto& it : m_vecSceneLightDefs)
+		{
 
-	return;
-#endif
+			selectionManager->PushObject(it);
+		}
+
+		return;
+	}
 	
 
 	auto pers = Application::Instance()->GetPersistentStorage();
@@ -101,7 +102,7 @@ void SceneRenderer::RenderScene()
 		}
 	}
 	if (selection.lock())
-		DrawBoundingBoxAroundLight(selection);
+		DrawLightHelperGeometry(selection);
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
@@ -327,7 +328,7 @@ void SceneRenderer::Debug_DrawGround()
 	glEnable(GL_TEXTURE_2D);
 }
 
-void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
+void SceneRenderer::DrawLightHelperGeometry(lightDefWPtr_t pObject)
 {
 	auto ptr = pObject.lock();
 	
@@ -341,7 +342,7 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 	case LightTypes::Spot:
 	{
 
-		auto shader = GLBackend::Instance()->HelperGeometryShader();
+		auto shader = GLBackend::Instance()->SpotlightConeShader();
 
 		shader->Bind();
 		shader->SetProjection(m_pCamera->GetProjectionMatrix());
@@ -349,7 +350,10 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->color, 1));
 
 		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->pos);
-		shader->SetScale(4);
+		
+		shader->SetScale(1);
+		shader->SetConeHeight(ptr->intensity);
+		shader->SetConeAngleDegrees(ptr->cones[1]);
 		shader->SetTransform(mat);
 
 		auto mat1 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[0]), glm::vec3(1, 0, 0));
@@ -360,8 +364,9 @@ void SceneRenderer::DrawBoundingBoxAroundLight(lightDefWPtr_t pObject)
 		mat *= mat2;
 		mat *= mat3;
 		
-		shader->SetTransform(mat);
-		m_pDirectionArrow->BindAndDraw();
+		shader->SetTransform(mat);		
+		m_pSpotlightCone->BindAndDraw();
+
 		shader->Unbind();
 	}
 		break;

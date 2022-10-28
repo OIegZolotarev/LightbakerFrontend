@@ -295,6 +295,7 @@ GLBackend::GLBackend()
 	m_pHelperGeometryShader = new HelperGeometryShaderProgram;
 	m_pLightmappedSceneShader = new LightMappedSceneShaderProgram;
 	m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
+	m_pSpotlightConeShader = new SpotlightConeShaderProgram;
 }
 
 GLBackend* GLBackend::Instance()
@@ -308,6 +309,7 @@ GLBackend::~GLBackend()
 	if (m_pHelperGeometryShader) delete m_pHelperGeometryShader;
 	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
 	if (m_pGeometrySelectionShader) delete m_pGeometrySelectionShader;
+	if (m_pSpotlightConeShader) delete m_pSpotlightConeShader;
 }
 
 HelperGeometryShaderProgram* GLBackend::HelperGeometryShader()
@@ -323,4 +325,9 @@ GeometrySelectionShaderProgram* GLBackend::GeometrySelectionShader()
 LightMappedSceneShaderProgram* GLBackend::LightMappedSceneShader()
 {
 	return m_pLightmappedSceneShader;
+}
+
+SpotlightConeShaderProgram* GLBackend::SpotlightConeShader()
+{
+	return m_pSpotlightConeShader;
 }

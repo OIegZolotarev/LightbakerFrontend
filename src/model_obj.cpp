@@ -961,24 +961,12 @@ void ModelOBJ::BuildDrawMesh()
 				bNoTextures = true;			
 		}
 
-		if (!bNoTextures)
-		{
-			if (m_vecUVData.size() > 0)
+		if (m_vecUVData.size() > 0)
 				mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
-		}
 
-		if (bNoTextures)
-		{
-			if (m_vecNormalsData.size() > 0)
-			{
-				float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
-				mesh.Color3f(
-					(norm[0] + 1) / 2,
-					(norm[1] + 1) / 2,
-					(norm[2] + 1) / 2);
-			}
-		}
-				
+		float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+		
+		mesh.Normal3fv(norm);				
 		mesh.Vertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
 	}
 
@@ -1020,6 +1008,7 @@ void ModelOBJ::OnUnhovered()
 
 void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 {
+	auto sceneReneder = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto shader = GLBackend::Instance()->GeometrySelectionShader();
 	
 	auto identity = glm::mat4(1);
@@ -1027,7 +1016,7 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 	shader->Bind();
 
 	shader->SetTransform(identity);
-	shader->SetScale(1);
+	shader->SetScale(sceneReneder->GetSceneScale());
 	shader->SetDefaultCamera();
 	shader->SetObjectId(objectId);
 

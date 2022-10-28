@@ -10,6 +10,7 @@
 #include "helper_geometry_shader.h"
 #include "lightmapped_scene_shader.h"
 #include "geometry_selection_shader.h"
+#include "spotlight_cone_shader.h"
 
 
 typedef struct drawVert_s 
@@ -86,9 +87,10 @@ class GLBackend
 {
 	GLBackend();
 
-	HelperGeometryShaderProgram*			m_pHelperGeometryShader = nullptr;
-	LightMappedSceneShaderProgram*			m_pLightmappedSceneShader = nullptr;
+	HelperGeometryShaderProgram*				m_pHelperGeometryShader = nullptr;
+	LightMappedSceneShaderProgram*				m_pLightmappedSceneShader = nullptr;
 	GeometrySelectionShaderProgram*				m_pGeometrySelectionShader = nullptr;
+	SpotlightConeShaderProgram*					m_pSpotlightConeShader = nullptr;
 
 public:
 	static GLBackend* Instance();
@@ -97,4 +99,6 @@ public:
 	HelperGeometryShaderProgram*		HelperGeometryShader();
 	GeometrySelectionShaderProgram*		GeometrySelectionShader();
 	LightMappedSceneShaderProgram*		LightMappedSceneShader();
+	SpotlightConeShaderProgram*			SpotlightConeShader();
+
 };

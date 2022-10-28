@@ -18,7 +18,8 @@ enum class GlobalCommands
 	ResetLayout,
 	Undo,
 	Redo,
-	SceneScale
+	SceneScale,
+	DebugSelection
 };
 
 typedef std::function<void()> pfnCommandCallback;

@@ -173,6 +173,9 @@
     <ClCompile Include="geometry_selection_shader.cpp">
       <Filter>Исходные файлы\shaders</Filter>
     </ClCompile>
+    <ClCompile Include="spotlight_cone_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -326,6 +329,9 @@
       <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
     <ClInclude Include="geometry_selection_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="spotlight_cone_shader.h">
       <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
   </ItemGroup>

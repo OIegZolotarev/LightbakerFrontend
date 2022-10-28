@@ -11,4 +11,5 @@ namespace DrawUtils
 {
 	DrawMesh* MakeWireframeBox(glm::vec3 extents = glm::vec3(1, 1, 1));
 	DrawMesh* MakeWireframeSphere(float detail = 36,float r = 1);	
+	DrawMesh* MakeWireframeCone(float detail = 36, float r = 1, float h = 1);
 }

@@ -102,3 +102,62 @@ DrawMesh* DrawUtils::MakeWireframeSphere(float detail,float r)
 	return pResult;
 }
 
+DrawMesh* DrawUtils::MakeWireframeCone(float detail /*= 36*/, float r /*= 1*/, float h /*= 1*/)
+{
+	DrawMesh* pResult = new DrawMesh(DrawMeshFlags::NoColor | DrawMeshFlags::NoUV);
+
+	pResult->Begin(GL_LINES);
+
+	int step = 360 / detail;
+
+	int i = 0;
+
+
+
+	for (i = step; i <= 360; i += step)
+	{
+		float a = (i / 360.f) * 6.28f;
+		float b = ((i - step) / 360.f) * 6.28f;
+
+		glm::vec3 ptA, ptB;
+
+		pResult->TexCoord2f(1, 1);
+
+		ptA.x = cos(a) * r / 2;
+		ptA.y = sin(a) * r / 2;
+		ptA.z = -h;
+
+
+		ptB.x = cos(b) * r / 2;
+		ptB.y = sin(b) * r / 2;
+		ptB.z = -h;
+
+		// Расширяемый сегмент
+
+		pResult->TexCoord2f(1, 1);
+		pResult->Vertex3f(ptA.x, ptA.y, ptA.z);
+		pResult->Vertex3f(ptB.x, ptB.y, ptB.z);
+
+
+		// Линия 1
+		pResult->TexCoord2f(1, 1);
+		pResult->Vertex3f(ptA.x, ptA.y, ptA.z);
+
+		pResult->TexCoord2f(0, 0);
+		pResult->Vertex3f(0, 0, 0);
+
+		// Линия 2
+		pResult->TexCoord2f(1, 1);
+		pResult->Vertex3f(ptB.x, ptB.y, ptB.z);
+
+		pResult->TexCoord2f(0, 0);
+		pResult->Vertex3f(0, 0, 0);
+
+	}
+
+	pResult->End();
+
+	return pResult;
+}
+
+

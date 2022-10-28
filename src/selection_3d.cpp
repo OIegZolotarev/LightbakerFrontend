@@ -18,9 +18,9 @@ void SelectionManager::PushObject(ISelectableObjectWeakRef pObject)
 	m_vObjects.push_back(pObject);
 }
 
-ISelectableObjectWeakRef SelectionManager::LastSelectedObject()
+ISelectableObjectWeakRef SelectionManager::LastHoveredObject()
 {
-	return m_pLastSelectedObject;
+	return m_pLastHoveredObject;
 }
 
 void SelectionManager::NewFrame(SceneRenderer* pRenderer)
@@ -50,7 +50,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 				if (m_pSelectionInvokedObject)
 				{
 					if (ptr.get() != m_pSelectionInvokedObject)
-						ptr->m_bSelected = false;
+						ptr->SetSelected(false);
 				}
 
 			}
@@ -91,14 +91,14 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 
 				if (i == obj_id)
 				{
-					m_pLastSelectedObject = m_vObjects[i];
+					m_pLastHoveredObject = m_vObjects[i];
 					ptr->OnHovered();
-					ptr->m_bHovered = true;
+					ptr->SetHovered(true);
 				}
 				else
 				{
 					ptr->OnUnhovered();					
-					ptr->m_bHovered = false;
+					ptr->SetHovered(false);
 				}
 			}
 		}
@@ -112,10 +112,11 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 	m_vObjects.clear();
 	m_bDoSelectionTests = false;
 
-#ifndef DEBUG_3D_SELECTION
-	glClearColor(0.25, .25, .25, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-#endif	
+	if (!DEBUG_3D_SELECTION)
+	{
+		glClearColor(0.25, .25, .25, 1);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 }
 
 void SelectionManager::SetTestsFlag(bool doTests, glm::vec2 testPoint)
@@ -132,21 +133,35 @@ SelectionManager::~SelectionManager()
 
 bool SelectionManager::SelectHoveredObject()
 {
-	if (auto ptr = m_pLastSelectedObject.lock())
+
+	if (auto ptr = m_pLastHoveredObject.lock())
 	{
+		// Игнорируем щелчки по миру, так как гизма у нас пока "прозрачная" для selection manager
+
+		ModelOBJ* pTest = dynamic_cast<ModelOBJ*>(ptr.get());
+
+		if (pTest)
+			return false;
+
+		// 
+
+
 		for (size_t i = 0; i < m_vObjects.size(); i++)
 		{
 			if (auto ptr_other = m_vObjects[i].lock())
 			{
-				ptr_other->m_bSelected = false;
+				ptr_other->SetSelected(false);
 				ptr->OnUnSelect();
 			}
 		}
 
 		if (ptr->IsHovered())
 		{
-			ptr->m_bSelected = true;
+			ptr->SetSelected(true);
 			ptr->OnSelect();
+
+			m_pLastSelectedObject = m_pLastHoveredObject;
+
 			return true;
 		}
 
@@ -161,10 +176,16 @@ void SelectionManager::UnSelect()
 {
 	if (auto ptr = m_pLastSelectedObject.lock())
 	{
-		ptr->m_bSelected = false;
-		ptr->m_bHovered = false;
+		ptr->SetSelected(false);
+		ptr->SetHovered(false);
 		ptr->OnUnSelect();
 	}
+
+// 	for (auto& it : m_vObjects)
+// 	{
+// 		if (auto ptr = it.lock())
+// 			ptr->m_bSelected = false;
+// 	}
 }
 
 void SelectionManager::UnSelectEverythingBut(ISelectableObject* object)
@@ -178,11 +199,31 @@ SelectionManager::SelectionManager()
 }
 
 
+bool ISelectableObject::IsSelected()
+{
+	return m_bSelected;
+}
+
+bool ISelectableObject::IsHovered()
+{
+	return m_bHovered;
+}
+
 void ISelectableObject::InvokeSelect()
 {
 	m_bSelected = true;
 	OnSelect();
 
 	SelectionManager::Instance()->UnSelectEverythingBut(this);
+}
+
+void ISelectableObject::SetSelected(bool state)
+{
+	m_bSelected = state;
+}
+
+void ISelectableObject::SetHovered(bool state)
+{
+	m_bHovered = state;
 }
 

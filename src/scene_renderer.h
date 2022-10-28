@@ -58,6 +58,8 @@ public:
 	void	SetSceneScale(float f);
 
 	void RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
+
+	void FocusCameraOnObject(lightDefPtr_t& it);
 private:
 	void Debug_DrawGround();
 
@@ -72,12 +74,13 @@ private:
 
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
+	DrawMesh*	m_pSpotlightCone;
 	
 	ModelOBJ*	m_pDirectionModel;
 	DrawMesh*	m_pDirectionArrow;
 
 
-	void DrawBoundingBoxAroundLight(lightDefWPtr_t pObject);
+	void DrawLightHelperGeometry(lightDefWPtr_t pObject);
 	lightDefWPtr_t m_pCurrentSelection;
 
 	int m_serialNubmerCounter = 1;
@@ -85,7 +88,6 @@ private:
 	int AllocSerialNumber();
 
 	float m_flSceneScale = 1.0f;
-public:
-	void FocusCameraOnObject(lightDefPtr_t& it);
+
 };
 

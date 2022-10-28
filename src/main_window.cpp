@@ -15,6 +15,7 @@
 #include "console_output_panel.h"
 #include "debug_panel.h"
 
+bool DEBUG_3D_SELECTION = false;
 
 const char* strDockspace = "DockSpace";
 ImGuiID gIDMainDockspace = 0;
@@ -384,6 +385,13 @@ void MainWindow::InitCommands()
 		}));
 
 
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DebugSelection, "Debug 3D selection", "", 0, 0,
+		[&]()
+		{
+			DEBUG_3D_SELECTION = !DEBUG_3D_SELECTION;
+		}));
+
+
 }
 
 
@@ -453,6 +461,9 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("View"))
 		{
+#ifdef _DEBUG
+			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::DebugSelection);
+#endif
 			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::ToggleGround);
 
 			ImGui::EndMenu();
@@ -651,8 +662,7 @@ bool MainWindow::HandleEvents(bool loop)
 			switch (event.key.keysym.sym)
 			{
 			case SDLK_ESCAPE:
-				SelectionManager::Instance()->UnSelect();
-				ObjectPropertiesEditor::Instance()->UnloadObject();
+				SelectionManager::Instance()->UnSelect();				
 				break;
 			}
 			
