@@ -101,4 +101,6 @@ public:
 	LightMappedSceneShaderProgram*		LightMappedSceneShader();
 	SpotlightConeShaderProgram*			SpotlightConeShader();
 
+	void								ReloadAllShaders();
+
 };

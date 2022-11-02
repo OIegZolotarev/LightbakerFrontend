@@ -135,7 +135,10 @@ FileData* FileSystem::LoadFile(const char* fileName)
 	fread(data, 1, length,fp);
 	fclose(fp);
 
-	pResult = new FileData(data,length,fileName);
+	std::filesystem::path p = std::filesystem::path(fileName);
+	auto c = std::filesystem::canonical(p);
+
+	pResult = new FileData(data,length,c.string().c_str());
 
 	return pResult;
 }

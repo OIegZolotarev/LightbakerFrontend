@@ -21,7 +21,7 @@ typedef struct mobjface_s
 
 #define MAX_LIGHT_STYLES 4
 
-typedef struct mobjmaterial_s
+typedef struct mobjmesh_s
 {
 	gltexture_t* diffuse_texture;
 	gltexture_t* lightmap_texture[MAX_LIGHT_STYLES];
@@ -32,7 +32,7 @@ typedef struct mobjmaterial_s
 	size_t first_face;
 	size_t num_faces;
 
-}mobjmaterial_t;
+}mobjmesh_t;
 
 class ModelOBJ: public ISelectableObject
 {
@@ -82,7 +82,7 @@ private:
 	std::vector<float>	m_vecNormalsData;
 
 	std::vector<mobjface_t>		m_vecFaces;
-	std::vector<mobjmaterial_t> m_vMaterials;
+	std::vector<mobjmesh_t> m_vMaterials;
 	std::vector<lightDef_t>		m_vParsedLightDefs;
 	
 	std::vector<std::string> m_vecGroups;
@@ -115,3 +115,79 @@ private:
 	float m_flSceneScale = 1.f;
 };
 
+typedef struct mobjmaterial_s
+{
+	std::string name = "";
+
+	glm::vec3 Ka = glm::vec3(1);
+	glm::vec3 Kd = glm::vec3(1);
+	glm::vec3 Ks = glm::vec3(1);
+
+	float d = 1.f;
+	float illum = 1.f;
+
+	gltexture_t* map_Ka = nullptr;
+	gltexture_t* map_Kd = nullptr;
+	gltexture_t* map_Ks = nullptr;
+
+	gltexture_t* map_Ns = nullptr;
+	gltexture_t* map_d = nullptr;	
+	gltexture_t* map_bump = nullptr;
+
+	gltexture_t* map_disp = nullptr;
+	gltexture_t* map_decal = nullptr;
+
+	std::unordered_map<std::string, std::string> extra_values;
+
+}mobjmaterial_t;
+
+enum class MTLTokens
+{
+	Badtoken = 0,
+	NewMaterial,
+	Ka,
+	Kd,
+	Ks,
+	Tf,
+	Illum,
+	d,
+	Ns,
+	Sharpness,
+	Ni,
+	MapKa,
+	MapKd,
+	MapKs,
+	MapNs,
+	MapD,
+	Disp,
+	Decal,
+	Bump,
+	Refl,
+	Type,
+	Sphere
+};
+
+class MaterialTemplateLibrary
+{
+	
+	std::string m_FileName;// canonical
+	std::unordered_map<std::string, mobjmaterial_t*> m_LoadedMaterials;
+	
+	void ParseCommand(std::string& buffer, int lineNumber);
+	void ParseFileData(FileData * sourceFile);
+
+	MTLTokens	ParseToken(std::string& token);
+
+public:
+	MaterialTemplateLibrary(FileData* sourceFile);
+	~MaterialTemplateLibrary();
+
+	mobjmaterial_t* GetByName(const char* name);
+	mobjmaterial_t* GetByIndex(const size_t index);
+	size_t			MaterialsCount();
+
+	void			ExportToFile(const char* fileName);
+
+private:
+	void AddNewMaterial(std::string & name);
+};

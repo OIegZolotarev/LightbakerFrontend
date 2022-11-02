@@ -12,6 +12,7 @@
 #include "common_resources.h"
 #include <intsafe.h>
 #include "gl_backend.h"
+#include <algorithm>
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
@@ -84,7 +85,7 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 		std::string modelDir = Application::GetFileSystem()->ParentPath(pFileData->Name());
 		std::string baseName = Application::GetFileSystem()->BaseName(pFileData->Name());
 
-		mobjmaterial_t defaultMaterial;
+		mobjmesh_t defaultMaterial;
 		memset(&defaultMaterial, 0, sizeof(defaultMaterial));
 
 		auto diffusePath = modelDir + "/" + baseName + ".png";
@@ -931,7 +932,7 @@ void ModelOBJ::BuildDrawMesh()
 	bool bNoTextures = false;
 
 	size_t currentMaterial = m_vecFaces[0].material_id;
-	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
+	mobjmesh_t* pMaterial = &m_vMaterials[currentMaterial];
 	
 	if (pMaterial->lightmap_texture[0])			
 		bNoTextures = false;	
@@ -1086,4 +1087,195 @@ std::string ModelOBJ::GetModelFileName()
 std::string ModelOBJ::GetModelTextureName()
 {
 	return m_strDiffuseName;
+}
+
+// MTL Loader
+
+// http://paulbourke.net/dataformats/mtl/
+
+MaterialTemplateLibrary::MaterialTemplateLibrary(FileData* sourceFile)
+{
+	m_FileName = sourceFile->Name();
+	ParseFileData(sourceFile);
+}
+
+void MaterialTemplateLibrary::ParseFileData(FileData * sourceFile)
+{
+	size_t offset = 0;
+	std::string buffer;
+
+	char* p = (char*)sourceFile->Data();
+
+	int lineNumber = 1;
+
+	while (*p)
+	{
+		if (*p == '\n')
+		{
+			if (buffer.size() > 0)
+				ParseCommand(buffer, lineNumber);
+
+			lineNumber++;
+
+			buffer = "";
+			p++;
+			continue;
+		}
+
+
+		buffer += *p++;
+	}
+}
+
+MTLTokens MaterialTemplateLibrary::ParseToken(std::string& token)
+{
+	std::string lowerCase;
+	
+	// Make lower case
+	std::transform(token.begin(), token.end(), lowerCase.begin(),
+										[](unsigned char c) { return std::tolower(c); });
+	
+	typedef std::pair<std::string, MTLTokens> tokenParsePair;
+
+	static std::unordered_map<std::string,MTLTokens> m;
+
+	if (!m.size())
+	{
+		m.insert(tokenParsePair("newmtl"    , MTLTokens::NewMaterial));
+		m.insert(tokenParsePair("ka"        , MTLTokens::Ka         ));
+		m.insert(tokenParsePair("kd"        , MTLTokens::Kd         ));
+		m.insert(tokenParsePair("ks"        , MTLTokens::Ks         ));
+		m.insert(tokenParsePair("tf"        , MTLTokens::Tf         ));
+		m.insert(tokenParsePair("illum"     , MTLTokens::Illum      ));
+		m.insert(tokenParsePair("d"         , MTLTokens::d          ));
+		m.insert(tokenParsePair("ns"        , MTLTokens::Ns         ));
+		m.insert(tokenParsePair("sharpness" , MTLTokens::Sharpness  ));
+		m.insert(tokenParsePair("ni"        , MTLTokens::Ni         ));
+		m.insert(tokenParsePair("mapka"     , MTLTokens::MapKa      ));
+		m.insert(tokenParsePair("mapkd"     , MTLTokens::MapKd      ));
+		m.insert(tokenParsePair("mapks"     , MTLTokens::MapKs      ));
+		m.insert(tokenParsePair("mapns"     , MTLTokens::MapNs      ));
+		m.insert(tokenParsePair("mapd"      , MTLTokens::MapD       ));
+		m.insert(tokenParsePair("disp"      , MTLTokens::Disp       ));
+		m.insert(tokenParsePair("decal"     , MTLTokens::Decal      ));
+		m.insert(tokenParsePair("bump"      , MTLTokens::Bump       ));
+		m.insert(tokenParsePair("refl"      , MTLTokens::Refl       ));
+		m.insert(tokenParsePair("type"      , MTLTokens::Type       ));
+		m.insert(tokenParsePair("sphere"    , MTLTokens::Sphere     ));
+	}
+
+	auto bucket = m.find(lowerCase);
+
+	if (bucket == m.end())
+		return MTLTokens::Badtoken;
+	
+	return bucket->second;
+}
+
+MaterialTemplateLibrary::~MaterialTemplateLibrary()
+{
+
+}
+
+mobjmaterial_t* MaterialTemplateLibrary::GetByName(const char* name)
+{
+	auto it = m_LoadedMaterials.find(name);
+	if (it != m_LoadedMaterials.end())
+		return it->second;
+
+	return nullptr;
+}
+
+mobjmaterial_t* MaterialTemplateLibrary::GetByIndex(size_t index)
+{
+	auto it = m_LoadedMaterials.begin();
+	std::advance(it, index);	
+	return it->second;
+}
+
+size_t MaterialTemplateLibrary::MaterialsCount()
+{
+	return m_LoadedMaterials.size();
+}
+
+void MaterialTemplateLibrary::ExportToFile(const char* fileName)
+{
+
+}
+
+void MaterialTemplateLibrary::AddNewMaterial(std::string & name)
+{
+	
+}
+
+void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber)
+{
+	auto tokensString = split_whitespaces(buffer);
+
+	if (!tokensString.size())
+		return;
+
+	auto token = ParseToken(tokensString[0]);
+
+#define ASSERT_ARGUMENTS_COUNT(count) if (tokensString.size() < count)  \
+		{  \
+			Con_Printf("Insufficient arguments (%d, expected %d) for command \"%s\" on line %d\n", tokensString.size(),count,tokensString[0].c_str(),lineNumber); \
+			return; \
+		}
+
+	switch (token)
+	{
+	case MTLTokens::Badtoken:
+		// Add custom values?
+		return;
+		break;
+	case MTLTokens::NewMaterial:
+		ASSERT_ARGUMENTS_COUNT(2);
+		AddNewMaterial(tokensString[1]);
+		break;
+	case MTLTokens::Ka:
+		break;
+	case MTLTokens::Kd:
+		break;
+	case MTLTokens::Ks:
+		break;
+	case MTLTokens::Tf:
+		break;
+	case MTLTokens::Illum:
+		break;
+	case MTLTokens::d:
+		break;
+	case MTLTokens::Ns:
+		break;
+	case MTLTokens::Sharpness:
+		break;
+	case MTLTokens::Ni:
+		break;
+	case MTLTokens::MapKa:
+		break;
+	case MTLTokens::MapKd:
+		break;
+	case MTLTokens::MapKs:
+		break;
+	case MTLTokens::MapNs:
+		break;
+	case MTLTokens::MapD:
+		break;
+	case MTLTokens::Disp:
+		break;
+	case MTLTokens::Decal:
+		break;
+	case MTLTokens::Bump:
+		break;
+	case MTLTokens::Refl:
+		break;
+	case MTLTokens::Type:
+		break;
+	case MTLTokens::Sphere:
+		break;
+	default:
+		break;
+
+	}
+
 }

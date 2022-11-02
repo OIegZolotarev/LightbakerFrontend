@@ -273,6 +273,16 @@
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\bin\res\glprogs\helper_geometry.frag" />
+    <None Include="..\bin\res\glprogs\helper_geometry.vert" />
+    <None Include="..\bin\res\glprogs\object_selection.frag" />
+    <None Include="..\bin\res\glprogs\object_selection.vert" />
+    <None Include="..\bin\res\glprogs\scene_ligtmapped.frag" />
+    <None Include="..\bin\res\glprogs\scene_ligtmapped.vert" />
+    <None Include="..\bin\res\glprogs\spotlight_cone.frag" />
+    <None Include="..\bin\res\glprogs\spotlight_cone.vert" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

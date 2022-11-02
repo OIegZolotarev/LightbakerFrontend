@@ -10,6 +10,7 @@ class FileData
 	bool m_bOwnsData = false;
 	byte* m_pData = 0;
 	size_t m_szLength = 0;
+	
 	std::string m_Name;
 
 	int m_nReferences = 1;

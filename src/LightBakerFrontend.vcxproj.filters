@@ -30,6 +30,9 @@
     <Filter Include="Исходные файлы\Popups">
       <UniqueIdentifier>{79dfe3a4-2732-4f60-b6c1-af22b80a52a5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GLSL">
+      <UniqueIdentifier>{288ce0c2-4e94-4921-afee-8da5274c1636}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -339,5 +342,31 @@
     <ResourceCompile Include="LightBakerFrontend.rc">
       <Filter>Файлы ресурсов</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\bin\res\glprogs\helper_geometry.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\helper_geometry.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\object_selection.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\object_selection.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\scene_ligtmapped.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\scene_ligtmapped.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\spotlight_cone.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\spotlight_cone.vert">
+      <Filter>GLSL</Filter>
+    </None>
   </ItemGroup>
 </Project>
