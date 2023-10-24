@@ -12,4 +12,5 @@ void main()
 	vec4 diffuseSample = texture2D(diffuse,oTexCoord);
 
     FragColor = lmSample * diffuseSample;
+//    FragColor = diffuseSample;
 } 

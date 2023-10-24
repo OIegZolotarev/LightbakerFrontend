@@ -28,7 +28,7 @@ void DrawMesh::Bind()
 
 void DrawMesh::Draw(size_t first /*= 0*/, size_t num /*= 0*/)
 {	
-	glDrawArrays(m_drawMode, 0, num > 0 ? num : m_NumElements);	
+	glDrawArrays(m_drawMode, first, num > 0 ? num : m_NumElements);	
 }
 
 void DrawMesh::Unbind()

@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <direct.h>
 #include <corecrt_io.h>
+#include "application.h"
 
 FileData::FileData(byte* data, size_t length, const char* name)
 {
@@ -58,6 +59,16 @@ void FileData::UnRef()
 	m_nReferences--;
 	if (!m_nReferences)
 		delete this;
+}
+
+std::string FileData::BaseName()
+{
+	return Application::GetFileSystem()->BaseName(m_Name);
+}
+
+std::string FileData::DirName()
+{
+	return Application::GetFileSystem()->BaseDirectoryFromFileName(m_Name.c_str());
 }
 
 IArchive::IArchive(const char* fileName)
@@ -169,6 +180,7 @@ void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileNa
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
 	std::string path = c.parent_path().string();
+
 #ifdef WIN32
 	_chdir(path.c_str());
 #else

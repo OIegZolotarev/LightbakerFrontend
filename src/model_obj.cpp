@@ -69,17 +69,36 @@ std::vector<std::string> split_whitespaces(std::string & s)
 		p++;
 	}
 
+	if (!EmptyString(token))
+	{
+		res.push_back(token);	
+	}
+
 	return res;
 }
 
 ModelOBJ::ModelOBJ(FileData* pFileData)
 {
+
+	m_pMaterialLib = nullptr;
+	
+	auto baseName = pFileData->BaseName();
+	auto baseDir = pFileData->DirName();
+
+	auto mtlName = baseDir + "/" + baseName + ".mtl";
+	auto data = Application::GetFileSystem()->LoadFile(mtlName);
+
+	if (data != nullptr)
+	{
+		m_pMaterialLib = new MaterialTemplateLibrary(data);
+		data->UnRef();
+	}
+
 	// TODO: incapsulate better way?
 	
+	
 
-	ParseData(pFileData);
-
-	if (m_vMaterials.size() == 0)
+	if (m_vMeshes.size() == 0)
 	{
 		// Load default material...
 		std::string modelDir = Application::GetFileSystem()->ParentPath(pFileData->Name());
@@ -112,38 +131,55 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 		}
 
-		m_vMaterials.push_back(defaultMaterial);
+		m_vMeshes.push_back(defaultMaterial);
 
 		
 
 	}
 
-	std::qsort(m_vecFaces.data(), m_vecFaces.size(), sizeof(mobjface_t), [](const void* pa, const void* pb) -> int
+	ParseData(pFileData);
+
+	std::qsort(m_vecFaces.data(), m_vecFaces.size() / 3, sizeof(mobjface_t) * 3, [](const void* pa, const void* pb) -> int
 		{
 			const mobjface_t* faceA = static_cast<const mobjface_t*>(pa);
 			const mobjface_t* faceB = static_cast<const mobjface_t*>(pb);
 
-			if (faceA->group_id == faceB->group_id)
-				return faceA->material_id > faceB->material_id;
-			else
-				return faceA->group_id > faceB->group_id;
+			if (faceA->mesh_id == faceB->mesh_id)
+				return 0;
+
+			else if (faceA->mesh_id > faceB->mesh_id)
+				return 1;
+
+			else if (faceA->mesh_id < faceB->mesh_id)
+				return -1;
+
+//			if (faceA->group_id == faceB->group_id)
+				//return faceA->mesh_id > faceB->mesh_id;
+// 			else
+// 				return faceA->group_id > faceB->group_id;
 		});
 
 	BuildDrawMesh();
 
-	if (m_vecGroups.size() == 0)
+	if (m_vGroups.size() == 0)
 	{
 
 		for (auto& it : m_vecFaces)
 			it.group_id = 1;
 
-		m_vecGroups.push_back("default");
+		mobjgroup_s grp;
+		grp.first_mesh = 0;
+		grp.num_meshes = m_vMeshes.size() - 1;
+		
+		strncpy(grp.name, "default", sizeof(grp.name) - 1);
+
+		m_vGroups.push_back(grp);
 	}
 }
 
 ModelOBJ::~ModelOBJ()
 {
-	for (auto& it : m_vMaterials)
+	for (auto& it : m_vMeshes)
 	{
 		FreeGLTexture(it.diffuse_texture);
 
@@ -156,7 +192,10 @@ ModelOBJ::~ModelOBJ()
 	FreeVector(m_vecUVData);
 	FreeVector(m_vecVertsData);
 	FreeVector(m_vParsedLightDefs);
-	FreeVector(m_vecGroups);
+	FreeVector(m_vGroups);
+
+	if (m_pMaterialLib)
+		delete m_pMaterialLib;
 }
 
 void ModelOBJ::DrawDebug()
@@ -167,7 +206,7 @@ void ModelOBJ::DrawDebug()
 
 	glEnable(GL_TEXTURE_2D);
 
-	for (auto& it : m_vMaterials)
+	for (auto& it : m_vMeshes)
 	{
 		if (it.diffuse_texture)
 			glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
@@ -254,17 +293,33 @@ void ModelOBJ::DrawShaded()
 	shader->Bind();
 	shader->SetScale(sceneRenderer->GetSceneScale());
 	shader->SetDefaultCamera();
+	
 
 	glEnable(GL_TEXTURE_2D);
 
-	for (auto& it : m_vMaterials)
+	//for (int i = 5 ;  i < m_vMeshes.size() - 1; i++)
+	for (auto& it : m_vMeshes)
 	{
+		//auto it = m_vMeshes[i];
+
+		if (it.num_faces == 0)
+		{
+			continue;
+		}
+
 		glActiveTexture(GL_TEXTURE0);		
 		{
-			if (it.diffuse_texture)
-				glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
+			if (it.material)
+			{
+				glBindTexture(GL_TEXTURE_2D, it.material->map_Kd->gl_texnum);
+			}
 			else
-				glBindTexture(GL_TEXTURE_2D, 0);
+			{
+				if (it.diffuse_texture)
+					glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
+				else
+					glBindTexture(GL_TEXTURE_2D, 0);
+			}
 		}
 
 		glActiveTexture(GL_TEXTURE1);		
@@ -276,6 +331,8 @@ void ModelOBJ::DrawShaded()
 		}
 
 		mesh.Draw(it.first_face, it.num_faces);
+
+		//break;
 	}
 
 	glActiveTexture(GL_TEXTURE1);
@@ -328,7 +385,6 @@ void ModelOBJ::ParseCommand(std::string& buffer)
 		// Vertex commands
 	{
 		char subcommand = buffer[1];
-
 		switch (subcommand)
 		{
 		case 'n':
@@ -357,6 +413,16 @@ void ModelOBJ::ParseCommand(std::string& buffer)
 		break;
 	case 'u':
 		// usemtl
+
+	{
+		auto tokens = split_whitespaces(buffer);
+		assert(m_pMaterialLib);
+		mCurrentMaterial = m_pMaterialLib->GetByName(tokens[1].c_str());
+			
+		AddMaterial(mCurrentMaterial);
+
+	}
+
 		break;
 	case 'm':
 		// external mtl
@@ -393,6 +459,8 @@ void ModelOBJ::ParseNormal(std::string& s)
 		m_vecNormalsData.push_back(stof(token));
 		normSize++;
 	}
+
+	
 
 	if (normSize != 3)
 	{
@@ -493,15 +561,37 @@ void ModelOBJ::ParseGroup(std::string& buffer)
 		return;
 	}
 
-	m_vecGroups.push_back(tokens[1]);
+	if (m_vGroups.size() > 0)
+	{
+		mobjegroup_t& grp = m_vGroups[m_vGroups.size() - 1];
+		grp.num_meshes = m_vMeshes.size() - grp.first_mesh;
+	}
+
+	mobjegroup_t grp;
+	strncpy(grp.name, tokens[1].c_str(), sizeof(grp.name) - 1);
+
+	grp.first_mesh = m_vMeshes.size();
+	
+	m_vGroups.push_back(grp);
+
+	//m_vecGroups.push_back(tokens[1]);
 }
 
 void ModelOBJ::ParseFace(std::string& s)
 {
+
 	size_t pos = 0; std::string token;
 
-	bool hasUV = m_vecUVData.size() > 0;
-	bool hasNorm = m_vecNormalsData.size() > 0;
+	mobjgroup_s* grp = CurrentGroup();
+
+	bool hasUV = false;
+	bool hasNorm = false;
+
+	
+	hasUV = m_vecUVData.size() > 0;
+	hasNorm = m_vecNormalsData.size() > 0;
+	
+	
 
 	std::vector<mobjface_t> parsed;
 
@@ -522,20 +612,22 @@ void ModelOBJ::ParseFace(std::string& s)
 
 		face.vert = stoi(elements[0]);
 
-		if (hasUV)
+		assert(face.vert != 0);
+
+		if (hasUV && elements.size() > 1)
 		{
 			if (!elements[1].empty())
 				face.uv = stoi(elements[1]);
 		}
 
-		if (hasNorm)
+		if (hasNorm && elements.size() > 2)
 		{
 			if (!elements[2].empty())
 				face.norm = stoi(elements[2]);
 		}
 
-		face.material_id = m_vMaterials.size();
-		face.group_id = m_vecGroups.size();
+		face.mesh_id = mCurrentMeshId;
+		face.group_id = m_vGroups.size() - 1;
 
 
 		parsed.push_back(face);
@@ -563,6 +655,8 @@ void ModelOBJ::ParseFace(std::string& s)
 	}
 		
 	// Triangluate
+
+
 
 	for (int i = 0; i < parsed.size() - 2; i++)
 	{
@@ -719,7 +813,7 @@ void ModelOBJ::ExportLightDefs(FILE* fp)
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	float scale = 1.0f / sceneRenderer->GetSceneScale();
 
-	fprintf(fp, "### LightBaker 3000 lights definition\n\n");
+	fprintf(fp, "### LightBaker 3000 lights definitions\n\n");
 
 	fprintf(fp, "#scene_scale %.3f\n\n", sceneRenderer->GetSceneScale());
 	
@@ -872,7 +966,7 @@ void ModelOBJ::ExportFaces(FILE* fp)
 		if (m_vecFaces[i].group_id != lastGroup)
 		{
 			lastGroup = m_vecFaces[i].group_id;
-			fprintf(fp, "g %s\n", m_vecGroups[lastGroup - 1].c_str());
+			fprintf(fp, "g %s\n", m_vGroups[lastGroup - 1].name);
 		}
 
 		fprintf(fp, "f ");
@@ -931,8 +1025,12 @@ void ModelOBJ::BuildDrawMesh()
 
 	bool bNoTextures = false;
 
-	size_t currentMaterial = m_vecFaces[0].material_id;
-	mobjmesh_t* pMaterial = &m_vMaterials[currentMaterial];
+	size_t currentMaterial = 0;
+	mobjmesh_t* pMaterial = nullptr;
+
+	currentMaterial = m_vecFaces[0].mesh_id;
+	pMaterial = &m_vMeshes[currentMaterial];
+
 	
 	if (pMaterial->lightmap_texture[0])			
 		bNoTextures = false;	
@@ -947,34 +1045,77 @@ void ModelOBJ::BuildDrawMesh()
 
 	for (auto& face : m_vecFaces)
 	{
-		if (face.material_id != currentMaterial)
+		if (face.mesh_id != currentMaterial)
 		{
 			pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
 
-			currentMaterial = face.material_id;
-			pMaterial = &m_vMaterials[currentMaterial];
+			Con_Printf("%d : First face: %d, num faces: %d\n", currentMaterial, pMaterial->first_face, pMaterial->num_faces);
+
+			currentMaterial = face.mesh_id;
+			pMaterial = &m_vMeshes[currentMaterial];
 
 			pMaterial->first_face = mesh.CurrentElement();
+
+			assert(pMaterial->material);
 
 			if (pMaterial->lightmap_texture[0])
 				bNoTextures = false;
 			else
-				bNoTextures = true;			
+				bNoTextures = true;
 		}
 
-		if (m_vecUVData.size() > 0)
-				mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
+		if (m_vecUVData.size() > 0 && face.uv > 0)
+		{
+			mesh.TexCoord2fv(&m_vecUVData[(face.uv - 1) * m_UVSize]);
+		}
+		else
+		{
+			float nullUv[2] = { 0,0 };
+			mesh.TexCoord2fv(nullUv);
+		}
 
-		float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+		if (m_vecNormalsData.size() > 0 && face.norm > 0)
+		{
+			float* norm = &m_vecNormalsData[(face.norm - 1) * 3];
+			mesh.Normal3fv(norm);
+		}
+		else
+		{
+			float nullNorm[3] = { 0,0,0 };
+			mesh.Normal3fv(nullNorm);
+		}
+
+			float * p = &m_vecVertsData[(face.vert - 1) * m_VertSize];
+			//Con_Printf("%f %f %f\n", p[0], p[1], p[2]);
+
+			mesh.Vertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
 		
-		mesh.Normal3fv(norm);				
-		mesh.Vertex3fv(&m_vecVertsData[(face.vert - 1) * m_VertSize]);
 	}
 
 	pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
 
 	mesh.End();
 
+
+}
+
+void ModelOBJ::AddMaterial(mobjmaterial_t* mat)
+{
+
+	for (auto it : m_vMeshes)
+	{
+		if (it.material == mat)
+		{
+			mCurrentMeshId = it.id;
+			return;
+		}
+	}
+
+	mobjmesh_s newMesh;
+	newMesh.material = mat;
+	newMesh.id = m_vMeshes.size();
+	mCurrentMeshId = newMesh.id;
+	m_vMeshes.push_back(newMesh);	
 }
 
 DrawMesh* ModelOBJ::GetDrawMesh()
@@ -1030,7 +1171,7 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 
 void ModelOBJ::ReloadTextures()
 {
-	for (auto& it : m_vMaterials)
+	for (auto& it : m_vMeshes)
 	{
 		if (it.diffuse_texture)
 			GLReloadTexture(it.diffuse_texture);
@@ -1062,6 +1203,8 @@ void ModelOBJ::ReloadTextures()
 
 void ModelOBJ::Export(const char* fileName)
 {
+	return;
+
 	FILE* fp = nullptr;
 	fp = fopen(fileName, "wt");
 
@@ -1096,6 +1239,8 @@ std::string ModelOBJ::GetModelTextureName()
 MaterialTemplateLibrary::MaterialTemplateLibrary(FileData* sourceFile)
 {
 	m_FileName = sourceFile->Name();
+	m_Directory = Application::GetFileSystem()->BaseDirectoryFromFileName(m_FileName.c_str());
+
 	ParseFileData(sourceFile);
 }
 
@@ -1108,12 +1253,14 @@ void MaterialTemplateLibrary::ParseFileData(FileData * sourceFile)
 
 	int lineNumber = 1;
 
+	mobjmaterial_t* current = nullptr;
+
 	while (*p)
 	{
 		if (*p == '\n')
 		{
 			if (buffer.size() > 0)
-				ParseCommand(buffer, lineNumber);
+				ParseCommand(buffer, lineNumber, current);
 
 			lineNumber++;
 
@@ -1130,6 +1277,7 @@ void MaterialTemplateLibrary::ParseFileData(FileData * sourceFile)
 MTLTokens MaterialTemplateLibrary::ParseToken(std::string& token)
 {
 	std::string lowerCase;
+	lowerCase.resize(token.length());
 	
 	// Make lower case
 	std::transform(token.begin(), token.end(), lowerCase.begin(),
@@ -1151,11 +1299,11 @@ MTLTokens MaterialTemplateLibrary::ParseToken(std::string& token)
 		m.insert(tokenParsePair("ns"        , MTLTokens::Ns         ));
 		m.insert(tokenParsePair("sharpness" , MTLTokens::Sharpness  ));
 		m.insert(tokenParsePair("ni"        , MTLTokens::Ni         ));
-		m.insert(tokenParsePair("mapka"     , MTLTokens::MapKa      ));
-		m.insert(tokenParsePair("mapkd"     , MTLTokens::MapKd      ));
-		m.insert(tokenParsePair("mapks"     , MTLTokens::MapKs      ));
-		m.insert(tokenParsePair("mapns"     , MTLTokens::MapNs      ));
-		m.insert(tokenParsePair("mapd"      , MTLTokens::MapD       ));
+		m.insert(tokenParsePair("map_ka"     , MTLTokens::MapKa      ));
+		m.insert(tokenParsePair("map_kd"     , MTLTokens::MapKd      ));
+		m.insert(tokenParsePair("map_ks"     , MTLTokens::MapKs      ));
+		m.insert(tokenParsePair("map_ns"     , MTLTokens::MapNs      ));
+		m.insert(tokenParsePair("map_d"      , MTLTokens::MapD       ));
 		m.insert(tokenParsePair("disp"      , MTLTokens::Disp       ));
 		m.insert(tokenParsePair("decal"     , MTLTokens::Decal      ));
 		m.insert(tokenParsePair("bump"      , MTLTokens::Bump       ));
@@ -1203,12 +1351,17 @@ void MaterialTemplateLibrary::ExportToFile(const char* fileName)
 
 }
 
-void MaterialTemplateLibrary::AddNewMaterial(std::string & name)
+mobjmaterial_t* MaterialTemplateLibrary::AddNewMaterial(std::string & name)
 {
-	
+	mobjmaterial_t *mat = new mobjmaterial_t;
+	mat->name = name;
+
+	m_LoadedMaterials.insert({ name, mat });
+
+	return mat;
 }
 
-void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber)
+void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber, mobjmaterial_t*& currentMaterial)
 {
 	auto tokensString = split_whitespaces(buffer);
 
@@ -1223,6 +1376,41 @@ void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber)
 			return; \
 		}
 
+#define ASSERT_HAS_MATERIAL() if (currentMaterial == nullptr)  \
+	{  \
+		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer, lineNumber); \
+		return; \
+	}
+
+	auto parseVector3 = [](std::vector<std::string>& tokens) -> glm::vec3
+	{
+		glm::vec3 r;
+		r[0] = atof(tokens[1].c_str());
+		r[1] = atof(tokens[2].c_str());
+		r[2] = atof(tokens[3].c_str());
+
+		return r;
+	};
+
+	auto parseVector2 = [](std::vector<std::string>& tokens) -> glm::vec2
+	{
+		glm::vec2 r;
+		r[0] = atof(tokens[1].c_str());
+		r[1] = atof(tokens[2].c_str());
+		return r;
+	};
+
+	auto loadMap = [&](std::vector<std::string>& tokens) -> gltexture_t*
+	{
+		auto fileName = m_Directory + "/" + tokens[1];
+		FileData* pData = Application::GetFileSystem()->LoadFile(fileName);
+
+		gltexture_t* result = LoadGLTexture(pData);
+		pData->UnRef();
+
+		return result;
+	};
+
 	switch (token)
 	{
 	case MTLTokens::Badtoken:
@@ -1231,13 +1419,22 @@ void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber)
 		break;
 	case MTLTokens::NewMaterial:
 		ASSERT_ARGUMENTS_COUNT(2);
-		AddNewMaterial(tokensString[1]);
+		currentMaterial = AddNewMaterial(tokensString[1]);
 		break;
 	case MTLTokens::Ka:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(4);
+		currentMaterial->Ka = parseVector3(tokensString);
 		break;
 	case MTLTokens::Kd:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(4);
+		currentMaterial->Ks = parseVector3(tokensString);
 		break;
 	case MTLTokens::Ks:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(4);
+		currentMaterial->Ks = parseVector3(tokensString);
 		break;
 	case MTLTokens::Tf:
 		break;
@@ -1252,20 +1449,44 @@ void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber)
 	case MTLTokens::Ni:
 		break;
 	case MTLTokens::MapKa:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_Ka = loadMap(tokensString);
 		break;
 	case MTLTokens::MapKd:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_Kd = loadMap(tokensString);
 		break;
 	case MTLTokens::MapKs:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_Ks = loadMap(tokensString);
 		break;
 	case MTLTokens::MapNs:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_Ns = loadMap(tokensString);
 		break;
 	case MTLTokens::MapD:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_d = loadMap(tokensString);
 		break;
 	case MTLTokens::Disp:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_disp = loadMap(tokensString);
 		break;
 	case MTLTokens::Decal:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_decal = loadMap(tokensString);
 		break;
 	case MTLTokens::Bump:
+		ASSERT_HAS_MATERIAL();
+		ASSERT_ARGUMENTS_COUNT(2);
+		currentMaterial->map_bump = loadMap(tokensString);
 		break;
 	case MTLTokens::Refl:
 		break;

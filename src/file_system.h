@@ -30,6 +30,9 @@ public:
 
 	template<class T>
 	T* Read(size_t nElements);
+
+	std::string BaseName();
+	std::string DirName();
 };
 
 template<class T>

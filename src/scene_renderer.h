@@ -22,7 +22,7 @@ public:
 	void	RenderScene();
 	int		HandleEvent(bool bWasHandled, SDL_Event& e) override;
 	float	FrameDelta();
-	void LoadModel(const char* dropped_filedir, bool keepLight = false);
+	void	LoadModel(const char* dropped_filedir, bool keepLight = false);
 
 	void AddLightToSceneWithSerialNumber(lightDef_t& it, int sn);
 
@@ -66,11 +66,20 @@ private:
 	class Camera*		m_pCamera;
 	class MainWindow*	m_pTargetWindow;
 
+	
+
+	// Move to document class? --->
+	std::shared_ptr<ModelOBJ>  m_pSceneModel = nullptr;
+	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
+
+	int m_serialNubmerCounter = 1;
+	int AllocSerialNumber();
+	float m_flSceneScale = 1.0f;
+	
 	CEditHistory* m_pEditHistory;
 
-	std::shared_ptr<ModelOBJ>  m_pSceneModel = nullptr;
 
-	std::vector<lightDefPtr_t> m_vecSceneLightDefs;
+	// <----
 
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
@@ -82,12 +91,6 @@ private:
 
 	void DrawLightHelperGeometry(lightDefWPtr_t pObject);
 	lightDefWPtr_t m_pCurrentSelection;
-
-	int m_serialNubmerCounter = 1;
-
-	int AllocSerialNumber();
-
-	float m_flSceneScale = 1.0f;
 
 };
 
