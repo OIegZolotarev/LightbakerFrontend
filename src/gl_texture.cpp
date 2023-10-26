@@ -149,7 +149,7 @@ void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
 
 	pData->UnRef();
 
-	Sleep(100);
+	SDL_Delay(100);
 
 	return pixels;
 }
@@ -272,7 +272,7 @@ void AsynchTextureLoadTask::OnCompletion()
 	(void)0;
 }
 
-AsynchTextureLoadResult::AsynchTextureLoadResult(gltexture_t* texture, void* pixels): ITaskStepResult(TaskStepResultType::NeedEndCallback)
+AsynchTextureLoadResult::AsynchTextureLoadResult(gltexture_t* texture, void* pixels): ITaskStepResult(TaskStepResultType::StepPerformed)
 {
 	m_pPixels = pixels;
 	m_pTexture = texture;
@@ -307,4 +307,9 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
+}
+
+bool AsynchTextureLoadResult::NeedEndCallback()
+{
+	return true;
 }

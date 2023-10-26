@@ -40,6 +40,7 @@ public:
 	~AsynchTextureLoadResult();
 
 	void ExecuteOnCompletion() override;
+	bool NeedEndCallback() override;
 };
 
 class AsynchTextureLoadTask: public ITask

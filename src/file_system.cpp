@@ -3,7 +3,7 @@
 	(c) 2022 CrazyRussian
 */
 
-#if WIN32
+#ifndef LINUX
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
@@ -130,6 +130,8 @@ FileData* FileSystem::LoadFile(const char* fileName)
 			return pResult;
 	}
 
+
+
 	FILE* fp = fopen(fileName,"rb");
 
 	if (!fp)
@@ -181,7 +183,7 @@ void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileNa
 	auto c = std::filesystem::canonical(p);
 	std::string path = c.parent_path().string();
 
-#ifdef WIN32
+#ifndef LINUX
 	_chdir(path.c_str());
 #else
 	chdir(path.c_str());

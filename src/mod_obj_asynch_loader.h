@@ -62,6 +62,9 @@ public:
 	public:
 		BuildDrawMeshTask(mobjdata_t * data, ModelOBJ * pModel);
 		void ExecuteOnCompletion();
+	private:
+		mobjdata_t* m_pModelData;
+		ModelOBJ* m_pModel;
 	};
 };
 

@@ -6,6 +6,9 @@
 #include "common.h"
 #include "application.h"
 #include "loader_thread.h"
+#include <windows.h>
+
+// TODO: recompile those as x64
 
 #ifdef _DEBUG
 #pragma comment(lib,"../lib/SDL2_Debug.lib")

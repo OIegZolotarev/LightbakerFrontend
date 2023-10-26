@@ -364,7 +364,7 @@ void ModObjAsynchLoader::ParseGroup(std::string& buffer)
 	}
 
 	mobjegroup_t grp;
-	strncpy(grp.name, tokens[1].c_str(), sizeof(grp.name) - 1);
+	strncpy_s(grp.name, tokens[1].c_str(), sizeof(grp.name) - 1);
 
 	grp.object_id = CurrentResource(StateMachineResource::Object);
 	grp.first_face = m_Data->faces.size();
@@ -384,7 +384,7 @@ void ModObjAsynchLoader::ParseObject(std::string& buffer)
 	}
 
 	mobjobjects_t obj;
-	strncpy(obj.name, tokens[1].c_str(), sizeof(obj.name) - 1);
+	strncpy_s(obj.name, tokens[1].c_str(), sizeof(obj.name) - 1);
 
 	m_Data->objects.push_back(obj);
 }
@@ -560,17 +560,17 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 }
 
 void ModObjAsynchLoader::OnCompletion()
-{
-	
+{	
 	return;
 }
 
-ModObjAsynchLoader::BuildDrawMeshTask::BuildDrawMeshTask(mobjdata_t* data, ModelOBJ* pModel) : ITaskStepResult(TaskStepResultType::NeedEndCallback)
+ModObjAsynchLoader::BuildDrawMeshTask::BuildDrawMeshTask(mobjdata_t* data, ModelOBJ* pModel) : ITaskStepResult(TaskStepResultType::FinishedSuccesfully)
 {
-
+	m_pModel = pModel;
+	m_pModelData = data;
 }
 
 void ModObjAsynchLoader::BuildDrawMeshTask::ExecuteOnCompletion()
 {
-
+	// Build draw mesh
 }

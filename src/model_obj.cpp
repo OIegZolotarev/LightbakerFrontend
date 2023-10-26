@@ -96,6 +96,8 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 			else if (faceA->mesh_id < faceB->mesh_id)
 				return -1;
+
+			return 0;
 		});
 
 	//BuildDrawMesh();

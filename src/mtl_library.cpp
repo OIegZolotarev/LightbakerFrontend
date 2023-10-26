@@ -8,8 +8,7 @@
 #include "common_resources.h"
 #include "gl_backend.h"
 #include "mtl_library.h"
-
-extern std::vector<std::string> split_whitespaces(std::string& s);
+#include "text_utils.h"
 
 // MTL Loader
 
@@ -146,7 +145,7 @@ mobjmaterial_t* MaterialTemplateLibrary::AddNewMaterial(std::string& name)
 
 void MaterialTemplateLibrary::ParseCommand(AsynchTextureLoadTask* textureLoader, std::string& buffer, int lineNumber, mobjmaterial_t*& currentMaterial)
 {
-	auto tokensString = split_whitespaces(buffer);
+	auto tokensString = TextUtils::SpliteWhitespaces(buffer);
 
 	if (!tokensString.size())
 		return;
