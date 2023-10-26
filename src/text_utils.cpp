@@ -190,6 +190,65 @@ void ParseCSVFile(const char* data, size_t dataSize, CSVSettings* settings, pfnC
 
 }
 
+std::vector<std::string> Split(std::string s, std::string delimiter)
+{
+	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
+	std::string token;
+	std::vector<std::string> res;
+
+	while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
+	{
+		token = s.substr(pos_start, pos_end - pos_start);
+		pos_start = pos_end + delim_len;
+		res.push_back(token);
+	}
+
+	res.push_back(s.substr(pos_start));
+	return res;
+}
+
+bool EmptyString(std::string& s)
+{
+	for (int i = 0; i < s.length(); i++)
+		if (s[i] > 32)
+			return false;
+
+	return true;
+}
+
+std::vector<std::string> SpliteWhitespaces(std::string& s)
+{
+	std::string token;
+	std::vector<std::string> res;
+
+	const unsigned char* p = (const unsigned char*)s.c_str();
+
+	while (*p)
+	{
+		if (*p < 33)
+		{
+			if (!EmptyString(token))
+			{
+				res.push_back(token);
+				token = "";
+			}
+		}
+		else
+		{
+			token += *p;
+		}
+
+		p++;
+	}
+
+	if (!EmptyString(token))
+	{
+		res.push_back(token);
+	}
+
+	return res;
+}
+
 CSVSettings::CSVSettings()
 {
 	m_lstRowSplitters.clear();

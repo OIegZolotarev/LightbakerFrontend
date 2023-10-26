@@ -37,25 +37,47 @@ typedef struct mobjgroup_s
 {	
 	char name[64] = { 0 };
 
-	size_t first_mesh = 0;
-	size_t num_meshes = 0;
+	size_t object_id;
+
+	size_t first_face = 0;
+	size_t num_faces = 0;
 
 }mobjegroup_t;
 
+typedef struct mobjobjects_s
+{
+	char name[64] = { 0 };
+}mobjobjects_t;
+
+#define FL_DATA_LOADED (1<<0)
+#define FL_HAS_UV (1<<1)
+#define FL_HAS_NORMALS (1<<2)
+
 typedef struct mobjdata_s
 {
-	size_t vert_size = 0;
-	size_t uv_size = 0;
+	int flags = 0;
 
-	std::vector<float>	m_vecVertsData;
-	std::vector<float>	m_vecUVData;
-	std::vector<float>	m_vecNormalsData;
+	size_t vertSize = 0;
+	size_t uvSize = 0;
 
-	std::vector<mobjface_t>		m_vecFaces;
-	std::vector<mobjmesh_t>		m_vMeshes;
-	std::vector<mobjegroup_t>	m_vGroups;
-	
-	std::vector<lightDef_t>		m_vParsedLightDefs;
+	std::vector<float>						verts;
+	std::vector<float>						uvs;
+	std::vector<float>						normals;
+
+	std::vector<mobjface_t>					faces;
+	std::vector<mobjmesh_t>					meshes;
+	std::vector<mobjegroup_t>				groups;
+	std::vector<mobjobjects_t>				objects;
+
+	std::vector<mobjmaterial_t*>			materials; // owned by material lib from this structure
+	std::vector<MaterialTemplateLibrary*>	materialLibs; // owns
+
+
+	std::vector<lightDef_t>		lightDefs;
+		
+	glm::vec3					envColor = {1,1,1};
+	size_t						lightmapDimensions[2] = {0};
+	float						sceneScale = 1.f;
 	
 	//unsigned int	m_LightsParsed = 0;
 	//mobjmaterial_t* mCurrentMaterial = nullptr;

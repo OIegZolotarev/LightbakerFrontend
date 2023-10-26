@@ -13,69 +13,10 @@
 #include <intsafe.h>
 #include "gl_backend.h"
 #include <algorithm>
+#include "text_utils.h"
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
-
-// for string delimiter
-std::vector<std::string> split(std::string s, std::string delimiter)
-{
-	size_t pos_start = 0, pos_end, delim_len = delimiter.length();
-	std::string token;
-	std::vector<std::string> res;
-
-	while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
-	{
-		token = s.substr(pos_start, pos_end - pos_start);
-		pos_start = pos_end + delim_len;
-		res.push_back(token);
-	}
-
-	res.push_back(s.substr(pos_start));
-	return res;
-}
-
-bool EmptyString(std::string& s)
-{
-	for (int i = 0; i < s.length(); i++)
-		if (s[i] > 32)
-			return false;
-
-	return true;
-}
-
-std::vector<std::string> split_whitespaces(std::string & s)
-{
-	std::string token;
-	std::vector<std::string> res;
-
-	const unsigned char* p = (const unsigned char*)s.c_str();
-
-	while (*p)
-	{
-		if (*p < 33)
-		{
-			if (!EmptyString(token))
-			{
-				res.push_back(token);
-				token = "";
-			}
-		}
-		else
-		{
-			token += *p;
-		}
-
-		p++;
-	}
-
-	if (!EmptyString(token))
-	{
-		res.push_back(token);	
-	}
-
-	return res;
-}
 
 ModelOBJ::ModelOBJ(FileData* pFileData)
 {
@@ -138,7 +79,6 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 		
 
 	}
-
 	
 
 	ParseData(pFileData);
@@ -167,8 +107,8 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 			it.group_id = 1;
 
 		mobjgroup_s grp;
-		grp.first_mesh = 0;
-		grp.num_meshes = m_vMeshes.size() - 1;
+		grp.first_face = 0;
+		grp.num_faces = m_vMeshes.size() - 1;
 		
 		strncpy(grp.name, "default", sizeof(grp.name) - 1);
 
@@ -354,7 +294,7 @@ void ModelOBJ::ParseCommand(std::string& buffer)
 		// usemtl
 
 	{
-		auto tokens = split_whitespaces(buffer);
+		auto tokens = TextUtils::SpliteWhitespaces(buffer);
 		assert(m_pMaterialLib);
 		mCurrentMaterial = m_pMaterialLib->GetByName(tokens[1].c_str());
 			
@@ -382,7 +322,7 @@ void ModelOBJ::ParseNormal(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!EmptyString(token))
+		if (!TextUtils::EmptyString(token))
 		{
 			m_vecNormalsData.push_back(stof(token));
 			normSize++;
@@ -393,13 +333,11 @@ void ModelOBJ::ParseNormal(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!EmptyString(token))
+	if (!TextUtils::EmptyString(token))
 	{
 		m_vecNormalsData.push_back(stof(token));
 		normSize++;
 	}
-
-	
 
 	if (normSize != 3)
 	{
@@ -420,7 +358,7 @@ void ModelOBJ::ParseUV(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!EmptyString(token))
+		if (!TextUtils::EmptyString(token))
 		{
 			m_vecUVData.push_back(stof(token));
 			newUVSize++;
@@ -431,7 +369,7 @@ void ModelOBJ::ParseUV(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!EmptyString(token))
+	if (!TextUtils::EmptyString(token))
 	{
 		m_vecUVData.push_back(stof(token));
 		newUVSize++;
@@ -461,7 +399,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!EmptyString(token))
+		if (!TextUtils::EmptyString(token))
 		{
 			m_vecVertsData.push_back(stof(token));
 			newVertSize++;
@@ -472,7 +410,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!EmptyString(token))
+	if (!TextUtils::EmptyString(token))
 	{
 		m_vecVertsData.push_back(stof(token));
 		newVertSize++;
@@ -492,7 +430,7 @@ void ModelOBJ::ParseVertex(std::string& s)
 
 void ModelOBJ::ParseGroup(std::string& buffer)
 {
-	auto tokens = split_whitespaces(buffer);
+	auto tokens = TextUtils::SpliteWhitespaces(buffer);
 
 	if (tokens.size() != 2)
 	{
@@ -503,17 +441,16 @@ void ModelOBJ::ParseGroup(std::string& buffer)
 	if (m_vGroups.size() > 0)
 	{
 		mobjegroup_t& grp = m_vGroups[m_vGroups.size() - 1];
-		grp.num_meshes = m_vMeshes.size() - grp.first_mesh;
+		grp.num_faces = m_vMeshes.size() - grp.first_face;
 	}
 
 	mobjegroup_t grp;
 	strncpy(grp.name, tokens[1].c_str(), sizeof(grp.name) - 1);
 
-	grp.first_mesh = m_vMeshes.size();
+	grp.first_face = m_vMeshes.size();
 	
 	m_vGroups.push_back(grp);
 
-	//m_vecGroups.push_back(tokens[1]);
 }
 
 void ModelOBJ::ParseFace(std::string& s)
@@ -542,7 +479,7 @@ void ModelOBJ::ParseFace(std::string& s)
 		mobjface_t face;
 		memset(&face, 0, sizeof(face));
 
-		auto elements = split(token, "/");
+		auto elements = TextUtils::Split(token, "/");
 
 		if (elements.size() == 0)
 		{
@@ -578,7 +515,7 @@ void ModelOBJ::ParseFace(std::string& s)
 	{
 		token = s.substr(0, pos);
 
-		if (!EmptyString(token))
+		if (!TextUtils::EmptyString(token))
 		{
 			parseFaceDef();
 		}
@@ -588,14 +525,12 @@ void ModelOBJ::ParseFace(std::string& s)
 
 	token = s.substr(0, pos);
 
-	if (!EmptyString(token))
+	if (!TextUtils::EmptyString(token))
 	{
 		parseFaceDef();
 	}
 		
-	// Triangluate
-
-
+	// Triangulate
 
 	for (int i = 0; i < parsed.size() - 2; i++)
 	{
@@ -617,7 +552,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	if (m_LightsParsed == 2)
 		return;
 
-	auto tokens = split_whitespaces(buffer);
+	auto tokens = TextUtils::SpliteWhitespaces(buffer);
 
 	if (tokens.size() == 0)
 		return;
@@ -688,7 +623,7 @@ void ModelOBJ::ParseLightDef(std::string& buffer)
 	
 	// Light type
 
-	auto typeInfo = split(tokens[0], "_");
+	auto typeInfo = TextUtils::Split(tokens[0], "_");
 
 	if		(typeInfo[0] == "#omni")		newLight.type = LightTypes::Omni;
 	else if (typeInfo[0] == "#direct")		newLight.type = LightTypes::Direct;

@@ -80,7 +80,7 @@ void SceneRenderer::RenderScene()
 	
 	if (m_pSceneModel)
 	{
-		m_pSceneModel->DrawShaded();
+		//m_pSceneModel->DrawShaded();
 		selectionManager->PushObject(m_pSceneModel);
 	}
 

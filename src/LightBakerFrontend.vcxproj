@@ -198,8 +198,11 @@
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="loader_thread.cpp" />
+    <ClCompile Include="mod_obj_asynch_loader.cpp" />
     <ClCompile Include="mtl_library.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
+    <ClCompile Include="scene.cpp" />
+    <ClCompile Include="scene_entity.cpp" />
     <ClCompile Include="scene_shader.cpp" />
     <ClCompile Include="lb3k_wrapper.cpp" />
     <ClCompile Include="lightmapped_scene_shader.cpp" />
@@ -251,8 +254,12 @@
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="loader_thread.h" />
+    <ClInclude Include="mod_obj_asynch_loader.h" />
+    <ClInclude Include="mod_obj_data.h" />
     <ClInclude Include="mtl_library.h" />
     <ClInclude Include="popup_scene_scale.h" />
+    <ClInclude Include="scene.h" />
+    <ClInclude Include="scene_entity.h" />
     <ClInclude Include="scene_shader.h" />
     <ClInclude Include="lightmapped_scene_shader.h" />
     <ClInclude Include="persistent.h" />
@@ -269,6 +276,7 @@
     <ClInclude Include="scene_renderer.h" />
     <ClCompile Include="stb_image_impl.cpp" />
     <ClInclude Include="selection_3d.h" />
+    <ClInclude Include="serial_counter.h" />
     <ClInclude Include="shader_program.h" />
     <ClInclude Include="spotlight_cone_shader.h" />
     <ClInclude Include="text_utils.h" />

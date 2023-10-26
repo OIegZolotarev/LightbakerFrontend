@@ -71,10 +71,12 @@ private:
 
 	void ParseData(FileData* pFileData);
 	void ParseCommand(std::string & buffer);
+	
 	void ParseNormal(std::string& buffer);
 	void ParseUV(std::string& buffer);
 	void ParseVertex(std::string& buffer);
 	void ParseFace(std::string& buffer);
+	void ParseGroup(std::string& buffer);
 
 	void ParseLightDef(std::string& buffer);
 	int m_LightmapDimensions[2];
@@ -88,7 +90,7 @@ private:
 
 	std::string m_strModelName;
 	std::string m_strDiffuseName;
-	void ParseGroup(std::string& buffer);
+	
 	
 	DrawMesh mesh;
 

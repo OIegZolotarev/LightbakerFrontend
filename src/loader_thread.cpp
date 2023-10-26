@@ -27,28 +27,29 @@ int loaderThreadFunction(void* data)
 
 		auto task = info->tasks.front();		
 		auto stepResult = task->ExecuteStep(info->loaderThread);
-
+		
 		switch (stepResult->GetType())
 		{
 		case TaskStepResultType::FinishedSuccesfully:
-			info->tasks.pop();
+			info->tasks.pop();			
 			delete task;
 			break;
 		case TaskStepResultType::FinishedWithFailure:
-			info->tasks.pop();
+			info->tasks.pop();			
 			delete task;
 			break;
 		case TaskStepResultType::StepPerformed:
-			updateInfo(task, stepResult);
-			break;
-		case TaskStepResultType::NeedEndCallback:
-			info->loaderThread->ScheduleEndCallback(stepResult);			
-			updateInfo(task, stepResult);
+			updateInfo(task, stepResult);			
 			break;
 		default:
 			break;
 		}
-		
+
+		if (stepResult->NeedEndCallback())
+			info->loaderThread->ScheduleEndCallback(stepResult);
+		else
+			delete stepResult;
+
 		info->remainingTasks = info->tasks.size();
 
 		SDL_UnlockMutex(info->mutex);

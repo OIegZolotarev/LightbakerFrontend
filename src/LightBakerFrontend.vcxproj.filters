@@ -36,6 +36,9 @@
     <Filter Include="Исходные файлы\WavefrontObj">
       <UniqueIdentifier>{375b8f93-c1ae-4576-8c9a-b2d9ee5dec6e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Scene">
+      <UniqueIdentifier>{adcc5464-c1fc-4357-a8d2-dc3ffc6c89ef}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -66,9 +69,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="main_window.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="scene_renderer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="commands_registry.cpp">
@@ -128,9 +128,6 @@
     <ClCompile Include="custom_font.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="scene_objects_panel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="igui_panel.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -188,6 +185,21 @@
     <ClCompile Include="loader_thread.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="scene_renderer.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_objects_panel.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_entity.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_obj_asynch_loader.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -221,9 +233,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="main_window.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="scene_renderer.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="commands_registry.h">
@@ -301,9 +310,6 @@
     <ClInclude Include="custom_font.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="scene_objects_panel.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="igui_panel.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -350,6 +356,27 @@
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClInclude>
     <ClInclude Include="loader_thread.h" />
+    <ClInclude Include="serial_counter.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_renderer.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_objects_panel.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_entity.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_data.h">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_asynch_loader.h">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

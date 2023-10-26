@@ -16,7 +16,6 @@ enum class TaskStepResultType
 	FinishedSuccesfully = 0,
 	FinishedWithFailure,
 	StepPerformed,
-	NeedEndCallback,
 	None
 };
 
@@ -58,10 +57,10 @@ typedef struct threadInfo_s
 class ITaskStepResult
 {
 protected: 
-	TaskStepResultType m_StepResult;
+	TaskStepResultType m_StepResult = TaskStepResultType::None;
 
-	std::string m_strDescription;
-	std::string m_strElementDescription;
+	std::string m_strDescription = "";
+	std::string m_strElementDescription = "";
 
 public:
 	ITaskStepResult(TaskStepResultType r) : m_StepResult(r) {}
@@ -72,6 +71,8 @@ public:
 
 	std::string& TaskDescription();
 	std::string& ElementDescription();
+
+	virtual bool NeedEndCallback() { return false; }
 };
 
 class ITask
@@ -89,8 +90,6 @@ public:
 	virtual ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) = 0;
 
 	virtual void OnCompletion() = 0;
-
-
 
 	size_t TotalSteps() { return m_nTotalSteps; }
 	size_t PerformedSteps() { return m_nPerformedSteps; }
