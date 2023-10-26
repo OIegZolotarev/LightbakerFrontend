@@ -105,6 +105,8 @@ private:
 	void GL_BeginFrame();
 	void RenderGUI();
 
+	void DrawLoadingBanner();
+
 	void DrawBakingInProgressBanner(float yBannerOffset);
 
 	void LimitToTargetFPS();

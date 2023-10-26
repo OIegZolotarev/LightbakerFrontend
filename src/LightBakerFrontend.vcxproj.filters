@@ -33,6 +33,9 @@
     <Filter Include="GLSL">
       <UniqueIdentifier>{288ce0c2-4e94-4921-afee-8da5274c1636}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\WavefrontObj">
+      <UniqueIdentifier>{375b8f93-c1ae-4576-8c9a-b2d9ee5dec6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -75,9 +78,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="model_obj.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="gl_texture.cpp">
@@ -179,6 +179,15 @@
     <ClCompile Include="spotlight_cone_shader.cpp">
       <Filter>Исходные файлы\shaders</Filter>
     </ClCompile>
+    <ClCompile Include="mtl_library.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClCompile>
+    <ClCompile Include="model_obj.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClCompile>
+    <ClCompile Include="loader_thread.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -227,9 +236,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="event_handler.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="model_obj.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="gl_texture.h">
@@ -337,6 +343,13 @@
     <ClInclude Include="spotlight_cone_shader.h">
       <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
+    <ClInclude Include="mtl_library.h">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
+    <ClInclude Include="model_obj.h">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
+    <ClInclude Include="loader_thread.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

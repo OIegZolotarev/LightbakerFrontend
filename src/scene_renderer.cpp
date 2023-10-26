@@ -145,25 +145,38 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		return;
 	}
 
-	m_pSceneModel = std::make_shared<ModelOBJ>(fd);
 	
-	SetSceneScale(m_pSceneModel->GetSceneScale());
+	//auto taskRoutine = [=]() -> TaskStepResultType
+	//{
+		m_pSceneModel = std::make_shared<ModelOBJ>(fd);
+		//return TaskStepResultType::FinishedSuccesfully;
+	//};
+		
+	//auto endRoutine = [&](ITask* task, TaskStepResultType result)
+	//{
+		m_pSceneModel->BuildDrawMesh();
+		SetSceneScale(m_pSceneModel->GetSceneScale());
 
-	m_serialNubmerCounter = 1;
+		m_serialNubmerCounter = 1;
 
-	if (!keepLights)
-	{
-		m_vecSceneLightDefs.clear();
-
-		auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
-
-		for (auto& it : modelLightDefs)
+		if (!keepLights)
 		{
-			int sn = AllocSerialNumber();
-			AddLightToSceneWithSerialNumber(it, sn);
-		}
-	}
+			m_vecSceneLightDefs.clear();
 
+			auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
+
+			for (auto& it : modelLightDefs)
+			{
+				int sn = AllocSerialNumber();
+				AddLightToSceneWithSerialNumber(it, sn);
+			}
+		}
+
+	//};
+
+
+	//LoaderTask* pTask = new LoaderTask("Loading model", "....", taskRoutine, endRoutine);
+	//LoaderThread::Instance()->ScheduleTask(pTask);
 }
 
 void SceneRenderer::AddLightToSceneWithSerialNumber(lightDef_t& it, int sn)

@@ -94,6 +94,8 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 		data->UnRef();
 	}
 
+	//return;
+
 	// TODO: incapsulate better way?
 	
 	
@@ -137,6 +139,8 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 	}
 
+	
+
 	ParseData(pFileData);
 
 	std::qsort(m_vecFaces.data(), m_vecFaces.size() / 3, sizeof(mobjface_t) * 3, [](const void* pa, const void* pb) -> int
@@ -152,14 +156,9 @@ ModelOBJ::ModelOBJ(FileData* pFileData)
 
 			else if (faceA->mesh_id < faceB->mesh_id)
 				return -1;
-
-//			if (faceA->group_id == faceB->group_id)
-				//return faceA->mesh_id > faceB->mesh_id;
-// 			else
-// 				return faceA->group_id > faceB->group_id;
 		});
 
-	BuildDrawMesh();
+	//BuildDrawMesh();
 
 	if (m_vGroups.size() == 0)
 	{
@@ -281,66 +280,6 @@ void ModelOBJ::DrawDebug()
  	glEnable(GL_TEXTURE_2D);
 #endif
 	
-}
-
-void ModelOBJ::DrawShaded()
-{
-	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-
-	mesh.Bind();
-
-	auto shader = GLBackend::Instance()->LightMappedSceneShader();
-	shader->Bind();
-	shader->SetScale(sceneRenderer->GetSceneScale());
-	shader->SetDefaultCamera();
-	
-
-	glEnable(GL_TEXTURE_2D);
-
-	//for (int i = 5 ;  i < m_vMeshes.size() - 1; i++)
-	for (auto& it : m_vMeshes)
-	{
-		//auto it = m_vMeshes[i];
-
-		if (it.num_faces == 0)
-		{
-			continue;
-		}
-
-		glActiveTexture(GL_TEXTURE0);		
-		{
-			if (it.material)
-			{
-				glBindTexture(GL_TEXTURE_2D, it.material->map_Kd->gl_texnum);
-			}
-			else
-			{
-				if (it.diffuse_texture)
-					glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
-				else
-					glBindTexture(GL_TEXTURE_2D, 0);
-			}
-		}
-
-		glActiveTexture(GL_TEXTURE1);		
-		{
-			if (it.lightmap_texture[0])
-				glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
-			else
-				glBindTexture(GL_TEXTURE_2D, 0);
-		}
-
-		mesh.Draw(it.first_face, it.num_faces);
-
-		//break;
-	}
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glActiveTexture(GL_TEXTURE0);
-
-	shader->Unbind();
-	mesh.Unbind();
 }
 
 std::vector<lightDef_t>& ModelOBJ::ParsedLightDefs()
@@ -1099,6 +1038,11 @@ void ModelOBJ::BuildDrawMesh()
 
 }
 
+float ModelOBJ::GetSceneScale()
+{
+	return m_flSceneScale;
+}
+
 void ModelOBJ::AddMaterial(mobjmaterial_t* mat)
 {
 
@@ -1169,6 +1113,80 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 	shader->Unbind();
 }
 
+void ModelOBJ::RenderBoundingBox()
+{
+	throw std::logic_error("The method or operation is not implemented.");
+}
+
+void ModelOBJ::RenderDebug()
+{
+	DrawDebug();
+}
+
+void ModelOBJ::RenderLightshaded()
+{
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+
+	mesh.Bind();
+
+	auto shader = GLBackend::Instance()->LightMappedSceneShader();
+	shader->Bind();
+	shader->SetScale(sceneRenderer->GetSceneScale());
+	shader->SetDefaultCamera();
+
+	glEnable(GL_TEXTURE_2D);
+
+	//for (int i = 5 ;  i < m_vMeshes.size() - 1; i++)
+	for (auto& it : m_vMeshes)
+	{
+		//auto it = m_vMeshes[i];
+
+		if (it.num_faces == 0)
+		{
+			continue;
+		}
+
+		glActiveTexture(GL_TEXTURE0);
+		{
+			if (it.material)
+			{
+				glBindTexture(GL_TEXTURE_2D, it.material->map_Kd->gl_texnum);
+			}
+			else
+			{
+				if (it.diffuse_texture)
+					glBindTexture(GL_TEXTURE_2D, it.diffuse_texture->gl_texnum);
+				else
+					glBindTexture(GL_TEXTURE_2D, 0);
+			}
+		}
+
+		glActiveTexture(GL_TEXTURE1);
+		{
+			if (it.lightmap_texture[0])
+				glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
+			else
+				glBindTexture(GL_TEXTURE_2D, 0);
+		}
+
+		mesh.Draw(it.first_face, it.num_faces);
+
+		//break;
+	}
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glActiveTexture(GL_TEXTURE0);
+
+	shader->Unbind();
+	mesh.Unbind();
+}
+
+void ModelOBJ::RenderUnshaded()
+{
+	//throw std::logic_error("The method or operation is not implemented.");
+}
+
 void ModelOBJ::ReloadTextures()
 {
 	for (auto& it : m_vMeshes)
@@ -1232,271 +1250,4 @@ std::string ModelOBJ::GetModelTextureName()
 	return m_strDiffuseName;
 }
 
-// MTL Loader
 
-// http://paulbourke.net/dataformats/mtl/
-
-MaterialTemplateLibrary::MaterialTemplateLibrary(FileData* sourceFile)
-{
-	m_FileName = sourceFile->Name();
-	m_Directory = Application::GetFileSystem()->BaseDirectoryFromFileName(m_FileName.c_str());
-
-	ParseFileData(sourceFile);
-}
-
-void MaterialTemplateLibrary::ParseFileData(FileData * sourceFile)
-{
-	size_t offset = 0;
-	std::string buffer;
-
-	char* p = (char*)sourceFile->Data();
-
-	int lineNumber = 1;
-
-	mobjmaterial_t* current = nullptr;
-
-	while (*p)
-	{
-		if (*p == '\n')
-		{
-			if (buffer.size() > 0)
-				ParseCommand(buffer, lineNumber, current);
-
-			lineNumber++;
-
-			buffer = "";
-			p++;
-			continue;
-		}
-
-
-		buffer += *p++;
-	}
-}
-
-MTLTokens MaterialTemplateLibrary::ParseToken(std::string& token)
-{
-	std::string lowerCase;
-	lowerCase.resize(token.length());
-	
-	// Make lower case
-	std::transform(token.begin(), token.end(), lowerCase.begin(),
-										[](unsigned char c) { return std::tolower(c); });
-	
-	typedef std::pair<std::string, MTLTokens> tokenParsePair;
-
-	static std::unordered_map<std::string,MTLTokens> m;
-
-	if (!m.size())
-	{
-		m.insert(tokenParsePair("newmtl"    , MTLTokens::NewMaterial));
-		m.insert(tokenParsePair("ka"        , MTLTokens::Ka         ));
-		m.insert(tokenParsePair("kd"        , MTLTokens::Kd         ));
-		m.insert(tokenParsePair("ks"        , MTLTokens::Ks         ));
-		m.insert(tokenParsePair("tf"        , MTLTokens::Tf         ));
-		m.insert(tokenParsePair("illum"     , MTLTokens::Illum      ));
-		m.insert(tokenParsePair("d"         , MTLTokens::d          ));
-		m.insert(tokenParsePair("ns"        , MTLTokens::Ns         ));
-		m.insert(tokenParsePair("sharpness" , MTLTokens::Sharpness  ));
-		m.insert(tokenParsePair("ni"        , MTLTokens::Ni         ));
-		m.insert(tokenParsePair("map_ka"     , MTLTokens::MapKa      ));
-		m.insert(tokenParsePair("map_kd"     , MTLTokens::MapKd      ));
-		m.insert(tokenParsePair("map_ks"     , MTLTokens::MapKs      ));
-		m.insert(tokenParsePair("map_ns"     , MTLTokens::MapNs      ));
-		m.insert(tokenParsePair("map_d"      , MTLTokens::MapD       ));
-		m.insert(tokenParsePair("disp"      , MTLTokens::Disp       ));
-		m.insert(tokenParsePair("decal"     , MTLTokens::Decal      ));
-		m.insert(tokenParsePair("bump"      , MTLTokens::Bump       ));
-		m.insert(tokenParsePair("refl"      , MTLTokens::Refl       ));
-		m.insert(tokenParsePair("type"      , MTLTokens::Type       ));
-		m.insert(tokenParsePair("sphere"    , MTLTokens::Sphere     ));
-	}
-
-	auto bucket = m.find(lowerCase);
-
-	if (bucket == m.end())
-		return MTLTokens::Badtoken;
-	
-	return bucket->second;
-}
-
-MaterialTemplateLibrary::~MaterialTemplateLibrary()
-{
-
-}
-
-mobjmaterial_t* MaterialTemplateLibrary::GetByName(const char* name)
-{
-	auto it = m_LoadedMaterials.find(name);
-	if (it != m_LoadedMaterials.end())
-		return it->second;
-
-	return nullptr;
-}
-
-mobjmaterial_t* MaterialTemplateLibrary::GetByIndex(size_t index)
-{
-	auto it = m_LoadedMaterials.begin();
-	std::advance(it, index);	
-	return it->second;
-}
-
-size_t MaterialTemplateLibrary::MaterialsCount()
-{
-	return m_LoadedMaterials.size();
-}
-
-void MaterialTemplateLibrary::ExportToFile(const char* fileName)
-{
-
-}
-
-mobjmaterial_t* MaterialTemplateLibrary::AddNewMaterial(std::string & name)
-{
-	mobjmaterial_t *mat = new mobjmaterial_t;
-	mat->name = name;
-
-	m_LoadedMaterials.insert({ name, mat });
-
-	return mat;
-}
-
-void MaterialTemplateLibrary::ParseCommand(std::string& buffer, int lineNumber, mobjmaterial_t*& currentMaterial)
-{
-	auto tokensString = split_whitespaces(buffer);
-
-	if (!tokensString.size())
-		return;
-
-	auto token = ParseToken(tokensString[0]);
-
-#define ASSERT_ARGUMENTS_COUNT(count) if (tokensString.size() < count)  \
-		{  \
-			Con_Printf("Insufficient arguments (%d, expected %d) for command \"%s\" on line %d\n", tokensString.size(),count,tokensString[0].c_str(),lineNumber); \
-			return; \
-		}
-
-#define ASSERT_HAS_MATERIAL() if (currentMaterial == nullptr)  \
-	{  \
-		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer, lineNumber); \
-		return; \
-	}
-
-	auto parseVector3 = [](std::vector<std::string>& tokens) -> glm::vec3
-	{
-		glm::vec3 r;
-		r[0] = atof(tokens[1].c_str());
-		r[1] = atof(tokens[2].c_str());
-		r[2] = atof(tokens[3].c_str());
-
-		return r;
-	};
-
-	auto parseVector2 = [](std::vector<std::string>& tokens) -> glm::vec2
-	{
-		glm::vec2 r;
-		r[0] = atof(tokens[1].c_str());
-		r[1] = atof(tokens[2].c_str());
-		return r;
-	};
-
-	auto loadMap = [&](std::vector<std::string>& tokens) -> gltexture_t*
-	{
-		auto fileName = m_Directory + "/" + tokens[1];
-		FileData* pData = Application::GetFileSystem()->LoadFile(fileName);
-
-		gltexture_t* result = LoadGLTexture(pData);
-		pData->UnRef();
-
-		return result;
-	};
-
-	switch (token)
-	{
-	case MTLTokens::Badtoken:
-		// Add custom values?
-		return;
-		break;
-	case MTLTokens::NewMaterial:
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial = AddNewMaterial(tokensString[1]);
-		break;
-	case MTLTokens::Ka:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(4);
-		currentMaterial->Ka = parseVector3(tokensString);
-		break;
-	case MTLTokens::Kd:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(4);
-		currentMaterial->Ks = parseVector3(tokensString);
-		break;
-	case MTLTokens::Ks:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(4);
-		currentMaterial->Ks = parseVector3(tokensString);
-		break;
-	case MTLTokens::Tf:
-		break;
-	case MTLTokens::Illum:
-		break;
-	case MTLTokens::d:
-		break;
-	case MTLTokens::Ns:
-		break;
-	case MTLTokens::Sharpness:
-		break;
-	case MTLTokens::Ni:
-		break;
-	case MTLTokens::MapKa:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_Ka = loadMap(tokensString);
-		break;
-	case MTLTokens::MapKd:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_Kd = loadMap(tokensString);
-		break;
-	case MTLTokens::MapKs:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_Ks = loadMap(tokensString);
-		break;
-	case MTLTokens::MapNs:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_Ns = loadMap(tokensString);
-		break;
-	case MTLTokens::MapD:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_d = loadMap(tokensString);
-		break;
-	case MTLTokens::Disp:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_disp = loadMap(tokensString);
-		break;
-	case MTLTokens::Decal:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_decal = loadMap(tokensString);
-		break;
-	case MTLTokens::Bump:
-		ASSERT_HAS_MATERIAL();
-		ASSERT_ARGUMENTS_COUNT(2);
-		currentMaterial->map_bump = loadMap(tokensString);
-		break;
-	case MTLTokens::Refl:
-		break;
-	case MTLTokens::Type:
-		break;
-	case MTLTokens::Sphere:
-		break;
-	default:
-		break;
-
-	}
-
-}

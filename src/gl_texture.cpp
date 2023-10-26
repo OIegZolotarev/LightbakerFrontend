@@ -6,6 +6,7 @@
 #include "..\include\ImGuiFileDialog\stb\stb_image.h"
 #include "gl_texture.h"
 #include "application.h"
+#include "loader_thread.h"
 
 void GLReloadTexture(gltexture_t* r, FileData* sourceFile);
 std::vector<gltexture_t*> g_vecGLTextures;
@@ -78,7 +79,6 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 	int comps = 0;
 
 	stbi_set_flip_vertically_on_load(true);
-
 	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), sourceFile->Length(), &image_width, &image_height, &comps, 4);
 
 	if (image_data == NULL)
@@ -113,6 +113,8 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 	r->width = image_width;
 	r->height = image_height;
 
+	r->loaded;
+
 	return;
 }
 
@@ -127,4 +129,182 @@ void FreeGLTexture(gltexture_t*texture)
 void FreeGLTextures()
 {
 	ClearPointersVector(g_vecGLTextures);
+}
+
+
+void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
+{
+	FileData* pData = Application::GetFileSystem()->LoadFile(texture->file_name);
+
+	// Load from file
+	int image_width = 0;
+	int image_height = 0;
+	int comps = 0;
+
+	stbi_set_flip_vertically_on_load(true);
+	void * pixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
+
+	texture->width = image_width;
+	texture->height = image_height;
+
+	pData->UnRef();
+
+	Sleep(100);
+
+	return pixels;
+}
+
+AsynchTextureLoadTask::AsynchTextureLoadTask()
+{
+
+}
+
+AsynchTextureLoadTask::~AsynchTextureLoadTask()
+{
+	assert(m_qScheduledTextures.empty());
+}
+
+gltexture_t* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
+{
+	gltexture_t* texture = new gltexture_t;
+	texture->file_name = fileName;
+	m_qScheduledTextures.push(texture);
+
+	m_nTotalSteps = m_qScheduledTextures.size();
+
+	return texture;
+}
+
+/*
+
+gltexture_t* LoadGLTextureAsynch(const char* fileName)
+{
+	AsynchTextureLoadTask* pTask = new AsynchTextureLoadTask(fileName);
+	LoaderThread::Instance()->ScheduleTask(pTask);
+	
+	return pTask->GetTexture();
+}	
+
+
+void AsynchTextureLoadTask::LoadFileData()
+{
+	FileData* pData = Application::GetFileSystem()->LoadFile(m_strFileName);
+
+	// Load from file
+	int image_width = 0;
+	int image_height = 0;
+	int comps = 0;
+
+	stbi_set_flip_vertically_on_load(true);
+	m_pPixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
+
+	m_pTexture->width = image_width;
+	m_pTexture->height = image_height;
+	
+	pData->UnRef();
+}
+
+void AsynchTextureLoadTask::UploadPixels()
+{
+	glGenTextures(1, &m_pTexture->gl_texnum);
+	glBindTexture(GL_TEXTURE_2D, m_pTexture->gl_texnum);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
+}
+
+AsynchTextureLoadTask::AsynchTextureLoadTask(const char* fileName)
+{
+	m_strFileName = fileName;
+	m_pTexture = new gltexture_t;
+	memset(m_pTexture, 0, sizeof(gltexture_t));
+	m_pTexture->file_name = fileName;
+
+	g_vecGLTextures.push_back(m_pTexture);
+}
+
+bool AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
+{
+	LoadFileData();
+
+	Sleep(1000);
+	
+	return false;
+}
+
+void AsynchTextureLoadTask::OnCompletion()
+{
+	UploadPixels();
+	stbi_image_free(m_pPixels);
+}
+*/
+
+ITaskStepResult* AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
+{
+	if (m_qScheduledTextures.empty())
+		return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
+
+	gltexture_t* texture = m_qScheduledTextures.front();
+	m_qScheduledTextures.pop();
+
+	m_nPerformedSteps++;
+
+	void* pixels = LoadTextureFileData(texture);
+
+	return new AsynchTextureLoadResult(texture, pixels);
+}
+
+void AsynchTextureLoadTask::OnCompletion()
+{
+	(void)0;
+}
+
+AsynchTextureLoadResult::AsynchTextureLoadResult(gltexture_t* texture, void* pixels): ITaskStepResult(TaskStepResultType::NeedEndCallback)
+{
+	m_pPixels = pixels;
+	m_pTexture = texture;
+
+	m_strDescription = "Loading textures...";
+	m_strElementDescription = texture->file_name;
+}
+
+AsynchTextureLoadResult::~AsynchTextureLoadResult()
+{
+	if (m_pPixels)
+		stbi_image_free(m_pPixels);
+}
+
+void AsynchTextureLoadResult::ExecuteOnCompletion()
+{
+	glGenTextures(1, &m_pTexture->gl_texnum);
+	glBindTexture(GL_TEXTURE_2D, m_pTexture->gl_texnum);
+
+	// Setup filtering parameters for display
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
+	// Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
 }

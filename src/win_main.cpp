@@ -5,6 +5,7 @@
 
 #include "common.h"
 #include "application.h"
+#include "loader_thread.h"
 
 #ifdef _DEBUG
 #pragma comment(lib,"../lib/SDL2_Debug.lib")
@@ -20,8 +21,13 @@ int __stdcall WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance
 {
 	Application* app = Application::Instance();
 
+	LoaderThread::Instance()->Start();
+
 	app->Init(lpCmdLine);
 	app->Run();
 
+	LoaderThread::Instance()->Stop();
+
 	delete Application::Instance();
+	delete LoaderThread::Instance();
 }

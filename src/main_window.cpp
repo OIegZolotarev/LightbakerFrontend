@@ -14,6 +14,7 @@
 #include "scene_objects_panel.h"
 #include "console_output_panel.h"
 #include "debug_panel.h"
+#include "loader_thread.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -246,6 +247,8 @@ void MainWindow::MainLoop()
 		GL_BeginFrame();
 		
 		m_pSceneRenderer->RenderScene();
+
+		LoaderThread::Instance()->ExecuteEndCallbacks(10);
 
 		RenderGUI();
 
@@ -570,6 +573,9 @@ void MainWindow::RenderGUI()
 		DrawBakingInProgressBanner(yBannerOffset);
 	}
 
+#if 1
+	DrawLoadingBanner();
+#endif
 
 #ifdef DEBUG
 	ImGui::ShowDemoWindow();
@@ -578,6 +584,55 @@ void MainWindow::RenderGUI()
 
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainWindow::DrawLoadingBanner()
+{
+	taskprogressinfo_t info;
+	LoaderThread::Instance()->FillTaskProgressInfo(&info);
+
+	if (!info.hasBackgroundTasks)
+		return;
+
+	static ImVec2 size = { 0,0 };
+
+	ImGui::SetNextWindowPos(ImVec2(m_iWindowWidth / 2 - size.x / 2, m_iWindowHeight / 2 - size.y / 2));
+
+	auto txtColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+
+	float timestampSeconds = m_TimersData.timestamp_now / 1000000.f;
+
+	float bias = (sin(timestampSeconds / 2) + 1) / 2;
+
+	float rangeMin = 0.75f;
+	float rangeMax = 1.f;
+
+	float shade = rangeMin + (rangeMax - rangeMin) * bias;
+
+	txtColor.x *= shade;
+	txtColor.y *= shade;
+	txtColor.z *= shade;
+
+	
+
+	ImGui::Begin("##LoadingBanner", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+	
+	
+	ImGui::PushStyleColor(ImGuiCol_Text, txtColor);
+	ImGui::Text(info.operationDescription.c_str());
+	ImGui::PopStyleColor();
+
+	float progress = (float)info.currentTaskPerformedSteps / (float)info.currentTaskTotalSteps;
+
+	ImGui::Text(info.elementDescription.c_str());
+	ImGui::ProgressBar(progress);
+
+	ImGui::SetWindowSize({ m_iWindowWidth / 10.f * 7, 100 });
+	size = ImGui::GetWindowSize();
+
+	ImGui::End();
+
+	
 }
 
 void MainWindow::DrawBakingInProgressBanner(float yBannerOffset)
@@ -766,7 +821,7 @@ void MainWindow::UpdateTimers()
 
 void MainWindow::LimitToTargetFPS()
 {
-#ifdef WIN32
+#ifndef LINUX
 	int target_fps = 60;
 	static uint64_t next_tick = 0;
 	uint64_t this_tick = SDL_GetTicks64();
