@@ -13,7 +13,7 @@ SceneEntity::SceneEntity()
 	m_Color = { 0,0,0 };
 	m_EditorIcon = nullptr;
 }
-
+  
 void SceneEntity::OnHovered()
 {
 	

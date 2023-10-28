@@ -63,12 +63,12 @@ void FileData::UnRef()
 
 std::string FileData::BaseName()
 {
-	return Application::GetFileSystem()->BaseName(m_Name);
+	return Application::GetFileSystem()->BaseNameFromPath(m_Name);
 }
 
 std::string FileData::DirName()
 {
-	return Application::GetFileSystem()->BaseDirectoryFromFileName(m_Name.c_str());
+	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name.c_str());
 }
 
 IArchive::IArchive(const char* fileName)
@@ -161,7 +161,7 @@ FileData* FileSystem::LoadFile(std::string& fileName)
 	return LoadFile(fileName.c_str());
 }
 
-std::string FileSystem::BaseName(std::string& fullPath)
+std::string FileSystem::BaseNameFromPath(std::string& fullPath)
 {
 	std::filesystem::path p = std::filesystem::path(fullPath);
 	auto c = std::filesystem::canonical(p);
@@ -190,11 +190,20 @@ void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileNa
 #endif
 }
 
-std::string FileSystem::BaseDirectoryFromFileName(const char* modelFileName)
+std::string FileSystem::BaseDirectoryFromPath(const std::string& fileName)
 {
-	std::filesystem::path p = std::filesystem::path(modelFileName);
+	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
 	std::string path = c.parent_path().string();
+
+	return path;
+}
+
+std::string FileSystem::ExtensionFromPath(const std::string& path)
+{
+	std::filesystem::path p = std::filesystem::path(path);
+	auto c = std::filesystem::canonical(p);
+	std::string path = c.extension().string();
 
 	return path;
 }

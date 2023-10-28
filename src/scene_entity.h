@@ -42,7 +42,7 @@ public:
 	DECLARE_PROPERTY(size_t, SerialNumber);
 	DECLARE_PROPERTY(glm::vec3, Position);
 	DECLARE_PROPERTY(glm::vec3, Color);	
-	DECLARE_PROPERTY(const gltexture_t*, EditorIcon);
+	DECLARE_PROPERTY(gltexture_t*, EditorIcon);
 
 	void OnHovered() override;
 	void OnMouseMove(glm::vec2 delta) override;

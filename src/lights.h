@@ -33,9 +33,7 @@ public:
 
 	LightTypes	type = LightTypes::Omni;
 	int			flags = 0;
-
 	
-
 	float		intensity = 1;
 
 	glm::vec3	anglesDirection;
@@ -43,9 +41,6 @@ public:
 	glm::vec2	size;
 
 	int			style = 0;
-
-	
-
 
 	void OnHovered() override;
 	void OnMouseMove(glm::vec2 delta) override;

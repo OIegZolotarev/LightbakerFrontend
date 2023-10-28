@@ -182,7 +182,7 @@ void LightBaker3000::ExecuteBaking(const char* modelFileName)
 	
 	// 1) Скопировать exe в каталог модели?
 	
-	std::string modelDirectory = fs->BaseDirectoryFromFileName(modelFileName);
+	std::string modelDirectory = fs->BaseDirectoryFromPath(modelFileName);
 	std::string lb3kPath = modelDirectory + "/LightBaker3000.exe";
 
 	if (!fs->FileExists(lb3kPath))
@@ -198,7 +198,7 @@ void LightBaker3000::ExecuteBaking(const char* modelFileName)
 	const char* cmdTemplate = "%s %s %s %s";
 
 	auto s = std::string(modelFileName);
-	auto baseFileName = fs->BaseName(s) + ".obj";
+	auto baseFileName = fs->BaseNameFromPath(s) + ".obj";
 	const char* diffuseName = "sample.png";
 
 	static char cmd[4096];

@@ -12,6 +12,14 @@
 #include "edit_history.h"
 #include "Scene.h"
 
+enum class RenderMode
+{
+	Unshaded = 0,
+	Lightshaded,	
+	WireframeUnshaded,
+	WireframeShaded
+};
+
 class SceneRenderer: public IEventHandler
 {	
 public:
@@ -31,20 +39,18 @@ public:
 
 	void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const  gltexture_t* texture, const glm::vec3 tint);
 	void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index);
-
-	
-	
+		
 	void ExportModelForCompiling(const char* path);
 
 	void FocusCameraOnObject(SceneEntityPtr it);
 
-	Scene* GetScene()
-	{
-		return m_pScene;
-	}
+	Scene* GetScene();
 
 	glm::vec3 GetNewLightPos();
 private:
+	RenderMode m_RenderMode = RenderMode::Lightshaded;
+	bool	   m_bWireframeOverlay = false;
+
 	void Debug_DrawGround();
 
 	class Camera*		m_pCamera;

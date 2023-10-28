@@ -18,7 +18,7 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
-	m_pScene = new Scene;
+	m_pScene = nullptr;
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
@@ -59,8 +59,23 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	if (m_pScene)
+	switch (m_RenderMode)
+	{
+	case RenderMode::Unshaded:
+		m_pScene->RenderUnshaded();
+		break;
+	case RenderMode::Lightshaded:
 		m_pScene->RenderLightShaded();
+		break;			
+	default:
+		break;
+	case RenderMode::WireframeUnshaded:
+		break;
+	case RenderMode::WireframeShaded:
+		break;
+
+	}
+
 
 	RenderHelperGeometry(selectionManager);
 }
@@ -104,6 +119,9 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 {
+	delete m_pScene;
+	m_pScene = new Scene(dropped_filedir);
+
 // 	if (dropped_filedir)
 // 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
 // 
@@ -128,8 +146,6 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 	//m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
 	//SetSceneScale(m_pSceneModel->GetSceneScale());
 }
-
-
 
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
 {
@@ -310,6 +326,11 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)
 {
 	m_pCamera->LookAtPoint(it->GetPosition());
+}
+
+Scene* SceneRenderer::GetScene()
+{
+	return m_pScene;
 }
 
 glm::vec3 SceneRenderer::GetNewLightPos()

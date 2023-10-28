@@ -17,8 +17,8 @@
 MaterialTemplateLibrary::MaterialTemplateLibrary(FileData* sourceFile)
 {
 	auto fs = Application::GetFileSystem();
-	m_FileName = fs->BaseName(sourceFile->Name()) + ".mtl";
-	m_Directory = fs->BaseDirectoryFromFileName(sourceFile->Name().c_str());
+	m_FileName = fs->BaseNameFromPath(sourceFile->Name()) + ".mtl";
+	m_Directory = fs->BaseDirectoryFromPath(sourceFile->Name().c_str());
 
 	ParseFileData(sourceFile);
 }

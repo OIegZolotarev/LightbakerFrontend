@@ -79,11 +79,27 @@ public:
 
 	[[nodiscard]] FileData* LoadFile(const char* fileName);
 	[[nodiscard]] FileData* LoadFile(std::string& fileName);
-	std::string BaseName(std::string& fullPath);
+	
 	std::string ParentPath(std::string& param1);
 	void ChangeCurrentDirectoryToFileDirectory(const std::string& fileName);
 
-	std::string BaseDirectoryFromFileName(const char* modelFileName);
+	// Возвращает имя файла без расширения для заданого пути:
+	// /home/user/path/to/file.txt -> file
+	// C:\User\Documents\file.txt -> file
+	std::string BaseNameFromPath(std::string& path);
+
+	// Возвращает каталог в которм находится файл:
+	// /home/user/path/to/file.txt -> /home/user/path/to/
+	// C:\User\Documents\file.txt -> C:\User\Documents\ 
+	std::string BaseDirectoryFromPath(const std::string& path);
+
+	// Возвращает расширение файла в пути с точкой:
+	// /home/user/path/to/file.txt -> .txt
+	// C:\User\Documents\file.bsp -> .bsp
+	std::string ExtensionFromPath(const std::string& path);
+
+
+
 	bool FileExists(std::string fileName);
 
 	int CopyFile(const char* srcPath, const char* dstPath);

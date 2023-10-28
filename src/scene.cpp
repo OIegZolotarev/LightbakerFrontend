@@ -7,15 +7,19 @@
 #include "scene.h"
 #include "properties_editor.h"
 
-Scene::Scene()
+Scene::Scene(const char* fileName)
 {
 	m_pEditHistory = new CEditHistory;
+
+	auto fs = Application::GetFileSystem();
+	fs->BaseDirectoryFromPath(fileName);
+
 }
 
 Scene::~Scene()
 {
 	//FreeVector(m_vecSceneLightDefs);
-	m_vecSceneLightDefs.clear();
+	m_SceneEntities.clear();
 	delete m_pEditHistory;
 }
 
@@ -26,13 +30,13 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
 	if (!ptr)
 		return;
 
-	auto pos = std::remove_if(m_vecSceneLightDefs.begin(), m_vecSceneLightDefs.end(), [&](SceneEntityPtr& it)
+	auto pos = std::remove_if(m_SceneEntities.begin(), m_SceneEntities.end(), [&](SceneEntityPtr& it)
 		{
 			return it == ptr;
 		});
 
 
-	m_vecSceneLightDefs.erase(pos);
+	m_SceneEntities.erase(pos);
 }
 
 void Scene::DoDeleteSelection()
@@ -71,13 +75,13 @@ void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
 
 	newLight->serial_number = m_ObjectsCounter.Allocate();
 
-	m_vecSceneLightDefs.push_back(newLight);
+	m_SceneEntities.push_back(newLight);
 	newLight->InvokeSelect();
 }
 
 std::list<SceneEntityPtr>& Scene::GetSceneObjects()
 {
-	return m_vecSceneLightDefs;
+	return m_SceneEntities;
 }
 
 CEditHistory* Scene::GetEditHistory() const
@@ -99,12 +103,7 @@ void Scene::RenderObjectsFor3DSelection()
 {
 	auto selectionManager = SelectionManager::Instance();
 
-	if (m_pSceneModel)
-	{
-		selectionManager->PushObject(m_pSceneModel);
-	}
-
-	for (SceneEntityPtr & it : m_vecSceneLightDefs)
+	for (SceneEntityPtr & it : m_SceneEntities)
 	{
 		selectionManager->PushObject(it);
 	}
@@ -114,51 +113,51 @@ void Scene::RenderLightShaded()
 {
 	auto selectionManager = SelectionManager::Instance();
 
-	if (m_pSceneModel && m_pSceneModel->IsDataLoaded())
+	for (auto & it : m_SceneEntities)
 	{
-		m_pSceneModel->RenderLightshaded();
-		selectionManager->PushObject(m_pSceneModel);
+		if (!it->IsDataLoaded())
+			continue;
+
+		it->RenderLightshaded();
+		selectionManager->PushObject(it);
 	}
 }
 
 std::list<SceneEntityPtr>& Scene::GetLightDefs()
 {
-	return m_vecSceneLightDefs;
+	return m_SceneEntities;
 }
 
 bool Scene::IsModelLoaded()
 {
-	if (!m_pSceneModel)
+	if (m_SceneEntities.size() < 1)
 		return false;
 
-	return m_pSceneModel->IsDataLoaded();
+	auto it = m_SceneEntities.begin();
+	return it->get()->IsDataLoaded();
 }
 
 std::string Scene::GetModelFileName()
 {
-	if (!m_pSceneModel)
-		return "";
-
-	return m_pSceneModel->GetModelFileName();
+	assert("not implemented yet");
+	return "";
 }
 
 std::string Scene::GetModelTextureName()
 {
-	if (!m_pSceneModel)
-		return "";
-
-	return m_pSceneModel->GetModelTextureName();
+	assert("not implemented yet");
+	return "";
 }
 
 void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn)
 {
 	it->SetSerialNumber(sn);
-	m_vecSceneLightDefs.push_back(it);
+	m_SceneEntities.push_back(it);
 }
 
 SceneEntityWeakPtr Scene::GetEntityBySerialNumber(size_t serialNumber)
 {
-	for (auto& it : m_vecSceneLightDefs)
+	for (auto& it : m_SceneEntities)
 	{
 		if (it->GetSerialNumber() == serialNumber)
 			return SceneEntityWeakPtr(it);
@@ -185,7 +184,7 @@ void Scene::SetScale(float f)
 
 void Scene::RescaleLightPositions(float m_flScaleOriginal, float m_flScale)
 {
-	for (auto& it : m_vecSceneLightDefs)
+	for (auto& it : m_SceneEntities)
 	{
 		glm::vec3 pos = it->GetPosition();
 
@@ -203,11 +202,16 @@ void Scene::RescaleLightPositions(float m_flScaleOriginal, float m_flScale)
 
 SceneEntityWeakPtr Scene::GetEntityWeakRef(SceneEntity* pEntity)
 {
-	for (auto & ptr : m_vecSceneLightDefs)
+	for (auto & ptr : m_SceneEntities)
 	{
 		if (ptr.get() == pEntity)
 			return SceneEntityWeakPtr(ptr);
 	}
 
 	return SceneEntityWeakPtr();
+}
+
+void Scene::RenderUnshaded()
+{
+	
 }

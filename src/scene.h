@@ -16,10 +16,10 @@ class Scene
 	lightBakerSettings_s m_lightBakerParams;
 	SerialCounter<unsigned int> m_ObjectsCounter;
 
-	std::list<SceneEntityPtr> m_vecSceneLightDefs;
-	//std::vector<SceneEntityPtr> m_vecSceneLightDefs;
-	
-	std::shared_ptr<ModelOBJ>  m_pSceneModel;
+	// Scene Entity 0 - level model
+	std::list<SceneEntityPtr> m_SceneEntities;	
+	std::list<lightDefWPtr_t> m_SceneLightDefs;
+	//std::shared_ptr<ModelOBJ>  m_pSceneModel;
 	
 	
 	float m_flSceneScale = 1.0f;
@@ -29,12 +29,11 @@ class Scene
 	SceneEntityWeakPtr m_pCurrentSelection;
 
 public:
-	Scene();
+	Scene(const char* levelName);
 	~Scene();
 
 	
-	void DoDeleteSelection();
-	
+	void DoDeleteSelection();	
 	void AddNewLight(glm::vec3 pos, LightTypes type);
 
 	std::list<SceneEntityPtr>& GetSceneObjects();
@@ -65,4 +64,5 @@ public:
 	void RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
 
 	SceneEntityWeakPtr GetEntityWeakRef(SceneEntity* pEntity);
+	void RenderUnshaded();
 };

@@ -518,6 +518,9 @@ size_t ModObjAsynchLoader::CurrentResource(StateMachineResource id)
 		break;
 
 	}
+
+	// Make compiler happy....
+	return 0;
 }
 
 ModObjAsynchLoader::ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName)
@@ -609,8 +612,8 @@ void ModObjAsynchLoader::InitializeLoader()
 	mobjmesh_t mesh = {0};
 
 	auto fs = Application::GetFileSystem();
-	auto baseName = fs->BaseName(m_strFileName);
-	auto baseDir = fs->BaseDirectoryFromFileName(m_strFileName.c_str());
+	auto baseName = fs->BaseNameFromPath(m_strFileName);
+	auto baseDir = fs->BaseDirectoryFromPath(m_strFileName.c_str());
 
 	AsynchTextureLoadTask* loaderTask = new AsynchTextureLoadTask("Existing lightmaps");
 
