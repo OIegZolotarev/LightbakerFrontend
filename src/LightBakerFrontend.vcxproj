@@ -198,6 +198,7 @@
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="loader_thread.cpp" />
+    <ClCompile Include="mod_obj_asynch_exporter.cpp" />
     <ClCompile Include="mod_obj_asynch_loader.cpp" />
     <ClCompile Include="mtl_library.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="loader_thread.h" />
+    <ClInclude Include="mod_obj_asynch_exporter.h" />
     <ClInclude Include="mod_obj_asynch_loader.h" />
     <ClInclude Include="mod_obj_data.h" />
     <ClInclude Include="mtl_library.h" />

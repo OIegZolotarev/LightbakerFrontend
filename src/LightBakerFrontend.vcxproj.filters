@@ -200,6 +200,9 @@
     <ClCompile Include="mod_obj_asynch_loader.cpp">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClCompile>
+    <ClCompile Include="mod_obj_asynch_exporter.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -375,6 +378,9 @@
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClInclude>
     <ClInclude Include="mod_obj_asynch_loader.h">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_asynch_exporter.h">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClInclude>
   </ItemGroup>

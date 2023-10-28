@@ -515,6 +515,7 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 {
 	if (!m_pFileData)
 	{
+		// TODO: добавить материалы по умолчанию
 		m_pFileData = Application::GetFileSystem()->LoadFile(m_strFileName);
 		m_FileOffset = 0;
 	}
