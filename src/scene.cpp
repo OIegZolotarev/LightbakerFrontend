@@ -12,7 +12,7 @@ Scene::Scene(const char* fileName)
 	m_pEditHistory = new CEditHistory;
 
 	auto fs = Application::GetFileSystem();
-	fs->BaseDirectoryFromPath(fileName);
+	auto ext = fs->ExtensionFromPath(fileName);
 
 }
 

@@ -59,25 +59,31 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	switch (m_RenderMode)
-	{
-	case RenderMode::Unshaded:
-		m_pScene->RenderUnshaded();
-		break;
-	case RenderMode::Lightshaded:
-		m_pScene->RenderLightShaded();
-		break;			
-	default:
-		break;
-	case RenderMode::WireframeUnshaded:
-		break;
-	case RenderMode::WireframeShaded:
-		break;
 
+	if (m_pScene)
+	{
+		switch (m_RenderMode)
+		{
+		case RenderMode::Unshaded:
+			m_pScene->RenderUnshaded();
+			break;
+		case RenderMode::Lightshaded:
+			m_pScene->RenderLightShaded();
+			break;
+		default:
+			break;
+		case RenderMode::WireframeUnshaded:
+			break;
+		case RenderMode::WireframeShaded:
+			break;
+
+		}
+
+		RenderHelperGeometry(selectionManager);
 	}
 
 
-	RenderHelperGeometry(selectionManager);
+	
 }
 
 void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)

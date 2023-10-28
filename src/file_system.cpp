@@ -199,9 +199,9 @@ std::string FileSystem::BaseDirectoryFromPath(const std::string& fileName)
 	return path;
 }
 
-std::string FileSystem::ExtensionFromPath(const std::string& path)
+std::string FileSystem::ExtensionFromPath(const std::string& filePath)
 {
-	std::filesystem::path p = std::filesystem::path(path);
+	std::filesystem::path p = std::filesystem::path(filePath);
 	auto c = std::filesystem::canonical(p);
 	std::string path = c.extension().string();
 
