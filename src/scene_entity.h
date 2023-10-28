@@ -8,6 +8,12 @@
 
 class SceneEntity: public ISelectableObject
 {
+	bool m_bDataLoaded = false;
+protected:
+	void FlagDataLoaded()
+	{
+		m_bDataLoaded = true;
+	}
 public:
 	SceneEntity() {};
 	
@@ -15,6 +21,12 @@ public:
 	virtual void RenderUnshaded() {}; // Без лайтмапы
 	virtual void RenderBoundingBox() {}; // 
 	virtual void RenderDebug() {}; // Отладочная отрисовка
+
+
+	bool IsDataLoaded()
+	{
+		return m_bDataLoaded;
+	}
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

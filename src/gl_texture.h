@@ -52,7 +52,7 @@ class AsynchTextureLoadTask: public ITask
 	void UploadPixels();
 
 public:
-	AsynchTextureLoadTask();
+	AsynchTextureLoadTask(const char* setDescription = nullptr);
 	~AsynchTextureLoadTask();
 
 	gltexture_t* ScheduleTexture(const char* fileName);

@@ -136,6 +136,10 @@ void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
 {
 	FileData* pData = Application::GetFileSystem()->LoadFile(texture->file_name);
 
+	// TODO: emo textures
+	if (!pData)
+		return nullptr;
+
 	// Load from file
 	int image_width = 0;
 	int image_height = 0;
@@ -154,9 +158,12 @@ void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
 	return pixels;
 }
 
-AsynchTextureLoadTask::AsynchTextureLoadTask()
+AsynchTextureLoadTask::AsynchTextureLoadTask(const char* setDescription)
 {
-
+	if (setDescription != nullptr)
+		m_strDescription = setDescription;
+	else
+		m_strDescription = "Loading textures...";
 }
 
 AsynchTextureLoadTask::~AsynchTextureLoadTask()
@@ -167,6 +174,8 @@ AsynchTextureLoadTask::~AsynchTextureLoadTask()
 gltexture_t* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
 {
 	gltexture_t* texture = new gltexture_t;
+	memset(texture, 0, sizeof(gltexture_t));
+
 	texture->file_name = fileName;
 	m_qScheduledTextures.push(texture);
 
@@ -174,83 +183,6 @@ gltexture_t* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
 
 	return texture;
 }
-
-/*
-
-gltexture_t* LoadGLTextureAsynch(const char* fileName)
-{
-	AsynchTextureLoadTask* pTask = new AsynchTextureLoadTask(fileName);
-	LoaderThread::Instance()->ScheduleTask(pTask);
-	
-	return pTask->GetTexture();
-}	
-
-
-void AsynchTextureLoadTask::LoadFileData()
-{
-	FileData* pData = Application::GetFileSystem()->LoadFile(m_strFileName);
-
-	// Load from file
-	int image_width = 0;
-	int image_height = 0;
-	int comps = 0;
-
-	stbi_set_flip_vertically_on_load(true);
-	m_pPixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
-
-	m_pTexture->width = image_width;
-	m_pTexture->height = image_height;
-	
-	pData->UnRef();
-}
-
-void AsynchTextureLoadTask::UploadPixels()
-{
-	glGenTextures(1, &m_pTexture->gl_texnum);
-	glBindTexture(GL_TEXTURE_2D, m_pTexture->gl_texnum);
-
-	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
-
-	// Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
-}
-
-AsynchTextureLoadTask::AsynchTextureLoadTask(const char* fileName)
-{
-	m_strFileName = fileName;
-	m_pTexture = new gltexture_t;
-	memset(m_pTexture, 0, sizeof(gltexture_t));
-	m_pTexture->file_name = fileName;
-
-	g_vecGLTextures.push_back(m_pTexture);
-}
-
-bool AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
-{
-	LoadFileData();
-
-	Sleep(1000);
-	
-	return false;
-}
-
-void AsynchTextureLoadTask::OnCompletion()
-{
-	UploadPixels();
-	stbi_image_free(m_pPixels);
-}
-*/
 
 ITaskStepResult* AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
 {
@@ -277,7 +209,6 @@ AsynchTextureLoadResult::AsynchTextureLoadResult(gltexture_t* texture, void* pix
 	m_pPixels = pixels;
 	m_pTexture = texture;
 
-	m_strDescription = "Loading textures...";
 	m_strElementDescription = texture->file_name;
 }
 
@@ -289,6 +220,12 @@ AsynchTextureLoadResult::~AsynchTextureLoadResult()
 
 void AsynchTextureLoadResult::ExecuteOnCompletion()
 {
+	// TODO: emo textures
+	if (!m_pPixels)
+	{
+		return;
+	}
+
 	glGenTextures(1, &m_pTexture->gl_texnum);
 	glBindTexture(GL_TEXTURE_2D, m_pTexture->gl_texnum);
 

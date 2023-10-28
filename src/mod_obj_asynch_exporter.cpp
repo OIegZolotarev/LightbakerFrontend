@@ -226,6 +226,7 @@ ModObjAsynchExporter::~ModObjAsynchExporter()
 ITaskStepResult* ModObjAsynchExporter::ExecuteStep(LoaderThread* loaderThread)
 {
 	//throw std::logic_error("The method or operation is not implemented.");
+	return nullptr;
 }
 
 void ModObjAsynchExporter::OnCompletion()

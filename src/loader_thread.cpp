@@ -10,8 +10,8 @@ int loaderThreadFunction(void* data)
 		info->currentTaskTotalSteps = task->TotalSteps();
 		info->currentTaskPerformedSteps = task->PerformedSteps();
 
-		info->taskElementDescription = result->ElementDescription();
-		info->taskDescription = result->TaskDescription();
+		info->taskElementDescription = result->Description();
+		info->taskDescription = task->Description();
 	};
 
 	while (info->alive)
@@ -66,8 +66,9 @@ void LoaderThread::InitThreads()
 		sprintf_s(m_Threads[i].name, "Loader thread #%d", i + 1);
 
 		m_Threads[i].loaderThread = this;
-		m_Threads[i].thread_handle = SDL_CreateThread(loaderThreadFunction, m_Threads[i].name, &m_Threads[i]);
 		m_Threads[i].mutex = SDL_CreateMutex();
+		m_Threads[i].thread_handle = SDL_CreateThread(loaderThreadFunction, m_Threads[i].name, &m_Threads[i]);
+		
 	}
 }
 
@@ -176,12 +177,7 @@ void LoaderThread::DestroyThreads()
 	}
 }
 
-std::string& ITaskStepResult::TaskDescription()
-{
-	return m_strDescription;
-}
-
-std::string& ITaskStepResult::ElementDescription()
+std::string& ITaskStepResult::Description()
 {
 	return m_strElementDescription;
 }

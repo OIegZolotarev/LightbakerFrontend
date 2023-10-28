@@ -21,11 +21,8 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
 	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
-	
-	
-	auto fd = Application::GetFileSystem()->LoadFile("res/mesh/arrow.obj");
-	
-	m_pDirectionModel = new ModelOBJ(fd);
+
+	m_pDirectionModel = new ModelOBJ("res/mesh/arrow.obj");
 	m_pDirectionArrow = m_pDirectionModel->GetDrawMesh();
 	
 	m_pEditHistory = new CEditHistory;
@@ -52,7 +49,6 @@ void SceneRenderer::RenderScene()
 	auto selectionManager = SelectionManager::Instance();
 	m_pCamera->Apply();
 
-
 	selectionManager->NewFrame(this);
 
 	if (DEBUG_3D_SELECTION)
@@ -78,9 +74,9 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	if (m_pSceneModel)
+	if (m_pSceneModel && m_pSceneModel->IsDataLoaded())
 	{
-		//m_pSceneModel->DrawShaded();
+		m_pSceneModel->RenderLightshaded();
 		selectionManager->PushObject(m_pSceneModel);
 	}
 
@@ -133,9 +129,10 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
 	else
 	{
-		auto s = GetModelFileName();
-		const char* n = s.c_str();
-		fd = Application::GetFileSystem()->LoadFile(n);
+		// TODO: fixme
+// 		auto s = GetModelFileName();
+// 		const char* n = s.c_str();
+// 		fd = Application::GetFileSystem()->LoadFile(n);
 	}
 
 	if (!fd)
@@ -145,38 +142,8 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 		return;
 	}
 
-	
-	//auto taskRoutine = [=]() -> TaskStepResultType
-	//{
-		m_pSceneModel = std::make_shared<ModelOBJ>(fd);
-		//return TaskStepResultType::FinishedSuccesfully;
-	//};
-		
-	//auto endRoutine = [&](ITask* task, TaskStepResultType result)
-	//{
-		m_pSceneModel->BuildDrawMesh();
-		SetSceneScale(m_pSceneModel->GetSceneScale());
-
-		m_serialNubmerCounter = 1;
-
-		if (!keepLights)
-		{
-			m_vecSceneLightDefs.clear();
-
-			auto modelLightDefs = m_pSceneModel->ParsedLightDefs();
-
-			for (auto& it : modelLightDefs)
-			{
-				int sn = AllocSerialNumber();
-				AddLightToSceneWithSerialNumber(it, sn);
-			}
-		}
-
-	//};
-
-
-	//LoaderTask* pTask = new LoaderTask("Loading model", "....", taskRoutine, endRoutine);
-	//LoaderThread::Instance()->ScheduleTask(pTask);
+	m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
+	SetSceneScale(m_pSceneModel->GetSceneScale());
 }
 
 void SceneRenderer::AddLightToSceneWithSerialNumber(lightDef_t& it, int sn)
@@ -187,7 +154,10 @@ void SceneRenderer::AddLightToSceneWithSerialNumber(lightDef_t& it, int sn)
 
 bool SceneRenderer::IsModelLoaded()
 {
-	return m_pSceneModel != nullptr;
+	if (!m_pSceneModel)
+		return false;
+
+	return m_pSceneModel->IsDataLoaded();
 }
 
 std::string SceneRenderer::GetModelFileName()

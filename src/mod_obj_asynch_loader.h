@@ -29,6 +29,9 @@ class ModObjAsynchLoader : public ITask
 	std::string m_strFileName;
 	FileData* m_pFileData = nullptr;
 	size_t m_FileOffset = 0;
+	size_t m_lastReportedOffset = 0;
+
+	size_t m_ReportRate = 0;
 	
 	ModelOBJ* m_pModel = nullptr;
 	mobjdata_t* m_Data = nullptr;
@@ -47,25 +50,40 @@ class ModObjAsynchLoader : public ITask
 	void ParseMaterialLib(std::string& buffer);
 
 	size_t CurrentResource(StateMachineResource id);
-
+	
 public:
 	
 	ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName);
 	~ModObjAsynchLoader();
 	
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
+
+	void InitializeLoader();
+
 	void OnCompletion() override;
 
+	class MeshLoadingProgressStep : public ITaskStepResult
+	{
+		size_t m_nProgress;
+		size_t m_nTotalSteps;
+	public:
+		MeshLoadingProgressStep(size_t progress, size_t totalSteps);
+		~MeshLoadingProgressStep();
+	};
 
 	class BuildDrawMeshTask: public ITaskStepResult
 	{
 	public:
 		BuildDrawMeshTask(mobjdata_t * data, ModelOBJ * pModel);
 		void ExecuteOnCompletion();
+		virtual bool NeedEndCallback() override { return true; }
+
+
 	private:
 		mobjdata_t* m_pModelData;
 		ModelOBJ* m_pModel;
 	};
+
 };
 
 

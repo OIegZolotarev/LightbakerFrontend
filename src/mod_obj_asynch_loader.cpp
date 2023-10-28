@@ -89,6 +89,8 @@ void ModObjAsynchLoader::ParseUV(std::string& s)
 	}
 	else
 		m_Data->uvSize = newUVSize;
+
+	m_Data->flags |= FL_HAS_UV;
 }
 
 void ModObjAsynchLoader::ParseNormal(std::string& s)
@@ -125,6 +127,8 @@ void ModObjAsynchLoader::ParseNormal(std::string& s)
 	{
 		Con_Printf("[ERROR] Got a malformed normal - expected 3 components, got %d", normSize);
 	}
+
+	m_Data->flags |= FL_HAS_NORMALS;
 }
 
 void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
@@ -273,6 +277,7 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 	size_t pos = 0; std::string token;
 	
 	size_t groupId = CurrentResource(StateMachineResource::Group);
+	size_t materialId = CurrentResource(StateMachineResource::Material);
 	
 	bool hasUV = m_Data->flags & FL_HAS_UV;
 	bool hasNorm = m_Data->flags & FL_HAS_NORMALS;
@@ -310,7 +315,7 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 				face.norm = stoi(elements[2]);
 		}
 
-		face.mesh_id = 0;
+		face.materialId = materialId;
 		face.group_id = groupId;
 
 		parsed.push_back(face);
@@ -403,7 +408,8 @@ void ModObjAsynchLoader::ParseMaterialLib(std::string& buffer)
 
 	auto baseDir = m_pFileData->DirName();
 
-	auto mtlName = baseDir + "/" + tokens[1] + ".mtl";
+	// TODO: check if extension is needed sometimes
+	auto mtlName = baseDir + "/" + tokens[1];
 	auto data = Application::GetFileSystem()->LoadFile(mtlName);
 
 	if (data != nullptr)
@@ -474,8 +480,16 @@ void ModObjAsynchLoader::ParseUseMtl(std::string& buffer)
 		if (material != nullptr)
 		{
 			m_Data->materials.push_back(material);
+
+			mobjmesh_t mesh;
+
+			mesh.material = material;
+
+			m_Data->meshes.push_back(mesh);
 			return;
 		}
+
+		
 	}
 
 }
@@ -485,13 +499,13 @@ size_t ModObjAsynchLoader::CurrentResource(StateMachineResource id)
 	switch (id)
 	{
 	case StateMachineResource::Object:
-		assert(m_Data->objects.size() > 1);
+		assert(m_Data->objects.size() > 0);
 		return m_Data->objects.size() - 1;
 	case StateMachineResource::Group:
-		assert(m_Data->groups.size() > 1);
+		assert(m_Data->groups.size() > 0);
 		return m_Data->groups.size() - 1;
 	case StateMachineResource::Material:
-		assert(m_Data->materials.size() > 1);
+		assert(m_Data->materials.size() > 0);
 		return m_Data->materials.size() - 1;
 	default:
 		assert("Unknown state machine resource!");
@@ -504,6 +518,7 @@ ModObjAsynchLoader::ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName)
 {
 	m_strFileName = fileName;
 	m_pModel = pModel;
+	m_Data = m_pModel->GetModelData();
 }
 
 ModObjAsynchLoader::~ModObjAsynchLoader()
@@ -515,14 +530,13 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 {
 	if (!m_pFileData)
 	{
-		// TODO: добавить материалы по умолчанию
-		m_pFileData = Application::GetFileSystem()->LoadFile(m_strFileName);
-		m_FileOffset = 0;
+		InitializeLoader();
 	}
 
 	// TODO: check for end symbol
 	if (m_FileOffset >= m_pFileData->Length())
 	{
+		m_Data->flags |= FL_DATA_LOADED;
 		return new BuildDrawMeshTask(m_Data, m_pModel);
 	}
 		
@@ -531,6 +545,8 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 	// Unicode encoding be like - "I am a joke to you?"
 	char* p = ((char*)m_pFileData->Data()) + m_FileOffset;
 
+	
+
 	while (*p)
 	{
 		if (*p == '\n')
@@ -538,7 +554,13 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 			if (buffer.size() > 0)
 			{
 				ParseCommand(buffer);
-				return new ITaskStepResult(TaskStepResultType::StepPerformed); 
+				m_nPerformedSteps = m_FileOffset;
+
+				if (m_FileOffset - m_lastReportedOffset > m_ReportRate)
+				{
+					m_lastReportedOffset = m_FileOffset;
+					return new MeshLoadingProgressStep(m_nPerformedSteps, m_nTotalSteps);
+				}
 			}
 
 			buffer = "";
@@ -554,10 +576,58 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 	if (buffer.size() > 0)
 	{
 		ParseCommand(buffer);
-		return new ITaskStepResult(TaskStepResultType::StepPerformed);
+		m_nPerformedSteps = m_FileOffset;
+		
+		if (m_FileOffset - m_lastReportedOffset > m_ReportRate)
+		{
+			m_lastReportedOffset = m_FileOffset;
+			return new MeshLoadingProgressStep(m_nPerformedSteps, m_nTotalSteps);
+		}
 	}
 
-	return nullptr;
+	return new MeshLoadingProgressStep(m_nPerformedSteps, m_nTotalSteps);
+}
+
+void ModObjAsynchLoader::InitializeLoader()
+{
+	m_strDescription = std::format("Loading \"{0}\"", m_strFileName);
+
+	m_pFileData = Application::GetFileSystem()->LoadFile(m_strFileName);
+	m_FileOffset = 0;
+
+	m_nPerformedSteps = 0;
+	m_nTotalSteps = m_pFileData->Length();
+
+	// add default mesh
+
+	mobjmesh_t mesh = {0};
+	m_Data->meshes.push_back(mesh);
+
+	// add default material
+
+	mobjmaterial_t* mat = new mobjmaterial_t;
+	mat->name = "<no material>";
+	m_Data->materials.push_back(mat);
+
+	// add default object
+
+	mobjobjects_t obj;
+	strncpy_s(obj.name, "<default object>", sizeof(obj.name) - 1);
+	m_Data->objects.push_back(obj);
+
+	// add default group
+
+	mobjegroup_t grp;
+	strncpy_s(grp.name, "<ungrouped>", sizeof(grp.name) - 1);
+
+	grp.object_id = CurrentResource(StateMachineResource::Object);
+	grp.first_face = m_Data->faces.size();
+
+	m_Data->groups.push_back(grp);
+
+	// Расчитываем интервал отчета о прогрессе таким образом, чтобы не спамить в основной поток
+	// и сделать только 100 отчетов за время загрузки
+	m_ReportRate = m_pFileData->Length() / 100;
 }
 
 void ModObjAsynchLoader::OnCompletion()
@@ -573,5 +643,19 @@ ModObjAsynchLoader::BuildDrawMeshTask::BuildDrawMeshTask(mobjdata_t* data, Model
 
 void ModObjAsynchLoader::BuildDrawMeshTask::ExecuteOnCompletion()
 {
-	// Build draw mesh
+	m_pModel->BuildDrawMesh();
+	
+}
+
+ModObjAsynchLoader::MeshLoadingProgressStep::MeshLoadingProgressStep(size_t progress, size_t totalSteps): ITaskStepResult(TaskStepResultType::StepPerformed)
+{
+	m_nProgress = progress;
+	m_nTotalSteps = totalSteps;
+
+	m_strElementDescription = std::format("{0} of {1} bytes parsed", m_nProgress, m_nTotalSteps);
+}
+
+ModObjAsynchLoader::MeshLoadingProgressStep::~MeshLoadingProgressStep()
+{
+
 }

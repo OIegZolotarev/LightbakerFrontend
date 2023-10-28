@@ -59,7 +59,7 @@ class ITaskStepResult
 protected: 
 	TaskStepResultType m_StepResult = TaskStepResultType::None;
 
-	std::string m_strDescription = "";
+	
 	std::string m_strElementDescription = "";
 
 public:
@@ -68,9 +68,8 @@ public:
 	TaskStepResultType GetType() { return m_StepResult; }
 
 	virtual void ExecuteOnCompletion() {};
-
-	std::string& TaskDescription();
-	std::string& ElementDescription();
+		
+	std::string& Description();
 
 	virtual bool NeedEndCallback() { return false; }
 };
@@ -79,10 +78,12 @@ class ITask
 {
 protected:
 	TaskStepResultType m_TaskResult = TaskStepResultType::None;
-
 	
 	size_t	m_nTotalSteps = 0;
 	size_t	m_nPerformedSteps = 0;
+
+	std::string m_strDescription;
+
 public:
 	
 	// Выполнить шаг задачи
@@ -93,6 +94,7 @@ public:
 
 	size_t TotalSteps() { return m_nTotalSteps; }
 	size_t PerformedSteps() { return m_nPerformedSteps; }
+	std::string& Description() { return m_strDescription; }
 };
 
 //class LoaderTask: public ITask

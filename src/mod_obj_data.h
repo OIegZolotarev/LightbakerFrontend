@@ -13,7 +13,7 @@ typedef struct mobjface_s
 	unsigned int uv;
 	unsigned int norm;
 
-	unsigned int mesh_id;
+	unsigned int materialId;
 	unsigned int group_id;
 }mobjface_t;
 
