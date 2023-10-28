@@ -16,8 +16,9 @@
 
 MaterialTemplateLibrary::MaterialTemplateLibrary(FileData* sourceFile)
 {
-	m_FileName = sourceFile->Name();
-	m_Directory = Application::GetFileSystem()->BaseDirectoryFromFileName(m_FileName.c_str());
+	auto fs = Application::GetFileSystem();
+	m_FileName = fs->BaseName(sourceFile->Name()) + ".mtl";
+	m_Directory = fs->BaseDirectoryFromFileName(sourceFile->Name().c_str());
 
 	ParseFileData(sourceFile);
 }
@@ -131,6 +132,11 @@ size_t MaterialTemplateLibrary::MaterialsCount()
 void MaterialTemplateLibrary::ExportToFile(const char* fileName)
 {
 
+}
+
+std::string& MaterialTemplateLibrary::ExportName()
+{
+	return m_FileName;
 }
 
 mobjmaterial_t* MaterialTemplateLibrary::AddNewMaterial(std::string& name)

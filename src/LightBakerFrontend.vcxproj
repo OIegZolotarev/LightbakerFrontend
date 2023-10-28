@@ -234,6 +234,7 @@
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="bsp_goldsource_disc.h" />
     <ClInclude Include="edit_history.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />

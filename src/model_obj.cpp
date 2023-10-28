@@ -15,6 +15,7 @@
 #include <algorithm>
 #include "text_utils.h"
 #include "mod_obj_asynch_loader.h"
+#include "mod_obj_asynch_exporter.h"
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
@@ -386,9 +387,20 @@ void ModelOBJ::RenderUnshaded()
 	//throw std::logic_error("The method or operation is not implemented.");
 }
 
-mobjdata_t* ModelOBJ::GetModelData()
+mobjdata_t* ModelOBJ::GetModelData() 
 {
 	return &m_ModelData;
+}
+
+void ModelOBJ::AddLightsIntoScene()
+{
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	
+
+	for (auto def : m_ModelData.lightDefs)
+	{
+		sceneRenderer->AddLightToSceneWithSerialNumber(def, def.serial_number);
+	}
 }
 
 void ModelOBJ::ReloadTextures()
@@ -415,8 +427,8 @@ void ModelOBJ::ReloadTextures()
 			{
 				it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
 
-				if (it.lightmap_texture[i]->width == -1)
-					it.lightmap_texture[i] = LoadGLTexture(WHITE_PNG);
+// 				if (it.lightmap_texture[i]->width == -1)
+// 					it.lightmap_texture[i] = LoadGLTexture(WHITE_PNG);
 			}
 		}
 			
@@ -425,6 +437,10 @@ void ModelOBJ::ReloadTextures()
 
 void ModelOBJ::Export(const char* fileName)
 {
+	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(this, fileName);
+	exporter->ExportSynch();
+	delete exporter;
+
 // 	return;
 // 
 // 	FILE* fp = nullptr;

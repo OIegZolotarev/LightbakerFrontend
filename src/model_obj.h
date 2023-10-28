@@ -51,6 +51,7 @@ public:
 	void RenderUnshaded() override;
 
 	mobjdata_t* GetModelData();
+	void AddLightsIntoScene();
 private:
 	mobjdata_t m_ModelData;
 

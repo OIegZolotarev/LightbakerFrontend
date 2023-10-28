@@ -153,7 +153,7 @@ void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
 
 	pData->UnRef();
 
-	SDL_Delay(100);
+	//SDL_Delay(100);
 
 	return pixels;
 }

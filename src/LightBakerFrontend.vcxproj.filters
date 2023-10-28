@@ -39,6 +39,9 @@
     <Filter Include="Исходные файлы\Scene">
       <UniqueIdentifier>{adcc5464-c1fc-4357-a8d2-dc3ffc6c89ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\GoldSourceBSP">
+      <UniqueIdentifier>{413183a5-2846-4863-88f0-7adb8e143a39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -382,6 +385,9 @@
     </ClInclude>
     <ClInclude Include="mod_obj_asynch_exporter.h">
       <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_goldsource_disc.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

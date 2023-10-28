@@ -130,9 +130,7 @@ void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 	else
 	{
 		// TODO: fixme
-// 		auto s = GetModelFileName();
-// 		const char* n = s.c_str();
-// 		fd = Application::GetFileSystem()->LoadFile(n);
+		m_pSceneModel->ReloadTextures();
 	}
 
 	if (!fd)

@@ -73,6 +73,8 @@ public:
 
 	void			ExportToFile(const char* fileName);
 
+	std::string& ExportName();
+
 private:
 	mobjmaterial_t* AddNewMaterial(std::string& name);
 	std::string m_Directory;

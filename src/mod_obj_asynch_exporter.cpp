@@ -3,6 +3,8 @@
 	(c) 2023 CrazyRussian
 */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "application.h"
 #include "mod_obj_asynch_exporter.h"
 
@@ -173,14 +175,31 @@ void ModObjAsynchExporter::ExportFaces() const
 
 	fprintf(m_pFPOut, "\n# %d faces start\n", facesCount);
 
-	size_t lastGroup = 0;
+	
+
+	size_t materialId = 0;
+	size_t groupId = 0;
+	size_t objectId = 0;
 
 	for (size_t i = 0; i < facesElements; i += 3)
 	{
-		if (m_pData->faces[i].group_id != lastGroup)
+		if (m_pData->faces[i].objectId != objectId)
 		{
-			lastGroup = m_pData->faces[i].group_id;
-			fprintf(m_pFPOut, "g %s\n", m_pData->groups[lastGroup - 1].name);
+			objectId = m_pData->faces[i].objectId;
+			fprintf(m_pFPOut, "o %s\n", m_pData->objects[objectId].name);
+		}
+
+
+		if (m_pData->faces[i].groupId != groupId)
+		{
+			groupId = m_pData->faces[i].groupId;
+			fprintf(m_pFPOut, "g %s\n", m_pData->groups[groupId].name);
+		}
+
+		if (m_pData->faces[i].materialId != materialId)
+		{
+			materialId = m_pData->faces[i].materialId;
+			fprintf(m_pFPOut, "usemtl %s\n", m_pData->materials[materialId]->name.c_str());
 		}
 
 		fprintf(m_pFPOut, "f ");
@@ -212,24 +231,45 @@ void ModObjAsynchExporter::ExportFaces() const
 	fprintf(m_pFPOut, "\n# %d faces end", facesCount);
 }
 
-ModObjAsynchExporter::ModObjAsynchExporter(const ModelOBJ* pModel, const char* fileName)
+void ModObjAsynchExporter::ExportMtlLibs() const
+{
+	for (auto lib : m_pData->materialLibs)
+	{
+		fprintf(m_pFPOut, "mtllib %s\n", lib->ExportName().c_str());
+	}
+}
+
+ModObjAsynchExporter::ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName)
 {
 	m_pModel = pModel;
-	
+	m_pData = m_pModel->GetModelData();
+
+	m_pFPOut = fopen(fileName, "wt");	
 }
 
 ModObjAsynchExporter::~ModObjAsynchExporter()
 {
-
+	fclose(m_pFPOut);
 }
 
 ITaskStepResult* ModObjAsynchExporter::ExecuteStep(LoaderThread* loaderThread)
 {
-	//throw std::logic_error("The method or operation is not implemented.");
+	ExportMtlLibs();
+	ExportLightDefs();
+	ExportVerticles();
+	ExportNormals();
+	ExportUV();
+	ExportFaces();
+
 	return nullptr;
 }
 
 void ModObjAsynchExporter::OnCompletion()
 {
 	//throw std::logic_error("The method or operation is not implemented.");
+}
+
+void ModObjAsynchExporter::ExportSynch()
+{
+	ExecuteStep(nullptr);
 }

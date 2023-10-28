@@ -14,7 +14,8 @@ typedef struct mobjface_s
 	unsigned int norm;
 
 	unsigned int materialId;
-	unsigned int group_id;
+	unsigned int groupId;
+	unsigned int objectId;
 }mobjface_t;
 
 typedef struct mobjmesh_s

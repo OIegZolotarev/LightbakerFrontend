@@ -278,6 +278,7 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 	
 	size_t groupId = CurrentResource(StateMachineResource::Group);
 	size_t materialId = CurrentResource(StateMachineResource::Material);
+	size_t objectId = CurrentResource(StateMachineResource::Object);
 	
 	bool hasUV = m_Data->flags & FL_HAS_UV;
 	bool hasNorm = m_Data->flags & FL_HAS_NORMALS;
@@ -316,7 +317,8 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 		}
 
 		face.materialId = materialId;
-		face.group_id = groupId;
+		face.groupId = groupId;
+		face.objectId = objectId;
 
 		parsed.push_back(face);
 	};
@@ -601,7 +603,25 @@ void ModObjAsynchLoader::InitializeLoader()
 	// add default mesh
 
 	mobjmesh_t mesh = {0};
+
+	auto fs = Application::GetFileSystem();
+	auto baseName = fs->BaseName(m_strFileName);
+	auto baseDir = fs->BaseDirectoryFromFileName(m_strFileName.c_str());
+
+	AsynchTextureLoadTask* loaderTask = new AsynchTextureLoadTask("Existing lightmaps");
+
+	mesh.diffuse_texture_path = std::format("{0}/{1}.png", baseDir, baseName);
+	mesh.diffuse_texture = loaderTask->ScheduleTexture(mesh.diffuse_texture_path.c_str());
+
+	for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+	{
+		mesh.lightmap_texture_path[i] = std::format("{0}/{1}_lightmap_{2}.png", baseDir, baseName, i);
+		mesh.lightmap_texture[i] = loaderTask->ScheduleTexture(mesh.lightmap_texture_path[i].c_str());
+	}
+
 	m_Data->meshes.push_back(mesh);
+	
+	loaderTask->Schedule();
 
 	// add default material
 
@@ -644,6 +664,7 @@ ModObjAsynchLoader::BuildDrawMeshTask::BuildDrawMeshTask(mobjdata_t* data, Model
 void ModObjAsynchLoader::BuildDrawMeshTask::ExecuteOnCompletion()
 {
 	m_pModel->BuildDrawMesh();
+	m_pModel->AddLightsIntoScene();
 	
 }
 

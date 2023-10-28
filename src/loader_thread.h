@@ -95,6 +95,8 @@ public:
 	size_t TotalSteps() { return m_nTotalSteps; }
 	size_t PerformedSteps() { return m_nPerformedSteps; }
 	std::string& Description() { return m_strDescription; }
+
+	void Schedule();
 };
 
 //class LoaderTask: public ITask

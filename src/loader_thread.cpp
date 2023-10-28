@@ -25,30 +25,33 @@ int loaderThreadFunction(void* data)
 			continue;
 		}
 
-		auto task = info->tasks.front();		
+		auto task = info->tasks.front();
 		auto stepResult = task->ExecuteStep(info->loaderThread);
-		
-		switch (stepResult->GetType())
-		{
-		case TaskStepResultType::FinishedSuccesfully:
-			info->tasks.pop();			
-			delete task;
-			break;
-		case TaskStepResultType::FinishedWithFailure:
-			info->tasks.pop();			
-			delete task;
-			break;
-		case TaskStepResultType::StepPerformed:
-			updateInfo(task, stepResult);			
-			break;
-		default:
-			break;
-		}
 
-		if (stepResult->NeedEndCallback())
-			info->loaderThread->ScheduleEndCallback(stepResult);
-		else
-			delete stepResult;
+		if (stepResult)
+		{
+			switch (stepResult->GetType())
+			{
+			case TaskStepResultType::FinishedSuccesfully:
+				info->tasks.pop();
+				delete task;
+				break;
+			case TaskStepResultType::FinishedWithFailure:
+				info->tasks.pop();
+				delete task;
+				break;
+			case TaskStepResultType::StepPerformed:
+				updateInfo(task, stepResult);
+				break;
+			default:
+				break;
+			}
+
+			if (stepResult->NeedEndCallback())
+				info->loaderThread->ScheduleEndCallback(stepResult);
+			else
+				delete stepResult;
+		}
 
 		info->remainingTasks = info->tasks.size();
 
@@ -104,7 +107,7 @@ void LoaderThread::Stop()
 void LoaderThread::ScheduleTask(ITask * pTask)
 {
 	int bestThread = 0;
-	int minTasks = 9999999;
+	size_t minTasks = 99999999;
 
 	for (int i = 0; i < NUM_THREADS; i++)
 	{
@@ -212,3 +215,8 @@ std::string& ITaskStepResult::Description()
 //	if (m_fEndRoutine)
 //		m_fEndRoutine(this, m_TaskResult);
 //}
+
+void ITask::Schedule()
+{
+	LoaderThread::Instance()->ScheduleTask(this);
+}

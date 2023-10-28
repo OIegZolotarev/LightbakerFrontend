@@ -10,8 +10,8 @@
 
 class ModObjAsynchExporter : public ITask
 {
-	const mobjdata_t* m_pData = nullptr;
-	const ModelOBJ* m_pModel = nullptr;
+	mobjdata_t* m_pData = nullptr;
+	ModelOBJ* m_pModel = nullptr;
 
 	std::string m_strFileName;
 
@@ -22,14 +22,16 @@ class ModObjAsynchExporter : public ITask
 	void ExportNormals() const;
 	void ExportUV() const;
 	void ExportFaces() const;
+	void ExportMtlLibs() const;
 
 
 public:
-	ModObjAsynchExporter(const ModelOBJ* pModel, const char* fileName);
+	ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName);
 	~ModObjAsynchExporter();
 
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 	void OnCompletion() override;
 
+	void ExportSynch();
 };
 
