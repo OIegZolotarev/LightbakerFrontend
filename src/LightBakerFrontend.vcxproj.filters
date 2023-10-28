@@ -386,7 +386,7 @@
     <ClInclude Include="mod_obj_asynch_exporter.h">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClInclude>
-    <ClInclude Include="bsp_goldsource_disc.h">
+    <ClInclude Include="bsp_goldsource_file.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
   </ItemGroup>

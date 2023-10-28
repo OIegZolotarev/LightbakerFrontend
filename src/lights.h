@@ -7,6 +7,7 @@
 #include "gl_texture.h"
 #include "object_props.h"
 #include "selection_3d.h"
+#include "scene_entity.h"
 
 // Light flags from LB3k app
 
@@ -25,7 +26,7 @@ enum class LightTypes
 };
 
 // TODO: нужно ли оставить привязки свойств или же сделать этот объект провайдером свойств?
-typedef class lightDef_s : public ISelectableObject
+typedef class lightDef_s : public SceneEntity
 {
 public:
 	void UpdateEditorIcon();
@@ -33,8 +34,7 @@ public:
 	LightTypes	type = LightTypes::Omni;
 	int			flags = 0;
 
-	glm::vec3	pos;
-	glm::vec3	color;
+	
 
 	float		intensity = 1;
 
@@ -44,7 +44,7 @@ public:
 
 	int			style = 0;
 
-	gltexture_s* editor_icon;
+	
 
 
 	void OnHovered() override;
@@ -56,7 +56,7 @@ public:
 
 	void OnUnSelect() override;
 
-	const char* Description();
+	const char* Description() override;
 
 	int serial_number = 0;
 

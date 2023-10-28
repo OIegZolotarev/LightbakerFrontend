@@ -91,7 +91,7 @@ void LightPropertiesBinding::MakeLightIntensityProperty(propsData_t& p, std::sha
 void LightPropertiesBinding::MakeLightColorProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
 {
 	p = propsData_s(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
-	p.value.asColorRGB = ptr->color;
+	p.value.asColorRGB = ptr->GetColor();
 }
 
 void LightPropertiesBinding::MakeLightAnglesProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
@@ -103,7 +103,7 @@ void LightPropertiesBinding::MakeLightAnglesProperty(propsData_t& p, std::shared
 void LightPropertiesBinding::MakeLightPosProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
 {
 	p = propsData_s(LightProperties::Pos, PropertiesTypes::Position, "Pos");
-	p.value.asPosition = ptr->pos;
+	p.value.asPosition = ptr->GetPosition();
 }
 
 void LightPropertiesBinding::MakeLightFlagsProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
@@ -134,7 +134,7 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 	if (!ptr)
 		return;
 
-	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 
 	for (size_t i = 0; i < num; i++)
 	{
@@ -155,11 +155,11 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 			break;
 		case LightProperties::Pos:
 			MakeLightPosProperty(oldValue, ptr);
-			ptr->pos = it.GetPosition();
+			ptr->SetPosition(it.GetPosition());
 			break;
 		case LightProperties::Color:
 			MakeLightColorProperty(oldValue, ptr);
-			ptr->color = it.GetColorRGB();
+			ptr->SetColor(it.GetColorRGB());
 			break;
 		case LightProperties::Intensity:
 			MakeLightIntensityProperty(oldValue, ptr);
@@ -235,13 +235,13 @@ void lightDef_s::UpdateEditorIcon()
 	switch (type)
 	{
 	case LightTypes::Omni:
-		editor_icon = GetCommonIcon(CommonIcons::OmniLight);
+		SetEditorIcon(GetCommonIcon(CommonIcons::OmniLight));
 		break;
 	case LightTypes::Spot:
-		editor_icon = GetCommonIcon(CommonIcons::SpotLight);
+		SetEditorIcon(GetCommonIcon(CommonIcons::SpotLight));
 		break;
 	case LightTypes::Direct:
-		editor_icon = GetCommonIcon(CommonIcons::DirectLight);
+		SetEditorIcon(GetCommonIcon(CommonIcons::DirectLight));
 		break;
 	default:
 		break;
@@ -266,18 +266,21 @@ void lightDef_s::OnUnhovered()
 
 void lightDef_s::RenderForSelection(int objectId,SceneRenderer * pRenderer)
 {	
-	pRenderer->DrawBillboardSelection(pos, glm::vec2(4, 4), editor_icon, objectId);
+	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(4, 4), GetEditorIcon(), objectId);
 }
 
 void lightDef_s::OnSelect()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRenderer->GetScene();
 
-	auto weakRef = sceneRenderer->GetLightWeakRef(this);
+	auto weakRef = scene->GetEntityWeakRef(this);
+	scene->HintSelected(weakRef);
 
-	sceneRenderer->HintSelected(weakRef);
+	auto ptr = weakRef.lock();
+	auto lightWeakRef = std::dynamic_pointer_cast<lightDef_s>(ptr);
 
-	LightPropertiesBinding* pBinding = new LightPropertiesBinding(weakRef);
+	LightPropertiesBinding* pBinding = new LightPropertiesBinding(lightWeakRef);
 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
 
 	

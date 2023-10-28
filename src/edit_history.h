@@ -5,7 +5,7 @@
 
 #pragma once
 #include "object_props.h"
-#include "lights.h"
+#include "scene_entity.h"
 
 class IEditAction
 {
@@ -33,9 +33,9 @@ public:
 
 class CDeleteLightAction : public IEditAction
 {
-	lightDef_t m_Light;
+	SceneEntityPtr m_Object;
 public:
-	CDeleteLightAction(lightDef_t * pLight);
+	CDeleteLightAction(SceneEntityPtr pObject);
 
 	void Redo() override;
 	void Undo() override;

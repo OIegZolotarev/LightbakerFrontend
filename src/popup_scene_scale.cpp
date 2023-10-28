@@ -21,6 +21,7 @@ void SceneScaleDialog::Render()
 {
 	static const char* key = "Scene scale";	
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRenderer->GetScene();
 	
 	if (m_bVisible)
 	{		
@@ -32,10 +33,10 @@ void SceneScaleDialog::Render()
 	
 	if (ImGui::InputFloat("Scale", &m_flScale, .1f, 1.f))
 	{
-		sceneRenderer->SetSceneScale(m_flScale);
+		scene->SetScale(m_flScale);
 
-		if (sceneRenderer->GetSceneScale() < 0)
-			sceneRenderer->SetSceneScale(0.1f);
+		if (scene->GetSceneScale() < 0)
+			scene->SetScale(0.1f);
 
 
 	}
@@ -44,15 +45,15 @@ void SceneScaleDialog::Render()
 	{
 		m_bVisible = false;		
 		
-		sceneRenderer->SetSceneScale(m_flScale);
-		sceneRenderer->RescaleLightPositions(m_flScaleOriginal, m_flScale);
+		scene->SetScale(m_flScale);
+		scene->RescaleLightPositions(m_flScaleOriginal, m_flScale);
 	}
 
 	ImGui::SameLine();
 
 	if (ImGui::Button("Cancel"))
 	{		
-		sceneRenderer->SetSceneScale(m_flScaleOriginal);
+		scene->SetScale(m_flScaleOriginal);
 		m_bVisible = false;
 	}
 
@@ -62,6 +63,8 @@ void SceneScaleDialog::Render()
 void SceneScaleDialog::OnOpen()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	m_flScale = sceneRenderer->GetSceneScale();
+	auto scene = sceneRenderer->GetScene();
+
+	m_flScale = scene->GetSceneScale();
 	m_flScaleOriginal = m_flScale;
 }

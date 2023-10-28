@@ -13,6 +13,7 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 	if (ImGui::Begin(m_strPanelTitle))
 	{
 		auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
+		auto scene = sceneRenderer->GetScene();
 
 		if (ImGui::Button("Add"))
 		{
@@ -23,12 +24,12 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 
 		if (ImGui::Button("Delete"))
 		{
-			sceneRenderer->DoDeleteSelection();			
+			scene->DoDeleteSelection();
 		}
 
 		if (ImGui::TreeNode("root"))
 		{
-			auto& sceneObjects = sceneRenderer->GetSceneObjects();
+			auto& sceneObjects = scene->GetSceneObjects();
 
 			if (ImGui::TreeNode("Lights"))
 			{
@@ -36,11 +37,11 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 				{
 					ImGui::PushID((void*)it.get());
 
-					auto col = ImVec4(it->color[0], it->color[1], it->color[2], 1);
+					auto col = it->GetColor();
 
 					//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
 
-					ImGui::ColorEdit4("ColorPreview", (float*)&col, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip  |ImGuiColorEditFlags_NoPicker  | ImGuiColorEditFlags_NoLabel);
+					ImGui::ColorEdit3("ColorPreview", (float*)&col, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip  |ImGuiColorEditFlags_NoPicker  | ImGuiColorEditFlags_NoLabel);
 					ImGui::SameLine();
 
 					if (ImGui::Selectable(it->Description(), it->IsSelected()))

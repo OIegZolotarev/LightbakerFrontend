@@ -21,12 +21,15 @@ CPropertyChangeAction::CPropertyChangeAction(int serialNumber, propsData_t oldVa
 void CPropertyChangeAction::Redo()
 {
 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRender->GetScene();
 
-	lightDefWPtr_t pLight = sceneRender->GetLightBySerialNumber(m_SerialNumber);
+	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
 
 	if (auto ptr = pLight.lock())
 	{
-		auto b = new LightPropertiesBinding(ptr);
+		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<lightDef_s>(ptr);
+
+		auto b = new LightPropertiesBinding(lightPtr);
 		b->UpdateObjectProperties(&m_NewValue, 1);
 		delete b;
 
@@ -40,12 +43,15 @@ void CPropertyChangeAction::Redo()
 void CPropertyChangeAction::Undo()
 {
 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRender->GetScene();
 
-	lightDefWPtr_t pLight = sceneRender->GetLightBySerialNumber(m_SerialNumber);
+	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
 
 	if (auto ptr = pLight.lock())
 	{
-		auto b = new LightPropertiesBinding(ptr);
+		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<lightDef_s>(ptr);
+
+		auto b = new LightPropertiesBinding(lightPtr);
 		b->UpdateObjectProperties(&m_OldValue, 1);
 		delete b;
 
@@ -124,19 +130,20 @@ void CEditHistory::Redo()
 	Application::ScheduleCompilationIfNecceseary();
 }
 
-CDeleteLightAction::CDeleteLightAction(lightDef_t* pLight)
+CDeleteLightAction::CDeleteLightAction(SceneEntityPtr pObject)
 {
-	m_Light = *pLight;
-
-	m_Light.SetSelected(false);
+	m_Object = pObject;
+	m_Object->SetSelected(false);
 }
 
 void CDeleteLightAction::Redo()
 {
-	Application::GetMainWindow()->GetSceneRenderer()->DeleteLightWithSerialNumber(m_Light.serial_number);
+	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+	scene->DeleteEntityWithSerialNumber(m_Object->GetSerialNumber());
 }
 
 void CDeleteLightAction::Undo()
 {
-	Application::GetMainWindow()->GetSceneRenderer()->AddLightToSceneWithSerialNumber(m_Light, m_Light.serial_number);
+	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+	scene->AddEntityWithSerialNumber(m_Object, m_Object->GetSerialNumber());
 }

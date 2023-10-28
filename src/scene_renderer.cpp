@@ -6,6 +6,7 @@
 #include "common.h"
 #include "camera.h"
 #include "scene_renderer.h"
+#include "scene.h"
 #include "application.h"
 #include "common_resources.h"
 #include "selection_3d.h"
@@ -17,6 +18,7 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
+	m_pScene = new Scene;
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
@@ -24,22 +26,14 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 
 	m_pDirectionModel = new ModelOBJ("res/mesh/arrow.obj");
 	m_pDirectionArrow = m_pDirectionModel->GetDrawMesh();
-	
-	m_pEditHistory = new CEditHistory;
 }
 
 SceneRenderer::~SceneRenderer()
 {
-	FreeVector(m_vecSceneLightDefs);
-
 	delete m_pCamera;
+	delete m_pScene;
+	delete m_pUnitBoundingBox;
 	
-	
-
-	if (m_pUnitBoundingBox) delete m_pUnitBoundingBox;
-
-	delete m_pEditHistory;
-
 	delete m_pDirectionModel; m_pDirectionModel = 0;
 	m_pDirectionArrow = 0;
 }
@@ -53,20 +47,11 @@ void SceneRenderer::RenderScene()
 
 	if (DEBUG_3D_SELECTION)
 	{
-		if (m_pSceneModel)
-		{
-			selectionManager->PushObject(m_pSceneModel);
-		}
-
-		for (auto& it : m_vecSceneLightDefs)
-		{
-
-			selectionManager->PushObject(it);
-		}
-
+		m_pScene->RenderObjectsFor3DSelection();
 		return;
 	}
-	
+
+	// Render visible stuff
 
 	auto pers = Application::Instance()->GetPersistentStorage();
 	auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
@@ -74,27 +59,30 @@ void SceneRenderer::RenderScene()
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
 	
-	if (m_pSceneModel && m_pSceneModel->IsDataLoaded())
-	{
-		m_pSceneModel->RenderLightshaded();
-		selectionManager->PushObject(m_pSceneModel);
-	}
+	if (m_pScene)
+		m_pScene->RenderLightShaded();
+
+	RenderHelperGeometry(selectionManager);
+}
+
+void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
+{
+	SceneRenderer* sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
 
-	lightDefWPtr_t selection;
+	SceneEntityWeakPtr selection;
 
-	for (auto& it : m_vecSceneLightDefs)
+	for (auto& it : m_pScene->GetLightDefs())
 	{
-		DrawBillboard(it->pos, glm::vec2(4, 4), it->editor_icon, it->color);		
+		sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(4, 4), it->GetEditorIcon(), it->GetColor());
 		selectionManager->PushObject(it);
 
 		if (it->IsSelected())
 		{
 			selection = it;
-			
 		}
 	}
 	if (selection.lock())
@@ -102,7 +90,6 @@ void SceneRenderer::RenderScene()
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
-	
 }
 
 int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event& e)
@@ -117,64 +104,34 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
 {
-	
+// 	if (dropped_filedir)
+// 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
+// 
+// 	
+// 	FileData* fd = nullptr;
+// 
+// 	if (dropped_filedir)	
+// 		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
+// 	else
+// 	{
+// 		// TODO: fixme
+// 		m_pSceneModel->ReloadTextures();
+// 	}
+// 
+// 	if (!fd)
+// 	{
+// 		// PopupError()
+// 		// RemoveFromMRU()
+// 		return;
+// 	}
 
-	if (dropped_filedir)
-		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
-
-	
-	FileData* fd = nullptr;
-
-	if (dropped_filedir)	
-		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
-	else
-	{
-		// TODO: fixme
-		m_pSceneModel->ReloadTextures();
-	}
-
-	if (!fd)
-	{
-		// PopupError()
-		// RemoveFromMRU()
-		return;
-	}
-
-	m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
-	SetSceneScale(m_pSceneModel->GetSceneScale());
+	//m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
+	//SetSceneScale(m_pSceneModel->GetSceneScale());
 }
 
-void SceneRenderer::AddLightToSceneWithSerialNumber(lightDef_t& it, int sn)
-{
-	it.serial_number = sn;
-	m_vecSceneLightDefs.push_back(std::make_shared<lightDef_t>(it));
-}
 
-bool SceneRenderer::IsModelLoaded()
-{
-	if (!m_pSceneModel)
-		return false;
 
-	return m_pSceneModel->IsDataLoaded();
-}
-
-std::string SceneRenderer::GetModelFileName()
-{
-	if (!m_pSceneModel)
-		return "";
-
-	return m_pSceneModel->GetModelFileName();
-}
-
-std::string SceneRenderer::GetModelTextureName()
-{
-	if (!m_pSceneModel)
-		return "";
-
-	return m_pSceneModel->GetModelTextureName();
-}
-
-void SceneRenderer::DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, glm::vec3 tint)
+void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
 {
 	auto right = m_pCamera->GetRightVector();
 	auto up = m_pCamera->GetUpVector();
@@ -203,7 +160,7 @@ void SceneRenderer::DrawBillboard(glm::vec3 pos, glm::vec2 size, gltexture_t* te
 	glEnd();
 }
 
-void SceneRenderer::DrawBillboardSelection(glm::vec3 pos, glm::vec2 size, gltexture_t* texture, int index)
+void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index)
 {
 	auto right = m_pCamera->GetRightVector();
 	auto up = m_pCamera->GetUpVector();
@@ -232,39 +189,26 @@ void SceneRenderer::DrawBillboardSelection(glm::vec3 pos, glm::vec2 size, gltext
 	glEnd();
 }
 
-lightDefWPtr_t SceneRenderer::GetLightWeakRef(lightDef_s* param1)
-{
-	for (auto& it : m_vecSceneLightDefs)
-	{
-		if (it.get() == param1)
-			return lightDefWPtr_t(it);
-	}
-
-	return lightDefWPtr_t();
-}
-
 void SceneRenderer::ExportModelForCompiling(const char* path)
 {
-	if (!m_pSceneModel)
-		return;
-
-	m_pSceneModel->ClearLightDefinitions();
-	
-	for (auto& it : m_vecSceneLightDefs)
-	{
-		m_pSceneModel->AddLight(it);
-	}
-
-	auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
-
-	m_pSceneModel->SetLightmapDimensions(settings->m_lmSettings.size[0], settings->m_lmSettings.size[1]);
-
-	if (path)
-		m_pSceneModel->Export(path);
-	else
-		m_pSceneModel->Export(m_pSceneModel->GetModelFileName().c_str());
-
-
+// 	if (!m_pSceneModel)
+// 		return;
+// 
+// 	m_pSceneModel->ClearLightDefinitions();
+// 	
+// 	for (auto& it : m_vecSceneLightDefs)
+// 	{
+// 		m_pSceneModel->AddLight(it);
+// 	}
+// 
+// 	auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
+// 
+// 	m_pSceneModel->SetLightmapDimensions(settings->m_lmSettings.size[0], settings->m_lmSettings.size[1]);
+// 
+// 	if (path)
+// 		m_pSceneModel->Export(path);
+// 	else
+// 		m_pSceneModel->Export(m_pSceneModel->GetModelFileName().c_str());
 }
 
 Camera* SceneRenderer::GetCamera()
@@ -274,10 +218,11 @@ Camera* SceneRenderer::GetCamera()
 
 void SceneRenderer::ReloadModel()
 {
-	if (!m_pSceneModel)
-		return;
-
-	m_pSceneModel->ReloadTextures();
+//	m_pScene->Reload();
+// 	if (!m_pSceneModel)
+// 		return;
+// 
+// 	m_pSceneModel->ReloadTextures();
 }
 
 void SceneRenderer::Debug_DrawGround()
@@ -309,12 +254,14 @@ void SceneRenderer::Debug_DrawGround()
 	glEnable(GL_TEXTURE_2D);
 }
 
-void SceneRenderer::DrawLightHelperGeometry(lightDefWPtr_t pObject)
+void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 {
-	auto ptr = pObject.lock();
-	
-	if (!ptr)
+	auto _ptr = pObject.lock();
+		
+	if (!_ptr)
 		return;
+
+	lightDefPtr_t ptr = std::dynamic_pointer_cast<lightDef_t>(_ptr);
 
 	switch (ptr->type)
 	{
@@ -328,9 +275,9 @@ void SceneRenderer::DrawLightHelperGeometry(lightDefWPtr_t pObject)
 		shader->Bind();
 		shader->SetProjection(m_pCamera->GetProjectionMatrix());
 		shader->SetView(m_pCamera->GetViewMatrix());
-		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->color, 1));
+		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
 
-		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->pos);
+		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 		
 		shader->SetScale(1);
 		shader->SetConeHeight(ptr->intensity);
@@ -358,141 +305,14 @@ void SceneRenderer::DrawLightHelperGeometry(lightDefWPtr_t pObject)
 
 	}
 
-	
-
-// 
-// 	//m_pUnitBoundingBox->BindAndDraw();
-// 
-
-// 	
-// 	float f = sqrt(ptr->intensity);
-// 	shader->SetScale(f);
-// 
-// 	//m_pIntensitySphere->BindAndDraw();
-// 
-
 }
 
-int SceneRenderer::AllocSerialNumber()
+void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)
 {
-	return m_serialNubmerCounter++;
+	m_pCamera->LookAtPoint(it->GetPosition());
 }
 
-void SceneRenderer::FocusCameraOnObject(lightDefPtr_t& it)
+glm::vec3 SceneRenderer::GetNewLightPos()
 {
-	m_pCamera->LookAtPoint(it->pos);
-}
-
-lightDefWPtr_t SceneRenderer::GetLightBySerialNumber(int serialNumber)
-{
-	for (auto& it : m_vecSceneLightDefs)
-	{
-		if (it->serial_number == serialNumber)
-			return lightDefWPtr_t(it);
-	}
-
-	return lightDefWPtr_t();
-}
-
-void SceneRenderer::DeleteLightWithSerialNumber(int serialNumber)
-{
-	auto lightPtr = GetLightBySerialNumber(serialNumber);
-	DeleteLight(lightPtr);
-}
-
-float SceneRenderer::GetSceneScale()
-{
-	return m_flSceneScale;
-}
-
-void SceneRenderer::SetSceneScale(float f)
-{
-	m_flSceneScale = f;
-}
-
-void SceneRenderer::RescaleLightPositions(float m_flScaleOriginal, float m_flScale)
-{
-	for (auto& it : m_vecSceneLightDefs)
-	{
-		it->pos /= m_flScaleOriginal;
-		it->pos *= m_flScale;
-	}
-
-	ObjectPropertiesEditor::Instance()->UnloadObject();
-
-	// Not really necessary
-	//Application::ScheduleCompilationIfNecceseary();
-}
-
-void SceneRenderer::AddNewLight(LightTypes type)
-{
-	lightDef_s* newLight = new lightDef_s;
-	
-
-	newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
-	newLight->type = type;
-	newLight->UpdateEditorIcon();
-	newLight->intensity = 10;
-
-	float hue = (float)rand() / 32768.f;
-
-	ImGui::ColorConvertHSVtoRGB(hue, 1, 1,
-		newLight->color.x,
-		newLight->color.y,
-		newLight->color.z);
-
-	newLight->serial_number = AllocSerialNumber();
-
-	m_vecSceneLightDefs.push_back(lightDefPtr_t(newLight));
-	newLight->InvokeSelect();
-}
-
-std::vector<lightDefPtr_t>& SceneRenderer::GetSceneObjects()
-{
-	return m_vecSceneLightDefs;
-}
-
-void SceneRenderer::HintSelected(lightDefWPtr_t weakRef)
-{
-	m_pCurrentSelection = weakRef;
-}
-
-lightDefWPtr_t SceneRenderer::GetSelection()
-{
-	return m_pCurrentSelection;	
-}
-
-void SceneRenderer::DeleteLight(lightDefWPtr_t l)
-{
-	auto ptr = l.lock();
-
-	if (!ptr)
-		return;
-
-	auto pos = std::remove_if(m_vecSceneLightDefs.begin(), m_vecSceneLightDefs.end(), [&](lightDefPtr_t& it)
-		{
-			return it == ptr;
-		});
-		
-
-	m_vecSceneLightDefs.erase(pos);
-}
-
-void SceneRenderer::DoDeleteSelection()
-{	
-	auto sel = GetSelection();
-	auto ptr = sel.lock();
-
-	if (!ptr)
-		return;
-
-	m_pEditHistory->PushAction(new CDeleteLightAction(ptr.get()));
-
-	DeleteLight(sel);
-	Application::ScheduleCompilationIfNecceseary();
-}
-
-CEditHistory* SceneRenderer::GetEditHistory() const
-{
-	return m_pEditHistory;
+	return m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
 }

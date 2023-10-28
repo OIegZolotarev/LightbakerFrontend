@@ -317,19 +317,22 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonIcons::DirectLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-			m_pSceneRenderer->AddNewLight(LightTypes::Direct);
+			glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
+			m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Direct);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddOmniLight, "+Omni", 0, GetCommonIcon(CommonIcons::OmniLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-			m_pSceneRenderer->AddNewLight(LightTypes::Omni);
+			glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
+			m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Omni);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::AddSpotLight, "+Spot", 0, GetCommonIcon(CommonIcons::SpotLight), CMD_ON_MAINTOOLBAR,
 		[&]()
 		{
-			m_pSceneRenderer->AddNewLight(LightTypes::Spot);
+			glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
+			m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Spot);
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Bake, "Bake", 0, GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR,
@@ -353,7 +356,7 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DeleteSelection, "Delete", "Delete", 0, 0,
 		[&]()
 		{
-			m_pSceneRenderer->DoDeleteSelection();
+			m_pSceneRenderer->GetScene()->DoDeleteSelection();
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ResetLayout,"Reset layout", 0, 0, 0,
@@ -371,13 +374,13 @@ void MainWindow::InitCommands()
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Undo, "Undo", "Left Ctrl-Z", 0, 0,
 		[&]()
 		{
-			GetSceneRenderer()->GetEditHistory()->Undo();
+			GetSceneRenderer()->GetScene()->GetEditHistory()->Undo();
 		}));
 
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::Redo, "Redo", "Left Ctrl-Y", 0, 0,
 		[&]()
 		{
-			GetSceneRenderer()->GetEditHistory()->Redo();
+			GetSceneRenderer()->GetScene()->GetEditHistory()->Redo();
 		}));
 
 

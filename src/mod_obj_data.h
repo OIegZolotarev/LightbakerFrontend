@@ -74,7 +74,7 @@ typedef struct mobjdata_s
 	std::vector<MaterialTemplateLibrary*>	materialLibs; // owns
 
 
-	std::vector<lightDef_t>		lightDefs;
+	std::vector<SceneEntityPtr>		lightDefs;
 		
 	glm::vec3					envColor = {1,1,1};
 	size_t						lightmapDimensions[2] = {0};

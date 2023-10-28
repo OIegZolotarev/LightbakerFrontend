@@ -219,7 +219,7 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 	else if (typeInfo[0] == "#direct")		newLight.type = LightTypes::Direct;
 	else if (typeInfo[0] == "#spot")		newLight.type = LightTypes::Spot;
 
-	newLight.editor_icon = nullptr;
+	newLight.SetEditorIcon(nullptr);
 	newLight.UpdateEditorIcon();
 
 
@@ -240,13 +240,17 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 			newLight.flags |= LF_RECT;
 	}
 
-	newLight.pos[0] = stof(tokens[1]) * m_Data->sceneScale;
-	newLight.pos[1] = stof(tokens[2]) * m_Data->sceneScale;
-	newLight.pos[2] = stof(tokens[3]) * m_Data->sceneScale;
+	glm::vec3 pos;
+	pos[0] = stof(tokens[1]) * m_Data->sceneScale;
+	pos[1] = stof(tokens[2]) * m_Data->sceneScale;
+	pos[2] = stof(tokens[3]) * m_Data->sceneScale;
+	newLight.SetPosition(pos);
 
-	newLight.color[0] = stof(tokens[4]);
-	newLight.color[1] = stof(tokens[5]);
-	newLight.color[2] = stof(tokens[6]);
+	glm::vec3 color;
+	color[0] = stof(tokens[4]);
+	color[1] = stof(tokens[5]);
+	color[2] = stof(tokens[6]);
+	newLight.SetColor(color);
 
 	newLight.intensity = stof(tokens[7]) * m_Data->sceneScale;
 
@@ -269,7 +273,7 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 	else
 		newLight.size[1] = newLight.size[0];
 
-	m_Data->lightDefs.push_back(newLight);
+	m_Data->lightDefs.push_back(std::make_shared<lightDef_s>(newLight));
 }
 
 void ModObjAsynchLoader::ParseFace(std::string& s)

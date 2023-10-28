@@ -9,8 +9,8 @@
 #include "loader_thread.h"
 
 class ModObjAsynchExporter : public ITask
-{
-	mobjdata_t* m_pData = nullptr;
+{	
+	mobjdata_t m_pData;
 	ModelOBJ* m_pModel = nullptr;
 
 	std::string m_strFileName;

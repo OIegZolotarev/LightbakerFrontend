@@ -18,3 +18,9 @@ build/*
 build/*
 bin/*
 *.exe
+include/SDL/
+include/ImGuizmo
+include/imgui
+*.ipdb
+*.iobj
+*.exe

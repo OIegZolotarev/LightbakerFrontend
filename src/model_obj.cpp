@@ -142,7 +142,7 @@ void ModelOBJ::ClearLightDefinitions()
 
 void ModelOBJ::AddLight(lightDefPtr_t& it)
 {
-	m_ModelData.lightDefs.push_back(*it);
+	m_ModelData.lightDefs.push_back(it);
 }
 
 void ModelOBJ::SetLightmapDimensions(int w, int h)
@@ -292,6 +292,8 @@ void ModelOBJ::OnUnhovered()
 void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 {
 	auto sceneReneder = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneReneder->GetScene();
+
 	auto shader = GLBackend::Instance()->GeometrySelectionShader();
 	
 	auto identity = glm::mat4(1);
@@ -299,7 +301,7 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 	shader->Bind();
 
 	shader->SetTransform(identity);
-	shader->SetScale(sceneReneder->GetSceneScale());
+	shader->SetScale(scene->GetSceneScale());
 	shader->SetDefaultCamera();
 	shader->SetObjectId(objectId);
 
@@ -323,12 +325,13 @@ void ModelOBJ::RenderDebug()
 void ModelOBJ::RenderLightshaded()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRenderer->GetScene();
 
 	mesh.Bind();
 
 	auto shader = GLBackend::Instance()->LightMappedSceneShader();
 	shader->Bind();
-	shader->SetScale(sceneRenderer->GetSceneScale());
+	shader->SetScale(scene->GetSceneScale());
 	shader->SetDefaultCamera();
 
 	glEnable(GL_TEXTURE_2D);
@@ -395,11 +398,11 @@ mobjdata_t* ModelOBJ::GetModelData()
 void ModelOBJ::AddLightsIntoScene()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	
+	auto scene = sceneRenderer->GetScene();
 
 	for (auto def : m_ModelData.lightDefs)
 	{
-		sceneRenderer->AddLightToSceneWithSerialNumber(def, def.serial_number);
+		scene->AddEntityWithSerialNumber(def, def->GetSerialNumber());
 	}
 }
 

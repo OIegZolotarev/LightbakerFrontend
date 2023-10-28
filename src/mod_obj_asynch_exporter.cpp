@@ -11,22 +11,28 @@
 void ModObjAsynchExporter::ExportLightDefs() const
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	float scale = 1.0f / sceneRenderer->GetSceneScale();
+	auto scene = sceneRenderer->GetScene();
+	
+	float scale = 1.0f / scene->GetSceneScale();
 
 	fprintf(m_pFPOut, "### LightBaker 3000 lights definitions\n\n");
 
-	fprintf(m_pFPOut, "#scene_scale %.3f\n\n", sceneRenderer->GetSceneScale());
+	fprintf(m_pFPOut, "#scene_scale %.3f\n\n", scene->GetSceneScale());
 
-	fprintf(m_pFPOut, "#lm_size %d %d\n", m_pData->lightmapDimensions[0], m_pData->lightmapDimensions[1]);
-	fprintf(m_pFPOut, "#env_color %.3f %.3f %.3f\n\n", m_pData->envColor[0], m_pData->envColor[1], m_pData->envColor[1]);
+	fprintf(m_pFPOut, "#lm_size %d %d\n", m_pData.lightmapDimensions[0], m_pData.lightmapDimensions[1]);
+	fprintf(m_pFPOut, "#env_color %.3f %.3f %.3f\n\n", m_pData.envColor[0], m_pData.envColor[1], m_pData.envColor[1]);
 
 	fprintf(m_pFPOut, "#lights_start\n");
 
-	for (auto& it : m_pData->lightDefs)
+	// TODO: review
+	for (auto & ent : m_pData.lightDefs)
 	{
+
+		std::shared_ptr <lightDef_s> it = std::dynamic_pointer_cast<lightDef_s> (ent);
+
 		std::string lightBaseType;
 
-		switch (it.type)
+		switch (it->type)
 		{
 		case LightTypes::Omni:
 			lightBaseType = "#omni";
@@ -38,37 +44,39 @@ void ModObjAsynchExporter::ExportLightDefs() const
 			lightBaseType = "#direct";
 			break;
 		default:
-			Application::EPICFAIL("Unknown light type %d !", it.type);
+			Application::EPICFAIL("Unknown light type %d !", it->type);
 			break;
 		}
 
-		if (it.flags & LF_EULER)	lightBaseType += "_euler";
-		if (it.flags & LF_DYN)		lightBaseType += "_dyn";
-		if (it.flags & LF_XYZ)		lightBaseType += "_xyz";
-		if (it.flags & LF_LINEAR)	lightBaseType += "_linear";
-		if (it.flags & LF_DISK)		lightBaseType += "_disk";
-		if (it.flags & LF_RECT)		lightBaseType += "_rect";
+		if (it->flags & LF_EULER)	lightBaseType += "_euler";
+		if (it->flags & LF_DYN)		lightBaseType += "_dyn";
+		if (it->flags & LF_XYZ)		lightBaseType += "_xyz";
+		if (it->flags & LF_LINEAR)	lightBaseType += "_linear";
+		if (it->flags & LF_DISK)		lightBaseType += "_disk";
+		if (it->flags & LF_RECT)		lightBaseType += "_rect";
 
+		auto pos = it->GetPosition();
+		auto color = it->GetColor();
 
 		fprintf(m_pFPOut, "%s\t%.6f %.6f %.6f\t%.6f %.6f %.6f\t%.6f\t%.6f %.3f %.6f\t%.6f %.6f\t%d\t",
 			lightBaseType.c_str(),
-			it.pos[0] * scale, it.pos[1] * scale, it.pos[2] * scale,
-			it.color[0], it.color[1], it.color[2],
-			it.intensity * scale,
-			it.anglesDirection[0], it.anglesDirection[1], it.anglesDirection[2],
-			it.cones[0], it.cones[1],
-			it.style);
+			pos[0] * scale, pos[1] * scale, pos[2] * scale,
+			color[0], color[1], color[2],
+			it->intensity * scale,
+			it->anglesDirection[0], it->anglesDirection[1], it->anglesDirection[2],
+			it->cones[0], it->cones[1],
+			it->style);
 
-		switch (it.type)
+		switch (it->type)
 		{
 		case LightTypes::Omni:
 		case LightTypes::Spot:
-			if (it.flags & LF_RECT)
+			if (it->flags & LF_RECT)
 			{
-				fprintf(m_pFPOut, "%.3f %.3f\n", it.size[0], it.size[1]);
+				fprintf(m_pFPOut, "%.3f %.3f\n", it->size[0], it->size[1]);
 			}
 			else
-				fprintf(m_pFPOut, "%.3f\n", it.size[0]);
+				fprintf(m_pFPOut, "%.3f\n", it->size[0]);
 
 			break;
 		case LightTypes::Direct:
@@ -85,8 +93,8 @@ void ModObjAsynchExporter::ExportLightDefs() const
 
 void ModObjAsynchExporter::ExportVerticles() const
 {
-	size_t vertsSize = m_pData->vertSize;
-	size_t vertsElements = m_pData->verts.size();
+	size_t vertsSize = m_pData.vertSize;
+	size_t vertsElements = m_pData.verts.size();
 	
 	fprintf(m_pFPOut, "\n# %d verticles start\n", vertsElements / vertsSize);
 
@@ -99,9 +107,9 @@ void ModObjAsynchExporter::ExportVerticles() const
 		for (size_t i = 0; i < vertsSize; i++)
 		{
 			if (i == (vertsSize - 1))
-				fprintf(m_pFPOut, "%.4f", m_pData->verts[offset + i]);
+				fprintf(m_pFPOut, "%.4f", m_pData.verts[offset + i]);
 			else
-				fprintf(m_pFPOut, "%.4f ", m_pData->verts[offset + i]);
+				fprintf(m_pFPOut, "%.4f ", m_pData.verts[offset + i]);
 		}
 
 		fprintf(m_pFPOut, "\n");
@@ -114,7 +122,7 @@ void ModObjAsynchExporter::ExportVerticles() const
 
 void ModObjAsynchExporter::ExportNormals() const
 {
-	size_t normalsElements = m_pData->normals.size();
+	size_t normalsElements = m_pData.normals.size();
 	size_t normalsCount = normalsElements / 3;
 
 	if (normalsElements == 0)
@@ -126,7 +134,7 @@ void ModObjAsynchExporter::ExportNormals() const
 
 	while (offset < normalsElements)
 	{
-		const float* f = &m_pData->normals[offset];
+		const float* f = &m_pData.normals[offset];
 
 		fprintf(m_pFPOut, "vn %.4f %.4f %.4f\n", f[0], f[1], f[2]);
 		offset += 3;
@@ -137,9 +145,9 @@ void ModObjAsynchExporter::ExportNormals() const
 
 void ModObjAsynchExporter::ExportUV() const
 {
-	size_t uvElements = m_pData->uvs.size();
-	size_t uvCount = uvElements / m_pData->uvSize;
-	size_t uvSize = m_pData->uvSize;
+	size_t uvElements = m_pData.uvs.size();
+	size_t uvCount = uvElements / m_pData.uvSize;
+	size_t uvSize = m_pData.uvSize;
 
 	fprintf(m_pFPOut, "\n# %d UV start\n", uvCount);
 
@@ -147,7 +155,7 @@ void ModObjAsynchExporter::ExportUV() const
 
 	while (offset < uvElements)
 	{
-		const float* f = &m_pData->uvs[offset];
+		const float* f = &m_pData.uvs[offset];
 
 		fprintf(m_pFPOut, "vt  ");
 
@@ -170,7 +178,7 @@ void ModObjAsynchExporter::ExportUV() const
 
 void ModObjAsynchExporter::ExportFaces() const
 {
-	size_t facesElements = m_pData->faces.size();
+	size_t facesElements = m_pData.faces.size();
 	size_t facesCount = facesElements / 3;
 
 	fprintf(m_pFPOut, "\n# %d faces start\n", facesCount);
@@ -183,30 +191,30 @@ void ModObjAsynchExporter::ExportFaces() const
 
 	for (size_t i = 0; i < facesElements; i += 3)
 	{
-		if (m_pData->faces[i].objectId != objectId)
+		if (m_pData.faces[i].objectId != objectId)
 		{
-			objectId = m_pData->faces[i].objectId;
-			fprintf(m_pFPOut, "o %s\n", m_pData->objects[objectId].name);
+			objectId = m_pData.faces[i].objectId;
+			fprintf(m_pFPOut, "o %s\n", m_pData.objects[objectId].name);
 		}
 
 
-		if (m_pData->faces[i].groupId != groupId)
+		if (m_pData.faces[i].groupId != groupId)
 		{
-			groupId = m_pData->faces[i].groupId;
-			fprintf(m_pFPOut, "g %s\n", m_pData->groups[groupId].name);
+			groupId = m_pData.faces[i].groupId;
+			fprintf(m_pFPOut, "g %s\n", m_pData.groups[groupId].name);
 		}
 
-		if (m_pData->faces[i].materialId != materialId)
+		if (m_pData.faces[i].materialId != materialId)
 		{
-			materialId = m_pData->faces[i].materialId;
-			fprintf(m_pFPOut, "usemtl %s\n", m_pData->materials[materialId]->name.c_str());
+			materialId = m_pData.faces[i].materialId;
+			fprintf(m_pFPOut, "usemtl %s\n", m_pData.materials[materialId]->name.c_str());
 		}
 
 		fprintf(m_pFPOut, "f ");
 
 		for (int j = 0; j < 3; j++)
 		{
-			auto& f = m_pData->faces[i + j];
+			auto& f = m_pData.faces[i + j];
 
 			if (f.vert)
 				fprintf(m_pFPOut, "%d", f.vert);
@@ -233,7 +241,7 @@ void ModObjAsynchExporter::ExportFaces() const
 
 void ModObjAsynchExporter::ExportMtlLibs() const
 {
-	for (auto lib : m_pData->materialLibs)
+	for (auto lib : m_pData.materialLibs)
 	{
 		fprintf(m_pFPOut, "mtllib %s\n", lib->ExportName().c_str());
 	}
@@ -242,7 +250,7 @@ void ModObjAsynchExporter::ExportMtlLibs() const
 ModObjAsynchExporter::ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName)
 {
 	m_pModel = pModel;
-	m_pData = m_pModel->GetModelData();
+	m_pData = *m_pModel->GetModelData();
 
 	m_pFPOut = fopen(fileName, "wt");	
 }

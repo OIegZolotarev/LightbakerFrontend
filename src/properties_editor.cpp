@@ -344,7 +344,7 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 		// Here we can save undo (to undo stack or something). Triggered once just after user stops editing. 
 		// RecordUndo(oldValue, value);
 
-		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, it));
 
 		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
@@ -479,7 +479,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 		m_bGuizmoEdited = false;
 
-		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetEditHistory();
+		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, *m_pGuizmoPropertyPosition));
 
 		if (m_pGuizmoPropertyRotation)

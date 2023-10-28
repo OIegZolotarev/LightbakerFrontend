@@ -80,47 +80,26 @@ void Application::EPICFAIL(const char* format, ...)
 
 void Application::ExecuteBaking()
 {
-	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
-
-	if (!sceneRenderer->IsModelLoaded())
-		return;
+// 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
+// 
+// 	if (!sceneRenderer->IsModelLoaded())
+// 		return;
+// 	
+// 
+// 	m_bBakingFinished = false;
+// 	m_bWaitingForBakingToFinish = true;
+// 
+// 	
+// 	auto modelName = sceneRenderer->GetModelFileName();
+// 	auto baseDir = m_pFileSystem->BaseDirectoryFromFileName(modelName.c_str());
+// 	auto fileName = m_pFileSystem->BaseName(modelName);
+// 
+// 	auto exportedModel = std::format("{0}/{1}_exported.obj", baseDir, fileName);
+// 	
+// 	sceneRenderer->ExportModelForCompiling(nullptr);	
+// 	m_pLightBakerApplication->ExecuteBaking(exportedModel.c_str());
 	
 
-	m_bBakingFinished = false;
-	m_bWaitingForBakingToFinish = true;
-
-	sceneRenderer->ExportModelForCompiling(nullptr);	
-	m_pLightBakerApplication->ExecuteBaking(sceneRenderer->GetModelFileName().c_str());
-	
-/*	const char* cmdTemplate = "%s/lb3k/LightBaker3000.exe %s %s -samples %d -rnm -rgba16";
-
-	auto fileName	 = m_pMainWindow->GetSceneRenderer()->GetModelFileName();
-	auto diffuseName = m_pMainWindow->GetSceneRenderer()->GetModelTextureName();
-
-	fileName = "edited.obj";
-	diffuseName = "sample.png";
-
-	char export_path[4096];
-	sprintf_s(export_path, "%s/lb3k/%s", SDL_GetBasePath(), "edited.obj");
-
-	m_pMainWindow->GetSceneRenderer()->ExportModelForCompiling(export_path);
-
-	//m_pFileSystem->ChangeCurrentDirectoryToFileDirectory(fileName);
-	
-	static char cmd[4096];
-	sprintf_s(cmd, cmdTemplate,
-		SDL_GetBasePath() ,
-		fileName.c_str(), 
-		diffuseName.c_str(),256);
-
-	Con_Printf("[FRONTEND] Baking started\n");
-	Con_Printf("[FRONTEND] cmd: %s\n",cmd);
-
-	m_bBakingFinished = false;
-	m_bWaitingForBakingToFinish = true;
-	SDL_Thread* threadID = SDL_CreateThread(BakeThread, "LightBaker3k thread", (void*)cmd);
-	
-	//Con_Printf("[FRONTEND] Baking finished");*/
 }
 
 void Application::CheckIfBakngFinished()
