@@ -80,6 +80,9 @@ void Application::EPICFAIL(const char* format, ...)
 
 void Application::ExecuteBaking()
 {
+	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
+	sceneRenderer->ExportModelForCompiling("test");
+
 // 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
 // 
 // 	if (!sceneRenderer->IsModelLoaded())
@@ -98,8 +101,6 @@ void Application::ExecuteBaking()
 // 	
 // 	sceneRenderer->ExportModelForCompiling(nullptr);	
 // 	m_pLightBakerApplication->ExecuteBaking(exportedModel.c_str());
-	
-
 }
 
 void Application::CheckIfBakngFinished()

@@ -272,3 +272,17 @@ void Scene::LoadLevel(const char* levelName)
 		m_SceneEntities.push_back(pLevelEntity);
 
 }
+
+
+#include "mod_obj_atlas_gen.h"
+
+void Scene::ExportForCompiling(const char* path)
+{
+	auto it = m_SceneEntities.begin();
+
+	SceneEntity* entity = (*it).get();
+
+	auto obj = (ModelOBJ*)entity;
+	obj->Export(path);
+
+}

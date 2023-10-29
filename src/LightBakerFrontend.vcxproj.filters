@@ -42,6 +42,12 @@
     <Filter Include="Исходные файлы\GoldSourceBSP">
       <UniqueIdentifier>{413183a5-2846-4863-88f0-7adb8e143a39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\WavefrontObj\IO">
+      <UniqueIdentifier>{14427135-416a-4dd3-88e9-af01597b2b1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\WavefrontObj\Atlas">
+      <UniqueIdentifier>{c254fc0f-9ddd-4897-99e4-27e9b72b87fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -200,11 +206,17 @@
     <ClCompile Include="scene_entity.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="mod_obj_asynch_loader.cpp">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
-    </ClCompile>
     <ClCompile Include="mod_obj_asynch_exporter.cpp">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
+      <Filter>Исходные файлы\WavefrontObj\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_obj_asynch_loader.cpp">
+      <Filter>Исходные файлы\WavefrontObj\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp">
+      <Filter>Исходные файлы\WavefrontObj\Atlas</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_obj_atlas_gen.cpp">
+      <Filter>Исходные файлы\WavefrontObj\Atlas</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -361,7 +373,6 @@
     <ClInclude Include="model_obj.h">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClInclude>
-    <ClInclude Include="loader_thread.h" />
     <ClInclude Include="serial_counter.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -377,17 +388,23 @@
     <ClInclude Include="scene_entity.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="mod_obj_data.h">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
-    </ClInclude>
-    <ClInclude Include="mod_obj_asynch_loader.h">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
-    </ClInclude>
-    <ClInclude Include="mod_obj_asynch_exporter.h">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
-    </ClInclude>
     <ClInclude Include="bsp_goldsource_file.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_data.h">
+      <Filter>Исходные файлы\WavefrontObj\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_asynch_exporter.h">
+      <Filter>Исходные файлы\WavefrontObj\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_asynch_loader.h">
+      <Filter>Исходные файлы\WavefrontObj\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_obj_atlas_gen.h">
+      <Filter>Исходные файлы\WavefrontObj\Atlas</Filter>
+    </ClInclude>
+    <ClInclude Include="loader_thread.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

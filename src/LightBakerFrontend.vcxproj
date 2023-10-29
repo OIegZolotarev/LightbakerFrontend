@@ -178,6 +178,7 @@
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
+    <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="edit_history.cpp" />
     <ClCompile Include="application.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
     <ClCompile Include="mod_obj_asynch_loader.cpp" />
+    <ClCompile Include="mod_obj_atlas_gen.cpp" />
     <ClCompile Include="mtl_library.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -258,6 +260,7 @@
     <ClInclude Include="loader_thread.h" />
     <ClInclude Include="mod_obj_asynch_exporter.h" />
     <ClInclude Include="mod_obj_asynch_loader.h" />
+    <ClInclude Include="mod_obj_atlas_gen.h" />
     <ClInclude Include="mod_obj_data.h" />
     <ClInclude Include="mtl_library.h" />
     <ClInclude Include="popup_scene_scale.h" />

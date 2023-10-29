@@ -367,14 +367,14 @@ void ModObjAsynchLoader::ParseGroup(std::string& buffer)
 	if (m_Data->groups.size() > 0)
 	{
 		mobjegroup_t& grp = m_Data->groups[m_Data->groups.size() - 1];
-		grp.num_faces = m_Data->groups.size() - grp.first_face;
+		grp.num_vertices = m_Data->faces.size() - grp.first_vertex;
 	}
 
 	mobjegroup_t grp;
 	strncpy_s(grp.name, tokens[1].c_str(), sizeof(grp.name) - 1);
 
 	grp.object_id = CurrentResource(StateMachineResource::Object);
-	grp.first_face = m_Data->faces.size();
+	grp.first_vertex = m_Data->faces.size();
 	
 	m_Data->groups.push_back(grp);
 }
@@ -663,7 +663,7 @@ void ModObjAsynchLoader::InitializeLoader()
 	strncpy_s(grp.name, "<ungrouped>", sizeof(grp.name) - 1);
 
 	grp.object_id = CurrentResource(StateMachineResource::Object);
-	grp.first_face = m_Data->faces.size();
+	grp.first_vertex = 0;
 
 	m_Data->groups.push_back(grp);
 

@@ -78,4 +78,6 @@ public:
 private:
 	void ClearEntities();
 	void LoadLevel(const char* levelName);
+public:
+	void ExportForCompiling(const char* path);
 };

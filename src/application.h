@@ -78,10 +78,12 @@ public:
 	void HideMouseCursor();
 };
 
-inline void Con_Printf(const char* fmt, ...)
+inline int Con_Printf(const char* fmt, ...)
 {
 	va_list args;
 	va_start(args, fmt);
 	Application::Console()->AddLog(fmt, args);
 	va_end(args);
+
+	return 1;
 }

@@ -16,6 +16,7 @@
 #include "text_utils.h"
 #include "mod_obj_asynch_loader.h"
 #include "mod_obj_asynch_exporter.h"
+#include "mod_obj_atlas_gen.h"
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
@@ -471,9 +472,12 @@ void ModelOBJ::ReloadTextures()
 
 void ModelOBJ::Export(const char* fileName)
 {
-	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(this, fileName);
-	exporter->ExportSynch();
-	delete exporter;
+	GenerateAtlasTask* tsk = new GenerateAtlasTask(this);
+	delete tsk;
+
+// 	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(this, fileName);
+// 	exporter->ExportSynch();
+// 	delete exporter;
 
 // 	return;
 // 

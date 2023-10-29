@@ -24,3 +24,10 @@ include/imgui
 *.ipdb
 *.iobj
 *.exe
+bin/LightBakerFrontend.exe
+bin/LightBakerFrontend.exp
+bin/LightBakerFrontend.lib
+build/Debug/imgui_popups.h.ifc
+build/Release/LightBakerFrontend.iobj
+build/Release/LightBakerFrontend.ipdb
+*.exe

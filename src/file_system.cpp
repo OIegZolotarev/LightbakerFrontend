@@ -254,5 +254,6 @@ std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ
 	std::string baseName = c.stem().string();
 	std::string extension = c.extension().string();
 	
-	return std::format(templ, directory, baseName, extension);
+	std::string result = std::vformat(templ, std::make_format_args(directory, baseName, extension));
+	return result;
 }

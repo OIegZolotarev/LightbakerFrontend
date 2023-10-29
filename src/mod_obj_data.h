@@ -40,8 +40,8 @@ typedef struct mobjgroup_s
 
 	size_t object_id;
 
-	size_t first_face = 0;
-	size_t num_faces = 0;
+	size_t first_vertex = 0;
+	size_t num_vertices = 0;
 
 }mobjegroup_t;
 

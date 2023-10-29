@@ -216,24 +216,7 @@ void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 
 
 void SceneRenderer::ExportModelForCompiling(const char* path)
 {
-// 	if (!m_pSceneModel)
-// 		return;
-// 
-// 	m_pSceneModel->ClearLightDefinitions();
-// 	
-// 	for (auto& it : m_vecSceneLightDefs)
-// 	{
-// 		m_pSceneModel->AddLight(it);
-// 	}
-// 
-// 	auto settings = Application::Instance()->GetLightBakerApplication()->Settings();
-// 
-// 	m_pSceneModel->SetLightmapDimensions(settings->m_lmSettings.size[0], settings->m_lmSettings.size[1]);
-// 
-// 	if (path)
-// 		m_pSceneModel->Export(path);
-// 	else
-// 		m_pSceneModel->Export(m_pSceneModel->GetModelFileName().c_str());
+	m_pScene->ExportForCompiling(path);
 }
 
 Camera* SceneRenderer::GetCamera()
