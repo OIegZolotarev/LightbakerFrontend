@@ -24,14 +24,15 @@ class ModObjAsynchExporter : public ITask
 	void ExportFaces() const;
 	void ExportMtlLibs() const;
 
-
+	bool m_bExportingLightmaps = false;
 public:
-	ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName);
+	ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName, bool exportLMMesh);
 	~ModObjAsynchExporter();
 
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 	void OnCompletion() override;
 
 	void ExportSynch();
+
 };
 

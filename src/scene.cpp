@@ -21,7 +21,9 @@ LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 Scene::Scene(const char* levelName, int loadFlags)
 {
 	m_pEditHistory = new CEditHistory;
-	m_LevelFormat = DetermineLevelFormatFromFileName(levelName);
+	
+	if (levelName)
+		m_LevelFormat = DetermineLevelFormatFromFileName(levelName);
 
 	if (!(loadFlags & LRF_KEEP_ENTITIES))
 		ClearEntities();
@@ -49,7 +51,8 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
 		});
 
 
-	m_SceneEntities.erase(pos);
+	// No needed?
+	// m_SceneEntities.erase(pos);
 }
 
 void Scene::DoDeleteSelection()
@@ -128,6 +131,9 @@ void Scene::RenderLightShaded()
 
 	for (auto & it : m_SceneEntities)
 	{
+		if (!it)
+			continue;
+
 		if (!it->IsDataLoaded())
 			continue;
 
@@ -231,7 +237,13 @@ void Scene::RenderUnshaded()
 
 void Scene::Reload(int loadFlags)
 {
-	
+	if (loadFlags & LRF_RELOAD_LIGHTMAPS)
+	{
+		auto it = m_SceneEntities.begin();
+		SceneEntity* entity = (*it).get();
+		auto obj = (ModelOBJ*)entity;
+		obj->ReloadTextures();
+	}
 }
 
 void Scene::ClearEntities()
@@ -276,13 +288,12 @@ void Scene::LoadLevel(const char* levelName)
 
 #include "mod_obj_atlas_gen.h"
 
-void Scene::ExportForCompiling(const char* path)
+std::string Scene::ExportForCompiling(const char* newPath)
 {
+	// TODO: fixme
 	auto it = m_SceneEntities.begin();
-
 	SceneEntity* entity = (*it).get();
-
 	auto obj = (ModelOBJ*)entity;
-	obj->Export(path);
+	return obj->Export(newPath);
 
 }

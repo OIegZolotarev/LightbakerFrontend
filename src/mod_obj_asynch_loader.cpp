@@ -427,7 +427,7 @@ void ModObjAsynchLoader::ParseCommand(std::string& buffer)
 {
 	char commandId = buffer[0];
 
-	if (m_Data->flags & FL_ONLY_UV)
+	if (m_Data->flags & FL_LOAD_LIGHTMAP)
 	{
 		if (buffer[0] == 'v' && buffer[1] == 't')
 		{
@@ -543,7 +543,7 @@ ModObjAsynchLoader::~ModObjAsynchLoader()
 void ModObjAsynchLoader::SetOnlyLoadUV(bool flag)
 {
 	m_Data = m_pModel->GetLMData();
-	m_Data->flags = FL_ONLY_UV;
+	m_Data->flags = FL_LOAD_LIGHTMAP;
 }
 
 ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
@@ -556,15 +556,36 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 	// TODO: check for end symbol
 	if (m_FileOffset >= m_pFileData->Length())
 	{
+		auto lastGroup = &m_Data->groups[m_Data->groups.size() - 1];
+		lastGroup->num_vertices = m_Data->faces.size() - lastGroup->first_vertex;
+
 		m_Data->flags |= FL_DATA_LOADED;
 
-		if (m_Data->flags & FL_ONLY_UV)
+		if (m_Data->flags & FL_LOAD_LIGHTMAP)
+		{
+			auto fs = Application::GetFileSystem();
+
+			AsynchTextureLoadTask* loadLightmapTask = new AsynchTextureLoadTask("Loading lightmaps...");
+
+			for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+			{
+				auto lmTextureFileName = fs->MakeTemplatePath(m_strFileName.c_str(), "{0}/{1}_lightmap");
+				lmTextureFileName += "_0.png";
+
+				m_Data->meshes[0].lightmap_texture_path[i] = lmTextureFileName;
+				m_Data->meshes[0].lightmap_texture[i] = loadLightmapTask->ScheduleTexture(lmTextureFileName.c_str());
+			}
+				
+			loadLightmapTask->Schedule();
+
+
 			return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
+		}
 		else
 			return new BuildDrawMeshTask(m_Data, m_pModel);
 	}
 		
-	std::string buffer;
+	std::string buffer = "";
 
 	// Unicode encoding be like - "I am a joke to you?"
 	char* p = ((char*)m_pFileData->Data()) + m_FileOffset;
@@ -695,7 +716,11 @@ ModObjAsynchLoader::MeshLoadingProgressStep::MeshLoadingProgressStep(size_t prog
 	m_nProgress = progress;
 	m_nTotalSteps = totalSteps;
 
+#ifdef _DEBUG
+	m_strElementDescription = std::format("{0} of {1} bytes parsed (plz be patient - i'm compiled in debug mode)", m_nProgress, m_nTotalSteps);
+#else
 	m_strElementDescription = std::format("{0} of {1} bytes parsed", m_nProgress, m_nTotalSteps);
+#endif
 }
 
 ModObjAsynchLoader::MeshLoadingProgressStep::~MeshLoadingProgressStep()

@@ -220,6 +220,7 @@
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="selection_3d.cpp" />
     <ClCompile Include="spotlight_cone_shader.cpp" />
+    <ClCompile Include="stblibs_impl.cpp" />
     <ClCompile Include="text_utils.cpp" />
     <ClCompile Include="win_main.cpp" />
   </ItemGroup>

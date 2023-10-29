@@ -53,7 +53,7 @@ typedef struct mobjobjects_s
 #define FL_DATA_LOADED (1<<0)
 #define FL_HAS_UV (1<<1)
 #define FL_HAS_NORMALS (1<<2)
-#define FL_ONLY_UV (1<<3)
+#define FL_LOAD_LIGHTMAP (1<<3)
 
 typedef struct mobjdata_s
 {

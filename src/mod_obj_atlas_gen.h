@@ -7,8 +7,6 @@
 
 #include "..\xatlas\source\xatlas\xatlas.h"
 
-void TestAtlasGeneration(ModelOBJ* pModel);
-
 class MeshDeclWrapper
 {
 	xatlas::UvMeshDecl m_MeshDecl;
@@ -19,27 +17,32 @@ class MeshDeclWrapper
 	
 	size_t m_nFacesCount;
 	uint32_t* m_pFaceMaterialData;
-	
+
+	size_t m_GroupId = 0;
+	size_t m_XAtlasMeshId = 0;
 	
 public:
 	MeshDeclWrapper(mobjdata_t* modelData, size_t groupId);
 	~MeshDeclWrapper();
 
-	xatlas::UvMeshDecl& GetMeshDecl()
-	{
-		return m_MeshDecl;
-	}
-};
+	xatlas::UvMeshDecl& GetMeshDecl();
+	size_t GetGroupId();
 
+	void	SetXAtlasGroupId(size_t meshId);
+	size_t	GetXAtlasGroupId();
+};
 
 class GenerateAtlasTask : public ITask
 {
-private:
-	MeshDeclWrapper** m_pWrappers;
+	std::list<MeshDeclWrapper*> m_lstWrappers;
+	ModelOBJ* m_pModel;
+
+	void TransferNewUV(xatlas::Atlas*);
 public:
 	GenerateAtlasTask(ModelOBJ * pModel);
 	~GenerateAtlasTask();
 
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 	void OnCompletion() override;
+
 };

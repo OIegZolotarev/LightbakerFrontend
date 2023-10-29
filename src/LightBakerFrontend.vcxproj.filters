@@ -48,6 +48,9 @@
     <Filter Include="Исходные файлы\WavefrontObj\Atlas">
       <UniqueIdentifier>{c254fc0f-9ddd-4897-99e4-27e9b72b87fd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\stb">
+      <UniqueIdentifier>{225d6ba6-5bfd-444d-b804-ca55e793d349}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -217,6 +220,9 @@
     </ClCompile>
     <ClCompile Include="mod_obj_atlas_gen.cpp">
       <Filter>Исходные файлы\WavefrontObj\Atlas</Filter>
+    </ClCompile>
+    <ClCompile Include="stblibs_impl.cpp">
+      <Filter>Исходные файлы\stb</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,11 +9,11 @@ in vec2 oLMCoord;
 
 void main()
 {
-	vec4 lmSample = texture2D(lightmap,oTexCoord);
+	vec4 lmSample = texture2D(lightmap,oLMCoord);
 	vec4 diffuseSample = texture2D(diffuse,oTexCoord);
 
-    //FragColor = lmSample * diffuseSample;
+    FragColor = lmSample * diffuseSample;
     //FragColor = diffuseSample;
 
-	FragColor = vec4(oLMCoord.x,oLMCoord.y,0,1);
+	//FragColor = vec4(oLMCoord.x,oLMCoord.y,0,1);
 } 

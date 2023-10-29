@@ -26,11 +26,11 @@ ModelOBJ::ModelOBJ(const char* fileName)
 	m_strModelName = fileName;
 	auto fs = Application::GetFileSystem();
 
-	std::string lmModelPath = fs->MakeTemplatePath(fileName, "{0}/{1}.lm.obj");
+	m_strLMModelPath = fs->MakeTemplatePath(fileName, "{0}/{1}.lm.obj");
 
-	if (fs->FileExists(lmModelPath))
+	if (fs->FileExists(m_strLMModelPath))
 	{
-		ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, lmModelPath.c_str());
+		ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, m_strLMModelPath.c_str());
 		lmLoaderTask->SetOnlyLoadUV(true);
 		lmLoaderTask->Schedule();
 
@@ -172,6 +172,14 @@ void ModelOBJ::BuildDrawMesh()
 
 	if (m_ModelData.verts.size() == 0)
 		return;
+	
+	// Check if lm mesh is valid
+
+	if (m_LightmapModelData.uvs.size() != m_ModelData.uvs.size())
+	{
+		m_hasLMMesh = false;
+	}
+
 
 	// Sort faces by mesh_id
 
@@ -213,7 +221,6 @@ void ModelOBJ::BuildDrawMesh()
 	mesh.Color4f(1, 1, 1, 1);
 
 	
-
 	for (auto& face : m_ModelData.faces)
 	{
 		if (face.materialId != currentMaterial)
@@ -363,6 +370,18 @@ void ModelOBJ::RenderLightshaded()
 
 	glEnable(GL_TEXTURE_2D);
 
+	if (m_hasLMMesh)
+	{
+		auto mesh = m_LightmapModelData.meshes[0];
+		auto texture = mesh.lightmap_texture[0];
+
+		glActiveTexture(GL_TEXTURE1);
+		{
+			
+			glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+		}
+	}
+
 	//for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
 	for (auto& it : m_ModelData.meshes)
 	{
@@ -391,13 +410,7 @@ void ModelOBJ::RenderLightshaded()
 			}
 		}
 
-		glActiveTexture(GL_TEXTURE1);
-		{
-			if (it.lightmap_texture[0])
-				glBindTexture(GL_TEXTURE_2D, it.lightmap_texture[0]->gl_texnum);
-			else
-				glBindTexture(GL_TEXTURE_2D, 0);
-		}
+
 
 		mesh.Draw(it.first_face, it.num_faces);
 
@@ -438,20 +451,40 @@ void ModelOBJ::AddLightsIntoScene()
 	}
 }
 
+void ModelOBJ::PrepareLights()
+{
+	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+	auto lights = scene->GetLightDefs();
+
+	m_ModelData.lightDefs.clear();
+	m_LightmapModelData.lightDefs.clear();
+
+	for (auto light = lights.begin(); light != lights.end(); light++)
+	{
+		auto lightPointer = std::dynamic_pointer_cast<lightDef_s>(*light);
+
+		if (lightPointer)
+		{
+			m_LightmapModelData.lightDefs.push_back(*light);
+			m_ModelData.lightDefs.push_back(*light);
+		}
+	}
+
+}
+
 void ModelOBJ::ReloadTextures()
 {
-	for (auto& it : m_ModelData.meshes)
+	for (auto& it: m_LightmapModelData.meshes)
 	{
 		if (it.diffuse_texture)
 			GLReloadTexture(it.diffuse_texture);
 		else
 		{
 			it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
-		
-			if (it.diffuse_texture->width == -1)
-				it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
-				
 			
+			if (it.diffuse_texture)
+				if (it.diffuse_texture->width == -1)
+					it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
 		}
 
 		for (int i = 0; i < MAX_LIGHT_STYLES; i++)
@@ -461,41 +494,81 @@ void ModelOBJ::ReloadTextures()
 			else
 			{
 				it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
-
-// 				if (it.lightmap_texture[i]->width == -1)
-// 					it.lightmap_texture[i] = LoadGLTexture(WHITE_PNG);
 			}
 		}
 			
+		if (!m_hasLMMesh)
+		{
+			auto fs = Application::GetFileSystem();
+
+			if (fs->FileExists(m_strLMModelPath))
+			{
+				ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, m_strLMModelPath.c_str());
+				lmLoaderTask->SetOnlyLoadUV(true);
+				lmLoaderTask->Schedule();
+				m_hasLMMesh = true;
+			}
+		}
 	}
 }
 
-void ModelOBJ::Export(const char* fileName)
+std::string & ModelOBJ::Export(const char* fileName)
 {
-	GenerateAtlasTask* tsk = new GenerateAtlasTask(this);
-	delete tsk;
 
-// 	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(this, fileName);
-// 	exporter->ExportSynch();
-// 	delete exporter;
+	if (fileName)
+	{
 
-// 	return;
-// 
-// 	FILE* fp = nullptr;
-// 	fp = fopen(fileName, "wt");
-// 
-// 	if (!fp)
-// 		Application::EPICFAIL("Error while opening file %s for exporting!", fileName);
-// 
-// 	ExportLightDefs(fp);
-// 	ExportVerticles(fp);
-// 	
-// 	if (m_ModelData.uvs.size() > 0)  ExportNormals(fp);
-// 	if (m_ModelData.uvs.size() > 0) ExportUV(fp);
-// 
-// 	ExportFaces(fp);
-// 
-// 	fclose(fp);
+	}
+	else
+	{
+		// TODO: check if nesseceary
+		if (!m_hasLMMesh)
+		{
+			GenerateAtlasTask* tsk = new GenerateAtlasTask(this);
+			delete tsk;
+		}
+		else
+		{
+
+			m_LightmapModelData.verts = m_ModelData.verts;
+			m_LightmapModelData.normals = m_ModelData.normals;
+			m_LightmapModelData.faces = m_ModelData.faces;
+			m_LightmapModelData.vertSize = m_ModelData.vertSize;
+			
+			m_LightmapModelData.objects.clear();
+			
+			for (auto & face : m_LightmapModelData.faces)
+				face.groupId = 1;
+
+
+
+			m_LightmapModelData.groups = m_ModelData.groups;
+
+			mobjegroup_t grp;
+			strncpy_s(grp.name, "default", sizeof(grp.name) - 1);
+
+			grp.object_id = 0;
+			grp.first_vertex = 0;
+			
+			m_LightmapModelData.groups.push_back(grp);
+
+			// FIXME
+			m_LightmapModelData.lightmapDimensions[0] = 1024;
+			m_LightmapModelData.lightmapDimensions[1] = 1024;
+		}
+
+		PrepareLights();
+
+		ModObjAsynchExporter* exporter = new ModObjAsynchExporter(this, m_strLMModelPath.c_str(), true);
+		exporter->ExportSynch();
+		delete exporter;
+
+		exporter = new ModObjAsynchExporter(this, m_strModelName.c_str(), false);
+		exporter->ExportSynch();
+		delete exporter;
+	}
+
+	return m_strLMModelPath;
 }
 
 std::string ModelOBJ::GetModelFileName()

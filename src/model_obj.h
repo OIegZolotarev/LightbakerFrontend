@@ -24,7 +24,9 @@ public:
 	std::string GetModelTextureName();
 
 	void ReloadTextures();
-	void Export(const char* fileName);
+
+	// Возвращает путь к файлу ЛМ-модели
+	std::string & Export(const char* fileName);
 
 	void ClearLightDefinitions();
 	void AddLight(lightDefPtr_t& it);
@@ -63,4 +65,6 @@ private:
 		
 	DrawMesh mesh;
 	bool m_hasLMMesh = false;
+	std::string m_strLMModelPath;
+	void PrepareLights();
 };

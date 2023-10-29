@@ -191,23 +191,27 @@ void ModObjAsynchExporter::ExportFaces() const
 
 	for (size_t i = 0; i < facesElements; i += 3)
 	{
-		if (m_pData.faces[i].objectId != objectId)
+		if (m_pData.faces[i].objectId != objectId && m_pData.objects.size() > 0)
 		{
 			objectId = m_pData.faces[i].objectId;
 			fprintf(m_pFPOut, "o %s\n", m_pData.objects[objectId].name);
 		}
 
-
-		if (m_pData.faces[i].groupId != groupId)
+		if (m_pData.faces[i].groupId != groupId && m_pData.groups.size() > 0)
 		{
 			groupId = m_pData.faces[i].groupId;
 			fprintf(m_pFPOut, "g %s\n", m_pData.groups[groupId].name);
 		}
 
-		if (m_pData.faces[i].materialId != materialId)
+		if (!m_bExportingLightmaps)
 		{
-			materialId = m_pData.faces[i].materialId;
-			fprintf(m_pFPOut, "usemtl %s\n", m_pData.materials[materialId]->name.c_str());
+
+
+			if (m_pData.faces[i].materialId != materialId)
+			{
+				materialId = m_pData.faces[i].materialId;
+				fprintf(m_pFPOut, "usemtl %s\n", m_pData.materials[materialId]->name.c_str());
+			}
 		}
 
 		fprintf(m_pFPOut, "f ");
@@ -247,10 +251,15 @@ void ModObjAsynchExporter::ExportMtlLibs() const
 	}
 }
 
-ModObjAsynchExporter::ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName)
+ModObjAsynchExporter::ModObjAsynchExporter(ModelOBJ* pModel, const char* fileName, bool exportLMMesh)
 {
 	m_pModel = pModel;
-	m_pData = *m_pModel->GetModelData();
+	if (exportLMMesh)
+		m_pData = *m_pModel->GetLMData();
+	else
+		m_pData = *m_pModel->GetModelData();
+
+	m_bExportingLightmaps = exportLMMesh;
 
 	m_pFPOut = fopen(fileName, "wt");	
 }

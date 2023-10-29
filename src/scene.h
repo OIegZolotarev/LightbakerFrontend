@@ -79,5 +79,5 @@ private:
 	void ClearEntities();
 	void LoadLevel(const char* levelName);
 public:
-	void ExportForCompiling(const char* path);
+	std::string ExportForCompiling(const char* newPath);
 };

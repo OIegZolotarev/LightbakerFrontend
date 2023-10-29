@@ -46,9 +46,7 @@ public:
 
 	void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const  gltexture_t* texture, const glm::vec3 tint);
 	void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index);
-		
-	void ExportModelForCompiling(const char* path);
-
+	
 	void FocusCameraOnObject(SceneEntityPtr it);
 
 	Scene* GetScene();

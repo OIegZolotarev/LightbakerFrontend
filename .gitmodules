@@ -28,3 +28,6 @@
 [submodule "include/xatlas"]
 	path = include/xatlas
 	url = https://github.com/jpcy/xatlas/
+[submodule "include/stb"]
+	path = include/stb
+	url = https://github.com/nothings/stb

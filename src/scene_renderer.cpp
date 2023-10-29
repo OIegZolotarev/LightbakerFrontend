@@ -98,6 +98,9 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 
 	for (auto& it : m_pScene->GetLightDefs())
 	{
+		if (!it)
+			return;
+
 		if (!it->IsLightEntity())
 			continue;
 
@@ -212,11 +215,6 @@ void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 
 	}
 
 	glEnd();
-}
-
-void SceneRenderer::ExportModelForCompiling(const char* path)
-{
-	m_pScene->ExportForCompiling(path);
 }
 
 Camera* SceneRenderer::GetCamera()

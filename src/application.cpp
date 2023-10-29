@@ -81,7 +81,16 @@ void Application::EPICFAIL(const char* format, ...)
 void Application::ExecuteBaking()
 {
 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
-	sceneRenderer->ExportModelForCompiling("test");
+	auto scene = sceneRenderer->GetScene();
+
+	std::string lmMeshFile = scene->ExportForCompiling(nullptr);
+
+	if (!lmMeshFile.empty())
+	{
+		m_bBakingFinished = false;
+		m_bWaitingForBakingToFinish = true;
+		m_pLightBakerApplication->ExecuteBaking(lmMeshFile.c_str());
+	}
 
 // 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
 // 
@@ -89,9 +98,7 @@ void Application::ExecuteBaking()
 // 		return;
 // 	
 // 
-// 	m_bBakingFinished = false;
-// 	m_bWaitingForBakingToFinish = true;
-// 
+
 // 	
 // 	auto modelName = sceneRenderer->GetModelFileName();
 // 	auto baseDir = m_pFileSystem->BaseDirectoryFromFileName(modelName.c_str());
@@ -122,7 +129,7 @@ void Application::CheckIfBakngFinished()
 	else
 	{
 		Con_Printf("[FRONTEND] Baking finished");
-		m_pMainWindow->GetSceneRenderer()->LoadModel(nullptr, true);
+		m_pMainWindow->GetSceneRenderer()->ReloadScene(LRF_RELOAD_LIGHTMAPS);
 	}
 
 
@@ -160,6 +167,9 @@ void Application::ScheduleCompilationIfNecceseary()
 
 	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::DynamicallyRecompileLighting))
 		return;
+
+	// TODO: FIXME
+	return;
 
 	if (!Application::IsWaitingForBakerToFinish())
 	{
