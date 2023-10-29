@@ -428,7 +428,7 @@ float MainWindow::RenderMainMenu()
 					{
 						if (ImGui::MenuItem(it.c_str()))
 						{
-							m_pSceneRenderer->LoadModel((char*)it.c_str());
+							m_pSceneRenderer->LoadModel((char*)it.c_str(), LRF_LOAD_ALL);
 						}
 					}
 				}
@@ -762,7 +762,7 @@ bool MainWindow::HandleEvents(bool loop)
 			dropped_filedir = event.drop.file;
 			// Shows directory of dropped file
 
-			m_pSceneRenderer->LoadModel(dropped_filedir);
+			m_pSceneRenderer->LoadModel(dropped_filedir, LRF_LOAD_ALL);
 
 			SDL_free(dropped_filedir);    // Free dropped_filedir memory
 		}

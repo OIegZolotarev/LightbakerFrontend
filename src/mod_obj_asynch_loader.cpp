@@ -215,14 +215,10 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 
 	auto typeInfo = TextUtils::Split(tokens[0], "_");
 
-	if (typeInfo[0] == "#omni")		newLight.type = LightTypes::Omni;
-	else if (typeInfo[0] == "#direct")		newLight.type = LightTypes::Direct;
-	else if (typeInfo[0] == "#spot")		newLight.type = LightTypes::Spot;
-
-	newLight.SetEditorIcon(nullptr);
-	newLight.UpdateEditorIcon();
-
-
+	if (typeInfo[0] == "#omni")				newLight.SetType(LightTypes::Omni);
+	else if (typeInfo[0] == "#direct")		newLight.SetType(LightTypes::Direct);
+	else if (typeInfo[0] == "#spot")		newLight.SetType(LightTypes::Spot);
+	
 	// Parse flags
 	for (size_t i = 1; i < typeInfo.size(); i++)
 	{
@@ -431,6 +427,15 @@ void ModObjAsynchLoader::ParseCommand(std::string& buffer)
 {
 	char commandId = buffer[0];
 
+	if (m_Data->flags & FL_ONLY_UV)
+	{
+		if (buffer[0] == 'v' && buffer[1] == 't')
+		{
+			ParseUV(buffer);		
+		}
+		return;
+	}
+
 	switch (commandId)
 	{
 	case '#':
@@ -535,6 +540,12 @@ ModObjAsynchLoader::~ModObjAsynchLoader()
 
 }
 
+void ModObjAsynchLoader::SetOnlyLoadUV(bool flag)
+{
+	m_Data = m_pModel->GetLMData();
+	m_Data->flags = FL_ONLY_UV;
+}
+
 ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 {
 	if (!m_pFileData)
@@ -546,7 +557,11 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 	if (m_FileOffset >= m_pFileData->Length())
 	{
 		m_Data->flags |= FL_DATA_LOADED;
-		return new BuildDrawMeshTask(m_Data, m_pModel);
+
+		if (m_Data->flags & FL_ONLY_UV)
+			return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
+		else
+			return new BuildDrawMeshTask(m_Data, m_pModel);
 	}
 		
 	std::string buffer;

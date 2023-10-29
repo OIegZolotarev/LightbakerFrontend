@@ -22,12 +22,25 @@
 
 ModelOBJ::ModelOBJ(const char* fileName)
 {
+	m_strModelName = fileName;
+	auto fs = Application::GetFileSystem();
+
+	std::string lmModelPath = fs->MakeTemplatePath(fileName, "{0}/{1}.lm.obj");
+
+	if (fs->FileExists(lmModelPath))
+	{
+		ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, lmModelPath.c_str());
+		lmLoaderTask->SetOnlyLoadUV(true);
+		lmLoaderTask->Schedule();
+
+		m_hasLMMesh = true;
+	}
 
 	ModObjAsynchLoader* loaderTask = new ModObjAsynchLoader(this, fileName);
-	LoaderThread::Instance()->ScheduleTask(loaderTask);
+	loaderTask->Schedule();
 	//BuildDrawMesh();
 
-	m_strModelName = fileName;
+	
 
 }
 
@@ -198,6 +211,8 @@ void ModelOBJ::BuildDrawMesh()
 	mesh.Begin(GL_TRIANGLES);
 	mesh.Color4f(1, 1, 1, 1);
 
+	
+
 	for (auto& face : m_ModelData.faces)
 	{
 		if (face.materialId != currentMaterial)
@@ -221,7 +236,18 @@ void ModelOBJ::BuildDrawMesh()
 
 		if (m_ModelData.uvs.size() > 0 && face.uv > 0)
 		{
-			mesh.TexCoord2fv(&m_ModelData.uvs[(face.uv - 1) * m_ModelData.uvSize]);
+			size_t uvOffset = (face.uv - 1) * m_ModelData.uvSize;
+
+
+			mesh.TexCoord2fv(&m_ModelData.uvs[uvOffset]);
+
+			if (m_hasLMMesh)
+			{
+				uvOffset = (face.uv - 1) * m_LightmapModelData.uvSize;
+				float *lmUv = &m_LightmapModelData.uvs[uvOffset];
+				mesh.Color3f(lmUv[0], lmUv[1], 0);
+			}
+
 		}
 		else
 		{
@@ -393,6 +419,11 @@ void ModelOBJ::RenderUnshaded()
 mobjdata_t* ModelOBJ::GetModelData() 
 {
 	return &m_ModelData;
+}
+
+mobjdata_t* ModelOBJ::GetLMData()
+{
+	return &m_LightmapModelData;
 }
 
 void ModelOBJ::AddLightsIntoScene()

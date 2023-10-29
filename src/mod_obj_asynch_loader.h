@@ -25,12 +25,12 @@ class ModObjAsynchLoader : public ITask
 		Group,
 		Material
 	};
-
+		
 	std::string m_strFileName;
 	FileData* m_pFileData = nullptr;
 	size_t m_FileOffset = 0;
+	
 	size_t m_lastReportedOffset = 0;
-
 	size_t m_ReportRate = 0;
 	
 	ModelOBJ* m_pModel = nullptr;
@@ -51,14 +51,18 @@ class ModObjAsynchLoader : public ITask
 
 	size_t CurrentResource(StateMachineResource id);
 	
+	void InitializeLoader();
+
 public:
 	
 	ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName);
 	~ModObjAsynchLoader();
 	
+	void SetOnlyLoadUV(bool flag);
+
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 
-	void InitializeLoader();
+	
 
 	void OnCompletion() override;
 

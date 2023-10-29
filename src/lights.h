@@ -29,7 +29,7 @@ enum class LightTypes
 typedef class lightDef_s : public SceneEntity
 {
 public:
-	void UpdateEditorIcon();
+	void SetType(LightTypes type);
 
 	LightTypes	type = LightTypes::Omni;
 	int			flags = 0;
@@ -52,8 +52,8 @@ public:
 	void OnUnSelect() override;
 
 	const char* Description() override;
-
-	int serial_number = 0;
+	
+	bool IsLightEntity() override;
 
 }lightDef_t;
 

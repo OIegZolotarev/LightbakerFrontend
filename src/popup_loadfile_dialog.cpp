@@ -35,7 +35,7 @@ void LoadFileDialog::Render()
 			// action
 
 			//Application::Instance()->DoLoadModel(filePathName.c_str(), true);
-			Application::GetMainWindow()->GetSceneRenderer()->LoadModel(filePathName.c_str());
+			Application::GetMainWindow()->GetSceneRenderer()->LoadModel(filePathName.c_str(), LRF_LOAD_ALL);
 
 		}
 

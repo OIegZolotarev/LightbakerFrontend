@@ -12,6 +12,7 @@
 											const Type Get##Name() { return m_##Name; } \
 
 
+
 class SceneEntity: public ISelectableObject
 {
 	bool m_bDataLoaded = false;
@@ -32,13 +33,8 @@ public:
 	virtual void RenderDebug() {}; // Отладочная отрисовка
 
 
-	bool IsDataLoaded()
-	{
-		return m_bDataLoaded;
-	}
-
+	bool IsDataLoaded();
 	
-
 	DECLARE_PROPERTY(size_t, SerialNumber);
 	DECLARE_PROPERTY(glm::vec3, Position);
 	DECLARE_PROPERTY(glm::vec3, Color);	
@@ -52,6 +48,9 @@ public:
 	void RenderForSelection(int objectId, class SceneRenderer*) override;
 
 	virtual const char* Description();
+
+	virtual bool IsLightEntity() { return false;  }
+
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

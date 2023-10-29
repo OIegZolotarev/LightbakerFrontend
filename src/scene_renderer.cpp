@@ -98,6 +98,9 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 
 	for (auto& it : m_pScene->GetLightDefs())
 	{
+		if (!it->IsLightEntity())
+			continue;
+
 		sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(4, 4), it->GetEditorIcon(), it->GetColor());
 		selectionManager->PushObject(it);
 
@@ -123,10 +126,10 @@ float SceneRenderer::FrameDelta()
 	return m_pTargetWindow->FrameDelta();
 }
 
-void SceneRenderer::LoadModel(const char* dropped_filedir,bool keepLights)
+void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 {
 	delete m_pScene;
-	m_pScene = new Scene(dropped_filedir);
+	m_pScene = new Scene(dropped_filedir, LRF_LOAD_ALL);
 
 // 	if (dropped_filedir)
 // 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
@@ -238,13 +241,10 @@ Camera* SceneRenderer::GetCamera()
 	return m_pCamera;
 }
 
-void SceneRenderer::ReloadModel()
+void SceneRenderer::ReloadScene(int loadFlags)
 {
-//	m_pScene->Reload();
-// 	if (!m_pSceneModel)
-// 		return;
-// 
-// 	m_pSceneModel->ReloadTextures();
+	assert(m_pScene);
+	m_pScene->Reload(loadFlags);
 }
 
 void SceneRenderer::Debug_DrawGround()

@@ -146,8 +146,7 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 		{
 		case LightProperties::Type:
 			MakeLightTypeProperty(oldValue, ptr);
-			ptr->type = (LightTypes)it.GetEnumValue();
-			ptr->UpdateEditorIcon();
+			ptr->SetType((LightTypes)it.GetEnumValue());			
 			break;
 		case LightProperties::Flags:
 			MakeLightFlagsProperty(oldValue, ptr);
@@ -201,7 +200,7 @@ int LightPropertiesBinding::GetSerialNumber()
 
 	if (!ptr) return 0;
 
-	return ptr->serial_number;
+	return ptr->GetSerialNumber();
 }
 
 void LightPropertiesBinding::OnPropertyChangeSavedToHistory()
@@ -230,8 +229,10 @@ ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
 
 }
 
-void lightDef_s::UpdateEditorIcon()
+void lightDef_s::SetType(LightTypes newType)
 {
+	type = newType;
+
 	switch (type)
 	{
 	case LightTypes::Omni:
@@ -310,4 +311,9 @@ const char* lightDef_s::Description()
 	}
 
 	return "Bad";
+}
+
+bool lightDef_s::IsLightEntity()
+{
+	return true;
 }

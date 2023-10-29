@@ -7,13 +7,26 @@
 #include "scene.h"
 #include "properties_editor.h"
 
-Scene::Scene(const char* fileName)
+LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
+{
+	auto fs = Application::GetFileSystem();
+	auto ext = fs->ExtensionFromPath(levelName);
+
+	if (ext == ".obj")
+		return LevelFormat::WavefrontOBJ;
+	else if (ext == ".bsp")
+		return LevelFormat::BSP;
+}
+
+Scene::Scene(const char* levelName, int loadFlags)
 {
 	m_pEditHistory = new CEditHistory;
+	m_LevelFormat = DetermineLevelFormatFromFileName(levelName);
 
-	auto fs = Application::GetFileSystem();
-	auto ext = fs->ExtensionFromPath(fileName);
+	if (!(loadFlags & LRF_KEEP_ENTITIES))
+		ClearEntities();
 
+	LoadLevel(levelName);
 }
 
 Scene::~Scene()
@@ -60,20 +73,20 @@ void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
 
 	// newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
 	newLight->SetPosition(pos);
-	newLight->type = type;
-	newLight->UpdateEditorIcon();
+	newLight->SetType(type);
 	newLight->intensity = 10;
 
 	float hue = (float)rand() / 32768.f;
 
-	float rgb[3];
+	glm::vec3 rgb;
 
 	ImGui::ColorConvertHSVtoRGB(hue, 1, 1,
 		rgb[0],
 		rgb[1],
 		rgb[2]);
 
-	newLight->serial_number = m_ObjectsCounter.Allocate();
+	newLight->SetColor(rgb);
+	newLight->SetSerialNumber(m_ObjectsCounter.Allocate());
 
 	m_SceneEntities.push_back(newLight);
 	newLight->InvokeSelect();
@@ -214,4 +227,48 @@ SceneEntityWeakPtr Scene::GetEntityWeakRef(SceneEntity* pEntity)
 void Scene::RenderUnshaded()
 {
 	
+}
+
+void Scene::Reload(int loadFlags)
+{
+	
+}
+
+void Scene::ClearEntities()
+{
+	if (m_SceneEntities.empty())
+		return;
+
+	auto begin = m_SceneEntities.begin(); begin++;
+	auto end = m_SceneEntities.end();
+
+	m_SceneEntities.erase(begin, end);
+}
+
+void Scene::LoadLevel(const char* levelName)
+{
+	SceneEntityPtr pLevelEntity = nullptr;
+
+	switch (m_LevelFormat)
+	{
+	case LevelFormat::Unknown:
+		break;
+	case LevelFormat::WavefrontOBJ:
+		pLevelEntity = std::make_shared<ModelOBJ>(levelName);
+		break;
+	case LevelFormat::BSP:
+		break;
+	default:
+		break;
+
+	}
+
+	if (!m_SceneEntities.empty())
+	{
+		auto it = m_SceneEntities.begin(); it++;
+		*it = pLevelEntity;
+	}
+	else
+		m_SceneEntities.push_back(pLevelEntity);
+
 }

@@ -88,7 +88,7 @@ public:
 	// C:\User\Documents\file.txt -> file
 	std::string BaseNameFromPath(std::string& path);
 
-	// Возвращает каталог в которм находится файл:
+	// Возвращает каталог в котором находится файл:
 	// /home/user/path/to/file.txt -> /home/user/path/to/
 	// C:\User\Documents\file.txt -> C:\User\Documents\ 
 	std::string BaseDirectoryFromPath(const std::string& path);
@@ -98,10 +98,20 @@ public:
 	// C:\User\Documents\file.bsp -> .bsp
 	std::string ExtensionFromPath(const std::string& path);
 
-
+	// Формирует имя файла по шаблону
+	// предполагая что файл находит в том же каталоге что и указаный файл
+	// Параметры шаблона
+	//	{0} - Каталог в котором находится файл
+	//	{1} - Имя файла без расширения
+	//	{2} - расширение файла (с точкой - ".txt")
+	// 
+	//	Пример:
+	//		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
+	std::string MakeTemplatePath(const char* fileName, const char* templ);
 
 	bool FileExists(std::string fileName);
 
 	int CopyFile(const char* srcPath, const char* dstPath);
+	
 };
 

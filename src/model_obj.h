@@ -51,12 +51,16 @@ public:
 	void RenderUnshaded() override;
 
 	mobjdata_t* GetModelData();
+	mobjdata_t* GetLMData();
+
 	void AddLightsIntoScene();
 private:
 	mobjdata_t m_ModelData;
+	mobjdata_t m_LightmapModelData;
 
 	std::string m_strModelName;
 	std::string m_strDiffuseName;
 		
 	DrawMesh mesh;
+	bool m_hasLMMesh = false;
 };

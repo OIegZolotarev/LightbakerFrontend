@@ -208,6 +208,7 @@ std::string FileSystem::ExtensionFromPath(const std::string& filePath)
 	return path;
 }
 
+
 bool FileSystem::FileExists(std::string fileName)
 {
 	return _access(fileName.c_str(),0) == 0;
@@ -233,4 +234,25 @@ int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
 	fclose(f2);
 
 	return 0;
+}
+
+// Формирует имя файла по шаблону
+// предполагая что файл находит в том же каталоге что и указаный файл
+// Параметры шаблона
+//	{0} - Каталог в котором находится файл
+//	{1} - Имя файла без расширения
+//	{2} - расширение файла (с точкой - ".txt")
+// 
+//	Пример:
+//		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
+std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ)
+{
+	std::filesystem::path p = std::filesystem::path(fileName);
+	auto c = std::filesystem::canonical(p);
+		
+	std::string directory = c.parent_path().string();
+	std::string baseName = c.stem().string();
+	std::string extension = c.extension().string();
+	
+	return std::format(templ, directory, baseName, extension);
 }

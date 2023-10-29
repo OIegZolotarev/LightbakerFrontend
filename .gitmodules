@@ -25,3 +25,6 @@
 [submodule "include/better-enums"]
 	path = include/better-enums
 	url = https://github.com/aantron/better-enums
+[submodule "include/xatlas"]
+	path = include/xatlas
+	url = https://github.com/jpcy/xatlas/

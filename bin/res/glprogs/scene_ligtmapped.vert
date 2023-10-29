@@ -11,9 +11,11 @@ uniform mat4 view;
 uniform mat4 projection;
 
 out vec2 oTexCoord;
+out vec2 oLMCoord;
 
 void main()
 {
 	oTexCoord  = uv.xy;
+	oLMCoord  = color.xy;
     gl_Position = projection * (view * vec4(xyz * scale, 1.0));	    
 }

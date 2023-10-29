@@ -14,6 +14,11 @@ SceneEntity::SceneEntity()
 	m_EditorIcon = nullptr;
 }
   
+bool SceneEntity::IsDataLoaded()
+{
+	return m_bDataLoaded;
+}
+
 void SceneEntity::OnHovered()
 {
 	
