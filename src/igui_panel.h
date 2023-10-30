@@ -6,7 +6,7 @@
 #pragma once
 
 #include "ui_common.h"
-#include "..\include\better-enums\enum.h"
+#include <better-enums/enum.h>
 
 BETTER_ENUM(PanelsId,int, None,ObjectProperties, ConsoleOutput, SceneObjects, Debug, MaxPanels)
 

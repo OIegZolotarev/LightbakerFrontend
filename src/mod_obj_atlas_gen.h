@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "..\xatlas\source\xatlas\xatlas.h"
+#include <xatlas/xatlas.h>
 
 class MeshDeclWrapper
 {

@@ -10,7 +10,7 @@
 #include "lights.h"
 #include "model_obj.h"
 #include "edit_history.h"
-#include "Scene.h"
+#include "scene.h"
 
 enum class RenderMode
 {
