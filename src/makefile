@@ -1,4 +1,4 @@
-IDIR = -I../include -I../include/imgui -I/usr/include/SDL2 -I../include/json/include/ -I../include/xatlas/source/
+IDIR = -I../include -I../include/imgui -I/usr/include/SDL2 -I../include/json/include/ -I../include/xatlas/source/ -I../include/glm/
 
 
 LIBS  = -lGL -lm -ldl -lstdc++fs  -lSDL2 -lstdc++

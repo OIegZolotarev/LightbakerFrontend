@@ -5,7 +5,7 @@
 
 #pragma once
 
-// Общие файлы
+// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
 #define NOMINMAX
 
@@ -21,11 +21,11 @@
 #include <string>
 #include <functional>
 
-#include "../include/glm/glm/glm.hpp"
-#include "../include/glm/glm/gtc/quaternion.hpp"
-#include "../include/glm/glm/gtx/quaternion.hpp"
-#include "../include/glm/glm/ext/matrix_transform.hpp"
-#include "../include/glm/glm/mat4x4.hpp"
+#include <glm/glm.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/mat4x4.hpp>
 
 #include <glad/glad.h>
 

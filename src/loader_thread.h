@@ -1,5 +1,6 @@
 #pragma once
 
+#include "common.h"
 #include <functional>
 #include <queue>
 #include <SDL_thread.h>
@@ -86,8 +87,8 @@ protected:
 
 public:
 	
-	// Выполнить шаг задачи
-	// Желательно не сильно длинный
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	virtual ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) = 0;
 
 	virtual void OnCompletion() = 0;

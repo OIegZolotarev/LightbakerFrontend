@@ -71,7 +71,7 @@ std::string FileData::BaseName()
 
 std::string FileData::DirName()
 {
-	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name.c_str());
+	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name);
 }
 
 IArchive::IArchive(const char* fileName)
@@ -197,9 +197,9 @@ std::string FileSystem::BaseDirectoryFromPath(const std::string& fileName)
 {
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
-	std::string path = c.parent_path().string();
+	std::string parent_path = c.parent_path().string();
 
-	return path;
+	return parent_path;
 }
 
 std::string FileSystem::ExtensionFromPath(const std::string& filePath)
@@ -214,7 +214,11 @@ std::string FileSystem::ExtensionFromPath(const std::string& filePath)
 
 bool FileSystem::FileExists(std::string fileName)
 {
-	return _access(fileName.c_str(),0) == 0;
+	#ifdef LINUX
+		return access(fileName.c_str(),0) == 0;
+	#else
+		return _access(fileName.c_str(),0) == 0;
+	#endif
 }
 
 int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
@@ -250,6 +254,8 @@ int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
 //		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
 std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ)
 {
+#ifndef LINUX
+
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
 		
@@ -259,4 +265,5 @@ std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ
 	
 	std::string result = std::vformat(templ, std::make_format_args(directory, baseName, extension));
 	return result;
+#endif
 }
