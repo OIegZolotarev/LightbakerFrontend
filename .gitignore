@@ -31,3 +31,4 @@ build/Debug/imgui_popups.h.ifc
 build/Release/LightBakerFrontend.iobj
 build/Release/LightBakerFrontend.ipdb
 *.exe
+*.exe
