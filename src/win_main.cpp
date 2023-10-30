@@ -24,21 +24,18 @@
 
 int __stdcall WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
-
+	
 	Application* app = Application::Instance();
 
 	LoaderThread::Instance()->Start();
 
 	app->Init(lpCmdLine);
-	//app->Run();
+	app->InitMainWindow();
+	app->Run();
 
 	LoaderThread::Instance()->Stop();
 
 	delete Application::Instance();
 	delete LoaderThread::Instance();
 
-
-	_CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_DEBUG);
-	_CrtDumpMemoryLeaks();
 }

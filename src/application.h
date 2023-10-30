@@ -39,6 +39,9 @@ public:
 
 	// Функционал
 	void Run();
+
+	void InitMainWindow();
+
 	void Init(std::string cmdLine);
 	
 	static MainWindow* GetMainWindow();

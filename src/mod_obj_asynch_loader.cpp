@@ -540,7 +540,7 @@ ModObjAsynchLoader::ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName)
 
 ModObjAsynchLoader::~ModObjAsynchLoader()
 {
-
+	m_pFileData->UnRef();
 }
 
 void ModObjAsynchLoader::SetOnlyLoadUV(bool flag)

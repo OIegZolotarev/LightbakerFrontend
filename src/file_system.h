@@ -15,6 +15,10 @@ class FileData
 
 	int m_nReferences = 1;
 	size_t m_offset;
+
+	friend class FileSystem;
+	void FlagOwnsData();
+
 public:
 
 	FileData(byte* data, size_t length, const char* name);
@@ -33,6 +37,7 @@ public:
 
 	std::string BaseName();
 	std::string DirName();
+	
 };
 
 template<class T>

@@ -118,17 +118,20 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 	return;
 }
 
-void FreeGLTexture(gltexture_t*texture)
-{
-// Not really needed...
-// 	if (texture)
-// 		glDeleteTextures(1, &texture->gl_texnum);
-// 	delete texture;
-}
-
 void FreeGLTextures()
 {
 	ClearPointersVector(g_vecGLTextures);
+}
+
+void FreeGLTexture(gltexture_t* t)
+{
+	auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(), [&](gltexture_t*a) -> bool
+	{
+		return a->gl_texnum == t->gl_texnum;
+	});
+
+	if (pos != g_vecGLTextures.end())
+		g_vecGLTextures.erase(pos);
 }
 
 
@@ -244,6 +247,12 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
+
+	// thread-safe
+	g_vecGLTextures.push_back(m_pTexture);
+
+	stbi_image_free(m_pPixels);
+
 }
 
 bool AsynchTextureLoadResult::NeedEndCallback()

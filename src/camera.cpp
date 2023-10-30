@@ -26,6 +26,7 @@ Camera::Camera(SceneRenderer * pSceneRenderer)
 Camera::~Camera()
 {
 	ClearPointersVector(m_vKeyStrokesBlenderTouchpad);
+	ClearPointersVector(m_vKeyStrokesVHE);
 }
 
 void Camera::SetupKeystrokes()

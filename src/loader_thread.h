@@ -86,6 +86,8 @@ protected:
 
 public:
 	
+	virtual ~ITask() = default;
+
 	// Выполнить шаг задачи
 	// Желательно не сильно длинный
 	virtual ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) = 0;

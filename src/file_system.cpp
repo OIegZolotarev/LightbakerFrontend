@@ -71,6 +71,11 @@ std::string FileData::DirName()
 	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name.c_str());
 }
 
+void FileData::FlagOwnsData()
+{
+	m_bOwnsData = true;
+}
+
 IArchive::IArchive(const char* fileName)
 {
 	std::filesystem::path p = std::filesystem::path(fileName);
@@ -152,6 +157,7 @@ FileData* FileSystem::LoadFile(const char* fileName)
 	auto c = std::filesystem::canonical(p);
 
 	pResult = new FileData(data,length,c.string().c_str());
+	pResult->FlagOwnsData();
 
 	return pResult;
 }

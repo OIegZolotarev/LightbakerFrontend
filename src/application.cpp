@@ -32,19 +32,27 @@ Application::Application()
 
 Application::~Application()
 {
+	
+
 	if (m_pMainWindow) delete m_pMainWindow;
 	delete m_pFileSystem;
 		
-	
+	delete m_pCommandsRegistry;	
 	delete m_pPersistentStorage;
 	delete m_pLightBakerApplication;
+
+	
 }
 
 void Application::Run()
 {
-	m_pPersistentStorage =	new PersistentStorage(this);
-	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
 	m_pMainWindow->MainLoop();
+}
+
+void Application::InitMainWindow()
+{
+	m_pPersistentStorage = new PersistentStorage(this);
+	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
 }
 
 void Application::Init(std::string cmdLine)

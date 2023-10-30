@@ -21,14 +21,21 @@ typedef struct gltexture_s
 	int sprite_sheet_height;
 
 	GLuint gl_texnum;
+
+	~gltexture_s()
+	{
+		if (gl_texnum > 0)
+			glDeleteTextures(1, &gl_texnum);
+	}
+
 }gltexture_t;
 
 gltexture_t*	LoadGLTexture(const char* fileName, bool force = false);
 gltexture_t*	LoadGLTexture(FileData* pFileData, bool force = false);
 
 void			GLReloadTexture(gltexture_t*);
-void			FreeGLTexture(gltexture_t*);
 void			FreeGLTextures();
+void			FreeGLTexture(gltexture_t* t);
 
 class AsynchTextureLoadResult: public ITaskStepResult
 {

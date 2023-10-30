@@ -166,6 +166,7 @@ void LoaderThread::ExecuteEndCallbacks(size_t maxCallbacks)
 
 		stepInfo->ExecuteOnCompletion();
 		delete stepInfo;
+		
 	}
 
 	SDL_UnlockMutex(m_MainThreadMutex);

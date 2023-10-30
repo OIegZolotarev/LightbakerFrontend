@@ -33,6 +33,8 @@ SceneRenderer::~SceneRenderer()
 	delete m_pCamera;
 	delete m_pScene;
 	delete m_pUnitBoundingBox;
+
+	delete SelectionManager::Instance();
 	
 	delete m_pDirectionModel; m_pDirectionModel = 0;
 	m_pDirectionArrow = 0;

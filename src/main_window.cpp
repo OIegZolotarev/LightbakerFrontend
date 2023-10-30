@@ -44,11 +44,20 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 
 MainWindow::~MainWindow()
 {
+	FreeGLTextures();
 	FreeVector(m_vEventHandlers);
 	delete m_pSceneRenderer;
 
 	ClearPointersVector(m_vPanels);
-
+	
+	ImGui::DestroyContext(m_pImGUIContext);
+	
+	delete PopupsManager::Instance();
+	
+	SDL_DestroyWindow(m_pSDLWindow);
+	SDL_GL_DeleteContext(m_pGLContext);	
+	SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
+	SDL_Quit();
 }
 
 void MainWindow::InitBackend()
