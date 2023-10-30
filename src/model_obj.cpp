@@ -28,14 +28,8 @@ ModelOBJ::ModelOBJ(const char* fileName)
 
 	m_strLMModelPath = fs->MakeTemplatePath(fileName, "{0}/{1}.lm.obj");
 
-	if (fs->FileExists(m_strLMModelPath))
-	{
-		ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, m_strLMModelPath.c_str());
-		lmLoaderTask->SetOnlyLoadUV(true);
-		lmLoaderTask->Schedule();
+	LoadLMMesh();
 
-		m_hasLMMesh = true;
-	}
 
 	ModObjAsynchLoader* loaderTask = new ModObjAsynchLoader(this, fileName);
 	loaderTask->Schedule();
@@ -43,6 +37,18 @@ ModelOBJ::ModelOBJ(const char* fileName)
 
 	
 
+}
+
+void ModelOBJ::LoadLMMesh()
+{
+	auto fs = Application::GetFileSystem();
+
+	if (fs->FileExists(m_strLMModelPath))
+	{
+		ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, m_strLMModelPath.c_str());
+		lmLoaderTask->SetOnlyLoadUV(true);
+		lmLoaderTask->Schedule();
+	}
 }
 
 ModelOBJ::~ModelOBJ()
@@ -156,7 +162,7 @@ void ModelOBJ::ClearLightDefinitions()
 
 void ModelOBJ::AddLight(lightDefPtr_t& it)
 {
-	m_ModelData.lightDefs.push_back(it);
+	m_ModelData.lightDefs.push_back(new lightDef_s(*it));
 }
 
 void ModelOBJ::SetLightmapDimensions(int w, int h)
@@ -173,9 +179,8 @@ void ModelOBJ::BuildDrawMesh()
 	if (m_ModelData.verts.size() == 0)
 		return;
 	
-	// Check if lm mesh is valid
-
-	if (m_LightmapModelData.uvs.size() != m_ModelData.uvs.size())
+	// Check if lm mesh is valid	
+	if (m_LightmapModelData.UVCount() != m_ModelData.UVCount())
 	{
 		m_hasLMMesh = false;
 	}
@@ -370,7 +375,9 @@ void ModelOBJ::RenderLightshaded()
 
 	glEnable(GL_TEXTURE_2D);
 
-	if (m_hasLMMesh)
+	
+
+	if (m_hasLMMesh && m_LightmapModelData.flags & FL_DATA_LOADED)
 	{
 		auto mesh = m_LightmapModelData.meshes[0];
 		auto texture = mesh.lightmap_texture[0];
@@ -447,8 +454,19 @@ void ModelOBJ::AddLightsIntoScene()
 
 	for (auto def : m_ModelData.lightDefs)
 	{
-		scene->AddEntityWithSerialNumber(def, def->GetSerialNumber());
+		auto ptr = std::make_shared<lightDef_s>(*def);
+
+		scene->AddEntityWithSerialNumber(ptr, def->GetSerialNumber());
 	}
+}
+
+void ModelOBJ::FlagHasLMMesh()
+{
+	m_hasLMMesh = true;
+
+	// Cleanup
+
+	BuildDrawMesh();
 }
 
 void ModelOBJ::PrepareLights()
@@ -465,8 +483,12 @@ void ModelOBJ::PrepareLights()
 
 		if (lightPointer)
 		{
-			m_LightmapModelData.lightDefs.push_back(*light);
-			m_ModelData.lightDefs.push_back(*light);
+			// Наверное тупой подход
+			lightDef_s* l1 = new lightDef_s(*lightPointer);
+			lightDef_s* l2 = new lightDef_s(*lightPointer);
+
+			m_LightmapModelData.lightDefs.push_back(l1);
+			m_ModelData.lightDefs.push_back(l2);
 		}
 	}
 
@@ -496,20 +518,11 @@ void ModelOBJ::ReloadTextures()
 				it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
 			}
 		}
-			
-		if (!m_hasLMMesh)
-		{
-			auto fs = Application::GetFileSystem();
 
-			if (fs->FileExists(m_strLMModelPath))
-			{
-				ModObjAsynchLoader* lmLoaderTask = new ModObjAsynchLoader(this, m_strLMModelPath.c_str());
-				lmLoaderTask->SetOnlyLoadUV(true);
-				lmLoaderTask->Schedule();
-				m_hasLMMesh = true;
-			}
-		}
 	}
+
+	if (!m_hasLMMesh)
+		LoadLMMesh();
 }
 
 std::string & ModelOBJ::Export(const char* fileName)
@@ -529,32 +542,7 @@ std::string & ModelOBJ::Export(const char* fileName)
 		}
 		else
 		{
-
-			m_LightmapModelData.verts = m_ModelData.verts;
-			m_LightmapModelData.normals = m_ModelData.normals;
-			m_LightmapModelData.faces = m_ModelData.faces;
-			m_LightmapModelData.vertSize = m_ModelData.vertSize;
-			
-			m_LightmapModelData.objects.clear();
-			
-			for (auto & face : m_LightmapModelData.faces)
-				face.groupId = 1;
-
-
-
-			m_LightmapModelData.groups = m_ModelData.groups;
-
-			mobjegroup_t grp;
-			strncpy_s(grp.name, "default", sizeof(grp.name) - 1);
-
-			grp.object_id = 0;
-			grp.first_vertex = 0;
-			
-			m_LightmapModelData.groups.push_back(grp);
-
-			// FIXME
-			m_LightmapModelData.lightmapDimensions[0] = 1024;
-			m_LightmapModelData.lightmapDimensions[1] = 1024;
+			UpdateLMMesh();
 		}
 
 		PrepareLights();
@@ -563,12 +551,47 @@ std::string & ModelOBJ::Export(const char* fileName)
 		exporter->ExportSynch();
 		delete exporter;
 
+		if (!m_hasLMMesh)
+		{
+			LoadLMMesh();
+		}
+
 		exporter = new ModObjAsynchExporter(this, m_strModelName.c_str(), false);
 		exporter->ExportSynch();
 		delete exporter;
 	}
 
 	return m_strLMModelPath;
+}
+
+void ModelOBJ::UpdateLMMesh()
+{
+	m_LightmapModelData.verts = m_ModelData.verts;
+	m_LightmapModelData.normals = m_ModelData.normals;
+	m_LightmapModelData.faces = m_ModelData.faces;
+	m_LightmapModelData.vertSize = m_ModelData.vertSize;
+
+	m_LightmapModelData.objects.clear();
+
+	for (auto& face : m_LightmapModelData.faces)
+		face.groupId = 1;
+
+	m_LightmapModelData.groups = m_ModelData.groups;
+
+	m_LightmapModelData.groups.clear();
+
+	mobjegroup_t grp;
+	strncpy_s(grp.name, "default", sizeof(grp.name) - 1);
+
+	grp.object_id = 0;
+	grp.first_vertex = 0;
+
+	m_LightmapModelData.groups.push_back(grp);
+	m_LightmapModelData.groups.push_back(grp);
+
+	// FIXME
+	m_LightmapModelData.lightmapDimensions[0] = 1024;
+	m_LightmapModelData.lightmapDimensions[1] = 1024;
 }
 
 std::string ModelOBJ::GetModelFileName()

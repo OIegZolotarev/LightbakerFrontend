@@ -1,1 +1,0 @@
-LightBaker3000.exe sample.obj sample.png -samples 256 -rnm -rgba16

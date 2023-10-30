@@ -8,6 +8,7 @@
 #include "lights.h"
 #include "text_utils.h"
 #include "mod_obj_asynch_loader.h"
+#include "UpdateLMMeshStatus.h"
 
 void ModObjAsynchLoader::ParseVertex(std::string& s)
 {
@@ -208,68 +209,68 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 
 	assert(tokens.size() >= 14);
 
-	lightDef_t newLight;
-	memset(&newLight, 0, sizeof(newLight));
+	lightDef_t* newLight = new lightDef_t;
+	memset(newLight, 0, sizeof(lightDef_t));
 
 	// Light type
 
 	auto typeInfo = TextUtils::Split(tokens[0], "_");
 
-	if (typeInfo[0] == "#omni")				newLight.SetType(LightTypes::Omni);
-	else if (typeInfo[0] == "#direct")		newLight.SetType(LightTypes::Direct);
-	else if (typeInfo[0] == "#spot")		newLight.SetType(LightTypes::Spot);
+	if (typeInfo[0] == "#omni")				newLight->SetType(LightTypes::Omni);
+	else if (typeInfo[0] == "#direct")		newLight->SetType(LightTypes::Direct);
+	else if (typeInfo[0] == "#spot")		newLight->SetType(LightTypes::Spot);
 	
 	// Parse flags
 	for (size_t i = 1; i < typeInfo.size(); i++)
 	{
 		if (typeInfo[i] == "euler")
-			newLight.flags |= LF_EULER;
+			newLight->flags |= LF_EULER;
 		else if (typeInfo[i] == "dyn")
-			newLight.flags |= LF_EULER;
+			newLight->flags |= LF_EULER;
 		else if (typeInfo[i] == "xyz")
-			newLight.flags |= LF_XYZ;
+			newLight->flags |= LF_XYZ;
 		else if (typeInfo[i] == "linear")
-			newLight.flags |= LF_XYZ;
+			newLight->flags |= LF_XYZ;
 		else if (typeInfo[i] == "disk")
-			newLight.flags |= LF_DISK;
+			newLight->flags |= LF_DISK;
 		else if (typeInfo[i] == "rect")
-			newLight.flags |= LF_RECT;
+			newLight->flags |= LF_RECT;
 	}
 
 	glm::vec3 pos;
 	pos[0] = stof(tokens[1]) * m_Data->sceneScale;
 	pos[1] = stof(tokens[2]) * m_Data->sceneScale;
 	pos[2] = stof(tokens[3]) * m_Data->sceneScale;
-	newLight.SetPosition(pos);
+	newLight->SetPosition(pos);
 
 	glm::vec3 color;
 	color[0] = stof(tokens[4]);
 	color[1] = stof(tokens[5]);
 	color[2] = stof(tokens[6]);
-	newLight.SetColor(color);
+	newLight->SetColor(color);
 
-	newLight.intensity = stof(tokens[7]) * m_Data->sceneScale;
+	newLight->intensity = stof(tokens[7]) * m_Data->sceneScale;
 
-	newLight.anglesDirection[0] = stof(tokens[8]);
-	newLight.anglesDirection[1] = stof(tokens[9]);
-	newLight.anglesDirection[2] = stof(tokens[10]);
+	newLight->anglesDirection[0] = stof(tokens[8]);
+	newLight->anglesDirection[1] = stof(tokens[9]);
+	newLight->anglesDirection[2] = stof(tokens[10]);
 
-	newLight.cones[0] = stof(tokens[11]);
-	newLight.cones[1] = stof(tokens[12]);
+	newLight->cones[0] = stof(tokens[11]);
+	newLight->cones[1] = stof(tokens[12]);
 
-	newLight.style = stoi(tokens[13]);
+	newLight->style = stoi(tokens[13]);
 
 	if (tokens.size() > 14)
-		newLight.size[0] = stof(tokens[14]);
+		newLight->size[0] = stof(tokens[14]);
 	else
-		newLight.size[0] = 0;
+		newLight->size[0] = 0;
 
 	if (tokens.size() > 15)
-		newLight.size[1] = stof(tokens[15]);
+		newLight->size[1] = stof(tokens[15]);
 	else
-		newLight.size[1] = newLight.size[0];
+		newLight->size[1] = newLight->size[0];
 
-	m_Data->lightDefs.push_back(std::make_shared<lightDef_s>(newLight));
+	m_Data->lightDefs.push_back(newLight);
 }
 
 void ModObjAsynchLoader::ParseFace(std::string& s)
@@ -533,6 +534,8 @@ ModObjAsynchLoader::ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName)
 	m_strFileName = fileName;
 	m_pModel = pModel;
 	m_Data = m_pModel->GetModelData();
+
+	//m_Data->Clear();
 }
 
 ModObjAsynchLoader::~ModObjAsynchLoader()
@@ -543,7 +546,9 @@ ModObjAsynchLoader::~ModObjAsynchLoader()
 void ModObjAsynchLoader::SetOnlyLoadUV(bool flag)
 {
 	m_Data = m_pModel->GetLMData();
+	m_Data->Clear();
 	m_Data->flags = FL_LOAD_LIGHTMAP;
+
 }
 
 ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
@@ -563,23 +568,7 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 
 		if (m_Data->flags & FL_LOAD_LIGHTMAP)
 		{
-			auto fs = Application::GetFileSystem();
-
-			AsynchTextureLoadTask* loadLightmapTask = new AsynchTextureLoadTask("Loading lightmaps...");
-
-			for (int i = 0; i < MAX_LIGHT_STYLES; i++)
-			{
-				auto lmTextureFileName = fs->MakeTemplatePath(m_strFileName.c_str(), "{0}/{1}_lightmap");
-				lmTextureFileName += "_0.png";
-
-				m_Data->meshes[0].lightmap_texture_path[i] = lmTextureFileName;
-				m_Data->meshes[0].lightmap_texture[i] = loadLightmapTask->ScheduleTexture(lmTextureFileName.c_str());
-			}
-				
-			loadLightmapTask->Schedule();
-
-
-			return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
+			return FinishLoadingLMMesh();
 		}
 		else
 			return new BuildDrawMeshTask(m_Data, m_pModel);
@@ -631,6 +620,27 @@ ITaskStepResult* ModObjAsynchLoader::ExecuteStep(LoaderThread* loaderThread)
 	}
 
 	return new MeshLoadingProgressStep(m_nPerformedSteps, m_nTotalSteps);
+}
+
+ITaskStepResult* ModObjAsynchLoader::FinishLoadingLMMesh()
+{
+	auto fs = Application::GetFileSystem();
+
+	AsynchTextureLoadTask* loadLightmapTask = new AsynchTextureLoadTask("Loading lightmaps...");
+
+	for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+	{
+		auto lmTextureFileName = fs->MakeTemplatePath(m_strFileName.c_str(), "{0}/{1}_lightmap");
+		lmTextureFileName += std::format("_{0}.png", i);
+
+		m_Data->meshes[0].lightmap_texture_path[i] = lmTextureFileName;
+		m_Data->meshes[0].lightmap_texture[i] = loadLightmapTask->ScheduleTexture(lmTextureFileName.c_str());
+	}
+
+	loadLightmapTask->Schedule();
+
+
+	return new UpdateLMMeshStatus(m_pModel);
 }
 
 void ModObjAsynchLoader::InitializeLoader()
@@ -726,4 +736,14 @@ ModObjAsynchLoader::MeshLoadingProgressStep::MeshLoadingProgressStep(size_t prog
 ModObjAsynchLoader::MeshLoadingProgressStep::~MeshLoadingProgressStep()
 {
 
+}
+
+ModObjAsynchLoader::UpdateLMMeshStatus::UpdateLMMeshStatus(ModelOBJ* pModel): ITaskStepResult(TaskStepResultType::FinishedSuccesfully)
+{
+	m_pModel = pModel;
+}
+
+void ModObjAsynchLoader::UpdateLMMeshStatus::ExecuteOnCompletion()
+{
+	m_pModel->FlagHasLMMesh();
 }

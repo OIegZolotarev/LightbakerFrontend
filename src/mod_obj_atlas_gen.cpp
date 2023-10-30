@@ -124,11 +124,22 @@ void GenerateAtlasTask::TransferNewUV(xatlas::Atlas* atlas)
 			lmData->uvs[uvOffset + 1] = mesh->vertexArray[j].uv[1] / atlas->height;
 
 			lmFace.materialId = 0;
+			lmFace.groupId = 1;
 		}
 
 		//mesh->vertexArray
 	}
 
+	lmData->groups.clear();
+
+	mobjegroup_t grp;
+	strncpy_s(grp.name, "default", sizeof(grp.name) - 1);
+
+	grp.object_id = 0;
+	grp.first_vertex = 0;
+
+	lmData->groups.push_back(grp);
+	lmData->groups.push_back(grp);
 }
 
 GenerateAtlasTask::GenerateAtlasTask(ModelOBJ* pModel)

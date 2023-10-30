@@ -29,7 +29,9 @@ class Scene
 
 	// Scene Entity 0 - level model
 	std::list<SceneEntityPtr> m_SceneEntities;	
-	std::list<lightDefWPtr_t> m_SceneLightDefs;
+	
+	
+	//std::list<lightDefWPtr_t> m_SceneLightDefs;
 	//std::shared_ptr<ModelOBJ>  m_pSceneModel;
 		
 	float m_flSceneScale = 1.0f;

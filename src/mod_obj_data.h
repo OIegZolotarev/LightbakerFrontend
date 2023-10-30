@@ -75,7 +75,15 @@ typedef struct mobjdata_s
 	std::vector<MaterialTemplateLibrary*>	materialLibs; // owns
 
 
-	std::vector<SceneEntityPtr>		lightDefs;
+	std::vector<lightDef_s*>		lightDefs;
+
+	void CleanLightDefs()
+	{
+		for (auto item : lightDefs)
+			delete item;
+
+		lightDefs.clear();		
+	}
 		
 	glm::vec3					envColor = {1,1,1};
 	size_t						lightmapDimensions[2] = {0};
@@ -83,4 +91,30 @@ typedef struct mobjdata_s
 	
 	//unsigned int	m_LightsParsed = 0;
 	//mobjmaterial_t* mCurrentMaterial = nullptr;
+
+	size_t UVCount()
+	{
+		if (uvSize > 0)
+			return uvs.size() / uvSize;
+		return 0;
+	}
+
+
+	void Clear()
+	{
+		verts.clear();
+		uvs.clear();
+		normals.clear();
+
+		faces.clear();
+		meshes.clear();
+		groups.clear();
+		objects.clear();
+
+		materials.clear();
+
+		ClearPointersVector(materialLibs);
+	}
+
+
 }mobjdata_t;

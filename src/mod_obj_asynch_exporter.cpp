@@ -25,10 +25,10 @@ void ModObjAsynchExporter::ExportLightDefs() const
 	fprintf(m_pFPOut, "#lights_start\n");
 
 	// TODO: review
-	for (auto & ent : m_pData.lightDefs)
+	for (auto it : m_pData.lightDefs)
 	{
 
-		std::shared_ptr <lightDef_s> it = std::dynamic_pointer_cast<lightDef_s> (ent);
+		
 
 		std::string lightBaseType;
 

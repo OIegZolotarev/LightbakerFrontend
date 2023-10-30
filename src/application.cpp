@@ -3,6 +3,10 @@
 	(c) 2022 CrazyRussian
 */
 
+#define _CRTDBG_MAP_ALLOC
+#include <crtdbg.h>
+
+
 #include "application.h"
 #include "../tiny-process-library/process.hpp"
 #include <thread>
@@ -168,8 +172,6 @@ void Application::ScheduleCompilationIfNecceseary()
 	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::DynamicallyRecompileLighting))
 		return;
 
-	// TODO: FIXME
-	return;
 
 	if (!Application::IsWaitingForBakerToFinish())
 	{

@@ -62,7 +62,8 @@ public:
 
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 
-	
+	ITaskStepResult* FinishLoadingLMMesh();
+
 
 	void OnCompletion() override;
 
@@ -85,6 +86,18 @@ public:
 
 	private:
 		mobjdata_t* m_pModelData;
+		ModelOBJ* m_pModel;
+	};
+
+	class UpdateLMMeshStatus : public ITaskStepResult
+	{
+	public:
+		UpdateLMMeshStatus(ModelOBJ* pModel);
+		void ExecuteOnCompletion();
+		virtual bool NeedEndCallback() override { return true; }
+
+
+	private:		
 		ModelOBJ* m_pModel;
 	};
 

@@ -129,11 +129,17 @@ void CEditHistory::Redo()
 	
 	Application::ScheduleCompilationIfNecceseary();
 }
-
+ 
 CDeleteLightAction::CDeleteLightAction(SceneEntityPtr pObject)
+ {
+ 	m_Object = new SceneEntity(*pObject);
+ 	m_Object->SetSelected(false);
+ }
+
+CDeleteLightAction::~CDeleteLightAction()
 {
-	m_Object = pObject;
-	m_Object->SetSelected(false);
+	if (m_Object)
+		delete m_Object;
 }
 
 void CDeleteLightAction::Redo()
@@ -145,5 +151,8 @@ void CDeleteLightAction::Redo()
 void CDeleteLightAction::Undo()
 {
 	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-	scene->AddEntityWithSerialNumber(m_Object, m_Object->GetSerialNumber());
+
+	auto objPtr = std::make_shared<SceneEntity>(*m_Object);
+
+	scene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
 }

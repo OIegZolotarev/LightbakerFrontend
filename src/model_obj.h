@@ -16,6 +16,9 @@ class ModelOBJ: public SceneEntity
 {
 public:
 	ModelOBJ(const char* fileName);
+
+	void LoadLMMesh();
+
 	~ModelOBJ();
 
 	void DrawDebug();
@@ -27,6 +30,8 @@ public:
 
 	// Возвращает путь к файлу ЛМ-модели
 	std::string & Export(const char* fileName);
+
+	void UpdateLMMesh();
 
 	void ClearLightDefinitions();
 	void AddLight(lightDefPtr_t& it);
@@ -56,6 +61,7 @@ public:
 	mobjdata_t* GetLMData();
 
 	void AddLightsIntoScene();
+	void FlagHasLMMesh();
 private:
 	mobjdata_t m_ModelData;
 	mobjdata_t m_LightmapModelData;

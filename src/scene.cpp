@@ -6,6 +6,7 @@
 #include "application.h"
 #include "scene.h"
 #include "properties_editor.h"
+#include "mod_obj_atlas_gen.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -45,14 +46,13 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
 	if (!ptr)
 		return;
 
-	auto pos = std::remove_if(m_SceneEntities.begin(), m_SceneEntities.end(), [&](SceneEntityPtr& it)
-		{
-			return it == ptr;
-		});
+	auto predicate = [&](SceneEntityPtr& it) -> bool
+	{
+		return it == ptr;
+	};
 
-
-	// No needed?
-	// m_SceneEntities.erase(pos);
+	auto pos = std::remove_if(m_SceneEntities.begin(), m_SceneEntities.end(), predicate);	
+	m_SceneEntities.remove(*pos);		
 }
 
 void Scene::DoDeleteSelection()
@@ -284,9 +284,6 @@ void Scene::LoadLevel(const char* levelName)
 		m_SceneEntities.push_back(pLevelEntity);
 
 }
-
-
-#include "mod_obj_atlas_gen.h"
 
 std::string Scene::ExportForCompiling(const char* newPath)
 {

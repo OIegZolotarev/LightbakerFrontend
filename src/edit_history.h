@@ -33,9 +33,10 @@ public:
 
 class CDeleteLightAction : public IEditAction
 {
-	SceneEntityPtr m_Object;
+	SceneEntity* m_Object = nullptr;
 public:
 	CDeleteLightAction(SceneEntityPtr pObject);
+	~CDeleteLightAction();
 
 	void Redo() override;
 	void Undo() override;
