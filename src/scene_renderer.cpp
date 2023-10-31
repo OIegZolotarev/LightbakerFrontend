@@ -26,6 +26,54 @@ SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
 
 	m_pDirectionModel = new ModelOBJ("res/mesh/arrow.obj");
 	m_pDirectionArrow = m_pDirectionModel->GetDrawMesh();
+	RegisterRendermodesCommands();
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DumpLightmapMesh, "Dump lightmap mesh", 0, 0, 0,
+		[&]()
+		{
+			DumpLightmapMesh();
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DumpLightmapUV, "Dump lightmap uv", 0, 0, 0,
+		[&]()
+		{
+			DumpLightmapUV();
+		}));
+
+}
+
+
+void SceneRenderer::RegisterRendermodesCommands()
+{
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LightshadedRenderMode, "Lightshaded", 0, 0, 0,
+		[&]()
+		{
+			m_RenderMode = RenderMode::Lightshaded;
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::UnshadedRenderMode, "Unshaded (diffuse only)", 0, 0, 0,
+		[&]()
+		{
+			m_RenderMode = RenderMode::Unshaded;
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::WireframeLightshadedRenderMode, "Lightshaded wireframe", 0, 0, 0,
+		[&]()
+		{
+			m_RenderMode = RenderMode::WireframeShaded;
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::WireframeUnshadedRenderMode, "Unshaded wireframe", 0, 0, 0,
+		[&]()
+		{
+			m_RenderMode = RenderMode::WireframeUnshaded;
+		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::GroupShadedRenderMode, "Groups shaded", 0, 0, 0,
+		[&]()
+		{
+			m_RenderMode = RenderMode::Groups;
+		}));
 }
 
 SceneRenderer::~SceneRenderer()
@@ -72,13 +120,14 @@ void SceneRenderer::RenderScene()
 		case RenderMode::Lightshaded:
 			m_pScene->RenderLightShaded();
 			break;
-		default:
-			break;
 		case RenderMode::WireframeUnshaded:
 			break;
 		case RenderMode::WireframeShaded:
 			break;
-
+		case RenderMode::Groups:
+			m_pScene->RenderGroupsShaded();
+		default:
+			break;
 		}
 
 		RenderHelperGeometry(selectionManager);
@@ -310,6 +359,26 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
 	}
 
+}
+
+RenderMode SceneRenderer::GetRenderMode()
+{
+	return m_RenderMode;
+}
+
+void SceneRenderer::DumpLightmapMesh()
+{
+	m_pScene->DumpLightmapMesh();
+}
+
+void SceneRenderer::DumpLightmapUV()
+{
+	m_pScene->DumpLightmapUV();
+}
+
+void SceneRenderer::SetRenderMode(RenderMode newMode)
+{
+	m_RenderMode = newMode;
 }
 
 void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)

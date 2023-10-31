@@ -20,7 +20,7 @@ protected:
 	void LinkSamplerToUnit(const char* sampleName, GLuint unitNumber);
 public:
 	ISceneShader();
-	~ISceneShader();
+	virtual ~ISceneShader();
 
 	void SetView(float* matrix);
 	void SetProjection(float* matrix);

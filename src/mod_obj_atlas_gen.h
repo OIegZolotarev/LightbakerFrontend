@@ -37,7 +37,7 @@ class GenerateAtlasTask : public ITask
 	std::list<MeshDeclWrapper*> m_lstWrappers;
 	ModelOBJ* m_pModel;
 
-	void TransferNewUV(xatlas::Atlas*);
+	xatlas::Atlas* atlas;
 public:
 	GenerateAtlasTask(ModelOBJ * pModel);
 	~GenerateAtlasTask();
@@ -45,4 +45,8 @@ public:
 	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
 	void OnCompletion() override;
 
+	void TransferNewUV();
+
+
+	void DumpUVImage(const char * fileName);
 };

@@ -123,12 +123,14 @@ CCommand* CCommandsRegistry::FindCommandByGlobalId(GlobalCommands id)
 	return 0;
 }
 
-void CCommandsRegistry::RenderCommandAsMenuItem(GlobalCommands cmdId)
+void CCommandsRegistry::RenderCommandAsMenuItem(GlobalCommands cmdId, bool checked)
 {
 	CCommand* cmd = FindCommandByGlobalId(cmdId);
 	assert(cmd);
 
-	if (ImGui::MenuItem(cmd->GetDescription(), cmd->GetShortcutDescription()))
+	bool tmp2 = checked;
+
+	if (ImGui::MenuItem(cmd->GetDescription(), cmd->GetShortcutDescription(),&tmp2))
 	{
 		cmd->Execute();
 	}

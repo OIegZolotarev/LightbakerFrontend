@@ -82,4 +82,7 @@ private:
 	void LoadLevel(const char* levelName);
 public:
 	std::string ExportForCompiling(const char* newPath);
+	void RenderGroupsShaded();
+	void DumpLightmapMesh();
+	void DumpLightmapUV();
 };

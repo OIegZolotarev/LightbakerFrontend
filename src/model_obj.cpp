@@ -179,11 +179,8 @@ void ModelOBJ::BuildDrawMesh()
 	if (m_ModelData.verts.size() == 0)
 		return;
 	
-	// Check if lm mesh is valid	
-	if (m_LightmapModelData.UVCount() != m_ModelData.UVCount())
-	{
-		m_hasLMMesh = false;
-	}
+	ValidateLightmap();
+
 
 
 	// Sort faces by mesh_id
@@ -293,6 +290,33 @@ void ModelOBJ::BuildDrawMesh()
 	FlagDataLoaded();
 }
 
+void ModelOBJ::ValidateLightmap()
+{
+	auto sc = Application::GetMainWindow()->GetSceneRenderer();
+
+	// Check if lm mesh is valid	
+	if (m_LightmapModelData.UVCount() != m_ModelData.UVCount())
+	{
+		m_hasLMMesh = false;
+		
+	}
+	
+
+	if (m_hasLMMesh)
+	{
+		auto mesh = m_LightmapModelData.meshes[0];
+		auto texture = mesh.lightmap_texture[0];
+
+		if (texture->gl_texnum == 0)
+			m_hasLMMesh = false;
+	}
+
+	if (m_hasLMMesh)
+		sc->SetRenderMode(RenderMode::Lightshaded);
+	else
+		sc->SetRenderMode(RenderMode::Unshaded);
+}
+
 float ModelOBJ::GetSceneScale()
 {
 	return m_ModelData.sceneScale;
@@ -353,7 +377,7 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 
 void ModelOBJ::RenderBoundingBox()
 {
-	throw std::logic_error("The method or operation is not implemented.");
+	//throw std::logic_error("The method or operation is not implemented.");
 }
 
 void ModelOBJ::RenderDebug()
@@ -363,19 +387,22 @@ void ModelOBJ::RenderDebug()
 
 void ModelOBJ::RenderLightshaded()
 {
+	auto shader = GLBackend::Instance()->LightMappedSceneShader();
+	CommonDrawGeometryWithShader(shader);
+}
+
+void ModelOBJ::CommonDrawGeometryWithShader(ISceneShader* shader)
+{
+	mesh.Bind();
+
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();
 
-	mesh.Bind();
-
-	auto shader = GLBackend::Instance()->LightMappedSceneShader();
 	shader->Bind();
 	shader->SetScale(scene->GetSceneScale());
 	shader->SetDefaultCamera();
 
 	glEnable(GL_TEXTURE_2D);
-
-	
 
 	if (m_hasLMMesh && m_LightmapModelData.flags & FL_DATA_LOADED)
 	{
@@ -384,7 +411,7 @@ void ModelOBJ::RenderLightshaded()
 
 		glActiveTexture(GL_TEXTURE1);
 		{
-			
+
 			glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
 		}
 	}
@@ -433,8 +460,65 @@ void ModelOBJ::RenderLightshaded()
 }
 
 void ModelOBJ::RenderUnshaded()
+{	
+	auto shader = GLBackend::Instance()->DiffuseSceneShader();
+	CommonDrawGeometryWithShader(shader);
+}
+
+void ModelOBJ::RenderGroupShaded()
 {
-	//throw std::logic_error("The method or operation is not implemented.");
+	auto shader = GLBackend::Instance()->GroupShadedSceneShader();
+	
+
+	mesh.Bind();
+
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRenderer->GetScene();
+
+	shader->Bind();
+	shader->SetScale(scene->GetSceneScale());
+	shader->SetDefaultCamera();
+
+	shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+	//for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
+
+	int index = 0;
+
+	for (auto& it : m_ModelData.meshes)
+	{
+		//auto it = m_ModelData.meshes[i];
+
+		if (it.num_faces == 0)
+		{
+			continue;
+		}
+
+		int hash = (it.num_faces * it.first_face * index * (int)&it) % 360;
+
+		float hue = (float)hash / 360.f;
+
+		glm::vec3 rgb;
+
+		ImGui::ColorConvertHSVtoRGB(hue, 1, 1,
+			rgb[0],
+			rgb[1],
+			rgb[2]);
+
+		shader->SetObjectColor(glm::vec4(rgb, 1));
+
+		mesh.Draw(it.first_face, it.num_faces);
+		index++;
+
+	}
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	shader->Unbind();
+	mesh.Unbind();
+
 }
 
 mobjdata_t* ModelOBJ::GetModelData() 
@@ -465,8 +549,13 @@ void ModelOBJ::FlagHasLMMesh()
 	m_hasLMMesh = true;
 
 	// Cleanup
-
+	ReloadLightmapTextures();
 	BuildDrawMesh();
+}
+
+const char* ModelOBJ::Description()
+{
+	return "<world - obj model>";
 }
 
 void ModelOBJ::PrepareLights()
@@ -496,14 +585,22 @@ void ModelOBJ::PrepareLights()
 
 void ModelOBJ::ReloadTextures()
 {
-	for (auto& it: m_LightmapModelData.meshes)
+	if (m_hasLMMesh)	
+		ReloadLightmapTextures();
+	else
+		LoadLMMesh();
+}
+
+void ModelOBJ::ReloadLightmapTextures()
+{
+	for (auto& it : m_LightmapModelData.meshes)
 	{
 		if (it.diffuse_texture)
 			GLReloadTexture(it.diffuse_texture);
 		else
 		{
 			it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
-			
+
 			if (it.diffuse_texture)
 				if (it.diffuse_texture->width == -1)
 					it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
@@ -520,9 +617,6 @@ void ModelOBJ::ReloadTextures()
 		}
 
 	}
-
-	if (!m_hasLMMesh)
-		LoadLMMesh();
 }
 
 std::string & ModelOBJ::Export(const char* fileName)
@@ -538,12 +632,17 @@ std::string & ModelOBJ::Export(const char* fileName)
 		if (!m_hasLMMesh)
 		{
 			GenerateAtlasTask* tsk = new GenerateAtlasTask(this);
+			tsk->TransferNewUV();
 			delete tsk;
 		}
 		else
 		{
 			UpdateLMMesh();
 		}
+		
+		// FIXME
+		m_LightmapModelData.lightmapDimensions[0] = 1024;
+		m_LightmapModelData.lightmapDimensions[1] = 1024;
 
 		PrepareLights();
 
@@ -589,9 +688,7 @@ void ModelOBJ::UpdateLMMesh()
 	m_LightmapModelData.groups.push_back(grp);
 	m_LightmapModelData.groups.push_back(grp);
 
-	// FIXME
-	m_LightmapModelData.lightmapDimensions[0] = 1024;
-	m_LightmapModelData.lightmapDimensions[1] = 1024;
+
 }
 
 std::string ModelOBJ::GetModelFileName()

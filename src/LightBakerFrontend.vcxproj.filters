@@ -328,9 +328,6 @@
     <ClInclude Include="imgui_helpers.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="shader_program.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="custom_font.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -412,6 +409,9 @@
     <ClInclude Include="loader_thread.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="shader_program.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -434,13 +434,19 @@
     <None Include="..\bin\res\glprogs\scene_ligtmapped.frag">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="..\bin\res\glprogs\scene_ligtmapped.vert">
+    <None Include="..\bin\res\glprogs\scene.vert">
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\scene_diffuse.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\scene_groupshaded.frag">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

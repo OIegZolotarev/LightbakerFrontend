@@ -7,6 +7,7 @@
 #include "scene.h"
 #include "properties_editor.h"
 #include "mod_obj_atlas_gen.h"
+#include "mod_obj_asynch_exporter.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -17,6 +18,8 @@ LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 		return LevelFormat::WavefrontOBJ;
 	else if (ext == ".bsp")
 		return LevelFormat::BSP;
+
+	return LevelFormat::Unknown;
 }
 
 Scene::Scene(const char* levelName, int loadFlags)
@@ -112,7 +115,7 @@ void Scene::HintSelected(SceneEntityWeakPtr weakRef)
 
 SceneEntityWeakPtr Scene::GetSelection()
 {
-	return m_pCurrentSelection;
+	return m_pCurrentSelection;	
 }
 
 void Scene::RenderObjectsFor3DSelection()
@@ -232,7 +235,19 @@ SceneEntityWeakPtr Scene::GetEntityWeakRef(SceneEntity* pEntity)
 
 void Scene::RenderUnshaded()
 {
-	
+	auto selectionManager = SelectionManager::Instance();
+
+	for (auto& it : m_SceneEntities)
+	{
+		if (!it)
+			continue;
+
+		if (!it->IsDataLoaded())
+			continue;
+
+		it->RenderUnshaded();
+		selectionManager->PushObject(it);
+	}
 }
 
 void Scene::Reload(int loadFlags)
@@ -293,4 +308,49 @@ std::string Scene::ExportForCompiling(const char* newPath)
 	auto obj = (ModelOBJ*)entity;
 	return obj->Export(newPath);
 
+}
+
+void Scene::RenderGroupsShaded()
+{
+	auto selectionManager = SelectionManager::Instance();
+
+	for (auto& it : m_SceneEntities)
+	{
+		if (!it)
+			continue;
+
+		if (!it->IsDataLoaded())
+			continue;
+
+		it->RenderGroupShaded();
+		selectionManager->PushObject(it);
+	}
+}
+
+void Scene::DumpLightmapMesh()
+{
+	// TODO: fixme
+	auto it = m_SceneEntities.begin();
+	SceneEntity* entity = (*it).get();
+	auto obj = (ModelOBJ*)entity;
+
+	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
+	tsk->TransferNewUV();
+
+	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(obj, "lm_debug.obj", true);
+	exporter->ExportSynch();
+	delete exporter;
+
+}
+
+void Scene::DumpLightmapUV()
+{
+	// TODO: fixme
+	auto it = m_SceneEntities.begin();
+	SceneEntity* entity = (*it).get();
+	auto obj = (ModelOBJ*)entity;
+
+	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
+	tsk->DumpUVImage("lm_debug%02u.tga");
+	delete tsk;
 }

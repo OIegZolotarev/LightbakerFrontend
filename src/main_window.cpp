@@ -413,13 +413,18 @@ void MainWindow::InitCommands()
 
 float MainWindow::RenderMainMenu()
 {
+	auto registry = Application::CommandsRegistry();
+#define COMMAND_ITEM registry->RenderCommandAsMenuItem
+
+	
+
 	float size = 0;
 
 	if (ImGui::BeginMainMenuBar())
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::LoadFile);
+			COMMAND_ITEM(GlobalCommands::LoadFile);
 
 			ImGui::Separator();
 
@@ -457,19 +462,23 @@ float MainWindow::RenderMainMenu()
 
 		if (ImGui::BeginMenu("Edit"))
 		{
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::SceneScale);
+			COMMAND_ITEM(GlobalCommands::SceneScale);
 			ImGui::Separator();
 
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Undo);
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::Redo);
+			COMMAND_ITEM(GlobalCommands::Undo);
+			COMMAND_ITEM(GlobalCommands::Redo);
 
 			ImGui::Separator();
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddOmniLight);
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddSpotLight);
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::AddDirectLight);
+			COMMAND_ITEM(GlobalCommands::AddOmniLight);
+			COMMAND_ITEM(GlobalCommands::AddSpotLight);
+			COMMAND_ITEM(GlobalCommands::AddDirectLight);
 
 			ImGui::Separator();
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::DeleteSelection);
+			COMMAND_ITEM(GlobalCommands::DeleteSelection);
+
+			ImGui::Separator();
+			COMMAND_ITEM(GlobalCommands::DumpLightmapMesh);
+			COMMAND_ITEM(GlobalCommands::DumpLightmapUV);
 
 			ImGui::EndMenu();
 		}
@@ -477,16 +486,42 @@ float MainWindow::RenderMainMenu()
 		if (ImGui::BeginMenu("View"))
 		{
 #ifdef _DEBUG
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::DebugSelection);
+			COMMAND_ITEM(GlobalCommands::DebugSelection);
 #endif
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::ToggleGround);
+			COMMAND_ITEM(GlobalCommands::ToggleGround);
+
+			if (ImGui::BeginMenu("Render mode"))
+			{
+				RenderMode renderMode = GetSceneRenderer()->GetRenderMode();
+
+				std::tuple<GlobalCommands, RenderMode> modes[] =
+				{
+					{GlobalCommands::LightshadedRenderMode, RenderMode::Lightshaded},
+					{GlobalCommands::UnshadedRenderMode, RenderMode::Unshaded},
+					{GlobalCommands::GroupShadedRenderMode, RenderMode::Groups},
+					{GlobalCommands::WireframeLightshadedRenderMode, RenderMode::WireframeShaded},
+					{GlobalCommands::WireframeUnshadedRenderMode, RenderMode::WireframeUnshaded}
+				};
+
+				for (int i = 0; i < ARRAYSIZE(modes); i++)
+				{
+					COMMAND_ITEM(std::get<0>(modes[i]), renderMode == std::get<1>(modes[i]));
+				}
+
+
+// 				COMMAND_ITEM(GlobalCommands::LightshadedRenderMode);
+// 				COMMAND_ITEM(GlobalCommands::UnshadedRenderMode);
+// 				COMMAND_ITEM(GlobalCommands::WireframeLightshadedRenderMode);
+// 				COMMAND_ITEM(GlobalCommands::WireframeUnshadedRenderMode);
+				ImGui::EndMenu();
+			}
 
 			ImGui::EndMenu();
 		}
 
 		if (ImGui::BeginMenu("Windows"))
 		{
-			Application::CommandsRegistry()->RenderCommandAsMenuItem(GlobalCommands::ResetLayout);
+			COMMAND_ITEM(GlobalCommands::ResetLayout);
 
 
 			ImGui::EndMenu();

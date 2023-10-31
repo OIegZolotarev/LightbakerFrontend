@@ -176,6 +176,7 @@ void Application::ScheduleCompilationIfNecceseary()
 	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::DynamicallyRecompileLighting))
 		return;
 
+	return;
 
 	if (!Application::IsWaitingForBakerToFinish())
 	{

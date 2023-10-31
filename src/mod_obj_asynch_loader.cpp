@@ -273,7 +273,7 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 	m_Data->lightDefs.push_back(newLight);
 }
 
-void ModObjAsynchLoader::ParseFace(std::string& s)
+void ModObjAsynchLoader::ParseFace(std::string& buffer)
 {
 	size_t pos = 0; std::string token;
 	
@@ -283,6 +283,8 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 	
 	bool hasUV = m_Data->flags & FL_HAS_UV;
 	bool hasNorm = m_Data->flags & FL_HAS_NORMALS;
+
+	std::string s = buffer;
 
 	std::vector<mobjface_t> parsed;
 
@@ -345,8 +347,25 @@ void ModObjAsynchLoader::ParseFace(std::string& s)
 		parseFaceDef();
 	}
 
-	// Triangulate
+	bool badFace = (parsed[0].uv == parsed[1].uv) || 
+	(parsed[2].uv == parsed[0].uv) ||
+	(parsed[1].uv == parsed[2].uv);
 
+	if (badFace)
+		return;
+
+
+	glm::vec2 v1 = GetUV(parsed[0].uv);
+	glm::vec2 v2 = GetUV(parsed[1].uv);
+	glm::vec2 v3 = GetUV(parsed[2].uv);
+	
+	const float area = fabsf(((v2.x - v1.x) * (v3.y - v1.y) - (v3.x - v1.x) * (v2.y - v1.y)) * 0.5f);
+	if (area <= FLT_EPSILON) {
+		return;		
+	}
+
+	// Triangulate
+	
 	for (int i = 0; i < parsed.size() - 2; i++)
 	{
 		m_Data->faces.push_back(parsed[0]);

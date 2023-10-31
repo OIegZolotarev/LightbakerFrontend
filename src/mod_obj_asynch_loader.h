@@ -53,6 +53,12 @@ class ModObjAsynchLoader : public ITask
 	
 	void InitializeLoader();
 
+	glm::vec2 GetUV(size_t fCommandIndex)
+	{
+		float* ptr = &m_Data->uvs[(fCommandIndex - 1) * m_Data->uvSize];
+		return glm::vec2(ptr[0], ptr[1]);
+	}
+
 public:
 	
 	ModObjAsynchLoader(ModelOBJ * pModel, const char* fileName);

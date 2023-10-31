@@ -113,7 +113,7 @@ typedef struct mobjdata_s
 
 		materials.clear();
 
-		ClearPointersVector(materialLibs);
+		//ClearPointersVector(materialLibs);
 	}
 
 

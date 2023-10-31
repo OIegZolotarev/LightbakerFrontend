@@ -19,7 +19,15 @@ enum class GlobalCommands
 	Undo,
 	Redo,
 	SceneScale,
-	DebugSelection
+	DebugSelection,
+
+	LightshadedRenderMode,
+	UnshadedRenderMode,
+	GroupShadedRenderMode,
+	WireframeLightshadedRenderMode,
+	WireframeUnshadedRenderMode,
+	DumpLightmapMesh,
+	DumpLightmapUV
 };
 
 typedef std::function<void()> pfnCommandCallback;
@@ -68,7 +76,7 @@ public:
 	CCommand*			GetCommandByInternalIndex(int index);
 	CCommand*			FindCommandByGlobalId(GlobalCommands id);
 
-	void				RenderCommandAsMenuItem(GlobalCommands cmdId);
+	void				RenderCommandAsMenuItem(GlobalCommands cmdId, bool checked = false);
 
 
 	bool				OnKeyDown();

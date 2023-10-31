@@ -18,7 +18,7 @@ protected:
 
 public:
 	ShaderProgram();
-	~ShaderProgram();
+	virtual ~ShaderProgram();
 
 	bool AttachVertexShader(const char* fileName);
 	bool AttachFragmentShader(const char* fileName);

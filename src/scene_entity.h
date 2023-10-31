@@ -31,7 +31,7 @@ public:
 	virtual void RenderUnshaded() {}; // Без лайтмапы
 	virtual void RenderBoundingBox() {}; // 
 	virtual void RenderDebug() {}; // Отладочная отрисовка
-
+	virtual void RenderGroupShaded() {};
 
 	bool IsDataLoaded();
 	
@@ -51,6 +51,7 @@ public:
 
 	virtual bool IsLightEntity() { return false;  }
 
+	
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

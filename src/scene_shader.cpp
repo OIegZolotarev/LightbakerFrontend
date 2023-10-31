@@ -29,7 +29,7 @@ ISceneShader::ISceneShader()
 
 ISceneShader::~ISceneShader()
 {
-
+	// handle by ShaderProgram
 }
 
 void ISceneShader::SetView(float* matrix)

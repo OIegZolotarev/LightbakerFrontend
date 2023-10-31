@@ -17,3 +17,22 @@ public:
 	~LightMappedSceneShaderProgram();
 };
 
+class DiffuseSceneShaderProgram : public ISceneShader
+{
+public:
+	DiffuseSceneShaderProgram();
+	~DiffuseSceneShaderProgram();
+};
+
+class GroupShadedSceneShaderProgram : public ISceneShader
+{
+public:
+	GroupShadedSceneShaderProgram();
+	~GroupShadedSceneShaderProgram();
+
+	void SetObjectColor(glm::vec4 color);
+
+private:
+	GLuint m_unColor;
+};
+

@@ -16,6 +16,7 @@ enum class RenderMode
 {
 	Unshaded = 0,
 	Lightshaded,	
+	Groups,
 	WireframeUnshaded,
 	WireframeShaded
 };
@@ -31,6 +32,9 @@ class SceneRenderer: public IEventHandler
 {	
 public:
 	SceneRenderer(class MainWindow* pTargetWindow);
+
+	void RegisterRendermodesCommands();
+
 	~SceneRenderer();
 
 	class Camera* GetCamera();
@@ -72,5 +76,12 @@ private:
 	void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
 	lightDefWPtr_t m_pCurrentSelection;
 
+public:
+	RenderMode GetRenderMode();
+private:
+	void DumpLightmapMesh();
+	void DumpLightmapUV();
+public:
+	void SetRenderMode(RenderMode param1);
 };
 

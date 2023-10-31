@@ -165,6 +165,8 @@ void ModObjAsynchExporter::ExportUV() const
 				fprintf(m_pFPOut, "%.4f", f[i]);
 			else
 				fprintf(m_pFPOut, "%.4f ", f[i]);
+
+			
 		}
 
 		fprintf(m_pFPOut, "\n");

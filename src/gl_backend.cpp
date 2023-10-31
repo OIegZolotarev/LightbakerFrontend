@@ -307,6 +307,7 @@ GLBackend::~GLBackend()
 	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
 	if (m_pGeometrySelectionShader) delete m_pGeometrySelectionShader;
 	if (m_pSpotlightConeShader) delete m_pSpotlightConeShader;
+	if (m_pDiffuseSceneShader) delete m_pDiffuseSceneShader;
 }
 
 HelperGeometryShaderProgram* GLBackend::HelperGeometryShader()
@@ -324,6 +325,16 @@ LightMappedSceneShaderProgram* GLBackend::LightMappedSceneShader()
 	return m_pLightmappedSceneShader;
 }
 
+DiffuseSceneShaderProgram* GLBackend::DiffuseSceneShader()
+{
+	return m_pDiffuseSceneShader;
+}
+
+GroupShadedSceneShaderProgram* GLBackend::GroupShadedSceneShader()
+{
+	return m_pGroupShadedSceneShader;
+}
+
 SpotlightConeShaderProgram* GLBackend::SpotlightConeShader()
 {
 	return m_pSpotlightConeShader;
@@ -335,9 +346,15 @@ void GLBackend::ReloadAllShaders()
 	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
 	if (m_pGeometrySelectionShader) delete m_pGeometrySelectionShader;
 	if (m_pSpotlightConeShader) delete m_pSpotlightConeShader;
+	
+	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
+	if (m_pGroupShadedSceneShader) delete m_pGroupShadedSceneShader;
 
 	m_pHelperGeometryShader = new HelperGeometryShaderProgram;
 	m_pLightmappedSceneShader = new LightMappedSceneShaderProgram;
 	m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
 	m_pSpotlightConeShader = new SpotlightConeShaderProgram;
+
+	m_pGroupShadedSceneShader = new GroupShadedSceneShaderProgram;
+	m_pDiffuseSceneShader = new DiffuseSceneShaderProgram;
 }

@@ -28,6 +28,8 @@ public:
 
 	void ReloadTextures();
 
+	void ReloadLightmapTextures();
+
 	// Возвращает путь к файлу ЛМ-модели
 	std::string & Export(const char* fileName);
 
@@ -40,6 +42,8 @@ public:
 
 	DrawMesh* GetDrawMesh();
 	void BuildDrawMesh();
+
+	void ValidateLightmap();
 
 	float GetSceneScale();
 
@@ -55,13 +59,22 @@ public:
 	void RenderBoundingBox() override;
 	void RenderDebug() override;
 	void RenderLightshaded() override;
+
+	void CommonDrawGeometryWithShader(ISceneShader* shader);
+
 	void RenderUnshaded() override;
+	void RenderGroupShaded() override;
+	
+	const char* Description() override;
 
 	mobjdata_t* GetModelData();
 	mobjdata_t* GetLMData();
 
 	void AddLightsIntoScene();
 	void FlagHasLMMesh();
+
+	
+
 private:
 	mobjdata_t m_ModelData;
 	mobjdata_t m_LightmapModelData;

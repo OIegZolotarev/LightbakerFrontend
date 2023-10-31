@@ -88,7 +88,13 @@ class GLBackend
 	GLBackend();
 
 	HelperGeometryShaderProgram*				m_pHelperGeometryShader = nullptr;
+	
+	
+	// Scene render modes
 	LightMappedSceneShaderProgram*				m_pLightmappedSceneShader = nullptr;
+	DiffuseSceneShaderProgram*					m_pDiffuseSceneShader = nullptr;
+	GroupShadedSceneShaderProgram*				m_pGroupShadedSceneShader = nullptr;
+
 	GeometrySelectionShaderProgram*				m_pGeometrySelectionShader = nullptr;
 	SpotlightConeShaderProgram*					m_pSpotlightConeShader = nullptr;
 
@@ -98,7 +104,13 @@ public:
 
 	HelperGeometryShaderProgram*		HelperGeometryShader();
 	GeometrySelectionShaderProgram*		GeometrySelectionShader();
+	
 	LightMappedSceneShaderProgram*		LightMappedSceneShader();
+	
+	DiffuseSceneShaderProgram*			DiffuseSceneShader();
+	GroupShadedSceneShaderProgram*		GroupShadedSceneShader();
+
+
 	SpotlightConeShaderProgram*			SpotlightConeShader();
 
 	void								ReloadAllShaders();
