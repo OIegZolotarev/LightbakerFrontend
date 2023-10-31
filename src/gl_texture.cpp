@@ -125,13 +125,22 @@ void FreeGLTextures()
 
 void FreeGLTexture(gltexture_t* t)
 {
+	if (!t)
+		return;
+
 	auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(), [&](gltexture_t*a) -> bool
 	{
 		return a->gl_texnum == t->gl_texnum;
 	});
 
+	
+	
+
 	if (pos != g_vecGLTextures.end())
+	{
+		delete* pos;
 		g_vecGLTextures.erase(pos);
+	}
 }
 
 
