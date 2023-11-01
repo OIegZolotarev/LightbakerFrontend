@@ -365,11 +365,11 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 	if (editTransformDecomposition)
 	{
-		if (ImGui::IsKeyPressed(90))
+		if (ImGui::IsKeyPressed(ImGuiKey_T))
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
-		if (ImGui::IsKeyPressed(69))
+		if (ImGui::IsKeyPressed(ImGuiKey_R))
 			mCurrentGizmoOperation = ImGuizmo::ROTATE;
-		if (ImGui::IsKeyPressed(82)) // r Key
+		if (ImGui::IsKeyPressed(ImGuiKey_Y)) // r Key
 			mCurrentGizmoOperation = ImGuizmo::SCALE;
 		if (ImGui::RadioButton("Translate", mCurrentGizmoOperation == ImGuizmo::TRANSLATE))
 			mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
@@ -396,7 +396,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 			if (ImGui::RadioButton("World", mCurrentGizmoMode == ImGuizmo::WORLD))
 				mCurrentGizmoMode = ImGuizmo::WORLD;
 		}
-		if (ImGui::IsKeyPressed(83))
+		if (ImGui::IsKeyPressed(ImGuiKey_U))
 			useSnap = !useSnap;
 		ImGui::Checkbox("##UseSnap", &useSnap);
 		ImGui::SameLine();

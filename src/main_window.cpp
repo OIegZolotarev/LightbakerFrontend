@@ -7,7 +7,6 @@
 #include "main_window.h"
 #include "application.h"
 #include "common_resources.h"
-#include "imgui_internal.h"
 #include "properties_editor.h"
 #include "Camera.h"
 #include "imgui_popups.h"
@@ -15,6 +14,8 @@
 #include "console_output_panel.h"
 #include "debug_panel.h"
 #include "loader_thread.h"
+#include "imgui_internal.h"
+
 
 bool DEBUG_3D_SELECTION = false;
 

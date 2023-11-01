@@ -6,9 +6,10 @@
 #include "common.h"
 #include "commands_registry.h"
 #include "ui_common.h"
-#include <imgui\imgui_internal.h>
+
 #include "application.h"
 #include "text_utils.h"
+#include "imgui_internal.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -78,6 +79,8 @@ bool ImageButtonWithText(ImTextureID texId, const char* label, const ImVec2& ima
 		window->DrawList->AddRectFilled(image_bb.Min, image_bb.Max, GetColorU32(bg_col));
 
 	window->DrawList->AddImage(texId, image_bb.Min, image_bb.Max, uv0, uv1, GetColorU32(tint_col));
+
+	
 
 	if (textSize.x > 0) ImGui::RenderText(start, label);
 	return pressed;

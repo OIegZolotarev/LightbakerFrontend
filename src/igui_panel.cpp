@@ -7,7 +7,7 @@
 #include "igui_panel.h"
 #include "ui_common.h"
 #include "application.h"
-#include "imgui_internal.h"
+#include <imgui/imgui_internal.h>
 
 void IGUIPanel::ResetPosition()
 {
