@@ -175,7 +175,7 @@ void Application::ScheduleCompilationIfNecceseary()
 {
 	auto inst = Instance();
 
-	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::DynamicallyRecompileLighting))
+	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::RebakeSceneAfterChanges))
 		return;
 
 	return;

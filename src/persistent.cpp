@@ -9,20 +9,35 @@
 #include "application.h"
 #include <string>
 #include "igui_panel.h"
+#include "ui_options_pages.h"
 
 
 PersistentStorage::PersistentStorage(Application * appInstance)
 {
-	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
-	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::BackgroundColor, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
+	extern void RegisterOptions();
+	extern uiOptionPage_t g_OptionsPages[(int)OptionsPage::Total];
 
-	m_ApplicationProps.push_back(propsData_t((int)ApplicationSettings::DynamicallyRecompileLighting, PropertiesTypes::Bool, "dynamically recompile lighting", "Compiling"));
+	RegisterOptions();
+	// TODO: calc this
+	m_ApplicationProps.reserve(32);
 
-	auto setting = GetSetting(ApplicationSettings::BackgroundColor);
-	setting->value.asColorRGBA = glm::vec4(0.25f, 0.25f, 0.25f, 1.0f);
+	for (auto & it : g_OptionsPages)
+	{
+		for (auto& opt : it.properties)
+		{
+			m_ApplicationProps.push_back(&opt);
+		}
+	}
 
-	setting = GetSetting(ApplicationSettings::DynamicallyRecompileLighting);
-	setting->value.asBool = true;
+	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
+	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::BackgroundColor1, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
+	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::RebakeSceneAfterChanges, PropertiesTypes::Bool, "dynamically recompile lighting", "Compiling"));
+
+	auto setting = GetSetting(ApplicationSettings::BackgroundColor1);
+	setting->SetColorRGBA(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
+
+	setting = GetSetting(ApplicationSettings::RebakeSceneAfterChanges);
+	setting->SetBool(true);
 
 	LoadFromFile(appInstance);
 }
@@ -139,12 +154,12 @@ std::list<std::string>& PersistentStorage::GetMRUFiles()
 	return m_lstMRUFiles;
 }
 
-propsData_t* PersistentStorage::GetSetting(ApplicationSettings id)
+VariantValue* PersistentStorage::GetSetting(ApplicationSettings id)
 {
 	for (auto& it : m_ApplicationProps)
 	{
-		if (it.id == (int)id)
-			return &it;
+		if (it->GetId() == (int)id)
+			return it;
 	}
 
 	return nullptr;
@@ -152,36 +167,38 @@ propsData_t* PersistentStorage::GetSetting(ApplicationSettings id)
 
 bool PersistentStorage::GetSettingBool(ApplicationSettings id)
 {
-	propsData_t* p = GetSetting(id);
+	VariantValue* p = GetSetting(id);
 	assert(p);
 
-	return p->value.asBool;
+	return p->GetAsBool();
 }
 
-nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j, propsData_t& it)
+nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j, VariantValue* it)
 {
 	nlohmann::json prop_descriptor;
 
-	prop_descriptor["id"] = it.id;
-	prop_descriptor["display_name"] = it.display_name;
-	prop_descriptor["type"] = it.type;
+	prop_descriptor["id"] = it->GetId();
+	prop_descriptor["display_name"] = it->DisplayName();
+	prop_descriptor["type"] = it->GetType();
 	
 
-	switch (it.type)
+	switch (it->GetType())
 	{
 	case PropertiesTypes::Enum:
-		prop_descriptor["value"] = it.value.asEnum;
+		prop_descriptor["value"] = it->GetEnumValue();
 		break;
 	case PropertiesTypes::Flags:
-		prop_descriptor["value"] = it.value.asFlags;
+		prop_descriptor["value"] = it->GetFlags();
 		break;
 	case PropertiesTypes::Position:
 		{
 			nlohmann::json field;
 
-			field["x"] = it.value.asPosition[0];
-			field["y"] = it.value.asPosition[1];
-			field["z"] = it.value.asPosition[2];
+			auto pos = it->GetPosition();
+
+			field["x"] = pos[0];
+			field["y"] = pos[1];
+			field["z"] = pos[2];
 			
 			prop_descriptor["value"] = field;
 		}
@@ -190,9 +207,11 @@ nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j
 	{
 		nlohmann::json field;
 
-		field["r"] = it.value.asColorRGB[0];
-		field["g"] = it.value.asColorRGB[1];
-		field["b"] = it.value.asColorRGB[2];
+		auto val = it->GetColorRGB();
+
+		field["r"] = val[0];
+		field["g"] = val[1];
+		field["b"] = val[2];
 
 		prop_descriptor["value"] = field;
 	}
@@ -201,36 +220,40 @@ nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j
 	{
 		nlohmann::json field;
 
-		field["r"] = it.value.asColorRGBA[0];
-		field["g"] = it.value.asColorRGBA[1];
-		field["b"] = it.value.asColorRGBA[2];
-		field["a"] = it.value.asColorRGBA[3];
+		auto val = it->GetColorRGBA();
+
+		field["r"] = val[0];
+		field["g"] = val[1];
+		field["b"] = val[2];
+		field["a"] = val[3];
 
 		prop_descriptor["value"] = field;
 	}
 		break;
 	case PropertiesTypes::Float:
-		prop_descriptor["value"] = it.value.asFloat;
+		prop_descriptor["value"] = it->GetFloat();
 		break;
 	case PropertiesTypes::Angles:
 	{
 		nlohmann::json field;
 
-		field["x"] = it.value.asAngles[0];
-		field["y"] = it.value.asAngles[1];
-		field["z"] = it.value.asAngles[2];
+		auto val = it->GetAngles();
+
+		field["x"] = val[0];
+		field["y"] = val[1];
+		field["z"] = val[2];
 		
 		prop_descriptor["value"] = field;
 	}
 		break;
 	case PropertiesTypes::Int:
-		prop_descriptor["value"] = it.value.asInt;
+		prop_descriptor["value"] = it->GetInt();
 		break;
 	case PropertiesTypes::SizeX:
-		prop_descriptor["value"] = it.value.asFloat;
+		prop_descriptor["value"] = it->GetFloat();
 		break;
 	case PropertiesTypes::Bool:
-		prop_descriptor["value"] = it.value.asBool;
+		prop_descriptor["value"] = it->GetAsBool();
 		break;
 	default:
 		break;
@@ -246,72 +269,88 @@ void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
 	{
 		int id = it["id"];
 
-		propsData_t* descriptor = GetSetting((ApplicationSettings)id);
+		VariantValue* descriptor = GetSetting((ApplicationSettings)id);
 
 		if (!descriptor)
 			continue;
 
-		if (it["type"] != descriptor->type)
+		if (it["type"] != descriptor->GetType())
 			continue;
 
-		switch (descriptor->type)
+		switch (descriptor->GetType())
 		{
 		case PropertiesTypes::Enum:
 			//prop_descriptor["value"] = it.value.asEnum;
-			descriptor->value.asEnum = it["value"];
+			descriptor->SetEnumValue(it["value"]);
 			break;
 		case PropertiesTypes::Flags:
-			descriptor->value.asFloat = it["value"];
+			descriptor->SetFloat(it["value"]);
 			break;
 		case PropertiesTypes::Position:
 		{
 			nlohmann::json value = it["value"];
 
-			descriptor->value.asPosition[0] = value["x"];
-			descriptor->value.asPosition[1] = value["y"];
-			descriptor->value.asPosition[2] = value["z"];
+			glm::vec3 val;
+
+			val[0] = value["x"];
+			val[1] = value["y"];
+			val[2] = value["z"];
+
+			descriptor->SetPosition(val);
 		}
 		break;
 		case PropertiesTypes::ColorRGB:
 		{
 			nlohmann::json value = it["value"];
 
-			descriptor->value.asColorRGB[0] = value["r"];
-			descriptor->value.asColorRGB[1] = value["g"];
-			descriptor->value.asColorRGB[2] = value["b"];
+			glm::vec3 val;
+
+			val[0] = value["r"];
+			val[1] = value["g"];
+			val[2] = value["b"];
+
+			descriptor->SetColorRGB(val);
 		}
 		break;
 		case PropertiesTypes::ColorRGBA:
 		{
 			nlohmann::json value = it["value"];
 
-			descriptor->value.asColorRGBA[0] = value["r"];
-			descriptor->value.asColorRGBA[1] = value["g"];
-			descriptor->value.asColorRGBA[2] = value["b"];
-			descriptor->value.asColorRGBA[3] = value["a"];
+			glm::vec4 val;
+
+			val[0] = value["r"];
+			val[1] = value["g"];
+			val[2] = value["b"];
+			val[3] = value["a"];
+
+			descriptor->SetColorRGBA(val);
 		}
 		break;
 		case PropertiesTypes::Float:
 			//prop_descriptor["value"] = it.value.asFloat;
-			descriptor->value.asFloat = it["value"];
+			descriptor->SetFloat(it["value"]);
 			break;
 		case PropertiesTypes::Angles:
 		{
 			nlohmann::json value = it["value"];
 
-			descriptor->value.asAngles[0] = value["x"];
-			descriptor->value.asAngles[1] = value["y"];
-			descriptor->value.asAngles[2] = value["z"];
+			glm::vec3 val;
+
+			val[0] = value["x"];
+			val[1] = value["y"];
+			val[2] = value["z"];
+
+			descriptor->SetAngles(val);
 		}
 		break;
 		case PropertiesTypes::Int:
-			descriptor->value.asInt = it["value"];
+			descriptor->SetInt(it["value"]);
 			break;
 		case PropertiesTypes::SizeX:
-			descriptor->value.asFloat = it["value"];
+			descriptor->SetFloat(it["value"]);
 			break;
 		case PropertiesTypes::Bool:
-			descriptor->value.asBool = it["value"];
+			descriptor->SetBool(it["value"]);
 			break;
 		default:
 			break;

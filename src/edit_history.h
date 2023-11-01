@@ -21,11 +21,11 @@ public:
 
 class CPropertyChangeAction : public IEditAction
 {
-	propsData_t m_OldValue;
-	propsData_t m_NewValue;
+	VariantValue m_OldValue;
+	VariantValue m_NewValue;
 
 public:
-	CPropertyChangeAction(int serialNumber, propsData_t oldValue, propsData_t newValue);
+	CPropertyChangeAction(int serialNumber, VariantValue oldValue, VariantValue newValue);
 	
 	void Redo() override;
 	void Undo() override;

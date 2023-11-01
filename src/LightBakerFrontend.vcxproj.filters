@@ -224,6 +224,12 @@
     <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl2.cpp">
       <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
+    <ClCompile Include="ui_options_pages.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="object_props.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -414,6 +420,9 @@
     </ClInclude>
     <ClInclude Include="popup_options_window.h">
       <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_options_pages.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

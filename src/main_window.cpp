@@ -41,6 +41,10 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 	m_vPanels.push_back(new SceneObjectPanel);
 	m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
 	m_vPanels.push_back(new DebugPanel);
+
+	m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
+	m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
+	m_pUseGradientBackground = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 }
 
 MainWindow::~MainWindow()
@@ -73,7 +77,7 @@ void MainWindow::InitBackend()
 	std::string glsl_version = "";
 	glsl_version = "#version 330";
 
-	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MAXIMIZED);
 	m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_iWindowWidth, m_iWindowHeight, window_flags);
 
 	// limit to which minimum size user can resize the window
@@ -358,7 +362,7 @@ void MainWindow::InitCommands()
 			auto pers = Application::Instance()->GetPersistentStorage();
 			auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
 
-			showGround->value.asBool = !showGround->value.asBool;
+			showGround->SetBool(!showGround->GetAsBool());
 
 		}));
 
@@ -408,6 +412,11 @@ void MainWindow::InitCommands()
 		}));
 
 
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::OpenProgramOptions, "Preferences...", "", 0, 0,
+		[&]()
+		{
+			PopupsManager::Instance()->ShowPopup(PopupWindows::ProgramOptions);
+		}));
 }
 
 
@@ -510,12 +519,10 @@ float MainWindow::RenderMainMenu()
 				}
 
 
-// 				COMMAND_ITEM(GlobalCommands::LightshadedRenderMode);
-// 				COMMAND_ITEM(GlobalCommands::UnshadedRenderMode);
-// 				COMMAND_ITEM(GlobalCommands::WireframeLightshadedRenderMode);
-// 				COMMAND_ITEM(GlobalCommands::WireframeUnshadedRenderMode);
 				ImGui::EndMenu();
 			}
+
+			COMMAND_ITEM(GlobalCommands::OpenProgramOptions);
 
 			ImGui::EndMenu();
 		}
@@ -829,13 +836,65 @@ void MainWindow::GL_BeginFrame()
 // 	else
 // 		
 	glDisable(GL_MULTISAMPLE);
-	glClearColor(0.25, .25, .25, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	
+
+	//glClearColor(0.25, .25, .25, 1);
+
+	//ClearBackground();
+
+
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	glViewport(m_i3DViewport[0], 
 			   m_i3DViewport[1], 
 			   m_i3DViewport[2], 
 			   m_i3DViewport[3]);
+}
+
+void MainWindow::ClearBackground()
+{
+	auto col1 = m_pBackgroudColorSetting1->GetColorRGB();
+	auto col2 = m_pBackgroudColorSetting2->GetColorRGB();
+	
+	glClearColor(col1[0], col1[1], col1[2], 1);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	if (m_pUseGradientBackground->GetAsBool())
+	{				
+  		glMatrixMode(GL_PROJECTION);
+  		glLoadIdentity();
+  
+  		glMatrixMode(GL_MODELVIEW);
+  		glLoadIdentity();
+
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_CULL_FACE);
+
+		glBegin(GL_QUADS);
+
+#define ONE 1
+
+		glColor3fv((float*)&col2);
+		glVertex2f(-ONE, -ONE);
+		glVertex2f(ONE, -ONE);
+
+
+		glColor3fv((float*)&col1);
+
+		glVertex2f(ONE,ONE);
+		glVertex2f(-ONE,ONE);
+
+		glEnd();
+
+		glEnable(GL_CULL_FACE);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
+
+		m_pSceneRenderer->GetCamera()->Apply();
+	}
+
 }
 
 void MainWindow::UpdateTimers()

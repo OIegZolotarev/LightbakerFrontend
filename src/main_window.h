@@ -10,6 +10,7 @@
 #include "scene_renderer.h"
 #include "console.h"
 #include "igui_panel.h"
+#include "object_props.h"
 
 struct timersData
 {
@@ -69,6 +70,7 @@ public:
 	}
 
 	int GetFPS();
+	void ClearBackground();
 private:
 
 	enum ToolbarIcons
@@ -103,6 +105,9 @@ private:
 
 	void UpdateTimers();
 	void GL_BeginFrame();
+
+	
+
 	void RenderGUI();
 
 	void DrawLoadingBanner();
@@ -134,5 +139,9 @@ private:
 	std::vector<IGUIPanel*> m_vPanels;
 
 	float m_flBakingProgress = 0;
+	
+	VariantValue* m_pBackgroudColorSetting1;
+	VariantValue* m_pBackgroudColorSetting2;
+	VariantValue* m_pUseGradientBackground;
 };
 

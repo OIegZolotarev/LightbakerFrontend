@@ -203,6 +203,7 @@
     <ClCompile Include="mod_obj_asynch_loader.cpp" />
     <ClCompile Include="mod_obj_atlas_gen.cpp" />
     <ClCompile Include="mtl_library.cpp" />
+    <ClCompile Include="object_props.cpp" />
     <ClCompile Include="popup_options_window.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -223,6 +224,7 @@
     <ClCompile Include="spotlight_cone_shader.cpp" />
     <ClCompile Include="stblibs_impl.cpp" />
     <ClCompile Include="text_utils.cpp" />
+    <ClCompile Include="ui_options_pages.cpp" />
     <ClCompile Include="win_main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -289,6 +291,7 @@
     <ClInclude Include="spotlight_cone_shader.h" />
     <ClInclude Include="text_utils.h" />
     <ClInclude Include="ui_common.h" />
+    <ClInclude Include="ui_options_pages.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc" />

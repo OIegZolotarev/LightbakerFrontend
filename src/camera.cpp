@@ -12,6 +12,13 @@
 
 Camera::Camera(SceneRenderer * pSceneRenderer)
 {
+	
+	auto settings = Application::Instance()->GetPersistentStorage();
+
+	VariantValue* m_pFov = settings->GetSetting(ApplicationSettings::CameraZFov);
+	VariantValue* m_pZNear = settings->GetSetting(ApplicationSettings::CameraZNear);
+	VariantValue* m_pZFar = settings->GetSetting(ApplicationSettings::CameraZFar);
+
 	m_Origin = { 0,0,0 };
 	m_Angles = { 0,0,0 };
 	

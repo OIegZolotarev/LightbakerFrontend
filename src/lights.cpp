@@ -17,14 +17,14 @@ LightPropertiesBinding::LightPropertiesBinding(lightDefWPtr_t ref)
 	m_pwLightDef = ref;
 }
 
-void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection)
+void LightPropertiesBinding::FillProperties(std::vector<VariantValue>& collection)
 {
 	auto ptr = m_pwLightDef.lock();
 
 	if (!ptr)
 		return;
 
-	propsData_t p;
+	VariantValue p;
 	
 	MakeLightTypeProperty(p, ptr);
 	collection.push_back(p);
@@ -58,77 +58,77 @@ void LightPropertiesBinding::FillProperties(std::vector<propsData_t>& collection
 
 }
 
-void LightPropertiesBinding::MakeLightStyleProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightStyleProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Style, PropertiesTypes::Int, "Style");
-	p.value.asInt = ptr->style;
+	p = VariantValue(LightProperties::Style, PropertiesTypes::Int, "Style");
+	p.SetInt(ptr->style);
 }
 
-void LightPropertiesBinding::MakeSizeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeSizeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Size, PropertiesTypes::SizeX, "Size");
-	p.value.asFloat = ptr->size.x;
+	p = VariantValue(LightProperties::Size, PropertiesTypes::SizeX, "Size");
+	p.SetFloat(ptr->size.x);
 }
 
-void LightPropertiesBinding::MakeConeBProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeConeBProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
-	p.value.asFloat = ptr->cones[1];
+	p = VariantValue(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
+	p.SetFloat(ptr->cones[1]);
 }
 
-void LightPropertiesBinding::MakeConeAProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeConeAProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
-	p.value.asFloat = ptr->cones[0];
+	p = VariantValue(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
+	p.SetFloat(ptr->cones[0]);
 }
 
-void LightPropertiesBinding::MakeLightIntensityProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
-	p.value.asFloat = ptr->intensity;
+	p = VariantValue(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
+	p.SetFloat(ptr->intensity);
 }
 
-void LightPropertiesBinding::MakeLightColorProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
-	p.value.asColorRGB = ptr->GetColor();
+	p = VariantValue(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
+	p.SetColorRGB(ptr->GetColor());
 }
 
-void LightPropertiesBinding::MakeLightAnglesProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
-	p.value.asAngles = ptr->anglesDirection;
+	p = VariantValue(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
+	p.SetAngles(ptr->anglesDirection);
 }
 
-void LightPropertiesBinding::MakeLightPosProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightPosProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Pos, PropertiesTypes::Position, "Pos");
-	p.value.asPosition = ptr->GetPosition();
+	p = VariantValue(LightProperties::Pos, PropertiesTypes::Position, "Pos");
+	p.SetPosition(ptr->GetPosition());
 }
 
-void LightPropertiesBinding::MakeLightFlagsProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Euler", LF_EULER));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Dyn", LF_DYN));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("XYZ", LF_XYZ));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Linear", LF_LINEAR));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Disk", LF_DISK));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Rect", LF_RECT));
-	p.value.asFlags = ptr->flags;
+	p = VariantValue(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
+	p.AddEnumValue("Euler", LF_EULER);
+	p.AddEnumValue("Dyn", LF_DYN);
+	p.AddEnumValue("XYZ", LF_XYZ);
+	p.AddEnumValue("Linear", LF_LINEAR);
+	p.AddEnumValue("Disk", LF_DISK);
+	p.AddEnumValue("Rect", LF_RECT);
+	p.SetFlags(ptr->flags);
 }
 
-void LightPropertiesBinding::MakeLightTypeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightTypeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
 {
-	p = propsData_s(LightProperties::Type, PropertiesTypes::Enum, "Type");
+	p = VariantValue(LightProperties::Type, PropertiesTypes::Enum, "Type");
 
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Omni", (int)LightTypes::Omni));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Spot", (int)LightTypes::Spot));
-	p.m_EnumOrFlagsValues.push_back(enumValuePair_t("Direct", (int)LightTypes::Direct));
+	p.AddEnumValue("Omni", (int)LightTypes::Omni);
+	p.AddEnumValue("Spot", (int)LightTypes::Spot);
+	p.AddEnumValue("Direct", (int)LightTypes::Direct);
 	p.SetEnumIndexFromValue((int)ptr->type);
 }
 
-void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t num)
+void LightPropertiesBinding::UpdateObjectProperties(VariantValue* props, size_t num)
 {
 	auto ptr = m_pwLightDef.lock();
 	if (!ptr)
@@ -140,9 +140,9 @@ void LightPropertiesBinding::UpdateObjectProperties(propsData_t* props, size_t n
 	{
 		auto it = props[i];
 
-		propsData_t oldValue;
+		VariantValue oldValue;
 
-		switch (it.id)
+		switch (it.GetId())
 		{
 		case LightProperties::Type:
 			MakeLightTypeProperty(oldValue, ptr);

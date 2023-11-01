@@ -78,22 +78,22 @@ class LightPropertiesBinding : public IObjectPropertiesBinding
 {
 	lightDefWPtr_t m_pwLightDef;
 
-	void MakeSizeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeConeBProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeConeAProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightIntensityProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightColorProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightAnglesProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightPosProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightFlagsProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightTypeProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
-	void MakeLightStyleProperty(propsData_t& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeSizeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeConeBProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeConeAProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightColorProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightPosProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightTypeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
+	void MakeLightStyleProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr);
 
 public:
 	LightPropertiesBinding(lightDefWPtr_t ref);
 
-	void FillProperties(std::vector<propsData_t>& collection) override;
-	void UpdateObjectProperties(propsData_t* data, size_t num) override;
+	void FillProperties(std::vector<VariantValue>& collection) override;
+	void UpdateObjectProperties(VariantValue* data, size_t num) override;
 	bool IsObjectValid() override;
 
 	int GetSerialNumber() override;

@@ -14,32 +14,32 @@ class ObjectPropertiesEditor : public IGUIPanel
 	IObjectPropertiesBinding* m_pPropertiesBinding = nullptr;
 	ImGuiID m_FlagsEditorID = 0;
 
-	std::vector<propsData_t> m_vPropsData;
+	std::vector<VariantValue> m_vPropsData;
 
-	propsData_t* m_pCurrentFlagProp = nullptr;
+	VariantValue* m_pCurrentFlagProp = nullptr;
 
 	void RenderFlagsEditor();
 	void RenderPropetiesPane();
 
-	void RenderPropertyControl(propsData_t& it);
+	void RenderPropertyControl(VariantValue& it);
 
 	void EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition);
-	void UpdateProperty(propsData_t* it);
+	void UpdateProperty(VariantValue* it);
 
 	glm::mat4 m_matGuizmo = glm::mat4(1);
-	propsData_t* m_pGuizmoPropertyPosition = nullptr;
-	propsData_t* m_pGuizmoPropertyRotation = nullptr;
+	VariantValue* m_pGuizmoPropertyPosition = nullptr;
+	VariantValue* m_pGuizmoPropertyRotation = nullptr;
 
 	bool m_bGuizmoEdited = false;
 
 	bool CheckObjectValidity();
 	void SetupGuizmo();
-	propsData_t* FindFirstPropertyByType(PropertiesTypes type);
+	VariantValue* FindFirstPropertyByType(PropertiesTypes type);
 
 	void RenderEditor();
 
-	propsData_t m_OldPropertyValue;
-	propsData_t m_OldPropertyValue2;
+	VariantValue m_OldPropertyValue;
+	VariantValue m_OldPropertyValue2;
 
 public:
 

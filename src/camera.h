@@ -32,6 +32,11 @@ enum class CameraMouseModes
 
 typedef std::function<void(bool bHit, SDL_Event& event)> pfnKeyStrokeCallback;
 
+enum class CameraControlScheme
+{
+	ValveHammerEditor = 0,
+	Blender,
+};
 
 class CameraCommandKeyStroke
 {
@@ -104,6 +109,11 @@ class Camera: public IEventHandler
 	float m_flFov = 110;
 	float m_flZNear = 1.f;
 	float m_flZFar = 4096.f;
+
+	VariantValue* m_pFov = nullptr;
+	VariantValue* m_pZNear = nullptr;
+	VariantValue* m_pZFar = nullptr;
+
 
 	glm::vec3 m_vForward = { 1.f,0,0 };
 	glm::vec3 m_vRight =   { 0,1,0	 };

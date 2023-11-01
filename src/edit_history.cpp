@@ -10,7 +10,7 @@
 
 
 
-CPropertyChangeAction::CPropertyChangeAction(int serialNumber, propsData_t oldValue, propsData_t newValue)
+CPropertyChangeAction::CPropertyChangeAction(int serialNumber, VariantValue oldValue, VariantValue newValue)
 {
 	m_SerialNumber = serialNumber;
 	m_OldValue = oldValue;
@@ -35,7 +35,7 @@ void CPropertyChangeAction::Redo()
 
 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
 		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.id);
+			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
 		}
 	}
 }
@@ -57,7 +57,7 @@ void CPropertyChangeAction::Undo()
 
 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
 		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.id);
+			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
 		}
 	}
 }

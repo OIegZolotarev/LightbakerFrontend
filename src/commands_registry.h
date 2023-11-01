@@ -27,7 +27,8 @@ enum class GlobalCommands
 	WireframeLightshadedRenderMode,
 	WireframeUnshadedRenderMode,
 	DumpLightmapMesh,
-	DumpLightmapUV
+	DumpLightmapUV,
+	OpenProgramOptions
 };
 
 typedef std::function<void()> pfnCommandCallback;

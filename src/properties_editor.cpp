@@ -55,7 +55,7 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding* pBindings)
 	SetupGuizmo();
 }
 
-void ObjectPropertiesEditor::UpdateProperty(propsData_t* it)
+void ObjectPropertiesEditor::UpdateProperty(VariantValue* it)
 {
 	m_pPropertiesBinding->UpdateObjectProperties(it,1);
 }
@@ -154,11 +154,11 @@ void ObjectPropertiesEditor::SetupGuizmo()
 
 }
 
-propsData_t* ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
+VariantValue* ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
 {
 	for (auto& it : m_vPropsData)
 	{
-		if (it.type == type)
+		if (it.GetType() == type)
 			return &it;
 	}
 
@@ -171,9 +171,9 @@ void ObjectPropertiesEditor::RenderFlagsEditor()
 	{
 		assert(m_pCurrentFlagProp);
 
-		for (auto& it : m_pCurrentFlagProp->m_EnumOrFlagsValues)
+		for (auto& it : m_pCurrentFlagProp->GetEnumValues())
 		{
-			if (ImGui::CheckboxFlags(it.first.c_str(), &m_pCurrentFlagProp->value.asFlags, it.second))
+			if (ImGui::CheckboxFlags(it.first.c_str(), (int*)m_pCurrentFlagProp->Data(), it.second))
 				UpdateProperty(m_pCurrentFlagProp);
 		}
 
@@ -209,7 +209,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 					ImGui::TableSetColumnIndex(0);
 					ImGui::AlignTextToFramePadding();
 					ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-					ImGui::TreeNodeEx("Field", flags, "%s", it.display_name.c_str());
+					ImGui::TreeNodeEx("Field", flags, "%s", it.DisplayName());
 
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SetNextItemWidth(-FLT_MIN);
@@ -235,29 +235,31 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 	ImGui::End();
 }
 
-void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
+void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
 {
-	propsData_t oldValue = it;
+	VariantValue oldValue = it;
 
-	switch (it.type)
+	switch (it.GetType())
 	{
 	case PropertiesTypes::Enum:
 
-		if (it.m_EnumOrFlagsValues.size() > 0)
-		{
-			int selectionIndex = it.value.asInt;
-			it.m_TempLabel = (char*)it.m_EnumOrFlagsValues[selectionIndex].first.c_str();
+		
 
-			if (ImGui::BeginCombo(it.display_name.c_str(), it.m_TempLabel))
+		if (it.GetEnumValues().size() > 0)
+		{
+			int selectionIndex = it.GetInt();
+			it.SetTempLabel((char*)it.GetEnumValues()[selectionIndex].first.c_str());
+
+			if (ImGui::BeginCombo(it.DisplayName(), it.TempLabel()))
 			{
 				int i = 0;
 
-				for (auto& enumValue : it.m_EnumOrFlagsValues)
+				for (auto& enumValue : it.GetEnumValues())
 				{
 					if (ImGui::Selectable(enumValue.first.c_str(), i == selectionIndex))
 					{
-						it.value.asInt = i;
-						it.m_TempLabel = (char*)enumValue.first.c_str();
+						it.SetInt(i);
+						it.SetTempLabel((char*)enumValue.first.c_str());
 						UpdateProperty(&it);
 					}
 
@@ -285,47 +287,47 @@ void ObjectPropertiesEditor::RenderPropertyControl(propsData_t& it)
 
 		std::string flagDescription = "[";
 
-		for (auto flagValue : it.m_EnumOrFlagsValues)
+		for (auto flagValue : it.GetEnumValues())
 		{ 
-			if (it.value.asFlags & flagValue.second)
+			if (it.GetFlags() & flagValue.second)
 				flagDescription += flagValue.first + ",";
 		}
 
 		if (flagDescription.length() > 1)
 			flagDescription[flagDescription.length() - 1] = ']';
 		else
-			flagDescription += "0]";
+			flagDescription += "<None set>]";
 
 		ImGui::Text("%s", flagDescription.c_str());
 
 	}
 		break;
 	case PropertiesTypes::Position:		
-		if (ImGui::DragFloat3("Vector", &it.value.asPosition.x))
+		if (ImGui::DragFloat3("Vector", (float*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::ColorRGB:
-		if (ImGui::ColorEdit3("##value", &it.value.asColorRGB.x))
+		if (ImGui::ColorEdit3("##value", (float*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::ColorRGBA:
-		if (ImGui::ColorEdit4("##value", &it.value.asColorRGB.x))
+		if (ImGui::ColorEdit4("##value", (float*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::Float:
-		if (ImGui::DragFloat("##value", &it.value.asFloat, 0.01f))
+		if (ImGui::DragFloat("##value", (float*)it.Data(), 0.01f))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::Angles:
-		if (ImGui::DragFloat3("Vector", &it.value.asPosition.x))
+		if (ImGui::DragFloat3("Vector", (float*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::Int:
-		if (ImGui::DragInt("##value", &it.value.asInt, 0.01f))
+		if (ImGui::DragInt("##value", (int*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	case PropertiesTypes::SizeX:
-		if (ImGui::DragFloat("Vector", &it.value.asPosition.x))
+		if (ImGui::DragFloat("Vector", (float*)it.Data()))
 			UpdateProperty(&it);
 		break;
 	default:
@@ -442,17 +444,18 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
 
-		m_pGuizmoPropertyPosition->value.asPosition.x = matrixTranslation[0];
-		m_pGuizmoPropertyPosition->value.asPosition.y = matrixTranslation[1];
-		m_pGuizmoPropertyPosition->value.asPosition.z = matrixTranslation[2];
+
+		m_pGuizmoPropertyPosition->SetPosition(*(glm::vec3*)matrixTranslation);
 
 		if (m_pGuizmoPropertyRotation)
 		{
 			auto angleMod = [](float f) -> float { if (f < 0) return f + 360; else if (f > 360) return f - 360; return f; };
 
-			m_pGuizmoPropertyRotation->value.asAngles.x = angleMod(matrixRotation[0]);
-			m_pGuizmoPropertyRotation->value.asAngles.y = angleMod(matrixRotation[1]);
-			m_pGuizmoPropertyRotation->value.asAngles.z = angleMod(matrixRotation[2]);
+
+			for(int i = 0 ; i < 3; i++)
+				matrixRotation[i] = angleMod(matrixRotation[i]);
+
+			m_pGuizmoPropertyPosition->SetAngles(*(glm::vec3*)matrixRotation);
 
 			UpdateProperty(m_pGuizmoPropertyRotation);
 		}
@@ -471,8 +474,8 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 	if (!ImGuizmo::IsUsing() && m_bGuizmoEdited)
 	{
-		float delta1 = glm::length(m_OldPropertyValue.value.asPosition - m_pGuizmoPropertyPosition->value.asPosition);
-		float delta2 = glm::length(m_OldPropertyValue2.value.asAngles - m_pGuizmoPropertyRotation->value.asAngles);
+		float delta1 = glm::length(m_OldPropertyValue.GetPosition() - m_pGuizmoPropertyPosition->GetPosition());
+		float delta2 = glm::length(m_OldPropertyValue2.GetAngles() - m_pGuizmoPropertyRotation->GetAngles());
 
 		if (delta1 < glm::epsilon<float>() && delta2 < glm::epsilon<float>())
 			return;

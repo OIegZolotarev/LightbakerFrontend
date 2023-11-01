@@ -114,8 +114,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 
 	if (!DEBUG_3D_SELECTION)
 	{
-		glClearColor(0.25, .25, .25, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		Application::GetMainWindow()->ClearBackground();
 	}
 }
 

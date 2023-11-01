@@ -14,24 +14,32 @@
 enum class ApplicationSettings
 {
 	ShowGround = 0,
-	BackgroundColor,
-	DynamicallyRecompileLighting
+	BackgroundColor1,
+	BackgroundColor2,
+	UseGradientBackground,
+
+	RebakeSceneAfterChanges,	
+	CameraControlScheme,
+	CameraMovementSpeed,
+	CameraZNear,
+	CameraZFar,
 };
 
 
 class PersistentStorage
 {
-	nlohmann::json SerializeApplicationProperty(nlohmann::json& j, propsData_t& it);
+	nlohmann::json SerializeApplicationProperty(nlohmann::json& j, VariantValue* it);
 	void ParseApplicationSettings(nlohmann::json j);
 
 	std::list<std::string>	m_lstMRUFiles;
 	void						SaveToFile();
 	void						LoadFromFile(class Application * appInstance);
 	
-	std::vector<propsData_t> m_ApplicationProps;
+	std::vector<VariantValue*> m_ApplicationProps;
 
 	bool					m_bPanelsValid[PanelsId::MaxPanels] = {false};
 
+	bool m_bFreshFile;
 public:
 	
 	PersistentStorage(class Application * appInstance);
@@ -40,13 +48,12 @@ public:
 	void						PushMRUFile(const char* fileName);
 	std::list<std::string>&		GetMRUFiles();
 		
-	propsData_t * GetSetting(ApplicationSettings id);
+	VariantValue * GetSetting(ApplicationSettings id);
 
 	bool	GetSettingBool(ApplicationSettings id);
 	
 	bool IsPanelAtValidPosition(PanelsId id);
 	void FlagPanelIsAtValidPosition(PanelsId id);
 	bool IsFreshFile();
-private:
-	bool m_bFreshFile;
+
 };
