@@ -10,6 +10,7 @@
 #include "popup_lb3k_config.h"
 #include "popup_loadfile_dialog.h"
 #include "popup_scene_scale.h"
+#include "popup_options_window.h"
 
 IImGUIPopup::IImGUIPopup(PopupWindows id)
 {
@@ -40,6 +41,7 @@ PopupsManager::PopupsManager()
 	m_vPopups.push_back(new LB3kConfigPopup());
 	m_vPopups.push_back(new LoadFileDialog());
 	m_vPopups.push_back(new SceneScaleDialog());
+	m_vPopups.push_back(new OptionsDialog());
 }
 
 PopupsManager* PopupsManager::Instance()

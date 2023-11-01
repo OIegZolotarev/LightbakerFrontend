@@ -7,10 +7,15 @@
 #include "selection_3d.h"
 #include "gl_texture.h"
 
+enum class EntityClasses
+{
+	Entities = 0,
+	Lights,
+};
+
 #define DECLARE_PROPERTY(Type,Name) private: Type m_##Name;\
 									public: void Set##Name(Type val) { m_##Name = val; } \
 											const Type Get##Name() { return m_##Name; } \
-
 
 
 class SceneEntity: public ISelectableObject
@@ -25,7 +30,7 @@ protected:
 		m_bDataLoaded = true;
 	}
 public:
-	SceneEntity();;
+	SceneEntity();
 	
 	virtual void RenderLightshaded() {}; // С лайтмапой
 	virtual void RenderUnshaded() {}; // Без лайтмапы
@@ -56,3 +61,4 @@ public:
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
 typedef std::weak_ptr<SceneEntity>	SceneEntityWeakPtr;
+

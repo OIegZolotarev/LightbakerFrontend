@@ -224,6 +224,9 @@
     <ClCompile Include="stblibs_impl.cpp">
       <Filter>Исходные файлы\stb</Filter>
     </ClCompile>
+    <ClCompile Include="popup_options_window.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -411,6 +414,9 @@
     </ClInclude>
     <ClInclude Include="shader_program.h">
       <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_options_window.h">
+      <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -203,6 +203,7 @@
     <ClCompile Include="mod_obj_asynch_loader.cpp" />
     <ClCompile Include="mod_obj_atlas_gen.cpp" />
     <ClCompile Include="mtl_library.cpp" />
+    <ClCompile Include="popup_options_window.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="scene_entity.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="mod_obj_atlas_gen.h" />
     <ClInclude Include="mod_obj_data.h" />
     <ClInclude Include="mtl_library.h" />
+    <ClInclude Include="popup_options_window.h" />
     <ClInclude Include="popup_scene_scale.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_entity.h" />
