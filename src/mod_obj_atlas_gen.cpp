@@ -5,7 +5,7 @@
 
 #include "application.h"
 #include "mod_obj_atlas_gen.h"
-#include "../include/stb/stb_image_write.h"
+#include <stb/stb_image_write.h>
 
 // May be called from any thread.
 static bool ProgressCallback(xatlas::ProgressCategory category, int progress, void* userData)

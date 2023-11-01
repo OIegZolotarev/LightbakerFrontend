@@ -5,13 +5,16 @@
 
 #ifndef LINUX
 #define _CRT_SECURE_NO_WARNINGS
+
+#include <direct.h>
+#include <corecrt_io.h>
+
 #endif
 
 #include "common.h"
 #include "file_system.h"
 #include <filesystem>
-#include <direct.h>
-#include <corecrt_io.h>
+
 #include "application.h"
 
 FileData::FileData(byte* data, size_t length, const char* name)
@@ -68,7 +71,7 @@ std::string FileData::BaseName()
 
 std::string FileData::DirName()
 {
-	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name.c_str());
+	return Application::GetFileSystem()->BaseDirectoryFromPath(m_Name);
 }
 
 void FileData::FlagOwnsData()
@@ -200,9 +203,9 @@ std::string FileSystem::BaseDirectoryFromPath(const std::string& fileName)
 {
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
-	std::string path = c.parent_path().string();
+	std::string parent_path = c.parent_path().string();
 
-	return path;
+	return parent_path;
 }
 
 std::string FileSystem::ExtensionFromPath(const std::string& filePath)
@@ -217,7 +220,11 @@ std::string FileSystem::ExtensionFromPath(const std::string& filePath)
 
 bool FileSystem::FileExists(std::string fileName)
 {
-	return _access(fileName.c_str(),0) == 0;
+	#ifdef LINUX
+		return access(fileName.c_str(),0) == 0;
+	#else
+		return _access(fileName.c_str(),0) == 0;
+	#endif
 }
 
 int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
@@ -242,17 +249,19 @@ int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
 	return 0;
 }
 
-// Формирует имя файла по шаблону
-// предполагая что файл находит в том же каталоге что и указаный файл
-// Параметры шаблона
-//	{0} - Каталог в котором находится файл
-//	{1} - Имя файла без расширения
-//	{2} - расширение файла (с точкой - ".txt")
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//	{0} - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+//	{1} - пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//	{2} - пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ - ".txt")
 // 
-//	Пример:
+//	пїЅпїЅпїЅпїЅпїЅпїЅ:
 //		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
 std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ)
 {
+#ifndef LINUX
+
 	std::filesystem::path p = std::filesystem::path(fileName);
 	auto c = std::filesystem::canonical(p);
 		
@@ -262,4 +271,5 @@ std::string FileSystem::MakeTemplatePath(const char* fileName, const char* templ
 	
 	std::string result = std::vformat(templ, std::make_format_args(directory, baseName, extension));
 	return result;
+#endif
 }

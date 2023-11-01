@@ -1,12 +1,11 @@
 /*
 	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+	(c) 2022-2023 CrazyRussian
 */
 
 #include "application.h"
 #include "../tiny-process-library/process.hpp"
 #include <thread>
-#include <corecrt_malloc.h>
 #include <SDL_thread.h>
 #include <functional>
 #include "properties_editor.h"
@@ -15,6 +14,9 @@
 #include "lb3k_wrapper.h"
 #include <regex>
 
+#ifndef LINUX
+#include <corecrt_malloc.h>
+#endif
 
 
 Application::Application()

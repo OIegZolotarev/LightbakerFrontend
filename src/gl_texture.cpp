@@ -3,7 +3,7 @@
 	(c) 2022 CrazyRussian
 */
 
-#include "..\include\ImGuiFileDialog\stb\stb_image.h"
+#include <stb/stb_image.h>
 #include "gl_texture.h"
 #include "application.h"
 #include "loader_thread.h"

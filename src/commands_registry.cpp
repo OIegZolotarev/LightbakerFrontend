@@ -6,7 +6,7 @@
 #include "common.h"
 #include "commands_registry.h"
 #include "ui_common.h"
-#include "..\include\imgui\imgui_internal.h"
+#include <imgui\imgui_internal.h>
 #include "application.h"
 #include "text_utils.h"
 

@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "..\include\better-enums\enum.h"
+#include <better-enums/enum.h>
 #include <nlohmann/json.hpp>
 
 BETTER_ENUM(LightMapTypes, int, Regular = 1, DeluxeTangent, DeluxeWorld, DeluxeUnity, RNM, AO, BentNormals, Curvature)

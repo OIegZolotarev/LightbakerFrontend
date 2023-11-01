@@ -5,11 +5,11 @@
 
 #pragma once
 
-#include "../lib/glad/glad.h"
+#include <glad/glad.h>
 
-#include "../include/SDL/include/SDL.h"
-#include "../include/imgui/imgui.h"
-#include "../include/imgui/backends/imgui_impl_opengl3.h"
-#include "../include/imgui/backends/imgui_impl_sdl.h"
-#include "..\include\ImGuizmo\ImGuizmo.h"
-#include "../include/ImGuiFileDialog/ImGuiFileDialog.h"
+#include <SDL.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_sdl.h>
+#include <ImGuizmo/ImGuizmo.h>
+#include <ImGuiFileDialog/ImGuiFileDialog.h>
