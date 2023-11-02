@@ -4,7 +4,8 @@
 
 VariantValue::VariantValue()
 {
-	memset(this, 0, sizeof(*this));
+	//memset(this, 0, sizeof(*this));
+	memset(&value, 0, sizeof(value));
 }
 
 VariantValue::VariantValue(int _id, PropertiesTypes _type, std::string _displayName, std::string _group_id /*= ""*/)

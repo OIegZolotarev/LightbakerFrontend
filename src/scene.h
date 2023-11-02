@@ -82,7 +82,7 @@ private:
 	void ClearEntities();
 	void LoadLevel(const char* levelName);
 public:
-	std::string ExportForCompiling(const char* newPath);
+	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions);
 	void RenderGroupsShaded();
 	void DumpLightmapMesh();
 	void DumpLightmapUV();

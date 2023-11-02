@@ -55,7 +55,7 @@ void Application::InitMainWindow()
 
 void Application::Init(std::string cmdLine)
 {
-	
+	m_strFileToLoad = cmdLine;
 }
 
 MainWindow* Application::GetMainWindow()
@@ -93,7 +93,10 @@ void Application::ExecuteBaking()
 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();
 
-	std::string lmMeshFile = scene->ExportForCompiling(nullptr);
+	auto inst = Instance();
+	auto settings = inst->GetLightBakerApplication()->Settings();
+
+	std::string lmMeshFile = scene->ExportForCompiling(nullptr, settings);
 
 	if (!lmMeshFile.empty())
 	{
@@ -164,6 +167,9 @@ bool Application::DelayedInitDone()
 void Application::FlagDelayedInitDone()
 {
 	m_bDelayedInitDone = true;
+
+	if (!m_strFileToLoad.empty())
+		Application::GetMainWindow()->GetSceneRenderer()->LoadModel(m_strFileToLoad.c_str(), LRF_LOAD_ALL);
 }
 
 LightBaker3000* Application::GetLightBakerApplication()
@@ -178,8 +184,6 @@ void Application::ScheduleCompilationIfNecceseary()
 	if (!inst->GetPersistentStorage()->GetSettingBool(ApplicationSettings::RebakeSceneAfterChanges))
 		return;
 
-	return;
-
 	if (!Application::IsWaitingForBakerToFinish())
 	{
 		
@@ -188,9 +192,9 @@ void Application::ScheduleCompilationIfNecceseary()
 		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
 		int oldSamples = settings->m_iSamples;
 
-		settings->m_iSamples = 256;
-		settings->m_lmSettings.size[0] = 512;
-		settings->m_lmSettings.size[1] = 512;
+		settings->m_iSamples = 64;
+		settings->m_lmSettings.size[0] = 64;
+		settings->m_lmSettings.size[1] = 64;
 		
 
 		inst->ExecuteBaking();

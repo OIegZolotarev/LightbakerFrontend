@@ -532,6 +532,8 @@ float MainWindow::RenderMainMenu()
 
 			COMMAND_ITEM(GlobalCommands::OpenProgramOptions);
 
+			COMMAND_ITEM(GlobalCommands::ReloadAllShaders);
+
 			ImGui::EndMenu();
 		}
 

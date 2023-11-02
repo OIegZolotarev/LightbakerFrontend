@@ -11,6 +11,7 @@
 #include "mtl_library.h"
 #include "mod_obj_data.h"
 #include "scene_entity.h"
+#include "lb3k_wrapper.h"
 
 class ModelOBJ: public SceneEntity
 {
@@ -31,7 +32,7 @@ public:
 	void ReloadLightmapTextures();
 
 	// Возвращает путь к файлу ЛМ-модели
-	std::string & Export(const char* fileName);
+	std::string & Export(const char* fileName, lightBakerSettings_t * lb3kOptions);
 
 	void UpdateLMMesh();
 

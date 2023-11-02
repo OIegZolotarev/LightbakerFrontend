@@ -74,6 +74,12 @@ void SceneRenderer::RegisterRendermodesCommands()
 		{
 			m_RenderMode = RenderMode::Groups;
 		}));
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::ReloadAllShaders, "Reload all shaders", 0, 0, 0,
+		[&]()
+		{
+			GLBackend::Instance()->ReloadAllShaders();
+		}));
 }
 
 SceneRenderer::~SceneRenderer()

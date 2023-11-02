@@ -305,13 +305,13 @@ void Scene::LoadLevel(const char* levelName)
 
 }
 
-std::string Scene::ExportForCompiling(const char* newPath)
+std::string Scene::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)
 {
 	// TODO: fixme
 	auto it = m_SceneEntities.begin();
 	SceneEntity* entity = (*it).get();
 	auto obj = (ModelOBJ*)entity;
-	return obj->Export(newPath);
+	return obj->Export(newPath, lb3kOptions);
 
 }
 

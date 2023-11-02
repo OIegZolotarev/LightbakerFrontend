@@ -20,7 +20,6 @@ enum class GlobalCommands
 	Redo,
 	SceneScale,
 	DebugSelection,
-
 	LightshadedRenderMode,
 	UnshadedRenderMode,
 	GroupShadedRenderMode,
@@ -28,7 +27,8 @@ enum class GlobalCommands
 	WireframeUnshadedRenderMode,
 	DumpLightmapMesh,
 	DumpLightmapUV,
-	OpenProgramOptions
+	OpenProgramOptions,
+	ReloadAllShaders
 };
 
 typedef std::function<void()> pfnCommandCallback;

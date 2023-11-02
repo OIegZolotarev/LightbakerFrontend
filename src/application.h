@@ -79,6 +79,8 @@ public:
 	}
 	void ShowMouseCursor();
 	void HideMouseCursor();
+private:
+	std::string m_strFileToLoad = "";
 };
 
 inline int Con_Printf(const char* fmt, ...)

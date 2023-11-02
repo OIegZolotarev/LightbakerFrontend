@@ -345,9 +345,7 @@ void GLBackend::ReloadAllShaders()
 	if (m_pHelperGeometryShader) delete m_pHelperGeometryShader;
 	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
 	if (m_pGeometrySelectionShader) delete m_pGeometrySelectionShader;
-	if (m_pSpotlightConeShader) delete m_pSpotlightConeShader;
-	
-	if (m_pLightmappedSceneShader) delete m_pLightmappedSceneShader;
+	if (m_pSpotlightConeShader) delete m_pSpotlightConeShader;	
 	if (m_pGroupShadedSceneShader) delete m_pGroupShadedSceneShader;
 
 	m_pHelperGeometryShader = new HelperGeometryShaderProgram;

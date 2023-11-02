@@ -619,7 +619,7 @@ void ModelOBJ::ReloadLightmapTextures()
 	}
 }
 
-std::string & ModelOBJ::Export(const char* fileName)
+std::string & ModelOBJ::Export(const char* fileName, lightBakerSettings_t* lb3kOptions)
 {
 
 	if (fileName)
@@ -641,8 +641,11 @@ std::string & ModelOBJ::Export(const char* fileName)
 		}
 		
 		// FIXME
-		m_LightmapModelData.lightmapDimensions[0] = 1024;
-		m_LightmapModelData.lightmapDimensions[1] = 1024;
+
+		
+		//m_LightmapModelData.envColor = 
+		m_LightmapModelData.lightmapDimensions[0] = lb3kOptions->m_lmSettings.size[0];
+		m_LightmapModelData.lightmapDimensions[1] = lb3kOptions->m_lmSettings.size[1];
 
 		PrepareLights();
 
