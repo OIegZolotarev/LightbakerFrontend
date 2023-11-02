@@ -17,12 +17,14 @@ enum class ApplicationSettings
 	BackgroundColor1,
 	BackgroundColor2,
 	UseGradientBackground,
-
 	RebakeSceneAfterChanges,	
-	CameraControlScheme,
+	CameraControlScheme,	
 	CameraMovementSpeed,
 	CameraZNear,
 	CameraZFar,
+	CameraFov,
+	CameraAccel,
+	CameraDecel
 };
 
 

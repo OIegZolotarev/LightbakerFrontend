@@ -304,7 +304,10 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
 		break;
 	case PropertiesTypes::Position:		
 		if (ImGui::DragFloat3("Vector", (float*)it.Data()))
+		{
+			SetupGuizmo();
 			UpdateProperty(&it);
+		}
 		break;
 	case PropertiesTypes::ColorRGB:
 		if (ImGui::ColorEdit3("##value", (float*)it.Data()))
@@ -455,7 +458,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 			for(int i = 0 ; i < 3; i++)
 				matrixRotation[i] = angleMod(matrixRotation[i]);
 
-			m_pGuizmoPropertyPosition->SetAngles(*(glm::vec3*)matrixRotation);
+			m_pGuizmoPropertyRotation->SetAngles(*(glm::vec3*)matrixRotation);
 
 			UpdateProperty(m_pGuizmoPropertyRotation);
 		}

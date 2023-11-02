@@ -366,7 +366,7 @@ void ModObjAsynchLoader::ParseFace(std::string& buffer)
 
 	// Triangulate
 	
-	for (int i = 0; i < parsed.size() - 2; i++)
+	for (size_t i = 0; i < parsed.size() - 2; i++)
 	{
 		m_Data->faces.push_back(parsed[0]);
 		m_Data->faces.push_back(parsed[i + 1]);

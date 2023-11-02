@@ -17,6 +17,11 @@ VariantValue::VariantValue(int _id, PropertiesTypes _type, std::string _displayN
 	memset(&value, 0, sizeof(value));
 }
 
+VariantValue::~VariantValue()
+{
+
+}
+
 int VariantValue::FindEnumValueIndex(int enumValue)
 {
 	int i = 0;
@@ -214,4 +219,9 @@ void VariantValue::ValidateValue()
 		break;
 
 	}
+}
+
+float* VariantValue::GetNumericalLimits()
+{
+	return m_Limits;
 }

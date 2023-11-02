@@ -106,13 +106,17 @@ class Camera: public IEventHandler
 	
 	bool  m_bFPSNavigation = false;
 
-	float m_flFov = 110;
-	float m_flZNear = 1.f;
-	float m_flZFar = 4096.f;
+	//float m_flFov = 110;
+	//float m_flZNear = 1.f;
+	//float m_flZFar = 4096.f;
 
 	VariantValue* m_pFov = nullptr;
 	VariantValue* m_pZNear = nullptr;
 	VariantValue* m_pZFar = nullptr;
+	
+	VariantValue* m_pAccelSpeed = nullptr;
+	VariantValue* m_pDeccelSpeed = nullptr;
+	VariantValue* m_pMoveSpeed = nullptr;
 
 
 	glm::vec3 m_vForward = { 1.f,0,0 };
@@ -140,7 +144,9 @@ class Camera: public IEventHandler
 
 	class SceneRenderer*		m_pSceneRenderer;
 
-	int m_MoveSpeeds[3];
+	float m_IdealMoveSpeeds[3] = {0};
+	float m_CurrentMoveSpeeds[3] = {0};
+
 	void UpdateOrientation();
 
 public:

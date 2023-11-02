@@ -52,3 +52,7 @@ inline void FreeVector(T& vec)
 }
 
 #include "event_handler.h"
+
+#define ARRAYSIZE(a) (sizeof(a) / sizeof(a[0]))
+
+#define NICE_LINES

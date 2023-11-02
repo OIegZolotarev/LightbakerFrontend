@@ -15,7 +15,7 @@
 PersistentStorage::PersistentStorage(Application * appInstance)
 {
 	extern void RegisterOptions();
-	extern uiOptionPage_t g_OptionsPages[(int)OptionsPage::Total];
+	extern ProgramOptions::uiOptionPage_t g_OptionsPages[(int)ProgramOptions::OptionsPage::Total];
 
 	RegisterOptions();
 	// TODO: calc this
@@ -23,21 +23,42 @@ PersistentStorage::PersistentStorage(Application * appInstance)
 
 	for (auto & it : g_OptionsPages)
 	{
-		for (auto& opt : it.properties)
+		for (auto& opt : it.items)
 		{
-			m_ApplicationProps.push_back(&opt);
+			if (opt->ItemType() == ProgramOptions::OptionPageItemType::Value)
+			{
+				auto val = (ProgramOptions::OptionsValue*)opt;
+				
+				val->GetValue()->ValidateValue();
+				m_ApplicationProps.push_back(val->GetValue());
+			}
 		}
 	}
 
-	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::ShowGround,		PropertiesTypes::Bool,		"Show ground", "Appeareance"));
-	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::BackgroundColor1, PropertiesTypes::ColorRGBA,	"Background color", "Appeareance"));
-	//m_ApplicationProps.push_back(VariantValue((int)ApplicationSettings::RebakeSceneAfterChanges, PropertiesTypes::Bool, "dynamically recompile lighting", "Compiling"));
 
 	auto setting = GetSetting(ApplicationSettings::BackgroundColor1);
 	setting->SetColorRGBA(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
 	setting = GetSetting(ApplicationSettings::RebakeSceneAfterChanges);
 	setting->SetBool(true);
+
+	setting = GetSetting(ApplicationSettings::CameraFov);
+	setting->SetFloat(110);
+
+	setting = GetSetting(ApplicationSettings::CameraZNear);
+	setting->SetFloat(1.f);
+
+	setting = GetSetting(ApplicationSettings::CameraZFar);
+	setting->SetFloat(4096.f);
+
+	setting = GetSetting(ApplicationSettings::CameraMovementSpeed);
+	setting->SetFloat(200);
+
+	setting = GetSetting(ApplicationSettings::CameraAccel);
+	setting->SetFloat(100);
+
+	setting = GetSetting(ApplicationSettings::CameraDecel);
+	setting->SetFloat(100);
 
 	LoadFromFile(appInstance);
 }

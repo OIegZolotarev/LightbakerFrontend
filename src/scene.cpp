@@ -35,6 +35,11 @@ Scene::Scene(const char* levelName, int loadFlags)
 	LoadLevel(levelName);
 }
 
+Scene::Scene()
+{
+	m_pEditHistory = new CEditHistory;
+}
+
 Scene::~Scene()
 {
 	//FreeVector(m_vecSceneLightDefs);

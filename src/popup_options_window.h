@@ -26,11 +26,9 @@ private:
 	void RenderFooter();
 	bool RenderHeader();
 	
-	void RenderOptionsPages(uiOptionPage_t* page);
+	void RenderOptionsPages(ProgramOptions::uiOptionPage_t* page);
 
-	void RenderPropertyControl(VariantValue& it);
-
-	void RenderFlagsProperty(VariantValue* it);
-	void RenderEnumProperty(VariantValue* it);
-	void UpdateProperty(VariantValue* it);
+	//void RenderPropertyControl(VariantValue& it);
+	
+	
 };

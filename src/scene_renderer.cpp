@@ -284,6 +284,14 @@ void SceneRenderer::Debug_DrawGround()
 	int dimensions = 1000;
 	int step = 10;
 
+	
+#ifdef NICE_LINES
+ 	glEnable(GL_MULTISAMPLE);
+ 
+ 	glEnable(GL_LINE_SMOOTH);
+ 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+#endif
+
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_LINES);
 
@@ -306,6 +314,12 @@ void SceneRenderer::Debug_DrawGround()
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+	
+#ifdef NICE_LINES	
+ 	glDisable(GL_MULTISAMPLE);
+ 	glDisable(GL_LINE_SMOOTH);
+ 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+#endif 
 }
 
 void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
@@ -388,6 +402,9 @@ void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)
 
 Scene* SceneRenderer::GetScene()
 {
+	if (!m_pScene)
+		m_pScene = new Scene();
+
 	return m_pScene;
 }
 

@@ -10,14 +10,20 @@
 #include <algorithm>
 
 
+
+
 Camera::Camera(SceneRenderer * pSceneRenderer)
 {
 	
 	auto settings = Application::Instance()->GetPersistentStorage();
 
-	VariantValue* m_pFov = settings->GetSetting(ApplicationSettings::CameraZFov);
-	VariantValue* m_pZNear = settings->GetSetting(ApplicationSettings::CameraZNear);
-	VariantValue* m_pZFar = settings->GetSetting(ApplicationSettings::CameraZFar);
+	m_pFov = settings->GetSetting(ApplicationSettings::CameraFov);
+	m_pZNear = settings->GetSetting(ApplicationSettings::CameraZNear);
+	m_pZFar = settings->GetSetting(ApplicationSettings::CameraZFar);
+	
+	m_pAccelSpeed = settings->GetSetting(ApplicationSettings::CameraAccel);
+	m_pDeccelSpeed = settings->GetSetting(ApplicationSettings::CameraDecel);
+	m_pMoveSpeed = settings->GetSetting(ApplicationSettings::CameraMovementSpeed);
 
 	m_Origin = { 0,0,0 };
 	m_Angles = { 0,0,0 };
@@ -184,12 +190,11 @@ void Camera::SetupCommonKeystrokesCallbacks()
 		});
 
 
-	static const int moveSpeed = 200;
 
 	callbackMoveForward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
 		{
 			if (bHit)
-				SetForwardSpeed(moveSpeed);
+				SetForwardSpeed(m_pMoveSpeed->GetFloat());
 			else
 				SetForwardSpeed(0);
 		});
@@ -197,7 +202,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
 	callbackMoveBackward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
 		{
 			if (bHit)
-				SetForwardSpeed(-moveSpeed);
+				SetForwardSpeed(-m_pMoveSpeed->GetFloat());
 			else
 				SetForwardSpeed(0);
 		});
@@ -205,7 +210,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
 	callbackStrafeLeft = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
 		{
 			if (bHit)
-				SetStrafeSpeed(-moveSpeed);
+				SetStrafeSpeed(-m_pMoveSpeed->GetFloat());
 			else
 				SetStrafeSpeed(0);
 		});
@@ -214,7 +219,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
 	callbackStrafeRight = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
 		{
 			if (bHit)
-				SetStrafeSpeed(moveSpeed);
+				SetStrafeSpeed(m_pMoveSpeed->GetFloat());
 			else
 				SetStrafeSpeed(0);
 		});
@@ -222,7 +227,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
 	callbackMoveup = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
 		{
 			if (bHit)
-				SetUpSpeed(moveSpeed);
+				SetUpSpeed(m_pMoveSpeed->GetFloat());
 			else
 				SetUpSpeed(0);
 		});
@@ -303,6 +308,48 @@ int Camera::HandleEvent(bool bWasHandled, SDL_Event& event)
 
 void Camera::UpdateOrientation()
 {
+	if (!m_bFPSNavigation)
+		for (int i = 0; i < 3; i++)
+			m_IdealMoveSpeeds[i] = 0;
+
+	float flFrameDelta = m_pSceneRenderer->FrameDelta();
+	float acceleration = m_pAccelSpeed->GetFloat();
+	float deceleration = m_pDeccelSpeed->GetFloat();
+
+	bool recalcPosition = false;
+
+	for (int i = 0; i < 3; i++)
+	{
+		if (m_IdealMoveSpeeds[i] > 1.f)
+		{
+			m_CurrentMoveSpeeds[i] += acceleration * flFrameDelta;
+			m_CurrentMoveSpeeds[i] = std::min(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
+
+			recalcPosition = true;
+		}
+		else if (m_IdealMoveSpeeds[i] < -1.f)
+		{
+			m_CurrentMoveSpeeds[i] -= acceleration * flFrameDelta;
+			m_CurrentMoveSpeeds[i] = std::max(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
+
+			recalcPosition = true;
+		}
+		else if (abs(m_CurrentMoveSpeeds[i]) > 1.f)
+		{
+			if (m_CurrentMoveSpeeds[i] > 0)
+				m_CurrentMoveSpeeds[i] -= deceleration * flFrameDelta;
+			else
+				m_CurrentMoveSpeeds[i] += deceleration * flFrameDelta;
+
+			recalcPosition = true;
+		}
+		else
+			m_CurrentMoveSpeeds[i] = 0;
+	}
+
+	//cameraVelocity += cameraDirection * acceleration;
+	//cameraVelocity = glm::min(cameraVelocity, maxSpeed * cameraDirection);
+
 	if (m_bFPSNavigation)
 	{
 		Application::Instance()->HideMouseCursor();
@@ -316,7 +363,6 @@ void Camera::UpdateOrientation()
 		int mx = winWidth / 2;
 		int my = winHeight / 2;
 
-		float flFrameDelta = m_pSceneRenderer->FrameDelta();
 
 		float xDelta = (x - mx);
 		float yDelta = (y - my);
@@ -330,12 +376,21 @@ void Camera::UpdateOrientation()
 
 		SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
-		m_Origin += (m_MoveSpeeds[0] * flFrameDelta) * m_vForward + (m_MoveSpeeds[1] * flFrameDelta) * m_vRight + (m_MoveSpeeds[2] * flFrameDelta) * m_vUp;
+		m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward + (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight + (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
 
 		
 	}
 	else
+	{
+
+
+		if (recalcPosition)
+			m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward + (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight + (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
+
 		Application::Instance()->ShowMouseCursor();
+	}
+
+
 
 }
 
@@ -408,17 +463,17 @@ void Camera::SetupKeystrokesVHE()
 
 void Camera::SetForwardSpeed(const int moveSpeed)
 {
-	m_MoveSpeeds[0] = moveSpeed;
+	m_IdealMoveSpeeds[0] = moveSpeed;
 }
 
 void Camera::SetStrafeSpeed(const int moveSpeed)
 {
-	m_MoveSpeeds[1] = moveSpeed; 
+	m_IdealMoveSpeeds[1] = moveSpeed;
 }
 
 void Camera::SetUpSpeed(const int moveSpeed)
 {
-	m_MoveSpeeds[2] = moveSpeed;
+	m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
 int Camera::MouseMotionEvent(SDL_Event& _event)
@@ -568,7 +623,7 @@ void Camera::SetupPerspectiveMatrix()
 {
 	glMatrixMode(GL_PROJECTION);
 
-	double fov = glm::radians(m_flFov);
+	double fov = glm::radians(m_pFov->GetFloat());
 
 	auto vp = Application::GetMainWindow()->Get3DGLViewport();
 
@@ -582,7 +637,7 @@ void Camera::SetupPerspectiveMatrix()
 	double fov_y = 2 * atan(tan(fov / 2) / aspect); // Ìîÿ ôîðìóëà - ïëàâàåò?
 	double dbg = glm::degrees(fov_y);
 	
-	m_matProjection = glm::perspective(fov_y, aspect, (double)m_flZNear, (double)m_flZFar);
+	m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
 
 	glLoadMatrixf((float*)&m_matProjection);
 }

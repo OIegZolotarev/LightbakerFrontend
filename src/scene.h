@@ -40,6 +40,7 @@ class Scene
 	SceneEntityWeakPtr m_pCurrentSelection;
 
 public:
+	Scene();;
 	Scene(const char* levelName, int loadFlags);
 	~Scene();
 

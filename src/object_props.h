@@ -33,7 +33,7 @@ class VariantValue
 	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
 	bool initialized = false;
-	float m_Limits[2] = { -INFINITE, INFINITE };
+	float m_Limits[2] = { -FLT_MAX, FLT_MAX };
 
 	union data
 	{
@@ -53,6 +53,7 @@ class VariantValue
 public:
 	VariantValue(int _id, PropertiesTypes _type, std::string _displayName, std::string _group_id = "");
 	VariantValue();
+	~VariantValue();
 
 	int FindEnumValueIndex(int enumValue);
 	void SetEnumIndexFromValue(int value);
@@ -100,6 +101,7 @@ public:
 
 	void SetNumericalLimits(float min, float max);
 	void ValidateValue();
+	float* GetNumericalLimits();
 };
 
 

@@ -77,6 +77,14 @@ void MainWindow::InitBackend()
 	std::string glsl_version = "";
 	glsl_version = "#version 330";
 
+
+#ifdef NICE_LINES
+	int r = 2;
+	r = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
+	r = SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 16);
+#endif
+
+
 	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MAXIMIZED);
 	m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_iWindowWidth, m_iWindowHeight, window_flags);
 
@@ -858,7 +866,7 @@ void MainWindow::ClearBackground()
 	auto col2 = m_pBackgroudColorSetting2->GetColorRGB();
 	
 	glClearColor(col1[0], col1[1], col1[2], 1);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (m_pUseGradientBackground->GetAsBool())
 	{				
