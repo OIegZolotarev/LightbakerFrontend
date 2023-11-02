@@ -58,55 +58,55 @@ void LightPropertiesBinding::FillProperties(std::vector<VariantValue>& collectio
 
 }
 
-void LightPropertiesBinding::MakeLightStyleProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightStyleProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Style, PropertiesTypes::Int, "Style");
 	p.SetInt(ptr->style);
 }
 
-void LightPropertiesBinding::MakeSizeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeSizeProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Size, PropertiesTypes::SizeX, "Size");
 	p.SetFloat(ptr->size.x);
 }
 
-void LightPropertiesBinding::MakeConeBProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeConeBProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
 	p.SetFloat(ptr->cones[1]);
 }
 
-void LightPropertiesBinding::MakeConeAProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeConeAProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
 	p.SetFloat(ptr->cones[0]);
 }
 
-void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
 	p.SetFloat(ptr->intensity);
 }
 
-void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
 	p.SetColorRGB(ptr->GetColor());
 }
 
-void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
 	p.SetAngles(ptr->anglesDirection);
 }
 
-void LightPropertiesBinding::MakeLightPosProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightPosProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Pos, PropertiesTypes::Position, "Pos");
 	p.SetPosition(ptr->GetPosition());
 }
 
-void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
 	p.AddEnumValue("Euler", LF_EULER);
@@ -118,7 +118,7 @@ void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared
 	p.SetFlags(ptr->flags);
 }
 
-void LightPropertiesBinding::MakeLightTypeProperty(VariantValue& p, std::shared_ptr<lightDef_t> ptr)
+void LightPropertiesBinding::MakeLightTypeProperty(VariantValue& p, std::shared_ptr<LightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Type, PropertiesTypes::Enum, "Type");
 
@@ -229,7 +229,12 @@ ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
 
 }
 
-void lightDef_s::SetType(LightTypes newType)
+LightEntity::LightEntity()
+{
+	SetClassName("light");
+}
+
+void LightEntity::SetType(LightTypes newType)
 {
 	type = newType;
 
@@ -250,27 +255,27 @@ void lightDef_s::SetType(LightTypes newType)
 	}
 }
 
-void lightDef_s::OnHovered()
+void LightEntity::OnHovered()
 {
 
 }
 
-void lightDef_s::OnMouseMove(glm::vec2 delta)
-{
-	
-}
-
-void lightDef_s::OnUnhovered()
+void LightEntity::OnMouseMove(glm::vec2 delta)
 {
 	
 }
 
-void lightDef_s::RenderForSelection(int objectId,SceneRenderer * pRenderer)
+void LightEntity::OnUnhovered()
+{
+	
+}
+
+void LightEntity::RenderForSelection(int objectId,SceneRenderer * pRenderer)
 {	
 	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(4, 4), GetEditorIcon(), objectId);
 }
 
-void lightDef_s::OnSelect()
+void LightEntity::OnSelect()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();
@@ -279,7 +284,7 @@ void lightDef_s::OnSelect()
 	scene->HintSelected(weakRef);
 
 	auto ptr = weakRef.lock();
-	auto lightWeakRef = std::dynamic_pointer_cast<lightDef_s>(ptr);
+	auto lightWeakRef = std::dynamic_pointer_cast<LightEntity>(ptr);
 
 	LightPropertiesBinding* pBinding = new LightPropertiesBinding(lightWeakRef);
 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
@@ -287,12 +292,12 @@ void lightDef_s::OnSelect()
 	
 }
 
-void lightDef_s::OnUnSelect()
+void LightEntity::OnUnSelect()
 {
 	ObjectPropertiesEditor::Instance()->UnloadObject();
 }
 
-const char* lightDef_s::Description()
+const char* LightEntity::Description()
 {
 	switch (type)
 	{
@@ -313,7 +318,7 @@ const char* lightDef_s::Description()
 	return "Bad";
 }
 
-bool lightDef_s::IsLightEntity()
+bool LightEntity::IsLightEntity()
 {
 	return true;
 }

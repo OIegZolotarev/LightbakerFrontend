@@ -209,8 +209,8 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 
 	assert(tokens.size() >= 14);
 
-	lightDef_t* newLight = new lightDef_t;
-	memset(newLight, 0, sizeof(lightDef_t));
+	LightEntity* newLight = new LightEntity;
+	memset(newLight, 0, sizeof(LightEntity));
 
 	// Light type
 

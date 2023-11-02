@@ -226,6 +226,7 @@
     <ClCompile Include="text_utils.cpp" />
     <ClCompile Include="ui_options_pages.cpp" />
     <ClCompile Include="win_main.cpp" />
+    <ClCompile Include="worldspawn.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\better-enums\enum.h" />
@@ -292,6 +293,7 @@
     <ClInclude Include="text_utils.h" />
     <ClInclude Include="ui_common.h" />
     <ClInclude Include="ui_options_pages.h" />
+    <ClInclude Include="worldspawn.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc" />

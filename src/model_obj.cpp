@@ -162,7 +162,7 @@ void ModelOBJ::ClearLightDefinitions()
 
 void ModelOBJ::AddLight(lightDefPtr_t& it)
 {
-	m_ModelData.lightDefs.push_back(new lightDef_s(*it));
+	m_ModelData.lightDefs.push_back(new LightEntity(*it));
 }
 
 void ModelOBJ::SetLightmapDimensions(int w, int h)
@@ -538,7 +538,7 @@ void ModelOBJ::AddLightsIntoScene()
 
 	for (auto def : m_ModelData.lightDefs)
 	{
-		auto ptr = std::make_shared<lightDef_s>(*def);
+		auto ptr = std::make_shared<LightEntity>(*def);
 
 		scene->AddEntityWithSerialNumber(ptr, def->GetSerialNumber());
 	}
@@ -568,13 +568,13 @@ void ModelOBJ::PrepareLights()
 
 	for (auto light = lights.begin(); light != lights.end(); light++)
 	{
-		auto lightPointer = std::dynamic_pointer_cast<lightDef_s>(*light);
+		auto lightPointer = std::dynamic_pointer_cast<LightEntity>(*light);
 
 		if (lightPointer)
 		{
 			// Наверное тупой подход
-			lightDef_s* l1 = new lightDef_s(*lightPointer);
-			lightDef_s* l2 = new lightDef_s(*lightPointer);
+			LightEntity* l1 = new LightEntity(*lightPointer);
+			LightEntity* l2 = new LightEntity(*lightPointer);
 
 			m_LightmapModelData.lightDefs.push_back(l1);
 			m_ModelData.lightDefs.push_back(l2);

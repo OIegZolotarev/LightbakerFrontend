@@ -79,7 +79,7 @@ void Scene::DoDeleteSelection()
 
 void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
 {
-	auto newLight = std::make_shared<lightDef_s>();
+	auto newLight = std::make_shared<LightEntity>();
 
 
 	// newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;

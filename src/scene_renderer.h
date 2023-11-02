@@ -11,6 +11,7 @@
 #include "model_obj.h"
 #include "edit_history.h"
 #include "scene.h"
+#include "gl_backend.h"
 
 enum class RenderMode
 {

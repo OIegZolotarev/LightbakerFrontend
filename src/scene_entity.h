@@ -6,12 +6,15 @@
 #pragma once
 #include "selection_3d.h"
 #include "gl_texture.h"
+#include "object_props.h"
 
-enum class EntityClasses
+enum class EntityClass
 {
-	Entities = 0,
+	None = 0,
 	Lights,
 };
+
+
 
 #define DECLARE_PROPERTY(Type,Name) private: Type m_##Name;\
 									public: void Set##Name(Type val) { m_##Name = val; } \
@@ -24,24 +27,32 @@ class SceneEntity: public ISelectableObject
 	
 	size_t m_nSerialNumber = 0;
 	
+	std::size_t m_ClassNameHash;
+	std::string m_ClassName;
+
 protected:
-	void FlagDataLoaded()
-	{
-		m_bDataLoaded = true;
-	}
+	void SetClassName(const char* name);
+
+	void FlagDataLoaded();
+	void LoadPropertiesToPropsEditor(IObjectPropertiesBinding * binder);
+
 public:
 	SceneEntity();
 	
-	virtual void RenderLightshaded() {}; // С лайтмапой
-	virtual void RenderUnshaded() {}; // Без лайтмапы
-	virtual void RenderBoundingBox() {}; // 
-	virtual void RenderDebug() {}; // Отладочная отрисовка
-	virtual void RenderGroupShaded() {};
+	virtual void RenderLightshaded(); // С лайтмапой
+	virtual void RenderUnshaded(); // Без лайтмапы
+	virtual void RenderBoundingBox(); // 
+	virtual void RenderDebug(); // Отладочная отрисовка
+	virtual void RenderGroupShaded();
 
 	bool IsDataLoaded();
 	
 	DECLARE_PROPERTY(size_t, SerialNumber);
 	DECLARE_PROPERTY(glm::vec3, Position);
+
+	DECLARE_PROPERTY(glm::vec3, Mins);
+	DECLARE_PROPERTY(glm::vec3, Maxs);
+
 	DECLARE_PROPERTY(glm::vec3, Color);	
 	DECLARE_PROPERTY(gltexture_t*, EditorIcon);
 
@@ -54,7 +65,7 @@ public:
 
 	virtual const char* Description();
 
-	virtual bool IsLightEntity() { return false;  }
+	virtual bool IsLightEntity();
 
 	
 };

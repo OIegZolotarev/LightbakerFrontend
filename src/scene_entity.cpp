@@ -4,16 +4,69 @@
 */
 
 #include "scene_entity.h"
+#include "properties_editor.h"
+#include "application.h"
 
+
+void SceneEntity::SetClassName(const char* name)
+{
+	m_ClassName = std::string(name);
+	m_ClassNameHash = std::hash<const char*>{} (name);
+}
+
+void SceneEntity::FlagDataLoaded()
+{
+	m_bDataLoaded = true;
+}
+
+void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding* binder)
+{
+	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+	auto scene = sceneRenderer->GetScene();
+
+	auto weakRef = scene->GetEntityWeakRef(this);
+	scene->HintSelected(weakRef);
+
+	ObjectPropertiesEditor::Instance()->LoadObject(binder);
+}
 
 SceneEntity::SceneEntity()
 {
 	m_SerialNumber = 0;
 	m_Position = { 0,0,0 };
+
+	m_Mins = { -4, -4, -4 };
+	m_Maxs = { 4, 4, 4 };
+
 	m_Color = { 0,0,0 };
 	m_EditorIcon = nullptr;
 }
   
+void SceneEntity::RenderLightshaded()
+{
+
+}
+
+void SceneEntity::RenderUnshaded()
+{
+
+}
+
+void SceneEntity::RenderBoundingBox()
+{
+
+}
+
+void SceneEntity::RenderDebug()
+{
+
+}
+
+void SceneEntity::RenderGroupShaded()
+{
+
+}
+
 bool SceneEntity::IsDataLoaded()
 {
 	return m_bDataLoaded;
@@ -51,6 +104,11 @@ void SceneEntity::RenderForSelection(int objectId, class SceneRenderer*)
 
 const char* SceneEntity::Description()
 {
-	return "<No description>";
+	return m_ClassName.c_str();
+}
+
+bool SceneEntity::IsLightEntity()
+{
+	return false;
 }
 

@@ -51,6 +51,9 @@
     <Filter Include="Исходные файлы\stb">
       <UniqueIdentifier>{225d6ba6-5bfd-444d-b804-ca55e793d349}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Scene\Entities">
+      <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -108,9 +111,6 @@
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClCompile>
     <ClCompile Include="lb3k_wrapper.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="lights.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="properties_editor.cpp">
@@ -200,9 +200,6 @@
     <ClCompile Include="scene.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="scene_entity.cpp">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClCompile>
     <ClCompile Include="mod_obj_asynch_exporter.cpp">
       <Filter>Исходные файлы\WavefrontObj\IO</Filter>
     </ClCompile>
@@ -229,6 +226,15 @@
     </ClCompile>
     <ClCompile Include="object_props.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_entity.cpp">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="lights.cpp">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="worldspawn.cpp">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -296,9 +302,6 @@
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClInclude>
     <ClInclude Include="lb3k_wrapper.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="lights.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
@@ -394,9 +397,6 @@
     <ClInclude Include="scene.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="scene_entity.h">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClInclude>
     <ClInclude Include="bsp_goldsource_file.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
@@ -423,6 +423,15 @@
     </ClInclude>
     <ClInclude Include="ui_options_pages.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_entity.h">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="lights.h">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="worldspawn.h">
+      <Filter>Исходные файлы\Scene\Entities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

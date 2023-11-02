@@ -335,7 +335,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 	if (!_ptr)
 		return;
 
-	lightDefPtr_t ptr = std::dynamic_pointer_cast<lightDef_t>(_ptr);
+	lightDefPtr_t ptr = std::dynamic_pointer_cast<LightEntity>(_ptr);
 
 	switch (ptr->type)
 	{
