@@ -239,6 +239,15 @@
     <ClCompile Include="ui_styles_manager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="goldsource_bsp_world.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
+    <ClCompile Include="byteorder.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="wad_textures.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -400,7 +409,7 @@
     <ClInclude Include="scene.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="bsp_goldsource_file.h">
+    <ClInclude Include="goldsource_bsp_disk_structs.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
     <ClInclude Include="mod_obj_data.h">
@@ -438,6 +447,18 @@
     </ClInclude>
     <ClInclude Include="ui_styles_manager.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="byteorder.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_mem_structs.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="wad_textures.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_world.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

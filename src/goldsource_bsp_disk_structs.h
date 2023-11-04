@@ -1,7 +1,8 @@
 /*
-	Modified for LightBaker3000 Frontend project,
+	Edited for LightBaker3000 Frontend project,
 	(c) 2023 CrazyRussian
 */
+
 
 /***
 *
@@ -13,6 +14,8 @@
 *
 ****/
 
+namespace GoldSource
+{
 
 // upper design bounds
 
@@ -48,7 +51,9 @@
 //=============================================================================
 
 
-#define BSPVERSION	30
+#define HL_BSPVERSION	30
+#define Q1_BSPVERSION	29
+
 #define	TOOLVERSION	2
 
 
@@ -222,5 +227,23 @@ typedef struct
 	byte		ambient_level[NUM_AMBIENTS];
 } dleaf_t;
 
-
 //============================================================================
+
+
+typedef struct epair_s
+{
+	struct epair_s* next;
+	char* key;
+	char* value;
+} epair_t;
+
+typedef struct
+{
+	glm::vec3		origin;
+	int			firstbrush;
+	int			numbrushes;
+	epair_t* epairs;
+} entity_t;
+
+}
+
