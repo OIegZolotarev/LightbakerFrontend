@@ -8,6 +8,7 @@
 #include "properties_editor.h"
 #include "mod_obj_atlas_gen.h"
 #include "mod_obj_asynch_exporter.h"
+#include "worldspawn.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -98,6 +99,17 @@ void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
 
 	newLight->SetColor(rgb);
 	newLight->SetSerialNumber(m_ObjectsCounter.Allocate());
+
+	newLight->SetIntensity(500);
+	newLight->SetAngles(0, 0, 0);
+	newLight->SetFlags(LF_EULER);
+
+	if (type == LightTypes::Spot)
+		newLight->SetCones(45, 60);
+	else 
+		newLight->SetCones(45, 60);
+
+	newLight->SetSize(0,0);
 
 	m_SceneEntities.push_back(newLight);
 	newLight->InvokeSelect();
@@ -260,9 +272,13 @@ void Scene::Reload(int loadFlags)
 	if (loadFlags & LRF_RELOAD_LIGHTMAPS)
 	{
 		auto it = m_SceneEntities.begin();
-		SceneEntity* entity = (*it).get();
-		auto obj = (ModelOBJ*)entity;
-		obj->ReloadTextures();
+		Worldspawn* entity = (Worldspawn*)(*it).get();
+		
+		entity->ReloadLightmaps();
+
+
+// 		auto obj = (ModelOBJ*)entity;
+// 		obj->ReloadTextures();
 	}
 }
 
@@ -279,21 +295,8 @@ void Scene::ClearEntities()
 
 void Scene::LoadLevel(const char* levelName)
 {
-	SceneEntityPtr pLevelEntity = nullptr;
 
-	switch (m_LevelFormat)
-	{
-	case LevelFormat::Unknown:
-		break;
-	case LevelFormat::WavefrontOBJ:
-		pLevelEntity = std::make_shared<ModelOBJ>(levelName);
-		break;
-	case LevelFormat::BSP:
-		break;
-	default:
-		break;
-
-	}
+	auto pLevelEntity = std::make_shared<Worldspawn>(levelName);
 
 	if (!m_SceneEntities.empty())
 	{
@@ -308,11 +311,15 @@ void Scene::LoadLevel(const char* levelName)
 std::string Scene::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)
 {
 	// TODO: fixme
+// 	auto it = m_SceneEntities.begin();
+// 	SceneEntity* entity = (*it).get();
+// 	auto obj = (ModelOBJ*)entity;
+// 	return obj->Export(newPath, lb3kOptions);
+	
 	auto it = m_SceneEntities.begin();
-	SceneEntity* entity = (*it).get();
-	auto obj = (ModelOBJ*)entity;
-	return obj->Export(newPath, lb3kOptions);
+	Worldspawn* entity = (Worldspawn*)(*it).get();
 
+	return entity->ExportForCompiling(newPath, lb3kOptions);
 }
 
 void Scene::RenderGroupsShaded()
@@ -334,28 +341,28 @@ void Scene::RenderGroupsShaded()
 
 void Scene::DumpLightmapMesh()
 {
-	// TODO: fixme
-	auto it = m_SceneEntities.begin();
-	SceneEntity* entity = (*it).get();
-	auto obj = (ModelOBJ*)entity;
-
-	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
-	tsk->TransferNewUV();
-
-	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(obj, "lm_debug.obj", true);
-	exporter->ExportSynch();
-	delete exporter;
+// 	// TODO: fixme
+// 	auto it = m_SceneEntities.begin();
+// 	SceneEntity* entity = (*it).get();
+// 	auto obj = (ModelOBJ*)entity;
+// 
+// 	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
+// 	tsk->TransferNewUV();
+// 
+// 	ModObjAsynchExporter* exporter = new ModObjAsynchExporter(obj, "lm_debug.obj", true);
+// 	exporter->ExportSynch();
+// 	delete exporter;
 
 }
 
 void Scene::DumpLightmapUV()
 {
-	// TODO: fixme
-	auto it = m_SceneEntities.begin();
-	SceneEntity* entity = (*it).get();
-	auto obj = (ModelOBJ*)entity;
-
-	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
-	tsk->DumpUVImage("lm_debug%02u.tga");
-	delete tsk;
+// 	// TODO: fixme
+// 	auto it = m_SceneEntities.begin();
+// 	SceneEntity* entity = (*it).get();
+// 	auto obj = (ModelOBJ*)entity;
+// 
+// 	GenerateAtlasTask* tsk = new GenerateAtlasTask(obj);
+// 	tsk->DumpUVImage("lm_debug%02u.tga");
+// 	delete tsk;
 }

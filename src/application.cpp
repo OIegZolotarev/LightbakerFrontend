@@ -187,8 +187,6 @@ void Application::ScheduleCompilationIfNecceseary()
 
 	if (!Application::IsWaitingForBakerToFinish())
 	{
-		
-
 		auto settings = inst->GetLightBakerApplication()->Settings();
 		int oldSize[2] = { settings->m_lmSettings.size[0],settings->m_lmSettings.size[1] };
 		int oldSamples = settings->m_iSamples;

@@ -45,7 +45,7 @@ public:
 	virtual void RenderDebug(); // Отладочная отрисовка
 	virtual void RenderGroupShaded();
 
-	bool IsDataLoaded();
+	virtual bool IsDataLoaded();
 	
 	DECLARE_PROPERTY(size_t, SerialNumber);
 	DECLARE_PROPERTY(glm::vec3, Position);

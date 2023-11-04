@@ -7,10 +7,16 @@
 #include "worldspawn.h"
 #include "properties_editor.h"
 
-Worldspawn::Worldspawn()
+Worldspawn::Worldspawn(const char* fileName)
 {
 	SetClassName("worldspawn");
 	m_EnvColor = glm::vec3(1, 1, 1);
+
+	auto fs = Application::GetFileSystem();
+	auto ext = fs->ExtensionFromPath(fileName);
+
+	if (ext == ".obj")
+		m_pObjWorld = new ModelOBJ(fileName);
 }
 
 Worldspawn::~Worldspawn()
@@ -30,6 +36,60 @@ void Worldspawn::OnSelect()
 }
 
 
+std::string Worldspawn::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)
+{
+	if (m_pObjWorld)
+		return m_pObjWorld->Export(newPath,lb3kOptions, m_EnvColor);
+}
+
+void Worldspawn::RenderBoundingBox()
+{
+
+}
+
+void Worldspawn::RenderDebug()
+{
+	
+}
+
+void Worldspawn::RenderForSelection(int objectId, class SceneRenderer* sc)
+{
+	if (m_pObjWorld)
+		m_pObjWorld->RenderForSelection(objectId, sc);
+}
+
+void Worldspawn::RenderGroupShaded()
+{
+	if (m_pObjWorld)
+		m_pObjWorld->RenderGroupShaded();
+}
+
+void Worldspawn::RenderLightshaded()
+{
+	if (m_pObjWorld)
+		m_pObjWorld->RenderLightshaded();
+}
+
+void Worldspawn::RenderUnshaded()
+{
+	if (m_pObjWorld)
+		m_pObjWorld->RenderUnshaded();
+}
+
+bool Worldspawn::IsDataLoaded()
+{
+	if (m_pObjWorld)
+		return m_pObjWorld->IsDataLoaded();
+
+	return false;
+}
+
+void Worldspawn::ReloadLightmaps()
+{
+	if (m_pObjWorld)
+		m_pObjWorld->ReloadLightmapTextures();
+}
+
 void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)
 {
 	auto ptr = m_ptr.lock();
@@ -37,9 +97,12 @@ void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& colle
 	if (!ptr)
 		return;
 
+	Worldspawn* world = (Worldspawn*)ptr.get();
+
 	VariantValue p;
 
 	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
+	p.SetColorRGB(world->GetEnvColor());
 	collection.push_back(p);
 
 }

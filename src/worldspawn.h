@@ -14,14 +14,26 @@ class Worldspawn: public SceneEntity
 	ModelOBJ* m_pObjWorld;
 
 public:
-
-	Worldspawn();
+	Worldspawn(const char* fileName);
 	~Worldspawn();
 
 	DECLARE_PROPERTY(glm::vec3, EnvColor);
 	DECLARE_PROPERTY(std::string, Skybox);
 
 	void OnSelect() override;
+	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions);
+
+	void RenderBoundingBox() override;
+	void RenderDebug() override;
+	void RenderForSelection(int objectId, class SceneRenderer*) override;
+	void RenderGroupShaded() override;
+	void RenderLightshaded() override;
+	void RenderUnshaded() override;
+
+
+	bool IsDataLoaded() override;
+
+	void ReloadLightmaps();
 };
 
 

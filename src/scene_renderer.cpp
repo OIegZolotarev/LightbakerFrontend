@@ -362,10 +362,15 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		auto mat2 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[1]), glm::vec3(0, 1, 0));
 		auto mat3 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[2]), glm::vec3(0, 0, 1));
 
-		mat *= mat1;
-		mat *= mat2;
-		mat *= mat3;
+// 		mat *= mat1;
+// 		mat *= mat2;
+// 		mat *= mat3;
 		
+		// Quake-ish order
+		mat *= mat3;
+		mat *= mat2;
+		mat *= mat1;
+
 		shader->SetTransform(mat);		
 		m_pSpotlightCone->BindAndDraw();
 

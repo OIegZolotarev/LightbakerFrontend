@@ -17,11 +17,10 @@ class ModelOBJ: public SceneEntity
 {
 public:
 	ModelOBJ(const char* fileName);
-
-	void LoadLMMesh();
-
 	~ModelOBJ();
 
+
+	void LoadLMMesh();
 	void DrawDebug();
 
 	std::string GetModelFileName();
@@ -32,7 +31,7 @@ public:
 	void ReloadLightmapTextures();
 
 	// Возвращает путь к файлу ЛМ-модели
-	std::string & Export(const char* fileName, lightBakerSettings_t * lb3kOptions);
+	std::string & Export(const char* fileName, lightBakerSettings_t * lb3kOptions, glm::vec3 envColor);
 
 	void UpdateLMMesh();
 

@@ -31,10 +31,22 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 		{
 			auto& sceneObjects = scene->GetSceneObjects();
 
+			auto worldSpawn = sceneObjects.begin();
+
+
+			if (ImGui::Selectable((*worldSpawn)->Description(), (*worldSpawn)->IsSelected()))
+			{
+				(*worldSpawn)->InvokeSelect();
+				sceneRenderer->FocusCameraOnObject((*worldSpawn));
+			}
+
 			if (ImGui::TreeNode("Lights"))
 			{
 				for (auto& it : sceneObjects)
 				{
+					if (!it->IsLightEntity())
+						continue;
+
 					ImGui::PushID((void*)it.get());
 
 					auto col = it->GetColor();

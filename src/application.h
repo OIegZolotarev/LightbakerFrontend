@@ -79,11 +79,15 @@ public:
 	}
 	void ShowMouseCursor();
 	void HideMouseCursor();
+
 private:
 	std::string m_strFileToLoad = "";
+
+
+	// Baker state
+
 	float m_flBakingPercentage = 0;
 	bool m_bDoBakingAgain = false;
-
 };
 
 inline int Con_Printf(const char* fmt, ...)

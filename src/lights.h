@@ -57,6 +57,32 @@ public:
 	
 	bool IsLightEntity() override;
 
+	void SetIntensity(float f)
+	{
+		intensity = f;
+	}
+
+	void SetFlags(int _flags)
+	{
+		flags = _flags;
+	}
+
+	void SetAngles(float pitch, float yaw, float roll)
+	{
+		anglesDirection = glm::vec3(pitch, yaw, roll);
+	}
+
+	void SetCones(float a, float b)
+	{
+		cones[0] = a;
+		cones[1] = b;
+	}
+
+	void SetSize(float sizeX, float sizeY)
+	{
+		size = glm::vec2(sizeX,sizeY);
+	}
+
 };
 
 enum LightProperties
