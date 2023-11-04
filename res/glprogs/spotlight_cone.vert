@@ -26,7 +26,7 @@ void main()
 	
 	float coef = uv.x;
 	
-	float radius = (1 / tan(coneAngle) * coneHeight);  
+	float radius = 2 * tan(coneAngle) * coneHeight;  
 	
 	vertTemp.x *= coef * radius;
 	vertTemp.y *= coef * radius;

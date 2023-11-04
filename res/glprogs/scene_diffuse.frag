@@ -8,9 +8,7 @@ in vec2 oTexCoord;
 in vec2 oLMCoord;
 
 void main()
-{
-	vec4 lmSample = texture2D(lightmap,oLMCoord);
+{	
 	vec4 diffuseSample = texture2D(diffuse,oTexCoord);
-
-    FragColor = lmSample * diffuseSample;	
+    FragColor = diffuseSample;    
 } 
