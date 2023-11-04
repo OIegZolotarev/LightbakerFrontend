@@ -17,8 +17,9 @@ enum class PropertiesTypes
 	Float,
 	Angles,
 	Int,
-	SizeX,	
-	Bool
+	SizeX,
+	Bool,
+	String
 };
 
 typedef std::pair<std::string, int> enumValuePair_t;
@@ -28,8 +29,7 @@ class VariantValue
 	int id;
 	PropertiesTypes type;
 	
-	std::string display_name;
-	std::string group_id;
+	std::string display_name;	
 	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
 	bool initialized = false;
@@ -48,10 +48,12 @@ class VariantValue
 		bool asBool;
 	}value;
 
+	std::string m_StringValue;
+
 	char* m_TempLabel = 0;
 
 public:
-	VariantValue(int _id, PropertiesTypes _type, std::string _displayName, std::string _group_id = "");
+	VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
 	VariantValue();
 	~VariantValue();
 
@@ -68,6 +70,7 @@ public:
 	const int		GetInt() const;
 	const float		GetSizeX() const;
 	const bool		GetAsBool() const;
+	const char*		GetString() const;
 
 	void SetEnumValue(int val);
 	void SetFlags(int val);
@@ -79,6 +82,7 @@ public:
 	void SetInt(int val);
 	void SetSizeX(float val);
 	void SetBool(bool val);
+	void SetString(const char* value);
 
 	const int GetId() const;
 	const PropertiesTypes GetType() const;

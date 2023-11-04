@@ -337,15 +337,22 @@ void Camera::UpdateOrientation()
 		else if (abs(m_CurrentMoveSpeeds[i]) > 1.f)
 		{
 			if (m_CurrentMoveSpeeds[i] > 0)
+			{
 				m_CurrentMoveSpeeds[i] -= deceleration * flFrameDelta;
+				m_CurrentMoveSpeeds[i] = std::max(m_CurrentMoveSpeeds[i], 0.f);
+			}
 			else
+			{
 				m_CurrentMoveSpeeds[i] += deceleration * flFrameDelta;
+				m_CurrentMoveSpeeds[i] = std::min(m_CurrentMoveSpeeds[i], 0.f);
+			}
 
 			recalcPosition = true;
 		}
 		else
 			m_CurrentMoveSpeeds[i] = 0;
 	}
+
 
 	//cameraVelocity += cameraDirection * acceleration;
 	//cameraVelocity = glm::min(cameraVelocity, maxSpeed * cameraDirection);

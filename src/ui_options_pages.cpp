@@ -48,12 +48,18 @@ void OptionsHeader::RenderImGUI()
 {
 	ImGui::TableSetColumnIndex(0);
 	ImGui::AlignTextToFramePadding();
-	ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
-	ImGui::TreeNodeEx("Field", flags, "%s", m_Description.c_str());
+	
+	//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Leaf;
+	//ImGui::TreeNodeEx("Field", flags, "%s", m_Description.c_str());
+
+	ImGui::SeparatorText(m_Description.c_str());
 
 
 	ImGui::TableSetColumnIndex(1);
 	ImGui::SetNextItemWidth(-FLT_MIN);
+
+
+	
 }
 
 

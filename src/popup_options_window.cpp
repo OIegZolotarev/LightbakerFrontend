@@ -23,7 +23,9 @@ void RegisterOptions()
 	VariantValue* opt = nullptr;
 
 	BeginOptionPage(OptionsPage::General, "General");
-	AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Rebake scene after edits", PropertiesTypes::Bool);
+
+	AddGroup("Scene");
+	AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
 	AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
 
 	AddGroup("Background");
@@ -37,23 +39,30 @@ void RegisterOptions()
 	opt->AddEnumValue("Valve Hammer Editor", (int)CameraControlScheme::ValveHammerEditor);
 	opt->AddEnumValue("Blender", (int)CameraControlScheme::Blender);
 
-	AddOption(ApplicationSettings::CameraMovementSpeed, "Movement speed", PropertiesTypes::Float);
+
+	AddGroup("Movement");
+
+	AddOption(ApplicationSettings::CameraMovementSpeed, "Speed", PropertiesTypes::Float);
 	
 	opt = AddOption(ApplicationSettings::CameraAccel, "Acceleration", PropertiesTypes::Float);
-	opt->SetNumericalLimits(0, 300);
+	//opt->SetNumericalLimits(0, 300);
 
 	opt = AddOption(ApplicationSettings::CameraDecel, "Decelaration", PropertiesTypes::Float);
-	opt->SetNumericalLimits(0, 300);
+	//opt->SetNumericalLimits(0, 300);
 
 
-	opt = AddOption(ApplicationSettings::CameraZNear, "Near Z-Plane", PropertiesTypes::Float);
-	opt->SetNumericalLimits(0.001, 10);
-
-	opt = AddOption(ApplicationSettings::CameraZFar, "Far Z-Plane", PropertiesTypes::Float);
-	opt->SetNumericalLimits(10, 1000000);
+	AddGroup("Parameters");
 
 	opt = AddOption(ApplicationSettings::CameraFov, "Field of view", PropertiesTypes::Float);
 	opt->SetNumericalLimits(1, 179);
+
+	opt = AddOption(ApplicationSettings::CameraZNear, "Near plane", PropertiesTypes::Float);
+	opt->SetNumericalLimits(0.001, 10);
+
+	opt = AddOption(ApplicationSettings::CameraZFar, "Far plane", PropertiesTypes::Float);
+	opt->SetNumericalLimits(10, 1000000);
+
+	
 
 	BeginOptionPage(OptionsPage::Keyboard, "Keyboard");
 	
@@ -74,24 +83,17 @@ void OptionsDialog::Render()
 	if (!RenderHeader())
 		return;
 
-	if (ImGui::Button("OK"))
-		OnOkPressed();
-
-	ImGui::SameLine();
-
-	if (ImGui::Button("Cancel"))
-		OnCancelPressed();
 
 
-	if (ImGui::BeginTable("###LayoutLeftRight", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp, ImVec2(-FLT_MIN,-20)))
+	//if (ImGui::BeginTable("###LayoutLeftRight", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp, ImVec2(-FLT_MIN,-20)))
 	{
 
-		ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 20 );
-		ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 80);
-		
-
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
+// 		ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 20 );
+// 		ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 80);
+// 		
+// 
+// 		ImGui::TableNextRow();
+// 		ImGui::TableSetColumnIndex(0);
 
 
 
@@ -99,7 +101,7 @@ void OptionsDialog::Render()
 
 		uiOptionPage_t* pageToRender = nullptr;
 
-		if (ImGui::BeginListBox("###Category", size))
+		if (ImGui::BeginTabBar("###Category"))
 		{
 			for (int i = 0; i < ARRAYSIZE(g_OptionsPages); i++)
 			{
@@ -108,7 +110,8 @@ void OptionsDialog::Render()
 				if (page->selected)
 					pageToRender = page;
 
-				if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
+				//if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
+				if (ImGui::BeginTabItem(page->pageDescription.c_str()))
 				{
 					pageToRender = page;
 
@@ -117,29 +120,46 @@ void OptionsDialog::Render()
 						if (k == i) continue;
 						g_OptionsPages[k].selected = false;
 					}
+
+					ImGui::EndTabItem();
 				}
 			}
 
-			ImGui::EndListBox();
+			//ImGui::EndListBox();
+			ImGui::EndTabBar();
 		}
 
 
 
 		if (pageToRender)
 		{
-			ImGui::TableSetColumnIndex(1);
-			RenderOptionsPages(pageToRender);
+			if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
+			{
+				RenderOptionsPages(pageToRender);
+				ImGui::EndChild();
+			}
 		}
 
-		ImGui::EndTable();
+		//ImGui::EndTable();
 	}
 
 	RenderFooter();
+
 }
 
 void OptionsDialog::RenderFooter()
 {
+	
+		if (ImGui::Button("OK"))
+			OnOkPressed();
 
+		ImGui::SameLine();
+
+		if (ImGui::Button("Cancel"))
+			OnCancelPressed();
+
+	
+	
 
 	ImGui::EndPopup();
 }
@@ -158,13 +178,17 @@ bool OptionsDialog::RenderHeader()
 	if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
 		return false;
 
+	ImGui::SetWindowSize(ImVec2(600, 400));
+
 	return true;
 }
 
 void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t* page)
 {
-
-		if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_SizingStretchProp))
+	if (ImGui::BeginChildFrame(53, ImVec2(0,0)))
+	{
+		
+		if (ImGui::BeginTable("split", 2, ImGuiTableFlags_SizingStretchProp))
 		{
 			ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 50);
 			ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 50);
@@ -178,16 +202,15 @@ void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t* page)
 				// Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
 				ImGui::TableNextRow();
 
-				
 				it->RenderImGUI();
-
-				/////				
 
 				ImGui::PopID();
 			}
 
 			ImGui::EndTable();
 		}
+		ImGui::EndChildFrame();
+	}
 }
 
 

@@ -8,13 +8,12 @@ VariantValue::VariantValue()
 	memset(&value, 0, sizeof(value));
 }
 
-VariantValue::VariantValue(int _id, PropertiesTypes _type, std::string _displayName, std::string _group_id /*= ""*/)
+VariantValue::VariantValue(int _id, PropertiesTypes _type, std::string _displayName)
 {
 	id = _id;
 	type = _type;
 	display_name = _displayName;
-	group_id = _group_id;
-
+	
 	memset(&value, 0, sizeof(value));
 }
 
@@ -99,6 +98,11 @@ const bool VariantValue::GetAsBool() const
 	return value.asBool;
 }
 
+const char* VariantValue::GetString() const
+{
+	return m_StringValue.c_str();
+}
+
 void VariantValue::SetEnumValue(int val)
 {
 	initialized = true;
@@ -157,6 +161,11 @@ void VariantValue::SetBool(bool val)
 {
 	initialized = true;
 	value.asBool = val;
+}
+
+void VariantValue::SetString(const char* value)
+{
+	m_StringValue = value;
 }
 
 void VariantValue::AddEnumValue(const char* descr, int val)
