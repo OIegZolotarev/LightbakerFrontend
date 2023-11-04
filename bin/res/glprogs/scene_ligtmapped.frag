@@ -12,5 +12,5 @@ void main()
 	vec4 lmSample = texture2D(lightmap,oLMCoord);
 	vec4 diffuseSample = texture2D(diffuse,oTexCoord);
 
-    FragColor = lmSample * diffuseSample;
+    FragColor = lmSample * diffuseSample;	
 } 
