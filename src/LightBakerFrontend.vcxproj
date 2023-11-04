@@ -224,6 +224,7 @@
     <ClCompile Include="spotlight_cone_shader.cpp" />
     <ClCompile Include="stblibs_impl.cpp" />
     <ClCompile Include="text_utils.cpp" />
+    <ClCompile Include="ui_styles_manager.cpp" />
     <ClCompile Include="ui_options_pages.cpp" />
     <ClCompile Include="win_main.cpp" />
     <ClCompile Include="worldspawn.cpp" />
@@ -291,6 +292,7 @@
     <ClInclude Include="shader_program.h" />
     <ClInclude Include="spotlight_cone_shader.h" />
     <ClInclude Include="text_utils.h" />
+    <ClInclude Include="ui_styles_manager.h" />
     <ClInclude Include="ui_common.h" />
     <ClInclude Include="ui_options_pages.h" />
     <ClInclude Include="worldspawn.h" />

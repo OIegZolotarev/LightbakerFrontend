@@ -24,7 +24,8 @@ enum class ApplicationSettings
 	CameraZFar,
 	CameraFov,
 	CameraAccel,
-	CameraDecel
+	CameraDecel,
+	GUIColorScheme
 };
 
 

@@ -123,9 +123,9 @@ void PersistentStorage::LoadFromFile(Application* appInstance)
 
 		if (j.contains("PanelsState"))
 		{
-			auto items = j["PanelsState"];
+			auto & items = j["PanelsState"];
 
-			for (auto it : items)
+			for (auto & it : items)
 			{
 				PanelsId id = PanelsId::_from_string(it["Id"].get<std::string>().c_str());
 				bool isValid = it["Valid"];

@@ -28,11 +28,11 @@ void InitCommonResources()
 {
 	g_CommonIcons = new std::unordered_map<CommonIcons, gltexture_t*>;
 
-	LoadIcon(CommonIcons::LoadFile,		"res/loadfile.png");
-	LoadIcon(CommonIcons::Bake,			"res/bake.png");
-	LoadIcon(CommonIcons::DirectLight,	"res/directlight.png");
-	LoadIcon(CommonIcons::OmniLight,	"res/omnilight.png");
-	LoadIcon(CommonIcons::SpotLight,	"res/spotlight.png");
+	LoadIcon(CommonIcons::LoadFile,		"res/ui/icons/loadfile.png");
+	LoadIcon(CommonIcons::Bake,			"res/ui/icons/bake.png");
+	LoadIcon(CommonIcons::DirectLight,	"res/ui/icons/directlight.png");
+	LoadIcon(CommonIcons::OmniLight,	"res/ui/icons/omnilight.png");
+	LoadIcon(CommonIcons::SpotLight,	"res/ui/icons/spotlight.png");
 }
 
 gltexture_t* GetCommonIcon(CommonIcons icon_id)

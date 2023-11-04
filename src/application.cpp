@@ -100,6 +100,7 @@ void Application::ExecuteBaking()
 
 	if (!lmMeshFile.empty())
 	{
+		m_flBakingPercentage = 0;
 		m_bBakingFinished = false;
 		m_bWaitingForBakingToFinish = true;
 		m_pLightBakerApplication->ExecuteBaking(lmMeshFile.c_str());
@@ -221,7 +222,28 @@ void Application::ParseLightBakerProgressMessage(std::string & captured)
 {
 	//__debugbreak();
 	//Con_Printf("C: %s", captured.c_str());
-	m_strBakingStatus = captured;
+	//m_strBakingStatus = captured;
+
+
+	std::regex word_regex("(.+), Elapsed:(.+), Remaining:(.+)");
+	auto words_begin = std::sregex_iterator(captured.begin(), captured.end(), word_regex);
+	auto words_end = std::sregex_iterator();
+
+	auto dist = std::distance(words_begin, words_end);
+
+	if (dist  != 1)
+		return;
+
+	auto iterator = words_begin;
+
+	std::smatch match = *iterator;
+	m_flBakingPercentage = std::stof(match[1].str());
+	iterator++;
+	
+	std::string elapsed = match[2].str();
+	std::string remained = match[3].str();
+
+
 }
 
 void Application::ShowMouseCursor()
@@ -232,6 +254,11 @@ void Application::ShowMouseCursor()
 void Application::HideMouseCursor()
 {
 	ImGui::GetIO().MouseDrawCursor = false;
+}
+
+float Application::GetBakingProgress()
+{
+	return m_flBakingPercentage;
 }
 
 Application* Application::Instance()

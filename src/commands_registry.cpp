@@ -73,17 +73,15 @@ bool ImageButtonWithText(ImTextureID texId, const char* label, const ImVec2& ima
 	bool pressed = ButtonBehavior(bb, id, &hovered, &held);
 
 	// Render
-	const ImU32 col = GetColorU32((hovered && held) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+
+	const ImU32 col = GetColorU32((hovered && held) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Border);
+
 	RenderFrame(bb.Min, bb.Max, col, true, ImClamp((float)ImMin(padding.x, padding.y), 0.0f, style.FrameRounding));
-	if (bg_col.w > 0.0f)
-		window->DrawList->AddRectFilled(image_bb.Min, image_bb.Max, GetColorU32(bg_col));
-
-	window->DrawList->AddImage(texId, image_bb.Min, image_bb.Max, uv0, uv1, GetColorU32(tint_col));
-
 	
+	window->DrawList->AddImage(texId, image_bb.Min, image_bb.Max, uv0, uv1, GetColorU32(ImGuiCol_Text));
 
 	if (textSize.x > 0) ImGui::RenderText(start, label);
-	return pressed;
+		return pressed;
 }
 }
 
@@ -242,6 +240,9 @@ void CCommand::RenderImGUI(int size)
 	{
 		auto style = ImGui::GetStyle();
 		auto bgColor = style.Colors[ImGuiCol_Button];
+		
+
+		//if (ImGui::ImageButton(m_szDescription, (ImTextureID)m_pIcon->gl_texnum, ImVec2(size, size)))
 		if (ImGui::ImageButtonWithText((ImTextureID)m_pIcon->gl_texnum, m_szDescription, ImVec2(size, size), ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, ImVec4(1, 1, 1, 1)))
 		{
 			Execute();

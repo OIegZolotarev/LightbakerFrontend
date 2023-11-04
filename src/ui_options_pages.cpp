@@ -1,6 +1,12 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2023 CrazyRussian
+*/
+
 #include "application.h"
 #include "common.h"
 #include "ui_options_pages.h"
+#include "ui_styles_manager.h"
 
 using namespace ProgramOptions;
 
@@ -208,5 +214,8 @@ void OptionsValue::RenderEnumProperty()
 
 void OptionsValue::UpdateProperty()
 {
-	//throw std::logic_error("The method or operation is not implemented.");
+	if (m_Value->GetId() == (int)ApplicationSettings::GUIColorScheme)
+	{
+		UIStyles::Manager::Instance()->SelectNewStyle(m_Value->GetEnumValue());
+	}
 }

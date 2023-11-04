@@ -15,6 +15,7 @@
 #include "debug_panel.h"
 #include "loader_thread.h"
 #include "imgui_internal.h"
+#include "ui_styles_manager.h"
 
 
 bool DEBUG_3D_SELECTION = false;
@@ -124,7 +125,9 @@ void MainWindow::InitBackend()
 	io.IniFilename = g_IMGuiIniPath;
 
 	// setup Dear ImGui style
-	ImGui::StyleColorsClassic();
+	//ImGui::StyleColorsClassic();
+
+	UIStyles::Manager::Instance()->ApplyCurrentStyle();
 
 	ImGuiStyle* style = &ImGui::GetStyle();
 
@@ -211,7 +214,9 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 
 	ImGui::DockSpace(gIDMainDockspace, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
+	ImGui::ShowDemoWindow();
 
+	//ImGui::ShowStyleSelector("Select style");
 
 	auto c = ImGui::DockBuilderGetCentralNode(gIDMainDockspace);
 
@@ -585,7 +590,7 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 	for (auto& it : toolbarCommands)
 	{
 		auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
-		cmd->RenderImGUI(40);
+		cmd->RenderImGUI(23);
 	}
 
 	float r = ImGui::GetWindowHeight();
@@ -719,10 +724,12 @@ void MainWindow::DrawBakingInProgressBanner(float yBannerOffset)
 	txtColor.y *= shade;
 	txtColor.z *= shade;	
 
+	float progress =  Application::Instance()->GetBakingProgress();
+
 	ImGui::PushStyleColor(ImGuiCol_Text, txtColor);
 	
 	ImGui::Begin("##BakingInProgressBanner", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize);
-	ImGui::Text("Baking in progress...");
+	ImGui::Text("Baking in progress: %.02f%%", progress);
 	ImGui::End();
 
 	ImGui::PopStyleColor();

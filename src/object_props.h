@@ -19,7 +19,8 @@ enum class PropertiesTypes
 	Int,
 	SizeX,
 	Bool,
-	String
+	String,
+	
 };
 
 typedef std::pair<std::string, int> enumValuePair_t;

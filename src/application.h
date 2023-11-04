@@ -69,9 +69,9 @@ public:
 	static void	ScheduleCompilationIfNecceseary();
 	static bool IsWaitingForBakerToFinish();
 	static void FlagToDoBakingAgain();
-	bool m_bDoBakingAgain = false;
+	
 	void ParseLightBakerProgressMessage(std::string & captured);
-
+	float GetBakingProgress();
 
 	std::string& BakingStatusMessage()
 	{
@@ -81,6 +81,9 @@ public:
 	void HideMouseCursor();
 private:
 	std::string m_strFileToLoad = "";
+	float m_flBakingPercentage = 0;
+	bool m_bDoBakingAgain = false;
+
 };
 
 inline int Con_Printf(const char* fmt, ...)

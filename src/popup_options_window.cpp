@@ -11,6 +11,7 @@
 
 #include "ui_options_pages.h"
 #include "Camera.h"
+#include "ui_styles_manager.h"
 
 
 using namespace ProgramOptions;
@@ -24,6 +25,11 @@ void RegisterOptions()
 
 	BeginOptionPage(OptionsPage::General, "General");
 
+	AddGroup("Appearance");
+	opt = AddOption(ApplicationSettings::GUIColorScheme, "UI colors", PropertiesTypes::Enum);	
+	UIStyles::Manager::Instance()->PopulateStylesOption(opt);
+
+
 	AddGroup("Scene");
 	AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
 	AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
@@ -32,6 +38,8 @@ void RegisterOptions()
 	AddOption(ApplicationSettings::UseGradientBackground, "Use gradient", PropertiesTypes::Bool);
 	AddOption(ApplicationSettings::BackgroundColor1, "Color 1", PropertiesTypes::ColorRGB);	
 	AddOption(ApplicationSettings::BackgroundColor2, "Color 2 (gradient)", PropertiesTypes::ColorRGB);
+
+	
 
 	BeginOptionPage(OptionsPage::Camera, "Camera");
 
