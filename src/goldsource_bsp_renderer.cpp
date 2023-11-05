@@ -180,11 +180,13 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
 	// Make Z-Axis look up
 	m_vecEyesPosition = cameraPosition.xzy;
 
-	glRotatef(90, -1, 0, 0);
+	glPushMatrix();
+	glRotatef(-90, 1, 0, 0);	    // put Z going up
+	glRotatef(90, 0, 0, 1);	    // put Z going up
 
 	RecursiveWorldNode(m_pWorld->GetNodes(0));
 
-	glRotatef(90, 1, 0, 0);
+	glPopMatrix();
 }
 
 void BSPRenderer::RenderBrushPoly(msurface_t* fa)

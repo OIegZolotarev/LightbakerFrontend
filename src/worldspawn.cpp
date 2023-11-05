@@ -135,6 +135,12 @@ void Worldspawn::ReloadLightmaps()
 		m_pBSPWorld->ReloadLightmaps();
 }
 
+void Worldspawn::OnAdditionToScene()
+{
+	if (m_pBSPWorld)
+		m_pBSPWorld->PopulateScene();
+}
+
 void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)
 {
 	auto ptr = m_ptr.lock();

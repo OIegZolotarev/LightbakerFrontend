@@ -64,9 +64,8 @@ public:
 	void RenderForSelection(int objectId, class SceneRenderer*) override;
 
 	virtual const char* Description();
-
 	virtual bool IsLightEntity();
-
+	virtual void OnAdditionToScene() {};
 	
 };
 

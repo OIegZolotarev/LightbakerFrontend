@@ -23,9 +23,9 @@ LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 	return LevelFormat::Unknown;
 }
 
-Scene::Scene(const char* levelName, int loadFlags)
+void Scene::LoadLevel(const char* levelName, int loadFlags)
 {
-	m_pEditHistory = new CEditHistory;
+//	m_pEditHistory = new CEditHistory;
 	
 	if (levelName)
 		m_LevelFormat = DetermineLevelFormatFromFileName(levelName);
@@ -78,7 +78,7 @@ void Scene::DoDeleteSelection()
 	Application::ScheduleCompilationIfNecceseary();
 }
 
-void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
+SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
 	auto newLight = std::make_shared<LightEntity>();
 
@@ -112,7 +112,11 @@ void Scene::AddNewLight(glm::vec3 pos, LightTypes type)
 	newLight->SetSize(0,0);
 
 	m_SceneEntities.push_back(newLight);
-	newLight->InvokeSelect();
+	
+	if (interactive)
+		newLight->InvokeSelect();
+
+	return newLight;
 }
 
 std::list<SceneEntityPtr>& Scene::GetSceneObjects()
@@ -306,6 +310,8 @@ void Scene::LoadLevel(const char* levelName)
 	else
 		m_SceneEntities.push_back(pLevelEntity);
 
+
+	pLevelEntity->OnAdditionToScene();
 }
 
 std::string Scene::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)

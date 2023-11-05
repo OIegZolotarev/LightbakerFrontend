@@ -1030,9 +1030,7 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 
 		token = std::string_view(&m_pEntdata[start], offset - start);
 	};
-
 	
-
 	while (offset < l->filelen)
 	{
 		grabToken();
@@ -1053,9 +1051,7 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 
 				std::string key = std::string(token);
 				grabToken();
-
 				
-
 				std::string value = std::string(token);
 
 				// Strip quotes
@@ -1078,36 +1074,17 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 
 
 	}
-
-
-	
-
-	/*	
-	{
-"wad" "\quiver\valve\halflife.wad"
-"message" "desert"
-"classname" "worldspawn"
-"maxrange" "8192"
-}
-{
-"origin" "-112 -1424 -1552"
-"pitch" "-60"
-"_light" "250 240 200 80"
-"angle" "122"
-"classname" "light_environment"
-}
-{
-"origin" "488 -1000 -1600"
-"angle" "255"
-"classname" "info_player_start"
-}
-	*/
-
 }
 
 msurface_t* GoldSource::BSPWorld::Faces(size_t firstSurface)
 {
 	return &m_vFaces[firstSurface];
+}
+
+void BSPWorld::PopulateScene()
+{
+	for (auto it : m_vEntities)
+		it->PopulateScene();
 }
 
 void BSPWorld::Mod_ReloadFacesLighting(lump_t* l)

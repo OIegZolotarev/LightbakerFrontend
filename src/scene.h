@@ -40,13 +40,13 @@ class Scene
 	SceneEntityWeakPtr m_pCurrentSelection;
 
 public:
-	Scene();;
-	Scene(const char* levelName, int loadFlags);
+	Scene();
+	void LoadLevel(const char* levelName, int loadFlags);
 	~Scene();
 
 	
 	void DoDeleteSelection();	
-	void AddNewLight(glm::vec3 pos, LightTypes type);
+	SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
 
 	std::list<SceneEntityPtr>& GetSceneObjects();
 	std::list<SceneEntityPtr>& GetLightDefs();

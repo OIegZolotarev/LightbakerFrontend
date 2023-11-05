@@ -39,6 +39,9 @@ public:
 	bool IsDataLoaded() override;
 
 	void ReloadLightmaps();
+
+	void OnAdditionToScene() override;
+
 };
 
 

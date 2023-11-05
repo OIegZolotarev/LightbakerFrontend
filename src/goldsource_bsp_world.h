@@ -81,6 +81,9 @@ public:
 
 	void Mod_ReloadFacesLighting(lump_t* facesLump);
 	void BuildLightMap(msurface_t* surf, byte* base, size_t stride);
+
+	void PopulateScene();
+
 public:
 	std::string Export(const char* newPath, lightBakerSettings_t* lb3kOptions, glm::vec3 m_EnvColor);
 	void ReloadLightmaps();
