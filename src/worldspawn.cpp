@@ -6,6 +6,8 @@
 #include "application.h"
 #include "worldspawn.h"
 #include "properties_editor.h"
+#include "goldsource_bsp_world.h"
+#include "camera.h"
 
 Worldspawn::Worldspawn(const char* fileName)
 {
@@ -17,11 +19,22 @@ Worldspawn::Worldspawn(const char* fileName)
 
 	if (ext == ".obj")
 		m_pObjWorld = new ModelOBJ(fileName);
+	else if (ext == ".bsp")
+	{		
+		auto fd = fs->LoadFile(fileName);
+		m_pBSPWorld = new GoldSource::BSPWorld(fd);
+		fd->UnRef();
+
+		m_pBSPRenderer = new GoldSource::BSPRenderer(m_pBSPWorld);
+	}
 }
 
 Worldspawn::~Worldspawn()
 {
 
+	if (m_pBSPWorld) delete m_pBSPWorld;
+	if (m_pBSPRenderer) delete m_pBSPRenderer;
+	if (m_pObjWorld) delete m_pObjWorld;
 }
 
 void Worldspawn::OnSelect()
@@ -40,6 +53,11 @@ std::string Worldspawn::ExportForCompiling(const char* newPath, lightBakerSettin
 {
 	if (m_pObjWorld)
 		return m_pObjWorld->Export(newPath,lb3kOptions, m_EnvColor);
+
+	if (m_pBSPWorld)
+		return m_pBSPWorld->Export(newPath, lb3kOptions, m_EnvColor);
+
+	return "none";
 }
 
 void Worldspawn::RenderBoundingBox()
@@ -62,24 +80,48 @@ void Worldspawn::RenderGroupShaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderGroupShaded();
+
+	if (m_pBSPWorld)
+	{
+		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+		auto pos = cam->GetOrigin();
+		m_pBSPRenderer->PerformRendering(pos);
+	}
 }
 
 void Worldspawn::RenderLightshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderLightshaded();
+
+	if (m_pBSPWorld)
+	{
+		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+		auto pos = cam->GetOrigin();
+		m_pBSPRenderer->PerformRendering(pos);
+	}
 }
 
 void Worldspawn::RenderUnshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderUnshaded();
+
+	if (m_pBSPWorld)
+	{
+		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+		auto pos = cam->GetOrigin();
+		m_pBSPRenderer->PerformRendering(pos);
+	}
 }
 
 bool Worldspawn::IsDataLoaded()
 {
 	if (m_pObjWorld)
 		return m_pObjWorld->IsDataLoaded();
+
+	if (m_pBSPWorld)
+		return true;
 
 	return false;
 }
@@ -88,6 +130,9 @@ void Worldspawn::ReloadLightmaps()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->ReloadLightmapTextures();
+
+	if (m_pBSPWorld)
+		m_pBSPWorld->ReloadLightmaps();
 }
 
 void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)

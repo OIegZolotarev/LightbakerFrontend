@@ -180,6 +180,7 @@
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
     <ClCompile Include="edit_history.cpp" />
     <ClCompile Include="application.cpp" />
@@ -195,7 +196,9 @@
     <ClCompile Include="gl_backend.cpp" />
     <ClCompile Include="file_system.cpp" />
     <ClCompile Include="gl_texture.cpp" />
+    <ClCompile Include="goldsource_bsp_renderer.cpp" />
     <ClCompile Include="goldsource_bsp_world.cpp" />
+    <ClCompile Include="goldsource_lightmap_atlas.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
@@ -245,6 +248,7 @@
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
     <ClInclude Include="goldsource_bsp_disk_structs.h" />
     <ClInclude Include="edit_history.h" />
@@ -265,7 +269,9 @@
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="gl_texture.h" />
     <ClInclude Include="goldsource_bsp_mem_structs.h" />
+    <ClInclude Include="goldsource_bsp_renderer.h" />
     <ClInclude Include="goldsource_bsp_world.h" />
+    <ClInclude Include="goldsource_lightmap_atlas.h" />
     <ClInclude Include="helper_geometry_shader.h" />
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />

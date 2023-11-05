@@ -8,10 +8,15 @@
 #include "scene_entity.h"
 #include "object_props.h"
 #include "model_obj.h"
+#include "goldsource_bsp_world.h"
+#include "goldsource_bsp_renderer.h"
 
 class Worldspawn: public SceneEntity
 {
-	ModelOBJ* m_pObjWorld;
+	ModelOBJ* m_pObjWorld = nullptr;
+
+	GoldSource::BSPWorld* m_pBSPWorld = nullptr;
+	GoldSource::BSPRenderer* m_pBSPRenderer = nullptr;
 
 public:
 	Worldspawn(const char* fileName);

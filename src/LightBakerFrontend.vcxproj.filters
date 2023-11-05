@@ -248,6 +248,15 @@
     <ClCompile Include="wad_textures.cpp">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClCompile>
+    <ClCompile Include="goldsource_bsp_renderer.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_lightmap_atlas.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_bsp_entity.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -458,6 +467,15 @@
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_renderer.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_lightmap_atlas.h">
+      <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_entity.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
   </ItemGroup>

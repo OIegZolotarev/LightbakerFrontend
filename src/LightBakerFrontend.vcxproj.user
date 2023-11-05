@@ -3,7 +3,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LocalDebuggerWorkingDirectory>..\bin\</LocalDebuggerWorkingDirectory>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
-    <LocalDebuggerCommandArguments>E:\Projects\PC\LightbakerFrontend\bin\tests\sample_test\sample.obj</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>E:\Projects\PC\LightbakerFrontend\bin\tests\crossfiree.bsp</LocalDebuggerCommandArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LocalDebuggerWorkingDirectory>..\bin\</LocalDebuggerWorkingDirectory>

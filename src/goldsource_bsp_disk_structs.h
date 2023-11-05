@@ -14,6 +14,8 @@
 *
 ****/
 
+#pragma once
+
 namespace GoldSource
 {
 
@@ -171,9 +173,11 @@ typedef struct
 } dclipnode_t;
 
 
+
+
 typedef struct texinfo_s
 {
-	float		vecs[2][4];		// [s/t][xyz offset]
+	glm::vec4	vecs[2];		// [s/t][xyz offset]
 	int			miptex;
 	int			flags;
 } texinfo_t;

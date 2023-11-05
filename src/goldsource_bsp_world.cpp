@@ -9,6 +9,7 @@
 #include "goldsource_bsp_world.h"
 #include "byteorder.h"
 #include "wad_textures.h"
+#include "goldsource_lightmap_atlas.h"
 
 using namespace GoldSource;
 
@@ -26,7 +27,7 @@ void BSPWorld::Mod_LoadVertexes(lump_t* l)
 
 	count = l->filelen / sizeof(*in);
 
-	m_vVertices.reserve(count);
+	m_vVertices.resize(count);
 	out = (mvertex_t*)m_vVertices.data();
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -49,7 +50,7 @@ void BSPWorld::Mod_LoadEdges(lump_t* l)
 		throw new FunnyLumpSizeException("Mod_LoadEdges", this); 
 
 	count = l->filelen / sizeof(*in);
-	m_vEdges.reserve(count);
+	m_vEdges.resize(count);
 
 	out = m_vEdges.data();
 
@@ -72,7 +73,7 @@ void BSPWorld::Mod_LoadSurfedges(lump_t* l)
 	
 	count = l->filelen / sizeof(*in);		
 	
-	m_vSurfedges.reserve(count);
+	m_vSurfedges.resize(count);
 	out = m_vSurfedges.data();
 
 	for (i = 0; i < count; i++)
@@ -82,7 +83,7 @@ void BSPWorld::Mod_LoadSurfedges(lump_t* l)
 void BSPWorld::Mod_LoadTextures(lump_t* l)
 {	
 // 	miptex_t* mt;
- 	texture_t* tx, * tx2;
+ 	texture_t* tx, * tx2; 
  	texture_t* anims[10];
  	texture_t* altanims[10];
 // 	dmiptexlump_t* m;
@@ -96,10 +97,10 @@ void BSPWorld::Mod_LoadTextures(lump_t* l)
 		return;
 	}
 	
-	dmiptexlump_t* m = (dmiptexlump_t*)(m_pFileData->Length() + l->fileofs);
+	dmiptexlump_t* m = (dmiptexlump_t*)(m_pFileData->Data() + l->fileofs);
 	m->nummiptex = LittleLong(m->nummiptex);
 
-	m_vTextures.reserve(m->nummiptex);
+	m_vTextures.resize(m->nummiptex);
 
 	for (int i = 0; i < m->nummiptex; i++)
 	{
@@ -208,7 +209,7 @@ void BSPWorld::Mod_LoadPlanes(lump_t* l)
 
 	count = l->filelen / sizeof(*in);
 
-	m_vPlanes.reserve(count);
+	m_vPlanes.resize(count);
 
 	out = m_vPlanes.data();
 
@@ -242,14 +243,17 @@ void BSPWorld::Mod_LoadTexinfo(lump_t* l)
 		throw new FunnyLumpSizeException("Mod_LoadTexinfo", this);
 	
 	count = l->filelen / sizeof(*in);
-	m_vTexInfo.reserve(count);
+	m_vTexInfo.resize(count);
 
 	out = m_vTexInfo.data();
 
 	for (i = 0; i < count; i++, in++, out++)
 	{
-		for (j = 0; j < 8; j++)
-			out->vecs[0][j] = LittleFloat(in->vecs[0][j]);
+		for (j = 0; j < 2; j++)
+		{
+			for(int k = 0 ; k  < 4; k++)
+				out->vecs[j][k] = LittleFloat(in->vecs[j][k]);			
+		}
 		
 		len1 = glm::length(out->vecs[0]);
 		len2 = glm::length(out->vecs[1]);
@@ -270,6 +274,11 @@ void BSPWorld::Mod_LoadTexinfo(lump_t* l)
 		out->texture = m_vTextures[miptex];
 
 		if (!_stricmp(out->texture->name, "sky"))
+		{
+			out->flags |= SURF_SKY;
+		}
+
+		if (!_stricmp(out->texture->name, "aaatrigger"))
 		{
 			out->flags |= SURF_SKY;
 		}
@@ -299,7 +308,7 @@ void BSPWorld::Mod_LoadFaces(lump_t* l)
 
 	count = l->filelen / sizeof(*in);
 
-	m_vFaces.reserve(count);
+	m_vFaces.resize(count);
 
 	out = m_vFaces.data();
 	memset(out, 0, count * sizeof(*out));
@@ -340,9 +349,10 @@ void BSPWorld::Mod_LoadFaces(lump_t* l)
 		}
 					
 		
-		// TODO: implement
-		//if (out->samples)	
-			//GL_CreateSurfaceLightmap(out);
+		if (out->samples)	
+			GL_CreateSurfaceLightmap(out);
+
+		BuildSurfaceDisplayList(out);
 	}
 }
 
@@ -359,7 +369,7 @@ void BSPWorld::Mod_LoadMarksurfaces(lump_t* l)
 
 
 	count = l->filelen / sizeof(*in);
-	m_vMarkSurfaces.reserve(count);
+	m_vMarkSurfaces.resize(count);
 	out = m_vMarkSurfaces.data();
 
 	for (i = 0; i < count; i++)
@@ -395,6 +405,9 @@ void BSPWorld::Mod_LoadLeafs(lump_t* l)
 		throw new FunnyLumpSizeException("Mod_LoadLeafs",this);
 	
 	count = l->filelen / sizeof(*in);
+
+	m_vLeafs.resize(count);
+
 	out = m_vLeafs.data();
 
 	for (i = 0; i < count; i++, in++, out++)
@@ -408,8 +421,11 @@ void BSPWorld::Mod_LoadLeafs(lump_t* l)
 		p = LittleLong(in->contents);
 		out->contents = p;
 
-		out->firstmarksurface = &m_vMarkSurfaces[LittleShort(in->firstmarksurface)];
-		out->nummarksurfaces = LittleShort(in->nummarksurfaces);
+		if (in->firstmarksurface < m_vMarkSurfaces.size())
+		{
+			out->firstmarksurface = &m_vMarkSurfaces[LittleShort(in->firstmarksurface)];
+			out->nummarksurfaces = LittleShort(in->nummarksurfaces);
+		}
 
 		p = LittleLong(in->visofs);
 		if (p == -1)
@@ -442,7 +458,7 @@ void BSPWorld::Mod_LoadNodes(lump_t* l)
 		throw new FunnyLumpSizeException("Mod_LoadNodes",this);
 	count = l->filelen / sizeof(*in);
 
-	m_vNodes.reserve(count);
+	m_vNodes.resize(count);
 	out = m_vNodes.data();
 
 	for (i = 0; i < count; i++, in++)
@@ -496,7 +512,7 @@ void BSPWorld::Mod_LoadClipnodes(lump_t* l)
 	
 	count = l->filelen / sizeof(*in);
 	
-	m_vClipNodes.reserve(count);
+	m_vClipNodes.resize(count);
 	out = m_vClipNodes.data();
 
 // 	hull = &loadmodel->hulls[1];
@@ -546,19 +562,6 @@ void BSPWorld::Mod_LoadClipnodes(lump_t* l)
 	}
 }
 
-void BSPWorld::Mod_LoadEntities(lump_t* l)
-{
-
-	// TODO: implement app-specific parser
-
-// 	if (!l->filelen)
-// 	{
-// 		loadmodel->entities = NULL;
-// 		return;
-// 	}
-// 	loadmodel->entities = (char*)Mem_Alloc(loadmodel->mem_pool, l->filelen);
-// 	memcpy(loadmodel->entities, mod_base + l->fileofs, l->filelen);
-}
 
 void BSPWorld::Mod_LoadSubmodels(lump_t* l)
 {
@@ -572,7 +575,7 @@ void BSPWorld::Mod_LoadSubmodels(lump_t* l)
 
 	count = l->filelen / sizeof(*in);
 	
-	m_vSubmodels.reserve(count);
+	m_vSubmodels.resize(count);
 	out = m_vSubmodels.data();
 		
 
@@ -597,6 +600,9 @@ BSPWorld::BSPWorld(FileData * fd)
 	m_pFileData = fd;
 	m_Header = (dheader_t*)fd->Data();
 
+	m_Version = m_Header->version;
+
+	m_pLightmapState = new LightmapAtlas(512, 512);
 
 	Mod_LoadVertexes(&m_Header->lumps[LUMP_VERTEXES]);
 	Mod_LoadEdges(&m_Header->lumps[LUMP_EDGES]);
@@ -612,9 +618,14 @@ BSPWorld::BSPWorld(FileData * fd)
 	Mod_LoadLeafs(&m_Header->lumps[LUMP_LEAFS]);
 	Mod_LoadNodes(&m_Header->lumps[LUMP_NODES]);
 	Mod_LoadClipnodes(&m_Header->lumps[LUMP_CLIPNODES]);
-	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);
-
+	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);	
 	Mod_LoadSubmodels(&m_Header->lumps[LUMP_MODELS]);
+	
+
+	m_pFileData->Ref();
+
+	// Загрузить остатки.
+	m_pLightmapState->UploadBlock(false);
 	
 }
 
@@ -622,6 +633,8 @@ BSPWorld::~BSPWorld()
 {
 	if (m_pVisdata) delete m_pVisdata;
 	if (m_pLightData) delete m_pLightData;
+	if (m_pLightmapState) delete m_pLightmapState;
+	if (m_pEntdata) delete m_pEntdata;
 
 	FreeVector(m_vVertices);
 	FreeVector(m_vEdges);
@@ -635,6 +648,8 @@ BSPWorld::~BSPWorld()
 	FreeVector(m_vNodes);
 	FreeVector(m_vClipNodes);
 	FreeVector(m_vSubmodels);
+
+	ClearPointersVector(m_vEntities);
 }
 
 std::string BSPWorld::GetBaseName()
@@ -804,6 +819,548 @@ void BSPWorld::Mod_SetParent(mnode_t* node, mnode_t* parent)
 	}
 	Mod_SetParent(node->children[0], node);
 	Mod_SetParent(node->children[1], node);
+}
+
+void BSPWorld::BuildSurfaceDisplayList(msurface_t* fa)
+{
+	int			i, lindex, lnumverts, s_axis, t_axis;
+	float		dist, lastdist, lzi, scale, u, v, frac;
+	unsigned	mask;
+	glm::vec3		local, transformed;
+	medge_t* pedges, * r_pedge;
+	mplane_t* pplane;
+	int			vertpage, newverts, newpage, lastvert;
+	bool	visible;
+	glm::vec3 vec;
+	float		s = 0, t = 0;
+	glpoly_t* poly;
+
+	// reconstruct the polygon
+	pedges = m_vEdges.data();
+	lnumverts = fa->numedges;
+	vertpage = 0;
+
+	//
+	// draw texture
+	//
+	//poly = (glpoly_t*)Mem_Alloc(loadmodel->mem_pool, sizeof(glpoly_t) + (lnumverts - 4) * VERTEXSIZE * sizeof(float));
+
+	// TODO: это неправильно, надо разобраться в ядреном матане сверху, сейчас отжирает больше нужного
+	poly = (glpoly_t*)new glpoly_t[lnumverts];
+	
+	poly->next = fa->polys;
+	poly->flags = fa->flags;
+	fa->polys = poly;
+	poly->numverts = lnumverts;
+
+	for (i = 0; i < lnumverts; i++)
+	{
+		lindex = m_vSurfedges[fa->firstedge + i];
+
+		if (lindex > 0)
+		{
+			r_pedge = &pedges[lindex];
+			vec = m_vVertices[r_pedge->v[0]];
+		}
+		else
+		{
+			r_pedge = &pedges[-lindex];
+			vec = m_vVertices[r_pedge->v[1]];
+		}
+		glm::vec3 ofs = fa->texinfo->vecs[0].xyz;
+		s = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+		s /= fa->texinfo->texture->width;
+
+		ofs = fa->texinfo->vecs[1].xyz;
+		t = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+		t /= fa->texinfo->texture->height;
+
+		*(glm::vec3*)&poly->verts[i] = vec;
+		poly->verts[i][3] = s;
+		poly->verts[i][4] = t;
+
+		//
+		// lightmap texture coordinates
+		//
+
+
+		ofs = fa->texinfo->vecs[0].xyz;
+		s = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+		s -= fa->texturemins[0];
+		s += fa->light_s * 16;
+		s += 8;
+		s /= m_pLightmapState->BlockWidth() * 16;
+		
+		ofs = fa->texinfo->vecs[1].xyz;
+		t = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+		t -= fa->texturemins[1];
+		t += fa->light_t * 16;
+		t += 8;
+		t /= m_pLightmapState->BlockHeight() * 16; //fa->texinfo->texture->height;
+
+		poly->verts[i][5] = s;
+		poly->verts[i][6] = t;
+	}
+
+	//
+	// remove co-linear points - Ed
+	//
+	// 	if (!(fa->flags & SURF_UNDERWATER))
+	// 	{
+	// 		for (i = 0; i < lnumverts; ++i)
+	// 		{
+	// 			vec3_t v1, v2;
+	// 			float* prev, * me, * next;
+	// 			float f;
+	// 
+	// 			prev = poly->verts[(i + lnumverts - 1) % lnumverts];
+	// 			me = poly->verts[i];
+	// 			next = poly->verts[(i + 1) % lnumverts];
+	// 
+	// 			VectorSubtract(me, prev, v1);
+	// 			VectorNormalize(v1);
+	// 			VectorSubtract(next, prev, v2);
+	// 			VectorNormalize(v2);
+	// 
+	// 			// skip co-linear points
+	// #define COLINEAR_EPSILON 0.001
+	// 			if ((fabs(v1[0] - v2[0]) <= COLINEAR_EPSILON) &&
+	// 				(fabs(v1[1] - v2[1]) <= COLINEAR_EPSILON) &&
+	// 				(fabs(v1[2] - v2[2]) <= COLINEAR_EPSILON))
+	// 			{
+	// 				int j;
+	// 				for (j = i + 1; j < lnumverts; ++j)
+	// 				{
+	// 					int k;
+	// 					for (k = 0; k < VERTEXSIZE; ++k)
+	// 						poly->verts[j - 1][k] = poly->verts[j][k];
+	// 				}
+	// 				--lnumverts;
+	// 				++nColinElim;
+	// 				// retry next vertex next time, which is now current vertex
+	// 				--i;
+	// 			}
+	// 		}
+	// 	}
+
+	poly->numverts = lnumverts;
+}
+
+void BSPWorld::GL_CreateSurfaceLightmap(msurface_t* surf)
+{
+	int		smax, tmax;
+	
+	if (surf->flags & (SURF_DRAWSKY | SURF_DRAWTURB))
+		return;
+
+	smax = (surf->extents[0] >> 4) + 1;
+	tmax = (surf->extents[1] >> 4) + 1;
+
+	auto pos = m_pLightmapState->AllocBlock(smax, tmax);
+
+	if (!pos)
+	{
+		
+		m_pLightmapState->UploadBlock(false);
+		m_pLightmapState->InitBlock();
+
+		pos = m_pLightmapState->AllocBlock(smax, tmax);
+
+		if (!pos)
+		{
+			// TODO: fixme
+			throw new std::exception("Consecutive calls to LM_AllocBlock(%d,%d) failed\n");
+		}
+	}
+	surf->light_s = pos->x;
+	surf->light_t = pos->y;
+
+
+	Con_Printf("GL_CreateSurfaceLightmap: %d %d\n", surf->light_s, surf->light_t);
+
+	surf->lightmaptexturenum = m_pLightmapState->CurrentLightmapTexture();
+
+	auto base = m_pLightmapState->LightmapBuffer();
+	base += (surf->light_t * m_pLightmapState->BlockWidth() + surf->light_s) * LIGHTMAP_BYTES;
+		
+	size_t stride = m_pLightmapState->BlockWidth() * LIGHTMAP_BYTES;
+
+	BuildLightMap(surf, base, stride);
+}
+
+void BSPWorld::Mod_LoadEntities(lump_t* l)
+{
+	if (!l->filelen)
+	{
+		m_pEntdata = nullptr;
+		return;
+	}
+
+	m_pEntdata = new char[l->filelen];
+	memcpy(m_pEntdata, m_pFileData->Data() + l->fileofs, l->filelen);
+
+
+	size_t offset = 0;
+	
+
+	std::string_view token;
+
+	auto grabToken = [&]()
+	{
+		// Skip spaces
+		while (m_pEntdata[offset] <= ' ')
+			offset++;
+
+		size_t start = offset;
+
+		bool quote = false;
+
+		while (offset < l->filelen)
+		{
+			if (m_pEntdata[offset] == '"')
+			{
+				quote = !quote;				
+			}
+
+			if (m_pEntdata[offset] <= ' ' && !quote)
+				break;
+
+			offset++;
+		}
+
+		token = std::string_view(&m_pEntdata[start], offset - start);
+	};
+
+	
+
+	while (offset < l->filelen)
+	{
+		grabToken();
+
+		if (token.size() == 0)
+			continue;
+
+		if (token[0] == '{')
+		{
+			BSPEntity* pEntity = new BSPEntity;
+
+			while (offset < l->filelen)
+			{
+				grabToken();
+
+				if (token[0] == '}')
+					break;
+
+				std::string key = std::string(token);
+				grabToken();
+
+				
+
+				std::string value = std::string(token);
+
+				// Strip quotes
+
+				if (key.size() > 0 && key[0] == '"')
+					key = key.substr(1, key.size() - 2);
+
+				if (value.size() > 0 && value[0] == '"')
+					value = value.substr(1, value.size() - 2);
+
+				pEntity->SetKeyValue(key, value);
+
+			}
+
+			m_vEntities.push_back(pEntity);
+			
+
+		}
+
+
+
+	}
+
+
+	
+
+	/*	
+	{
+"wad" "\quiver\valve\halflife.wad"
+"message" "desert"
+"classname" "worldspawn"
+"maxrange" "8192"
+}
+{
+"origin" "-112 -1424 -1552"
+"pitch" "-60"
+"_light" "250 240 200 80"
+"angle" "122"
+"classname" "light_environment"
+}
+{
+"origin" "488 -1000 -1600"
+"angle" "255"
+"classname" "info_player_start"
+}
+	*/
+
+}
+
+msurface_t* GoldSource::BSPWorld::Faces(size_t firstSurface)
+{
+	return &m_vFaces[firstSurface];
+}
+
+void BSPWorld::Mod_ReloadFacesLighting(lump_t* l)
+{
+	dface_t* in;
+	msurface_t* out;
+	int			i, count, surfnum;
+	int			planenum, side;
+
+	in = (dface_t*)(m_pFileData->Data() + l->fileofs);
+	if (l->filelen % sizeof(*in))
+		throw new FunnyLumpSizeException("Mod_LoadFaces", this);
+
+	count = l->filelen / sizeof(*in);
+
+	if (count != m_vFaces.size())
+		throw new std::exception("Mod_ReloadFacesLighting: count != m_vFaces.size()");
+
+	out = m_vFaces.data();
+	//memset(out, 0, count * sizeof(*out));
+
+	for (surfnum = 0; surfnum < count; surfnum++, in++, out++)
+	{
+		for (i = 0; i < MAXLIGHTMAPS; i++)
+			out->styles[i] = in->styles[i];
+
+		i = LittleLong(in->lightofs);
+
+		if (i == -1)
+			out->samples = NULL;
+		else
+		{
+
+			if (m_Version == HL_BSPVERSION)
+				out->samples = m_pLightData + i;
+			else if (m_Version == Q1_BSPVERSION)
+				out->samples = m_pLightData + i * 3;
+		}
+
+		if (out->samples)
+			GL_CreateSurfaceLightmap(out);
+	}
+}
+
+
+void BSPWorld::ReloadLightmaps()
+{
+	auto fs = Application::GetFileSystem();
+	auto name = m_pFileData->Name();
+
+	m_pFileData->UnRef();
+
+	m_pFileData = fs->LoadFile(name);
+
+	m_Header = (dheader_t*)m_pFileData->Data();
+
+	if (m_pLightData)
+		delete m_pLightData;
+
+	m_pLightmapState->Reset();
+
+	Mod_LoadLighting(&m_Header->lumps[LUMP_LIGHTING]);
+	Mod_ReloadFacesLighting(&m_Header->lumps[LUMP_FACES]);
+}
+
+std::string BSPWorld::Export(const char* newPath, lightBakerSettings_t* lb3kOptions, glm::vec3 m_EnvColor)
+{
+	return m_pFileData->Name();
+}
+
+void BSPWorld::BuildLightMap(msurface_t* surf, byte* dest, size_t stride)
+{
+	int			smax, tmax;
+	int			r, g, b, a, max;
+	int			i, j, size;
+	byte* lightmap;
+	float		scale[4];
+	int			nummaps;
+	float* bl;
+
+	static float s_blocklights[34 * 16 * 34 * 3];
+
+	smax = (surf->extents[0] >> 4) + 1;
+	tmax = (surf->extents[1] >> 4) + 1;
+	size = smax * tmax;
+
+	if (!surf->samples) return;
+
+	if (surf->texinfo->flags & (SURF_SKY | SURF_TRANS33 | SURF_TRANS66 | SURF_WARP))
+		return;
+
+	if (size > (sizeof(s_blocklights) >> 4))
+		//throw new std::exception("Bad s_blocklights size %d (must be less than %d)", size, (sizeof(s_blocklights) >> 4));
+		throw new std::exception("Bad s_blocklights size %d (must be less than %d)"); // TODO: FIXME
+
+	// set to full bright if no light data
+	if (!surf->samples)
+		return;
+	
+	// count the # of maps
+	for (nummaps = 0; nummaps < MAXLIGHTMAPS && surf->styles[nummaps] != 255; nummaps++);
+
+	lightmap = surf->samples;
+
+	// add all the lightmaps
+	if (nummaps == 1)
+	{
+		int maps;
+
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255;
+			maps++)
+		{
+			bl = s_blocklights;
+
+			for (i = 0; i < 3; i++)
+				scale[i] = 1;
+
+			if (scale[0] == 1.0F &&
+				scale[1] == 1.0F &&
+				scale[2] == 1.0F)
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] = lightmap[i * 3 + 0];
+					bl[1] = lightmap[i * 3 + 1];
+					bl[2] = lightmap[i * 3 + 2];
+				}
+			}
+			else
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] = lightmap[i * 3 + 0] * scale[0];
+					bl[1] = lightmap[i * 3 + 1] * scale[1];
+					bl[2] = lightmap[i * 3 + 2] * scale[2];
+				}
+			}
+			lightmap += size * 3;		// skip to next lightmap
+		}
+	}
+	else
+	{
+		int maps;
+
+		memset(s_blocklights, 0, sizeof(s_blocklights[0]) * size * 3);
+
+		for (maps = 0; maps < MAXLIGHTMAPS && surf->styles[maps] != 255;
+			maps++)
+		{
+			bl = s_blocklights;
+			// 
+			for (i = 0; i < 3; i++)
+				scale[i] = 1.0f;
+
+			if (scale[0] == 1.0F &&
+				scale[1] == 1.0F &&
+				scale[2] == 1.0F)
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] += lightmap[i * 3 + 0];
+					bl[1] += lightmap[i * 3 + 1];
+					bl[2] += lightmap[i * 3 + 2];
+				}
+			}
+			else
+			{
+				for (i = 0; i < size; i++, bl += 3)
+				{
+					bl[0] += lightmap[i * 3 + 0] * scale[0];
+					bl[1] += lightmap[i * 3 + 1] * scale[1];
+					bl[2] += lightmap[i * 3 + 2] * scale[2];
+				}
+			}
+			lightmap += size * 3;		// skip to next lightmap
+		}
+	}
+
+	// add all the dynamic lights
+	// 	if (surf->dlightframe == r_framecount)
+	// 		R_AddDynamicLights (surf);
+
+	// put into texture format
+
+	stride -= (smax << 2);
+	bl = s_blocklights;
+
+	
+
+	for (i = 0; i < tmax; i++, dest += stride)
+	{
+		for (j = 0; j < smax; j++)
+		{
+
+			r = int(bl[0]);
+			g = int(bl[1]);
+			b = int(bl[2]);
+
+			// catch negative lights
+			if (r < 0)
+				r = 0;
+			if (g < 0)
+				g = 0;
+			if (b < 0)
+				b = 0;
+
+			/*
+			** determine the brightest of the three color components
+			*/
+			if (r > g)
+				max = r;
+			else
+				max = g;
+			if (b > max)
+				max = b;
+
+			/*
+			** alpha is ONLY used for the mono lightmap case.  For this reason
+			** we set it to the brightest of the color components so that
+			** things don't get too dim.
+			*/
+			a = max;
+
+			/*
+			** rescale all the color components if the intensity of the greatest
+			** channel exceeds 1.0
+			*/
+			if (max > 255)
+			{
+				float t = 255.0F / max;
+
+				r = r * t;
+				g = g * t;
+				b = b * t;
+				a = a * t;
+			}
+
+			dest[0] = r;
+			dest[1] = g;
+			dest[2] = b;
+			dest[3] = a;
+
+			bl += 3;
+			dest += 4;
+		}
+	}
+	
+	
+}
+
+mnode_t* BSPWorld::GetNodes(size_t index)
+{
+	return &m_vNodes[index];
 }
 
 GoldSource::FunnyLumpSizeException::FunnyLumpSizeException(const char* function, BSPWorld* level)

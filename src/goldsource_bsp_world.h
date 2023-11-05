@@ -7,6 +7,8 @@
 
 #include "goldsource_bsp_disk_structs.h"
 #include "goldsource_bsp_mem_structs.h"
+#include "goldsource_lightmap_atlas.h"
+#include "goldsource_bsp_entity.h"
 
 
 namespace GoldSource
@@ -28,11 +30,16 @@ class BSPWorld
 	std::vector<mnode_t> m_vNodes;
 	std::vector<dclipnode_t> m_vClipNodes;
 	std::vector<dmodel_t> m_vSubmodels;
+
+	std::vector<BSPEntity*> m_vEntities;
 	
 	dheader_t* m_Header;
 	byte* m_pVisdata = nullptr;
 	byte* m_pLightData = nullptr;
+	char* m_pEntdata = nullptr;
 	FileData* m_pFileData = nullptr;
+
+	LightmapAtlas* m_pLightmapState = nullptr;
 	
 
 	void Mod_LoadVertexes(lump_t* l);
@@ -50,19 +57,33 @@ class BSPWorld
 	void Mod_LoadVisibility(lump_t* l);
 	void Mod_LoadLeafs(lump_t* l);
 	void Mod_LoadNodes(lump_t* l);
-	void Mod_LoadClipnodes(lump_t* l);
-	void Mod_LoadEntities(lump_t* l);
+	void Mod_LoadClipnodes(lump_t* l);	
 	void Mod_LoadSubmodels(lump_t* l);
+	void Mod_LoadEntities(lump_t* l);
 
 	void CalcSurfaceExtents(msurface_t* s);
+	void BuildSurfaceDisplayList(msurface_t* fa);
 
 	void Mod_SetParent(mnode_t* node, mnode_t* parent);
+
+	
+	void GL_CreateSurfaceLightmap(msurface_t* surf);
 
 
 public:
 	BSPWorld(FileData* fd);
 	~BSPWorld();
 	std::string GetBaseName();
+
+	msurface_t* Faces(size_t firstSurface);
+	mnode_t* GetNodes(size_t index);
+
+
+	void Mod_ReloadFacesLighting(lump_t* facesLump);
+	void BuildLightMap(msurface_t* surf, byte* base, size_t stride);
+public:
+	std::string Export(const char* newPath, lightBakerSettings_t* lb3kOptions, glm::vec3 m_EnvColor);
+	void ReloadLightmaps();
 
 };
 

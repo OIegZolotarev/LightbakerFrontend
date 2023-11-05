@@ -171,7 +171,8 @@ typedef struct mnode_s
 {
 	// common with leaf
 	int			contents;		// 0, to differentiate from leafs
-	int			visframe;		// node needs to be traversed if current
+	//int			visframe;		// node needs to be traversed if current
+	size_t          visframe;		// node needs to be traversed if current
 
 	short		minmaxs[6];		// for bounding box culling
 

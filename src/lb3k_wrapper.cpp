@@ -198,7 +198,8 @@ void LightBaker3000::ExecuteBaking(const char* modelFileName)
 	const char* cmdTemplate = "%s %s %s %s";
 
 	auto s = std::string(modelFileName);
-	auto baseFileName = fs->BaseNameFromPath(s) + ".obj";
+	//auto baseFileName = fs->BaseNameFromPath(s) + ".obj";
+	std::string baseFileName = modelFileName;
 	const char* diffuseName = "sample.png";
 
 	static char cmd[4096];
