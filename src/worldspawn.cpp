@@ -141,6 +141,11 @@ void Worldspawn::OnAdditionToScene()
 		m_pBSPWorld->PopulateScene();
 }
 
+EntityClasses Worldspawn::EntityClass()
+{
+	return EntityClasses::World;
+}
+
 void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)
 {
 	auto ptr = m_ptr.lock();

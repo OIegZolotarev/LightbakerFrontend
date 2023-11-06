@@ -3,6 +3,8 @@
 	(c) 2023 CrazyRussian
 */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "application.h"
 #include "common.h"
 
@@ -976,7 +978,7 @@ void BSPWorld::GL_CreateSurfaceLightmap(msurface_t* surf)
 	surf->light_t = pos->y;
 
 
-	Con_Printf("GL_CreateSurfaceLightmap: %d %d\n", surf->light_s, surf->light_t);
+	//Con_Printf("GL_CreateSurfaceLightmap: %d %d\n", surf->light_s, surf->light_t);
 
 	surf->lightmaptexturenum = m_pLightmapState->CurrentLightmapTexture();
 
@@ -1152,6 +1154,31 @@ void BSPWorld::ReloadLightmaps()
 
 std::string BSPWorld::Export(const char* newPath, lightBakerSettings_t* lb3kOptions, glm::vec3 m_EnvColor)
 {
+	
+	FILE* fpOut = fopen(m_pFileData->Name().c_str(), "wb");
+	
+	fwrite(m_pFileData->Data(), m_pFileData->Length(), 1, fpOut);
+
+	size_t pos = ftell(fpOut);
+
+	m_Header->lumps[LUMP_ENTITIES].fileofs = pos;
+
+
+	for (auto ent : m_vEntities)
+	{
+		ent->UpdateProperties();
+		ent->Export(fpOut);
+	}
+
+	m_Header->lumps[LUMP_ENTITIES].filelen = ftell(fpOut) - pos;
+
+	fseek(fpOut, 0, SEEK_SET);
+	fwrite(m_Header, sizeof(dheader_t), 1, fpOut);
+
+	fclose(fpOut);
+
+
+
 	return m_pFileData->Name();
 }
 

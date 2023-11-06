@@ -20,12 +20,19 @@ class BSPEntity
 
     std::weak_ptr<SceneEntity> m_SceneEntity;  
 
+    glm::vec3 ConvertOriginToSceneSpace();
+    static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
+    glm::vec4 ConvertLightColorAndIntensity();
+
 public:
     BSPEntity();
     ~BSPEntity();
     
     void SetKeyValue(std::string& key, std::string& value);
     void PopulateScene();
+
+    bool UpdateProperties();
+    void Export(FILE* fp);
 };
 
 

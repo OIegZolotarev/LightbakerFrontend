@@ -14,13 +14,13 @@
 #include "..\include\ImGuizmo\ImGuizmo.h"
 #include "properties_editor.h"
 
-SceneRenderer::SceneRenderer(MainWindow * pTargetWindow)
+SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 {
 	m_pCamera = new Camera(this);
 	m_pTargetWindow = pTargetWindow;
 	m_pScene = nullptr;
 
-	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1,1,1));
+	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1, 1, 1));
 	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
 	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
 
@@ -89,7 +89,7 @@ SceneRenderer::~SceneRenderer()
 	delete m_pUnitBoundingBox;
 
 	delete SelectionManager::Instance();
-	
+
 	delete m_pDirectionModel; m_pDirectionModel = 0;
 	m_pDirectionArrow = 0;
 }
@@ -114,7 +114,7 @@ void SceneRenderer::RenderScene()
 
 	if (showGround->GetAsBool())
 		Debug_DrawGround();
-	
+
 
 	if (m_pScene)
 	{
@@ -140,7 +140,7 @@ void SceneRenderer::RenderScene()
 	}
 
 
-	
+
 }
 
 void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
@@ -192,31 +192,31 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 		m_pScene = new Scene;
 
 	m_pScene->LoadLevel(dropped_filedir, loadFlags);
-	
 
-// 	if (dropped_filedir)
-// 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
-// 
-// 	
-// 	FileData* fd = nullptr;
-// 
-// 	if (dropped_filedir)	
-// 		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
-// 	else
-// 	{
-// 		// TODO: fixme
-// 		m_pSceneModel->ReloadTextures();
-// 	}
-// 
-// 	if (!fd)
-// 	{
-// 		// PopupError()
-// 		// RemoveFromMRU()
-// 		return;
-// 	}
 
-	//m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
-	//SetSceneScale(m_pSceneModel->GetSceneScale());
+	// 	if (dropped_filedir)
+	// 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
+	// 
+	// 	
+	// 	FileData* fd = nullptr;
+	// 
+	// 	if (dropped_filedir)	
+	// 		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
+	// 	else
+	// 	{
+	// 		// TODO: fixme
+	// 		m_pSceneModel->ReloadTextures();
+	// 	}
+	// 
+	// 	if (!fd)
+	// 	{
+	// 		// PopupError()
+	// 		// RemoveFromMRU()
+	// 		return;
+	// 	}
+
+		//m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
+		//SetSceneScale(m_pSceneModel->GetSceneScale());
 }
 
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
@@ -235,12 +235,12 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 	};
 
 	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
-	glColor3f(tint.x, tint.y, tint.z);	
+	glColor3f(tint.x, tint.y, tint.z);
 	glBegin(GL_QUADS);
 
 	for (int i = 0; i < 4; i++)
 	{
-		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float) pointDef[i][1]);
+		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
 		glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
 		glVertex3f(pt.x, pt.y, pt.z);
 	}
@@ -293,12 +293,12 @@ void SceneRenderer::Debug_DrawGround()
 	int dimensions = 1000;
 	int step = 10;
 
-	
+
 #ifdef NICE_LINES
- 	glEnable(GL_MULTISAMPLE);
- 
- 	glEnable(GL_LINE_SMOOTH);
- 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glEnable(GL_MULTISAMPLE);
+
+	glEnable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 #endif
 
 	glDisable(GL_TEXTURE_2D);
@@ -308,8 +308,8 @@ void SceneRenderer::Debug_DrawGround()
 
 	for (int x = -dimensions; x < dimensions; x += step)
 	{
-		glVertex3f(x,0, -dimensions);
-		glVertex3f(x,0, dimensions);
+		glVertex3f(x, 0, -dimensions);
+		glVertex3f(x, 0, dimensions);
 	}
 
 	glColor3f(0, 1, 0);
@@ -317,24 +317,24 @@ void SceneRenderer::Debug_DrawGround()
 	for (int y = -dimensions; y < dimensions; y += step)
 	{
 		glVertex3f(-dimensions, 0, y);
-		glVertex3f(dimensions,	0, y);
+		glVertex3f(dimensions, 0, y);
 	}
 
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	
+
 #ifdef NICE_LINES	
- 	glDisable(GL_MULTISAMPLE);
- 	glDisable(GL_LINE_SMOOTH);
- 	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+	glDisable(GL_MULTISAMPLE);
+	glDisable(GL_LINE_SMOOTH);
+	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
 #endif 
 }
 
 void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 {
 	auto _ptr = pObject.lock();
-		
+
 	if (!_ptr)
 		return;
 
@@ -343,7 +343,21 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 	switch (ptr->type)
 	{
 	case LightTypes::Omni:
-		break;
+	{
+		auto shader = GLBackend::Instance()->HelperGeometryShader();
+
+		shader->Bind();
+		shader->SetDefaultCamera();
+		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
+		shader->SetScale(ptr->intensity);
+
+		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
+		shader->SetTransform(mat);
+
+		m_pUnitBoundingBox->BindAndDraw();
+		shader->Unbind();
+	}
+	break;
 	case LightTypes::Spot:
 	{
 
@@ -355,7 +369,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
 
 		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
-		
+
 		shader->SetScale(1);
 		shader->SetConeHeight(ptr->intensity);
 		shader->SetConeAngleDegrees(ptr->cones[1]);
@@ -365,21 +379,21 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		auto mat2 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[1]), glm::vec3(0, 1, 0));
 		auto mat3 = glm::rotate(glm::mat4x4(1), glm::radians(ptr->anglesDirection[2]), glm::vec3(0, 0, 1));
 
-// 		mat *= mat1;
-// 		mat *= mat2;
-// 		mat *= mat3;
-		
-		// Quake-ish order
+		// 		mat *= mat1;
+		// 		mat *= mat2;
+		// 		mat *= mat3;
+
+				// Quake-ish order
 		mat *= mat3;
 		mat *= mat2;
 		mat *= mat1;
 
-		shader->SetTransform(mat);		
+		shader->SetTransform(mat);
 		m_pSpotlightCone->BindAndDraw();
 
 		shader->Unbind();
 	}
-		break;
+	break;
 	case LightTypes::Direct:
 		break;
 	default:
@@ -407,6 +421,24 @@ void SceneRenderer::DumpLightmapUV()
 void SceneRenderer::SetRenderMode(RenderMode newMode)
 {
 	m_RenderMode = newMode;
+}
+
+void SceneRenderer::RenderGenericEntity(SceneEntity* pEntity)
+{
+	auto shader = GLBackend::Instance()->HelperGeometryShader();
+
+	shader->Bind();
+	shader->SetDefaultCamera();
+
+	glm::vec4 col = glm::vec4(pEntity->GetColor(),1);
+	shader->SetColor(col);
+	shader->SetScale(16);
+
+	glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), pEntity->GetPosition());
+	shader->SetTransform(mat);
+
+	m_pUnitBoundingBox->BindAndDraw();
+	shader->Unbind();
 }
 
 void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)

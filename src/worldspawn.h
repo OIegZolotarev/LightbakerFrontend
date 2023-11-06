@@ -42,6 +42,9 @@ public:
 
 	void OnAdditionToScene() override;
 
+
+	EntityClasses EntityClass() override;
+
 };
 
 

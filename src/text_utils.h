@@ -64,5 +64,13 @@ namespace TextUtils
 	bool EmptyString(std::string& s);
 
 	std::vector<std::string> SpliteWhitespaces(std::string& s);
+
+
+	void ReplaceAll(
+		std::string& s,
+		std::string const& toReplace,
+		std::string const& replaceWith
+	);
+
 }
 

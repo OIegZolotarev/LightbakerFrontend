@@ -44,8 +44,8 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 			{
 				for (auto& it : sceneObjects)
 				{
-					if (!it->IsLightEntity())
-						continue;
+// 					if (!it->IsLightEntity())
+// 						continue;
 
 					ImGui::PushID((void*)it.get());
 

@@ -84,5 +84,6 @@ private:
 	void DumpLightmapUV();
 public:
 	void SetRenderMode(RenderMode param1);
+	void RenderGenericEntity(SceneEntity* pEntity);
 };
 

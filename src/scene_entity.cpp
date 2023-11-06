@@ -44,7 +44,8 @@ SceneEntity::SceneEntity()
   
 void SceneEntity::RenderLightshaded()
 {
-
+	auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();	
+	sceneRenderer->RenderGenericEntity(this);
 }
 
 void SceneEntity::RenderUnshaded()
@@ -110,5 +111,26 @@ const char* SceneEntity::Description()
 bool SceneEntity::IsLightEntity()
 {
 	return false;
+}
+
+void SceneEntity::CopyProperties(std::unordered_map<std::string, std::string> propsmap)
+{
+	m_vProperties = std::move(propsmap);
+	
+	if (m_vProperties.contains("classname"))
+	{
+		m_ClassName = m_vProperties["classname"];
+	}
+
+}
+
+std::unordered_map<std::string, std::string> SceneEntity::GetProperties() const
+{
+	return m_vProperties;
+}
+
+EntityClasses SceneEntity::EntityClass()
+{
+	return EntityClasses::GenericEntity;
 }
 

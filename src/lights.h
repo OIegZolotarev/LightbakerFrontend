@@ -83,6 +83,9 @@ public:
 		size = glm::vec2(sizeX,sizeY);
 	}
 
+
+	EntityClasses EntityClass() override;
+
 };
 
 enum LightProperties

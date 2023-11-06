@@ -39,6 +39,9 @@ class Scene
 	CEditHistory* m_pEditHistory;
 	SceneEntityWeakPtr m_pCurrentSelection;
 
+	void ClearEntities();
+	void LoadLevel(const char* levelName);
+
 public:
 	Scene();
 	void LoadLevel(const char* levelName, int loadFlags);
@@ -47,6 +50,7 @@ public:
 	
 	void DoDeleteSelection();	
 	SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
+	SceneEntityPtr AddNewGenericEntity();
 
 	std::list<SceneEntityPtr>& GetSceneObjects();
 	std::list<SceneEntityPtr>& GetLightDefs();
@@ -78,12 +82,11 @@ public:
 	SceneEntityWeakPtr GetEntityWeakRef(SceneEntity* pEntity);
 	void RenderUnshaded();
 	void Reload(int loadFlags);
-private:
-	void ClearEntities();
-	void LoadLevel(const char* levelName);
-public:
+
 	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions);
 	void RenderGroupsShaded();
 	void DumpLightmapMesh();
 	void DumpLightmapUV();
+
+
 };

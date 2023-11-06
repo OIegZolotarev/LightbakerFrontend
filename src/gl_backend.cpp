@@ -231,7 +231,7 @@ GLuint ShaderProgram::MakeShader(const char* fileName, GLuint type)
 	if (!success)
 	{
 		glGetShaderInfoLog(result, 512, NULL, infoLog);
-		printf("MakeShader(): failed on \"%s\":\n%s", fileName, infoLog);
+		Con_Printf("MakeShader(): failed on \"%s\":\n%s", fileName, infoLog);
 	}
 
 	delete fd;

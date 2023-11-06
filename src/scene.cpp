@@ -119,6 +119,13 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 	return newLight;
 }
 
+SceneEntityPtr Scene::AddNewGenericEntity()
+{
+	auto newEntity = std::make_shared<SceneEntity>();
+	m_SceneEntities.push_back(newEntity);
+	return newEntity;
+}
+
 std::list<SceneEntityPtr>& Scene::GetSceneObjects()
 {
 	return m_SceneEntities;

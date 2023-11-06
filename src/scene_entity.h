@@ -8,10 +8,12 @@
 #include "gl_texture.h"
 #include "object_props.h"
 
-enum class EntityClass
+enum class EntityClasses
 {
 	None = 0,
-	Lights,
+	World,
+	GenericEntity,
+	Light,
 };
 
 
@@ -30,10 +32,16 @@ class SceneEntity: public ISelectableObject
 	std::size_t m_ClassNameHash;
 	std::string m_ClassName;
 
+	// Обобщенные пары ключ-значение
+	typedef std::pair<std::string, std::string> kvData;
+	std::unordered_map<std::string, std::string> m_vProperties;
+
+	EntityClasses m_EntityClass;
+
 protected:
 	void SetClassName(const char* name);
 
-	void FlagDataLoaded();
+	
 	void LoadPropertiesToPropsEditor(IObjectPropertiesBinding * binder);
 
 public:
@@ -67,6 +75,11 @@ public:
 	virtual bool IsLightEntity();
 	virtual void OnAdditionToScene() {};
 	
+	void CopyProperties(std::unordered_map<std::string, std::string> propsmap);
+	std::unordered_map<std::string, std::string> GetProperties() const;
+
+	virtual EntityClasses EntityClass();
+	void FlagDataLoaded();
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

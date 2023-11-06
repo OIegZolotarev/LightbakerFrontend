@@ -322,3 +322,8 @@ bool LightEntity::IsLightEntity()
 {
 	return true;
 }
+
+EntityClasses LightEntity::EntityClass()
+{
+	return EntityClasses::Light;
+}
