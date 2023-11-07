@@ -85,9 +85,9 @@ void BSPWorld::Mod_LoadSurfedges(lump_t* l)
 void BSPWorld::Mod_LoadTextures(lump_t* l)
 {	
 // 	miptex_t* mt;
- 	texture_t* tx, * tx2; 
- 	texture_t* anims[10];
- 	texture_t* altanims[10];
+ 	mtexture_t* tx, * tx2; 
+ 	mtexture_t* anims[10];
+ 	mtexture_t* altanims[10];
 // 	dmiptexlump_t* m;
  	int max = 0;
 	int j;
@@ -114,15 +114,19 @@ void BSPWorld::Mod_LoadTextures(lump_t* l)
 		mt->width = LittleLong(mt->width);
 		mt->height = LittleLong(mt->height);
 
-		texture_t * tx = new texture_t;
+		mtexture_t * tx = new mtexture_t;
 		memset(tx, 0, sizeof(tx));
 		
 		m_vTextures[i] = tx;
 		memcpy(tx->name, mt->name, sizeof(tx->name));
 
 		if (mt->offsets[0])
-			tx->gl_texturenum = LoadMiptex(mt);
+			tx->loadedTexture = LoadMiptex(mt);
+		else
+			tx->loadedTexture = WADPool::Instance()->LoadTexture(tx->name);
 
+		tx->height = mt->height;
+		tx->width = mt->width;
 
 // 		if (1)
 // 		{
@@ -149,8 +153,7 @@ void BSPWorld::Mod_LoadTextures(lump_t* l)
 // 
 // 		//	tx->gl_texturenum=glUniload("gg@!hb_display");
 // 
-// 		tx->height = mt->height;
-// 		tx->width = mt->width;
+ 		
 // 
 // 		if (!tx->gl_texturenum || tx->height == 0xFFFFFFFF || tx->width == 0xFFFFFFFF || !tx->width || !tx->height)
 // 		{
@@ -606,6 +609,8 @@ BSPWorld::BSPWorld(FileData * fd)
 
 	m_pLightmapState = new LightmapAtlas(512, 512);
 
+	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);
+
 	Mod_LoadVertexes(&m_Header->lumps[LUMP_VERTEXES]);
 	Mod_LoadEdges(&m_Header->lumps[LUMP_EDGES]);
 	Mod_LoadSurfedges(&m_Header->lumps[LUMP_SURFEDGES]);
@@ -620,7 +625,7 @@ BSPWorld::BSPWorld(FileData * fd)
 	Mod_LoadLeafs(&m_Header->lumps[LUMP_LEAFS]);
 	Mod_LoadNodes(&m_Header->lumps[LUMP_NODES]);
 	Mod_LoadClipnodes(&m_Header->lumps[LUMP_CLIPNODES]);
-	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);	
+	
 	Mod_LoadSubmodels(&m_Header->lumps[LUMP_MODELS]);
 	
 
@@ -659,7 +664,7 @@ std::string BSPWorld::GetBaseName()
 	return m_pFileData->BaseName();	
 }
 
-void BSPWorld::SequenceTextureAnims(dmiptexlump_t* m, texture_t*& tx, texture_t** anims, texture_t** altanims, int& max, int& altmax, int& j, texture_t*& tx2, int& num)
+void BSPWorld::SequenceTextureAnims(dmiptexlump_t* m, mtexture_t*& tx, mtexture_t** anims, mtexture_t** altanims, int& max, int& altmax, int& j, mtexture_t*& tx2, int& num)
 {
 	//
 	// sequence the animations
@@ -825,14 +830,9 @@ void BSPWorld::Mod_SetParent(mnode_t* node, mnode_t* parent)
 
 void BSPWorld::BuildSurfaceDisplayList(msurface_t* fa)
 {
-	int			i, lindex, lnumverts, s_axis, t_axis;
-	float		dist, lastdist, lzi, scale, u, v, frac;
-	unsigned	mask;
-	glm::vec3		local, transformed;
-	medge_t* pedges, * r_pedge;
-	mplane_t* pplane;
-	int			vertpage, newverts, newpage, lastvert;
-	bool	visible;
+	int			i, lindex, lnumverts;
+	medge_t* pedges, * r_pedge;	
+	int			vertpage;	
 	glm::vec3 vec;
 	float		s = 0, t = 0;
 	glpoly_t* poly;
@@ -1017,7 +1017,7 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 
 		bool quote = false;
 
-		while (offset < l->filelen)
+		while (offset < (size_t)l->filelen)
 		{
 			if (m_pEntdata[offset] == '"')
 			{
@@ -1033,7 +1033,7 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 		token = std::string_view(&m_pEntdata[start], offset - start);
 	};
 	
-	while (offset < l->filelen)
+	while (offset < (size_t)l->filelen)
 	{
 		grabToken();
 
@@ -1044,7 +1044,7 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 		{
 			BSPEntity* pEntity = new BSPEntity;
 
-			while (offset < l->filelen)
+			while (offset < (size_t)l->filelen)
 			{
 				grabToken();
 
@@ -1094,7 +1094,7 @@ void BSPWorld::Mod_ReloadFacesLighting(lump_t* l)
 	dface_t* in;
 	msurface_t* out;
 	int			i, count, surfnum;
-	int			planenum, side;
+	
 
 	in = (dface_t*)(m_pFileData->Data() + l->fileofs);
 	if (l->filelen % sizeof(*in))

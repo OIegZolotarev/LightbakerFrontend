@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 namespace GoldSource
 {
 
-#define MAX_LIGHTMAPS 32
+#define MAX_LIGHTMAPS 512
 
 #define BLOCK_WIDTH 512
 #define BLOCK_HEIGHT 512

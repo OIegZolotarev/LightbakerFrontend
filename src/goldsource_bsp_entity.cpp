@@ -7,6 +7,7 @@
 #include "common.h"
 #include "goldsource_bsp_entity.h"
 #include "text_utils.h"
+#include "wad_textures.h"
 
 
 using namespace GoldSource;
@@ -46,6 +47,30 @@ void BSPEntity::SetKeyValue(std::string& key, std::string& value)
 			for (auto it = digits.begin(); it != digits.end(); it++, i++)
 				color[i] = std::stof(*it) / 255.f;
 		}
+    }
+    else if (key == "_wad")
+    {
+        // E:\Games\Half-Life\valve\halflife.wad;
+        // E:\Games\Half-Life\valve\liquids.wad;
+        // E:\Games\Half-Life\valve\xeno.wad;
+        // E:\Games\Half-Life\valve\decals.wad;
+        // E:\Games\Hammer\ZHLT\zhlt.wad;
+
+        auto wadFiles = TextUtils::SplitTextSimple(value.c_str(), value.length(), ';');
+
+
+        for (auto & it : wadFiles)
+		{
+			auto baseName = FileSystem::Instance()->ExtractFileBase(it.c_str());
+
+
+            // Дебильный хак, надо сделать авто монтаж игропапки                       
+            std::string fullPath = "D:/Games/Steam/steamapps/common/Half-Life/valve/" + baseName + ".wad";
+
+            WADPool::Instance()->LoadWad(fullPath.c_str());
+
+        }
+
     }
 
     m_vProperties.insert(kvData(key, value));
@@ -124,7 +149,12 @@ bool BSPEntity::UpdateProperties()
 
     if (ptr->IsLightEntity())
     {
+        LightEntity* pLight = (LightEntity*)ptr.get();
+        auto _light = ConvertLightColorAndIntensity(pLight);
 
+
+        m_vProperties["_light"] = std::format("{0} {1} {2} {3}", _light.r, _light.g, _light.b, _light.a);
+        
     }
 
     return true;
@@ -169,8 +199,11 @@ glm::vec3 BSPEntity::ConvertOriginFromSceneSpace(glm::vec3 origin)
     return glm::vec3{ -origin.z, -origin.x, origin.y };
 }
 
-glm::vec4 BSPEntity::ConvertLightColorAndIntensity()
+glm::vec4 BSPEntity::ConvertLightColorAndIntensity(LightEntity * pEntity)
 {
+    auto color = pEntity->GetColor() * 255.f;
+    auto intensity = pEntity->GetIntensity();
 
+    return glm::vec4(color.r, color.g, color.b, intensity);
 }
 

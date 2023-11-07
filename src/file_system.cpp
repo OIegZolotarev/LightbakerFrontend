@@ -128,6 +128,11 @@ FileSystem::~FileSystem()
 
 }
 
+FileSystem* FileSystem::Instance()
+{
+	return Application::GetFileSystem();
+}
+
 FileData* FileSystem::LoadFile(const char* fileName)
 {
 	FileData* pResult = nullptr;
@@ -247,6 +252,75 @@ int FileSystem::CopyFile(const char* srcPath, const char* dstPath)
 	fclose(f2);
 
 	return 0;
+}
+
+std::string FileSystem::ExtractFilePath(const char* path)
+{
+	char* src;
+
+	src = (char*)path + strlen(path) - 1;
+
+	//
+	// back up until a \ or the start
+	//
+	while (src != path && !PATHSEPARATOR(*(src - 1)))
+		src--;
+
+
+	std::string_view view = std::string_view(src, src - path);
+	return std::string(view);
+}
+
+std::string FileSystem::ExtractFileBase(const char* path)
+{
+	char* src;
+
+	src = (char*)path + strlen(path) - 1;
+
+	while (src != path && !PATHSEPARATOR(*(src - 1)))
+		src--;
+
+	std::string result;
+
+	while (*src && *src != '.')
+	{
+		result += *src++;
+	}
+
+	return result;
+}
+
+std::string FileSystem::ExtractFileExtension(const char* path)
+{
+	char* src;
+
+	src = (char*)path + strlen(path) - 1;
+
+	//
+	// back up until a . or the start
+	//
+	while (src != path && *(src - 1) != '.')
+		src--;
+
+	if (src == path)
+	{
+		return "";
+	}
+
+	std::string result;
+
+	while (*src)
+		result += *src++;
+
+	return result;
+}
+
+std::string FileSystem::ExtractFileName(const char* path)
+{
+	auto name = ExtractFileBase(path);
+	auto ext = ExtractFileExtension(path);
+
+	return name + "." + ext;
 }
 
 // ��������� ��� ����� �� �������

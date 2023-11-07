@@ -82,6 +82,8 @@ public:
 	FileSystem();
 	~FileSystem();
 
+	static FileSystem* Instance();
+
 	[[nodiscard]] FileData* LoadFile(const char* fileName);
 	[[nodiscard]] FileData* LoadFile(std::string& fileName);
 	
@@ -118,5 +120,18 @@ public:
 
 	int CopyFile(const char* srcPath, const char* dstPath);
 	
+
+	// Версии для несуществующих путей\
+
+	#define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
+
+	static std::string ExtractFilePath(const char* path);
+
+	static std::string ExtractFileBase(const char* path);
+
+	static std::string ExtractFileExtension(const char* path);
+
+	static std::string ExtractFileName(const char* path);
+
 };
 

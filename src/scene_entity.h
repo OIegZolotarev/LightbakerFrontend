@@ -32,6 +32,7 @@ class SceneEntity: public ISelectableObject
 	std::size_t m_ClassNameHash;
 	std::string m_ClassName;
 
+	// TODO: copy-constructor
 	// Обобщенные пары ключ-значение
 	typedef std::pair<std::string, std::string> kvData;
 	std::unordered_map<std::string, std::string> m_vProperties;

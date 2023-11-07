@@ -327,3 +327,8 @@ EntityClasses LightEntity::EntityClass()
 {
 	return EntityClasses::Light;
 }
+
+float LightEntity::GetIntensity()
+{
+	return intensity;
+}

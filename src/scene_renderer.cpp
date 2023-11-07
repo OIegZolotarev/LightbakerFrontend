@@ -193,6 +193,10 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 
 	m_pScene->LoadLevel(dropped_filedir, loadFlags);
 
+	auto fileName = FileSystem::Instance()->ExtractFileName(dropped_filedir);
+
+	Application::GetMainWindow()->SetTitle(fileName);
+
 
 	// 	if (dropped_filedir)
 	// 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);

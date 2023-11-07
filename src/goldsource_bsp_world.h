@@ -20,7 +20,7 @@ class BSPWorld
 
 	std::vector<mvertex_t> m_vVertices;
 	std::vector<medge_t> m_vEdges;
-	std::vector<texture_t*> m_vTextures;
+	std::vector<mtexture_t*> m_vTextures;
 	std::vector<mplane_t> m_vPlanes;
 	std::vector<mtexinfo_t> m_vTexInfo;
 	std::vector<int> m_vSurfedges;
@@ -47,7 +47,7 @@ class BSPWorld
 	void Mod_LoadSurfedges(lump_t* l);
 	void Mod_LoadTextures(lump_t* l);
 
-	void SequenceTextureAnims(dmiptexlump_t* m, texture_t*& tx, texture_t** anims, texture_t** altanims, int& max, int& altmax, int& j, texture_t*& tx2, int& num);
+	void SequenceTextureAnims(dmiptexlump_t* m, mtexture_t*& tx, mtexture_t** anims, mtexture_t** altanims, int& max, int& altmax, int& j, mtexture_t*& tx2, int& num);
 
 	void Mod_LoadLighting(lump_t* l);
 	void Mod_LoadPlanes(lump_t* l);

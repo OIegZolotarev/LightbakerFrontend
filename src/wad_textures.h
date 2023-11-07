@@ -17,12 +17,70 @@
 
 #pragma once
 
+
 namespace GoldSource
 {
-	int LoadMiptex(miptex_t* pMipTex);
+
+#define	CMP_NONE		0
+#define	CMP_LZSS		1
+
+#define	TYP_NONE		0
+#define	TYP_LABEL		1
+#define	TYP_LUMPY		64				// 64 + grab command number
+
+typedef struct
+{
+	char		identification[4];		// should be WAD2 or 2DAW
+	int			numlumps;
+	int			infotableofs;
+} wadheader_t;
 
 
+typedef struct
+{
+	int			filepos;
+	int			disksize;
+	int			size;					// uncompressed
+	char		type;
+	char		compression;
+	char		pad1, pad2;
+	char		name[16];				// must be null terminated
+} lumpinfo_t;
 
+gltexture_t* LoadMiptex(struct miptex_s* pMipTex);
+
+class WADTexturePool
+{
+	FileData* m_pFileData = nullptr;
+
+	size_t m_NumEntries = 0;
+	lumpinfo_t* m_pLumpInfo = nullptr; // Данные в m_pFileData
+
+	wadheader_t* m_pHeader;
+
+	lumpinfo_t* FindLumpInfo(const char* name);
+
+public:
+	WADTexturePool(FileData* fd);
+	~WADTexturePool();
+
+	gltexture_t* LoadTexture(const char* name);
+};
+
+
+class WADPool
+{
+	WADPool();
+
+	std::vector<WADTexturePool*> m_vecWadFiles;
+public:
+	WADTexturePool* LoadWad(const char* fileName);
+	~WADPool();
+
+	static WADPool* Instance();
+	
+	gltexture_t* LoadTexture(char* name);
+};
 
 }
 

@@ -14,13 +14,15 @@ typedef struct gltexture_s
 	bool loaded = false;
 	std::string file_name;
 
-	int width;
-	int height;
+	int width = 0;
+	int height = 0;
 
-	int sprite_sheet_width;
-	int sprite_sheet_height;
+	int sprite_sheet_width = 0;
+	int sprite_sheet_height = 0;
 
-	GLuint gl_texnum;
+	GLuint gl_texnum = 0;
+	size_t num_references = 0;
+
 
 	~gltexture_s()
 	{
@@ -52,11 +54,8 @@ public:
 
 class AsynchTextureLoadTask: public ITask
 {	
-	std::queue<gltexture_t*> m_qScheduledTextures;
-	
+	std::queue<gltexture_t*> m_qScheduledTextures;	
 	void* LoadTextureFileData(gltexture_t* texture);
-
-	void UploadPixels();
 
 public:
 	AsynchTextureLoadTask(const char* setDescription = nullptr);

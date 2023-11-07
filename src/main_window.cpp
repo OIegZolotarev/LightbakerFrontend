@@ -18,6 +18,10 @@
 #include "ui_styles_manager.h"
 
 
+#include "goldsource_bsp_disk_structs.h"
+#include "wad_textures.h"
+
+
 bool DEBUG_3D_SELECTION = false;
 
 const char* strDockspace = "DockSpace";
@@ -59,6 +63,7 @@ MainWindow::~MainWindow()
 	ImGui::DestroyContext(m_pImGUIContext);
 	
 	delete PopupsManager::Instance();
+	delete GoldSource::WADPool::Instance();
 	
 	SDL_DestroyWindow(m_pSDLWindow);
 	SDL_GL_DeleteContext(m_pGLContext);	
@@ -239,6 +244,12 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 	ImGui::End();
 
 	return gIDMainDockspace;
+}
+
+void MainWindow::SetTitle(std::string & fileName)
+{
+	m_strTitle = std::format("LightBaker3000 FrontEnd - {0}", fileName);
+	SDL_SetWindowTitle(m_pSDLWindow, m_strTitle.c_str());
 }
 
 void MainWindow::UpdateDocks()

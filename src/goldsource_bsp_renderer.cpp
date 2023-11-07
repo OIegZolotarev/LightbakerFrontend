@@ -191,7 +191,7 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
 
 void BSPRenderer::RenderBrushPoly(msurface_t* fa)
 {
-	texture_t* t;
+	mtexture_t* t;
 	byte* base;
 	int			maps;
 	
@@ -215,14 +215,28 @@ void BSPRenderer::RenderBrushPoly(msurface_t* fa)
 
 	glCullFace(GL_FRONT);
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
+	
+	
+	glActiveTexture(GL_TEXTURE1);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);	
+	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+
+	glActiveTexture(GL_TEXTURE0);
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
+	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+	
 
 	glBegin(GL_POLYGON);
 	auto v = p->verts[0];
 	for (int i = 0; i < p->numverts; i++, v += VERTEXSIZE)
 	{
-		glTexCoord2f(v[5], v[6]);
-		//glColor3fv((float*)&fa->plane->normal);
+		glMultiTexCoord2f(GL_TEXTURE0,v[3], v[4]);
+		glMultiTexCoord2f(GL_TEXTURE1, v[5], v[6]);
+		
 		glColor3f(1,1,1);
 		glVertex3fv(v);
 	}
@@ -230,4 +244,8 @@ void BSPRenderer::RenderBrushPoly(msurface_t* fa)
 
 	glEnable(GL_TEXTURE_2D);
 	glCullFace(GL_BACK);
+
+	glActiveTexture(GL_TEXTURE1);
+	glDisable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0);
 }

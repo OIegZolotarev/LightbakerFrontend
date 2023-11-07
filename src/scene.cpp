@@ -311,7 +311,7 @@ void Scene::LoadLevel(const char* levelName)
 
 	if (!m_SceneEntities.empty())
 	{
-		auto it = m_SceneEntities.begin(); it++;
+		auto it = m_SceneEntities.begin();
 		*it = pLevelEntity;
 	}
 	else

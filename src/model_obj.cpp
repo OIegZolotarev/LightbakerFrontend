@@ -538,7 +538,7 @@ void ModelOBJ::AddLightsIntoScene()
 
 	for (auto def : m_ModelData.lightDefs)
 	{
-		auto ptr = std::make_shared<LightEntity>(*def);
+		auto ptr = std::make_shared<LightEntity>(std::move(*def));
 
 		scene->AddEntityWithSerialNumber(ptr, def->GetSerialNumber());
 	}
@@ -573,8 +573,8 @@ void ModelOBJ::PrepareLights()
 		if (lightPointer)
 		{
 			// Наверное тупой подход
-			LightEntity* l1 = new LightEntity(*lightPointer);
-			LightEntity* l2 = new LightEntity(*lightPointer);
+			LightEntity* l1 = new LightEntity(std::move(*lightPointer));
+			LightEntity* l2 = new LightEntity(std::move(*lightPointer));
 
 			m_LightmapModelData.lightDefs.push_back(l1);
 			m_ModelData.lightDefs.push_back(l2);

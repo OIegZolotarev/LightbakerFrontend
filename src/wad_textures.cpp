@@ -7,6 +7,7 @@
 #include "goldsource_bsp_disk_structs.h"
 #include "goldsource_bsp_mem_structs.h"
 #include "wad_textures.h"
+#include "byteorder.h"
 
 using namespace GoldSource;
 
@@ -17,7 +18,105 @@ using namespace GoldSource;
 unsigned char rgba[MAX_TEX_SIZE * 4];
 
 
-int GoldSource::LoadMiptex(GoldSource::miptex_t* pMipTex)
+
+WADTexturePool::WADTexturePool(FileData* fd)
+{
+	m_pFileData = fd;
+	m_pFileData->Ref();
+
+	m_pHeader = (wadheader_t*)fd->Data();
+	m_pHeader->numlumps = LittleLong(m_pHeader->numlumps);
+	m_pHeader->infotableofs = LittleLong(m_pHeader->infotableofs);
+
+	m_pLumpInfo = (lumpinfo_t*)(fd->Data() + m_pHeader->infotableofs);
+
+	m_NumEntries = m_pHeader->numlumps;
+
+	lumpinfo_t* ptr = m_pLumpInfo;
+	for (int i = 0; i < m_pHeader->numlumps; i++, ptr++)
+	{
+		ptr->filepos = LittleLong(ptr->filepos);
+		ptr->size = LittleLong(ptr->size);
+	}
+
+}
+
+WADTexturePool::~WADTexturePool()
+{
+	m_pFileData->UnRef();
+}
+
+gltexture_t* WADTexturePool::LoadTexture(const char* name)
+{
+	lumpinfo_t* info = FindLumpInfo(name);
+
+	if (!info)
+		return nullptr;
+
+
+	miptex_t* texture = (miptex_t*)(m_pFileData->Data() +info->filepos);
+
+	return LoadMiptex(texture);
+}
+
+lumpinfo_t* WADTexturePool::FindLumpInfo(const char* name)
+{
+	for (size_t i = 0; i < m_NumEntries; i++)
+	{
+		if (!_stricmp(m_pLumpInfo[i].name, name))
+			return &m_pLumpInfo[i];
+	}
+
+	return nullptr;
+}
+
+WADPool* WADPool::Instance()
+{
+	static WADPool* sInstance = new WADPool;
+	return sInstance;
+}
+
+WADPool::WADPool()
+{
+
+}
+
+WADTexturePool* WADPool::LoadWad(const char* fileName)
+{
+	auto fs = FileSystem::Instance();
+	auto fd = fs->LoadFile(fileName);
+
+	if (!fd)
+		return nullptr;
+
+	WADTexturePool* result = new WADTexturePool(fd);
+	m_vecWadFiles.push_back(result);
+
+	return result;
+}
+
+WADPool::~WADPool()
+{
+	ClearPointersVector(m_vecWadFiles);
+}
+
+gltexture_t* WADPool::LoadTexture(char* name)
+{
+	for (auto wad : m_vecWadFiles)
+	{
+		gltexture_t* result = wad->LoadTexture(name);
+
+		if (result)
+			return result;
+	}
+
+
+
+	// emo_texture
+	return nullptr;
+}
+
+gltexture_t* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 {
 	if (!pMipTex->name[0]) return 0;
 
@@ -36,11 +135,22 @@ int GoldSource::LoadMiptex(GoldSource::miptex_t* pMipTex)
 
 	int pos = 0;
 
+	gltexture_t* pResult = new gltexture_t;
+
+	
+
+	pResult->file_name = pMipTex->name;
+	pResult->width = pMipTex->width;
+	pResult->height = pMipTex->height;
+
+	glGenTextures(1,&pResult->gl_texnum);
+	glBindTexture(GL_TEXTURE_2D, pResult->gl_texnum);
+
 	// convert the mip palette based bitmap to RGB format...
 	if (pMipTex->name[0] == '{')
 	{
 		unsigned char r, g, b, a;
-		
+
 		pos = 0;
 		for (int i = 0; i < size; i++)
 		{
@@ -60,14 +170,18 @@ int GoldSource::LoadMiptex(GoldSource::miptex_t* pMipTex)
 			rgba[pos++] = a;
 		}
 
-		glBindTexture(GL_TEXTURE_2D, index);
 
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-			
+
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
 		//GL_UploadTexture(VA("(internal)%s", pMipTex->name), GL_TEXTURE_2D, 0, GL_RGBA, pMipTex->width, pMipTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pResult->width, pResult->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
 	}
 	else
 	{
@@ -77,17 +191,21 @@ int GoldSource::LoadMiptex(GoldSource::miptex_t* pMipTex)
 			rgba[pos++] = palette[indices[i] * 3];
 			rgba[pos++] = palette[indices[i] * 3 + 1];
 			rgba[pos++] = palette[indices[i] * 3 + 2];
+
 		}
-		glBindTexture(GL_TEXTURE_2D, index);
+		
 
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glHint(GL_GENERATE_MIPMAP_HINT, GL_NICEST);
 		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-		//GL_UploadTexture(VA("(internal)%s", pMipTex->name), GL_TEXTURE_2D, 0, GL_RGB, pMipTex->width, pMipTex->height, 0, GL_RGB, GL_UNSIGNED_BYTE, rgba);
-		//	glLoadEmo(index);
-	}
 
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pResult->width, pResult->height, 0, GL_RGB, GL_UNSIGNED_BYTE, rgba);
+	}
+	return pResult;
 	
 }

@@ -58,19 +58,21 @@ typedef glm::vec3 mvertex_t;
 
 
 
-typedef struct texture_s
+typedef struct mtexture_s
 {
     char		name[16];
     unsigned	width, height;
-    int			gl_texturenum;
-    int gl_normal_texture_num;
+    
+    gltexture_t* loadedTexture;
+
+
     struct msurface_s* texturechain;	// for gl_texsort drawing
     int			anim_total;				// total tenths in sequence ( 0 = no)
     int			anim_min, anim_max;		// time for this frame min <=time< max
-    struct texture_s* anim_next;		// in the animation sequence
-    struct texture_s* alternate_anims;	// bmodels in frmae 1 use these
+    struct mtexture_s* anim_next;		// in the animation sequence
+    struct mtexture_s* alternate_anims;	// bmodels in frmae 1 use these
     unsigned	offsets[MIPLEVELS];		// four mip maps stored
-} texture_t;
+} mtexture_t;
 
 typedef struct mplane_s
 {
@@ -102,7 +104,7 @@ typedef struct
 {
     glm::vec4		vecs[2];
     float		mipadjust;
-    texture_t* texture;
+    mtexture_t* texture;
     int local_texture_idx;
     int			flags;
     int flags2;

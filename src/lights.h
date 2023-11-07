@@ -86,6 +86,7 @@ public:
 
 	EntityClasses EntityClass() override;
 
+	float GetIntensity();
 };
 
 enum LightProperties

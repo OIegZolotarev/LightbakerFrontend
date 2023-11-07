@@ -143,5 +143,7 @@ private:
 	VariantValue* m_pBackgroudColorSetting1;
 	VariantValue* m_pBackgroudColorSetting2;
 	VariantValue* m_pUseGradientBackground;
+public:
+	void SetTitle(std::string & fileName);
 };
 
