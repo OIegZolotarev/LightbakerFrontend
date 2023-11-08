@@ -437,6 +437,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 	auto h = Application::GetMainWindow()->Height();
 
 
+	ImGuizmo::SetGizmoSizeClipSpace(0.5f);
 	ImGuizmo::AllowAxisFlip(false);
 
 	ImGuizmo::SetRect(win[0], h - win[1] - win[3], win[2], win[3]);	
@@ -444,6 +445,10 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 	if (bChanged)
 	{
+		
+
+		
+
 		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
 

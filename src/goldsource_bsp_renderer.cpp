@@ -54,6 +54,7 @@ void BSPRenderer::RecursiveWorldNode(mnode_t* node)
 	msurface_t* surf, ** mark;
 	mleaf_t* pleaf;
 	double		d, dot;
+	
 	glm::vec3 mins, maxs;
 	
 	if (!node) return;

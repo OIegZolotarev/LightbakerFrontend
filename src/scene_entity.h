@@ -47,6 +47,7 @@ protected:
 
 public:
 	SceneEntity();
+	SceneEntity(SceneEntity& other);
 	
 	virtual void RenderLightshaded(); // С лайтмапой
 	virtual void RenderUnshaded(); // Без лайтмапы

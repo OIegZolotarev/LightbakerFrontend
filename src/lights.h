@@ -30,6 +30,7 @@ class LightEntity : public SceneEntity
 {
 public:
 	LightEntity();
+	LightEntity(LightEntity& other);
 
 	void SetType(LightTypes type);
 

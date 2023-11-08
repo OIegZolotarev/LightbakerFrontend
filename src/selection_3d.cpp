@@ -25,6 +25,16 @@ ISelectableObjectWeakRef SelectionManager::LastHoveredObject()
 
 void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 {
+	Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
+
+	if (ImGuizmo::IsOver() && ImGuizmo::IsEnabled())
+	{
+		m_pLastHoveredObject.reset();
+		Application::GetMainWindow()->ClearBackground();
+		return;
+	}
+
+
 	glClearColor(0, 0, 0,1);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

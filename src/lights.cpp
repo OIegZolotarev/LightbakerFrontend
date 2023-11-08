@@ -234,6 +234,21 @@ LightEntity::LightEntity()
 	SetClassName("light");
 }
 
+LightEntity::LightEntity(LightEntity& other): SceneEntity(other)
+{
+	LightTypes	type = LightTypes::Omni;
+	flags = other.flags;
+	intensity = other.intensity;
+	anglesDirection = other.anglesDirection;
+	cones[0] = other.cones[0];
+	cones[1] = other.cones[1];
+	size = other.size;
+
+	type = other.type;
+
+	style = other.style;
+}
+
 void LightEntity::SetType(LightTypes newType)
 {
 	type = newType;

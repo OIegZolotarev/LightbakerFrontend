@@ -42,6 +42,27 @@ SceneEntity::SceneEntity()
 	m_EditorIcon = nullptr;
 }
   
+SceneEntity::SceneEntity(SceneEntity& other)
+{
+	m_SerialNumber = other.m_nSerialNumber;
+	m_Position = other.m_Position;
+
+	m_Mins = other.m_Mins;
+	m_Maxs = other.m_Maxs;
+
+	m_Color = other.m_Color;
+	m_EditorIcon = other.m_EditorIcon;
+
+	if (m_vProperties.size())
+	{
+		for (auto& kv : other.m_vProperties)
+		{
+			m_vProperties.insert(kv);
+
+		}
+	}
+}
+
 void SceneEntity::RenderLightshaded()
 {
 	auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();	
