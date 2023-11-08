@@ -131,4 +131,9 @@ public:
 	{
 		return (ImGuizmo::OPERATION)0;
 	}
+
+	virtual const char* ObjectClassname()
+	{
+		return "<no classname>";
+	}
 };

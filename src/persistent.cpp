@@ -52,13 +52,13 @@ PersistentStorage::PersistentStorage(Application * appInstance)
 	setting->SetFloat(4096.f);
 
 	setting = GetSetting(ApplicationSettings::CameraMovementSpeed);
-	setting->SetFloat(200);
+	setting->SetFloat(400);
 
 	setting = GetSetting(ApplicationSettings::CameraAccel);
-	setting->SetFloat(100);
+	setting->SetFloat(1000);
 
 	setting = GetSetting(ApplicationSettings::CameraDecel);
-	setting->SetFloat(100);
+	setting->SetFloat(1000);
 
 	LoadFromFile(appInstance);
 }
@@ -86,12 +86,16 @@ void PersistentStorage::LoadFromFile(Application* appInstance)
 
 		if (j.contains("MRU"))
 		{
-			auto MRU = j["MRU"];
+			auto & MRU = j["MRU"];
 			
 			for (auto items : MRU)
 			{
-				m_lstMRUFiles.push_back(items.get<std::string>());
+				m_lstMRUFiles.push_back(mruFile_t(items[0].get<std::string>(), 
+												  items[1].get<std::time_t>()));
+
 			}
+
+			SortMRU();
 		}
 
 		if (j.contains("ApplicationSettings"))
@@ -151,6 +155,8 @@ PersistentStorage::~PersistentStorage()
 	SaveToFile();
 }
 
+
+
 void PersistentStorage::PushMRUFile(const char* fileName)
 {
 	auto p = std::filesystem::path(fileName);
@@ -160,17 +166,32 @@ void PersistentStorage::PushMRUFile(const char* fileName)
 
 	for (auto& it : m_lstMRUFiles)
 	{
-		if (!_stricmp(it.c_str(), canonicalFileName.c_str()))
+		if (!strcasecmp(it.first.c_str(), canonicalFileName.c_str()))
+		{
+			it.second = std::time(nullptr);
+			SortMRU();
 			return;
+		}
 	}
 
-	m_lstMRUFiles.push_front(canonicalFileName);
+	mruFile_t desc(fileName, std::time(nullptr));
+
+	m_lstMRUFiles.push_front(desc);
+	SortMRU();
 
 	while (m_lstMRUFiles.size() > 10)
 		m_lstMRUFiles.pop_back();
 }
 
-std::list<std::string>& PersistentStorage::GetMRUFiles()
+void PersistentStorage::SortMRU()
+{
+	m_lstMRUFiles.sort([](mruFile_t& a, mruFile_t& b) -> bool
+		{
+			return (a.second > b.second);
+		});
+}
+
+std::list<mruFile_t>& PersistentStorage::GetMRUFiles()
 {
 	return m_lstMRUFiles;
 }

@@ -1,0 +1,55 @@
+/*
+	LightBaker3000 Frontend project,
+	(c) 2023 CrazyRussian
+*/
+
+
+#include "..\hammer_fgd.h"
+
+namespace GoldSource
+{
+
+FGDTokens FGDLex(char*& s)  {
+    //const char *YYCURSOR = s;
+    /*!re2c        		
+		re2c:yyfill:enable = 0;
+        re2c:define:YYCTYPE = char;
+		re2c:define:YYCURSOR = s;
+
+        SolidClass = "@SolidClass";        	
+		BaseClass = "@BaseClass";      		
+		PointClass = "@PointClass";
+		EqualsSign = '=';
+		Colon = ':';
+		StringLiteral = '".*"';
+		Identifier = [a-zA-Z_]+[0-9]*[a-zA-Z_]*;
+		Number = [0-9]+;
+		OpeningParenthesis = '(';
+		ClosingParenthesis = ')';
+		OpeningBracket = '[';
+		ClosingBracket = ']';
+		Comment = '\\'.*;
+		
+		
+		 [\x00] {
+            return FGDTokens::EndOfFile;
+        }
+		
+		
+		SolidClass { return FGDTokens::SolidClass; }
+		BaseClass { return FGDTokens::BaseClass; }
+        PointClass { return FGDTokens::PointClass; }
+        EqualsSign { return FGDTokens::EqualsSign; }
+        Colon { return FGDTokens::Colon; }
+        StringLiteral { return FGDTokens::StringLiteral;}
+        Identifier { return FGDTokens::Identifier; }
+        Number { return FGDTokens::Number; }
+        OpeningParenthesis { return FGDTokens::OpeningParenthesis; }
+        ClosingParenthesis { return FGDTokens::ClosingParenthesis; }
+        OpeningBracket { return FGDTokens::OpeningBracket; }
+        ClosingBracket { return FGDTokens::ClosingBracket; }
+        Comment { return FGDTokens::Comment; }
+        
+    */
+}
+}

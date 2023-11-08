@@ -28,13 +28,14 @@ enum class ApplicationSettings
 	GUIColorScheme
 };
 
+typedef std::pair<std::string, std::time_t> mruFile_t;
 
 class PersistentStorage
 {
 	nlohmann::json SerializeApplicationProperty(nlohmann::json& j, VariantValue* it);
 	void ParseApplicationSettings(nlohmann::json j);
 
-	std::list<std::string>	m_lstMRUFiles;
+	std::list<mruFile_t>		m_lstMRUFiles;
 	void						SaveToFile();
 	void						LoadFromFile(class Application * appInstance);
 	
@@ -49,7 +50,10 @@ public:
 	~PersistentStorage();
 
 	void						PushMRUFile(const char* fileName);
-	std::list<std::string>&		GetMRUFiles();
+
+	void SortMRU();
+
+	std::list<mruFile_t>& GetMRUFiles();
 		
 	VariantValue * GetSetting(ApplicationSettings id);
 

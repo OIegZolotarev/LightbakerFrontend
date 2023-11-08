@@ -70,4 +70,7 @@ public:
 	void UpdateObjectProperties(VariantValue* props, size_t num) override;
 
 
+
+	const char* ObjectClassname() override;
+
 };

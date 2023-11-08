@@ -200,6 +200,10 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 			{
 				int i = 0;
 
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::SeparatorText(m_pPropertiesBinding->ObjectClassname());
+
 				for (auto& it : m_vPropsData)
 				{
 					ImGui::PushID(i++); // Use field index as identifier.
@@ -437,7 +441,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 	auto h = Application::GetMainWindow()->Height();
 
 
-	ImGuizmo::SetGizmoSizeClipSpace(0.5f);
+	//ImGuizmo::SetGizmoSizeClipSpace(0.5f);
 	ImGuizmo::AllowAxisFlip(false);
 
 	ImGuizmo::SetRect(win[0], h - win[1] - win[3], win[2], win[3]);	

@@ -54,6 +54,9 @@
     <Filter Include="Исходные файлы\Scene\Entities">
       <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\GoldSourceBSP\FGD">
+      <UniqueIdentifier>{4471a94a-3365-4eb0-9c59-43477b1f5414}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -256,6 +259,15 @@
     </ClCompile>
     <ClCompile Include="goldsource_bsp_entity.cpp">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
+    </ClCompile>
+    <ClCompile Include="hammer_fgd.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
+    </ClCompile>
+    <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
+    </ClCompile>
+    <ClCompile Include="hammer_fgd\hammer_fgd_lexer_autogen.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -478,6 +490,9 @@
     <ClInclude Include="goldsource_bsp_entity.h">
       <Filter>Исходные файлы\GoldSourceBSP</Filter>
     </ClInclude>
+    <ClInclude Include="hammer_fgd.h">
+      <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -515,5 +530,10 @@
     <None Include="..\bin\res\glprogs\scene_groupshaded.frag">
       <Filter>GLSL</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\res\bakery-shop.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
   </ItemGroup>
 </Project>

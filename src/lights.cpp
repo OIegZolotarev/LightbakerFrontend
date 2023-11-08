@@ -229,6 +229,16 @@ ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
 
 }
 
+const char* LightPropertiesBinding::ObjectClassname()
+{
+	auto ptr = m_pwLightDef.lock();
+
+	if (!ptr)
+		return "";
+
+	return "Light source";
+}
+
 LightEntity::LightEntity()
 {
 	SetClassName("light");

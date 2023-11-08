@@ -197,3 +197,8 @@ void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, siz
 	}
 }
 
+const char* WorldspawnPropertiesBinder::ObjectClassname()
+{
+	return "World";
+}
+

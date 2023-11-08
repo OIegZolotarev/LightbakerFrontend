@@ -134,5 +134,8 @@ public:
 
 	ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
 
+
+	const char* ObjectClassname() override;
+
 };
 

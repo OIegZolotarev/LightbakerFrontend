@@ -267,7 +267,7 @@ std::string FileSystem::ExtractFilePath(const char* path)
 		src--;
 
 
-	std::string_view view = std::string_view(src, src - path);
+	std::string_view view = std::string_view(path, src - path);
 	return std::string(view);
 }
 

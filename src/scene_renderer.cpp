@@ -188,10 +188,15 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 {
+	
 	if (!m_pScene)
 		m_pScene = new Scene;
 
 	m_pScene->LoadLevel(dropped_filedir, loadFlags);
+
+	if (dropped_filedir)
+		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
+
 
 	auto fileName = FileSystem::Instance()->ExtractFileName(dropped_filedir);
 

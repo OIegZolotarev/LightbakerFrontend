@@ -20,6 +20,7 @@
 
 #include "goldsource_bsp_disk_structs.h"
 #include "wad_textures.h"
+#include "hammer_fgd.h"
 
 
 bool DEBUG_3D_SELECTION = false;
@@ -50,6 +51,11 @@ MainWindow::MainWindow(const char* title, glm::vec2 defaultSize): m_iWindowWidth
 	m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
 	m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
 	m_pUseGradientBackground = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+
+	// TEST
+	auto fd = FileSystem::Instance()->LoadFile("E:/Projects/PC/LightbakerFrontend/bin/tests/fgd/halflife_2020.fgd");
+	GoldSource::HammerFGDFile* pFGD = new GoldSource::HammerFGDFile(fd);
+
 }
 
 MainWindow::~MainWindow()
@@ -472,11 +478,18 @@ float MainWindow::RenderMainMenu()
 				}
 				else
 				{
+					int index = 0;
+
 					for (auto& it : mru)
 					{
-						if (ImGui::MenuItem(it.c_str()))
+						auto file = FileSystem::Instance()->ExtractFileName(it.first.c_str());
+						auto path = FileSystem::Instance()->ExtractFilePath(it.first.c_str());
+						
+						file = std::format("{0}. {1}", ++index, file);
+
+						if (ImGui::MenuItem(file.c_str(), path.c_str()))
 						{
-							m_pSceneRenderer->LoadModel((char*)it.c_str(), LRF_LOAD_ALL);
+							m_pSceneRenderer->LoadModel((char*)it.first.c_str(), LRF_LOAD_ALL);
 						}
 					}
 				}
@@ -568,15 +581,15 @@ float MainWindow::RenderMainMenu()
 				//m_pPopupsManager->ShowPopup(PopupWindows::AboutApplicationDialog);
 			}
 
-			if (ImGui::MenuItem("Style editor..."))
-			{
-				//m_pPopupsManager->ShowPopup(PopupWindows::StyleEditor);
-			}
-
-			if (ImGui::MenuItem("Style selector..."))
-			{
-				//m_pPopupsManager->ShowPopup(PopupWindows::StyleChooser);
-			}
+// 			if (ImGui::MenuItem("Style editor..."))
+// 			{
+// 				//m_pPopupsManager->ShowPopup(PopupWindows::StyleEditor);
+// 			}
+// 
+// 			if (ImGui::MenuItem("Style selector..."))
+// 			{
+// 				//m_pPopupsManager->ShowPopup(PopupWindows::StyleChooser);
+// 			}
 
 			ImGui::EndMenu();
 		}

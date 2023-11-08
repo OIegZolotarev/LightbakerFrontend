@@ -25,7 +25,7 @@ ISelectableObjectWeakRef SelectionManager::LastHoveredObject()
 
 void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 {
-	Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
+	// Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
 
 	if (ImGuizmo::IsOver() && ImGuizmo::IsEnabled())
 	{
