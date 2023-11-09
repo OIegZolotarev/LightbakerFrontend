@@ -16,7 +16,7 @@
 #include "..\common.h"
 #include "..\hammer_fgd.h"
 
-int yylex(GoldSource::HammerFGDFile* ctx);
+GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx);
 
 }
 
@@ -118,8 +118,10 @@ DefaultValueOpt: /**/
 %%
 
 
-int yylex(GoldSource::HammerFGDFile* ctx)
+GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx)
 {
+    char* s = ctx->ParserCursor();
+
     /*!re2c        		
 		re2c:yyfill:enable = 0;
         re2c:define:YYCTYPE = char;
@@ -138,30 +140,56 @@ int yylex(GoldSource::HammerFGDFile* ctx)
 		OpeningBracket = '[';
 		ClosingBracket = ']';
 		Comment = '\\'.*;
+        
+        BaseDef = 'base';
+        SizeBoundingBox = 'size';
+        Iconsprite = 'iconsprite';
+        Color = 'color';
+        IntegerType = 'integer';
+        Color255 = 'color255';
+        String = 'string';
+        Sprite = 'sprite';
+        Studio = 'studio';
+        Model = 'model';
+        Flags = 'flags';
+        Choices = 'choices';
 		
 		
 		 [\x00] {
-            return FGDTokens::EndOfFile;
+            return GoldSource::FGDTokenTypes::EndOfFile;
         }
 		
 		
-		SolidClass { return FGDTokens::SolidClass; }
-		BaseClass { return FGDTokens::BaseClass; }
-        PointClass { return FGDTokens::PointClass; }
-        EqualsSign { return FGDTokens::EqualsSign; }
-        Colon { return FGDTokens::Colon; }
-        StringLiteral { return FGDTokens::StringLiteral;}
-        Identifier { return FGDTokens::Identifier; }
-        Number { return FGDTokens::Number; }
-        OpeningParenthesis { return FGDTokens::OpeningParenthesis; }
-        ClosingParenthesis { return FGDTokens::ClosingParenthesis; }
-        OpeningBracket { return FGDTokens::OpeningBracket; }
-        ClosingBracket { return FGDTokens::ClosingBracket; }
-        Comment { return FGDTokens::Comment; }
+		SolidClass { return  GoldSource::FGDTokenTypes::SolidClass; }
+		BaseClass { return  GoldSource::FGDTokenTypes::BaseClass; }
+        PointClass { return  GoldSource::FGDTokenTypes::PointClass; }
+        EqualsSign { return  GoldSource::FGDTokenTypes::EqualsSign; }
+        Colon { return  GoldSource::FGDTokenTypes::Colon; }
+        StringLiteral { return  GoldSource::FGDTokenTypes::StringLiteral;}
+        Identifier { return  GoldSource::FGDTokenTypes::Identifier; }
+        Number { return  GoldSource::FGDTokenTypes::Number; }
+        OpeningParenthesis { return  GoldSource::FGDTokenTypes::OpeningParenthesis; }
+        ClosingParenthesis { return  GoldSource::FGDTokenTypes::ClosingParenthesis; }
+        OpeningBracket { return  GoldSource::FGDTokenTypes::OpeningBracket; }
+        ClosingBracket { return  GoldSource::FGDTokenTypes::ClosingBracket; }
+        Comment { return  GoldSource::FGDTokenTypes::Comment; }
+
+        BaseDef  { return GoldSource::FGDTokenTypes::BaseDef ; }
+        SizeBoundingBox  { return GoldSource::FGDTokenTypes::SizeBoundingBox ; }
+        Iconsprite  { return GoldSource::FGDTokenTypes::Iconsprite ; }
+        Color {  return GoldSource::FGDTokenTypes::Color; }
+        IntegerType  { return GoldSource::FGDTokenTypes::IntegerType ; }
+        Color255  { return GoldSource::FGDTokenTypes::Color255 ; }
+        String  { return GoldSource::FGDTokenTypes::String ; }
+        Sprite  { return GoldSource::FGDTokenTypes::Sprite ; }
+        Studio  { return GoldSource::FGDTokenTypes::Studio ; }
+        Model  { return GoldSource::FGDTokenTypes::Model ; }
+        Flags  { return GoldSource::FGDTokenTypes::Flags ; }
+        Choices  { return GoldSource::FGDTokenTypes::Choices ; }
         
     */
 	
-	return 1;
+	return GoldSource::FGDTokenTypes::EndOfFile;
 }
 
 void yy::HammerFGDParser::error(const std::string& m)

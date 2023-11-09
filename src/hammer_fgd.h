@@ -26,6 +26,7 @@ enum class FGDTokenTypes
 	ClosingParenthesis,
 	OpeningBracket,
 	ClosingBracket,
+	Comment,
 	SizeBoundingBox,
 	Iconsprite,
 	Color,
@@ -36,7 +37,7 @@ enum class FGDTokenTypes
 	Studio,
 	Flags,
 	Choices,
-	Comment,
+	
 	EndOfFile
 };
 
@@ -49,6 +50,11 @@ class HammerFGDFile
 public:
 	HammerFGDFile(FileData* fd);
 	~HammerFGDFile();
+
+	char* ParserCursor()
+	{
+		return nullptr;
+	}
 };
 
 }

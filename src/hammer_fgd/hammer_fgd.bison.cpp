@@ -47,7 +47,7 @@
 #include "..\common.h"
 #include "..\hammer_fgd.h"
 
-int yylex(GoldSource::HammerFGDFile* ctx);
+GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx);
 
 
 #line 54 "hammer_fgd.bison.cpp"
@@ -467,17 +467,17 @@ namespace yy {
     ClosingParenthesis = 268,      // ")"
     OpeningBracket = 269,          // "["
     ClosingBracket = 270,          // "]"
-    EndOfFile = 271,               // EndOfFile
-    SizeBoundingBox = 272,         // "size"
-    Iconsprite = 273,              // "iconsprite"
-    Color = 274,                   // "color"
-    IntegerType = 275,             // "integer"
-    Color255 = 276,                // "color255"
-    String = 277,                  // "string"
-    Sprite = 278,                  // "sprite"
-    Studio = 279,                  // "studio"
-    Flags = 280,                   // "flags"
-    Choices = 281                  // "choices"
+    SizeBoundingBox = 271,         // "size"
+    Iconsprite = 272,              // "iconsprite"
+    Color = 273,                   // "color"
+    IntegerType = 274,             // "integer"
+    Color255 = 275,                // "color255"
+    String = 276,                  // "string"
+    Sprite = 277,                  // "sprite"
+    Studio = 278,                  // "studio"
+    Flags = 279,                   // "flags"
+    Choices = 280,                 // "choices"
+    EndOfFile = 281                // EndOfFile
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -512,17 +512,17 @@ namespace yy {
         S_ClosingParenthesis = 13,               // ")"
         S_OpeningBracket = 14,                   // "["
         S_ClosingBracket = 15,                   // "]"
-        S_EndOfFile = 16,                        // EndOfFile
-        S_SizeBoundingBox = 17,                  // "size"
-        S_Iconsprite = 18,                       // "iconsprite"
-        S_Color = 19,                            // "color"
-        S_IntegerType = 20,                      // "integer"
-        S_Color255 = 21,                         // "color255"
-        S_String = 22,                           // "string"
-        S_Sprite = 23,                           // "sprite"
-        S_Studio = 24,                           // "studio"
-        S_Flags = 25,                            // "flags"
-        S_Choices = 26,                          // "choices"
+        S_SizeBoundingBox = 16,                  // "size"
+        S_Iconsprite = 17,                       // "iconsprite"
+        S_Color = 18,                            // "color"
+        S_IntegerType = 19,                      // "integer"
+        S_Color255 = 20,                         // "color255"
+        S_String = 21,                           // "string"
+        S_Sprite = 22,                           // "sprite"
+        S_Studio = 23,                           // "studio"
+        S_Flags = 24,                            // "flags"
+        S_Choices = 25,                          // "choices"
+        S_EndOfFile = 26,                        // EndOfFile
         S_27_ = 27,                              // ','
         S_YYACCEPT = 28,                         // $accept
         S_FGDFile = 29,                          // FGDFile
@@ -719,7 +719,7 @@ switch (yykind)
       {
 #if !defined _MSC_VER || defined __clang__
         YY_ASSERT (tok == token::YYEOF
-                   || (token::YYerror <= tok && tok <= token::Choices)
+                   || (token::YYerror <= tok && tok <= token::EndOfFile)
                    || tok == 44);
 #endif
       }
@@ -1013,21 +1013,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_EndOfFile ()
-      {
-        return symbol_type (token::EndOfFile);
-      }
-#else
-      static
-      symbol_type
-      make_EndOfFile ()
-      {
-        return symbol_type (token::EndOfFile);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make_SizeBoundingBox ()
       {
         return symbol_type (token::SizeBoundingBox);
@@ -1173,6 +1158,21 @@ switch (yykind)
       make_Choices ()
       {
         return symbol_type (token::Choices);
+      }
+#endif
+#if 201103L <= YY_CPLUSPLUS
+      static
+      symbol_type
+      make_EndOfFile ()
+      {
+        return symbol_type (token::EndOfFile);
+      }
+#else
+      static
+      symbol_type
+      make_EndOfFile ()
+      {
+        return symbol_type (token::EndOfFile);
       }
 #endif
 
@@ -2467,24 +2467,24 @@ namespace yy {
   }
 
 
-  const signed char HammerFGDParser::yypact_ninf_ = -55;
+  const signed char HammerFGDParser::yypact_ninf_ = -56;
 
   const signed char HammerFGDParser::yytable_ninf_ = -1;
 
   const signed char
   HammerFGDParser::yypact_[] =
   {
-      12,    -3,     3,   -55,    19,   -55,   -55,   -55,   -55,     6,
-      15,     8,    -6,   -55,    14,    16,    17,    18,    20,    21,
-      22,    23,   -55,   -55,   -55,   -55,   -55,   -55,     9,     1,
-      24,    25,    26,   -55,    29,    27,    30,    32,    35,   -55,
-      31,    36,   -19,   -55,    37,    38,    33,    39,    34,   -55,
-      40,   -55,   -55,   -55,   -55,   -55,    41,    42,    43,    45,
-      50,   -55,    51,   -55,    17,    44,    46,    48,    17,     2,
-      49,    52,    54,    55,    56,    57,    59,   -55,   -55,    60,
-      58,    64,   -55,    63,    67,    61,    65,    69,    68,    71,
-     -55,    74,   -55,   -55,    53,   -55,    70,   -55,    72,    76,
-      66,    77,   -55,   -55
+      11,    -3,    12,   -56,    19,   -56,   -56,   -56,   -56,     6,
+      15,     8,    -6,   -56,    14,    16,    17,    18,    20,    21,
+      22,    23,   -56,   -56,   -56,   -56,   -56,   -56,     9,     1,
+      24,    25,    26,   -56,    29,    27,    30,    32,    35,   -56,
+      31,    36,   -18,   -56,    37,    38,    33,    39,    34,   -56,
+      40,   -56,   -56,   -56,   -56,   -56,    41,    42,    43,    45,
+      50,   -56,    51,   -56,    17,    44,    46,    48,    17,     2,
+      49,    52,    54,    55,    56,    57,    59,   -56,   -56,    60,
+      58,    64,   -56,    63,    67,    61,    65,    69,    68,    71,
+     -56,    74,   -56,   -56,    53,   -56,    70,   -56,    72,    76,
+      66,    77,   -56,   -56
   };
 
   const signed char
@@ -2506,9 +2506,9 @@ namespace yy {
   const signed char
   HammerFGDParser::yypgoto_[] =
   {
-     -55,   -55,   -55,   -55,   -55,   -55,   -55,   -55,   -55,   -55,
-     -55,   -55,   -55,   -55,   -55,   -54,   -55,   -55,   -55,   -55,
-     -55
+     -56,   -56,   -56,   -56,   -56,   -56,   -56,   -56,   -56,   -56,
+     -56,   -56,   -56,   -56,   -56,   -55,   -56,   -56,   -56,   -56,
+     -56
   };
 
   const signed char
@@ -2522,8 +2522,8 @@ namespace yy {
   const signed char
   HammerFGDParser::yytable_[] =
   {
-      17,    51,    52,    53,    54,    55,    56,    57,     9,    11,
-      71,    18,    19,    20,    75,     1,     2,     3,    21,    13,
+      17,    51,    52,    53,    54,    55,    56,    57,     9,    71,
+      18,    19,    20,    75,     1,     2,     3,    21,    11,    13,
       14,    15,    16,    27,    39,    30,    31,    34,    40,    76,
        0,    41,    35,    36,    37,    38,    44,    45,    46,    42,
       49,    43,    47,    48,    50,    59,    61,    63,    60,    62,
@@ -2536,8 +2536,8 @@ namespace yy {
   const signed char
   HammerFGDParser::yycheck_[] =
   {
-       6,    20,    21,    22,    23,    24,    25,    26,    11,     6,
-      64,    17,    18,    19,    68,     3,     4,     5,    24,     0,
+       6,    19,    20,    21,    22,    23,    24,    25,    11,    64,
+      16,    17,    18,    68,     3,     4,     5,    23,     6,     0,
       14,     6,    14,     9,    15,     9,     9,     9,    27,    27,
       -1,     7,    12,    12,    12,    12,     7,    10,     8,    14,
        9,    15,    10,     8,     8,     8,    13,    13,    10,    10,
@@ -2551,11 +2551,11 @@ namespace yy {
   HammerFGDParser::yystos_[] =
   {
        0,     3,     4,     5,    29,    30,    31,    33,    34,    11,
-      32,     6,    35,     0,    14,     6,    14,     6,    17,    18,
-      19,    24,    36,    37,    38,    39,    40,     9,    41,    42,
+      32,     6,    35,     0,    14,     6,    14,     6,    16,    17,
+      18,    23,    36,    37,    38,    39,    40,     9,    41,    42,
        9,     9,    43,    44,     9,    12,    12,    12,    12,    15,
       27,     7,    14,    15,     7,    10,     8,    10,     8,     9,
-       8,    20,    21,    22,    23,    24,    25,    26,    47,     8,
+       8,    19,    20,    21,    22,    23,    24,    25,    47,     8,
       10,    13,    10,    13,    14,    15,    15,    15,    14,    10,
       10,    43,     6,     7,     7,    43,    27,    13,    15,    14,
        8,     8,    15,    10,    10,    45,     7,     7,    10,     7,
@@ -2593,9 +2593,9 @@ namespace yy {
   "\"end of file\"", "error", "\"invalid token\"", "\"@SolidClass\"",
   "\"@BaseClass\"", "\"@PointClass\"", "\"=\"", "\":\"", "StringLiteral",
   "Identifier", "Number", "\"base\"", "\"(\"", "\")\"", "\"[\"", "\"]\"",
-  "EndOfFile", "\"size\"", "\"iconsprite\"", "\"color\"", "\"integer\"",
-  "\"color255\"", "\"string\"", "\"sprite\"", "\"studio\"", "\"flags\"",
-  "\"choices\"", "','", "$accept", "FGDFile", "classes", "SolidClassDef",
+  "\"size\"", "\"iconsprite\"", "\"color\"", "\"integer\"", "\"color255\"",
+  "\"string\"", "\"sprite\"", "\"studio\"", "\"flags\"", "\"choices\"",
+  "EndOfFile", "','", "$accept", "FGDFile", "classes", "SolidClassDef",
   "BasesClassesOpt", "PointClassDef", "BaseClassDef",
   "PointEntityConstructorListOpt", "PointEntityConstructor", "ColorDefOpt",
   "BoundingBoxDefOpt", "StudioDefOpt", "IconspriteDefOpt",
@@ -2609,11 +2609,11 @@ namespace yy {
   const signed char
   HammerFGDParser::yyrline_[] =
   {
-       0,    32,    32,    35,    36,    37,    38,    42,    44,    45,
-      48,    51,    55,    56,    59,    60,    61,    62,    65,    68,
-      71,    74,    77,    78,    80,    81,    84,    85,    90,    92,
-      94,    98,    99,   102,   103,   106,   107,   108,   109,   110,
-     114,   115
+       0,    33,    33,    36,    37,    38,    39,    43,    45,    46,
+      49,    52,    56,    57,    60,    61,    62,    63,    66,    69,
+      72,    75,    78,    79,    81,    82,    85,    86,    91,    93,
+      95,    99,   100,   103,   104,   107,   108,   109,   110,   111,
+     115,   116
   };
 
   void
@@ -2647,54 +2647,567 @@ namespace yy {
 } // yy
 #line 2649 "hammer_fgd.bison.cpp"
 
-#line 117 "hammer_fgd.y"
+#line 118 "hammer_fgd.y"
 
 
 
-int yylex(GoldSource::HammerFGDFile* ctx)
+GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx)
 {
-    /*!re2c        		
-		re2c:yyfill:enable = 0;
-        re2c:define:YYCTYPE = char;
-		re2c:define:YYCURSOR = s;
+    char* s = ctx->ParserCursor();
 
-        SolidClass = "@SolidClass";        	
-		BaseClass = "@BaseClass";      		
-		PointClass = "@PointClass";
-		EqualsSign = '=';
-		Colon = ':';
-		StringLiteral = '".*"';
-		Identifier = [a-zA-Z_]+[0-9]*[a-zA-Z_]*;
-		Number = [0-9]+;
-		OpeningParenthesis = '(';
-		ClosingParenthesis = ')';
-		OpeningBracket = '[';
-		ClosingBracket = ']';
-		Comment = '\\'.*;
-		
-		
-		 [\x00] {
-            return FGDTokens::EndOfFile;
+    
+#line 129 "<stdout>"
+{
+	char yych;
+	yych = *s;
+	switch (yych) {
+	case 0x00:	goto yy3;
+	case '"':	goto yy5;
+	case '(':	goto yy6;
+	case ')':	goto yy8;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy10;
+	case ':':	goto yy13;
+	case '=':	goto yy15;
+	case '@':	goto yy17;
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy18;
+	case '[':	goto yy21;
+	case '\\':	goto yy23;
+	case ']':	goto yy26;
+	default:	goto yy2;
+	}
+yy2:
+yy3:
+	++s;
+#line 158 "hammer_fgd.y"
+	{
+            return GoldSource::FGDTokenTypes::EndOfFile;
         }
-		
-		
-		SolidClass { return FGDTokens::SolidClass; }
-		BaseClass { return FGDTokens::BaseClass; }
-        PointClass { return FGDTokens::PointClass; }
-        EqualsSign { return FGDTokens::EqualsSign; }
-        Colon { return FGDTokens::Colon; }
-        StringLiteral { return FGDTokens::StringLiteral;}
-        Identifier { return FGDTokens::Identifier; }
-        Number { return FGDTokens::Number; }
-        OpeningParenthesis { return FGDTokens::OpeningParenthesis; }
-        ClosingParenthesis { return FGDTokens::ClosingParenthesis; }
-        OpeningBracket { return FGDTokens::OpeningBracket; }
-        ClosingBracket { return FGDTokens::ClosingBracket; }
-        Comment { return FGDTokens::Comment; }
-        
-    */
+#line 216 "<stdout>"
+yy5:
+	yych = *++s;
+	switch (yych) {
+	case '.':	goto yy28;
+	default:	goto yy2;
+	}
+yy6:
+	++s;
+#line 171 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::OpeningParenthesis; }
+#line 227 "<stdout>"
+yy8:
+	++s;
+#line 172 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::ClosingParenthesis; }
+#line 232 "<stdout>"
+yy10:
+	yych = *++s;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy10;
+	default:	goto yy12;
+	}
+yy12:
+#line 170 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::Number; }
+#line 251 "<stdout>"
+yy13:
+	++s;
+#line 167 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::Colon; }
+#line 256 "<stdout>"
+yy15:
+	++s;
+#line 166 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::EqualsSign; }
+#line 261 "<stdout>"
+yy17:
+	yych = *++s;
+	switch (yych) {
+	case 'B':	goto yy29;
+	case 'P':	goto yy30;
+	case 'S':	goto yy31;
+	default:	goto yy2;
+	}
+yy18:
+	yych = *++s;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy32;
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy18;
+	default:	goto yy20;
+	}
+yy20:
+#line 169 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::Identifier; }
+#line 341 "<stdout>"
+yy21:
+	++s;
+#line 173 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::OpeningBracket; }
+#line 346 "<stdout>"
+yy23:
+	yych = *++s;
+	switch (yych) {
+	case '\n':	goto yy25;
+	default:	goto yy23;
+	}
+yy25:
+#line 175 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::Comment; }
+#line 356 "<stdout>"
+yy26:
+	++s;
+#line 174 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::ClosingBracket; }
+#line 361 "<stdout>"
+yy28:
+	yych = *++s;
+	switch (yych) {
+	case '*':	goto yy34;
+	default:	goto yy2;
+	}
+yy29:
+	yych = *++s;
+	switch (yych) {
+	case 'a':	goto yy35;
+	default:	goto yy2;
+	}
+yy30:
+	yych = *++s;
+	switch (yych) {
+	case 'o':	goto yy36;
+	default:	goto yy2;
+	}
+yy31:
+	yych = *++s;
+	switch (yych) {
+	case 'o':	goto yy37;
+	default:	goto yy2;
+	}
+yy32:
+	yych = *++s;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy32;
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy38;
+	default:	goto yy20;
+	}
+yy34:
+	yych = *++s;
+	switch (yych) {
+	case '"':	goto yy40;
+	default:	goto yy2;
+	}
+yy35:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy42;
+	default:	goto yy2;
+	}
+yy36:
+	yych = *++s;
+	switch (yych) {
+	case 'i':	goto yy43;
+	default:	goto yy2;
+	}
+yy37:
+	yych = *++s;
+	switch (yych) {
+	case 'l':	goto yy44;
+	default:	goto yy2;
+	}
+yy38:
+	yych = *++s;
+	switch (yych) {
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy38;
+	default:	goto yy20;
+	}
+yy40:
+	++s;
+#line 168 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::StringLiteral;}
+#line 540 "<stdout>"
+yy42:
+	yych = *++s;
+	switch (yych) {
+	case 'e':	goto yy45;
+	default:	goto yy2;
+	}
+yy43:
+	yych = *++s;
+	switch (yych) {
+	case 'n':	goto yy46;
+	default:	goto yy2;
+	}
+yy44:
+	yych = *++s;
+	switch (yych) {
+	case 'i':	goto yy47;
+	default:	goto yy2;
+	}
+yy45:
+	yych = *++s;
+	switch (yych) {
+	case 'C':	goto yy48;
+	default:	goto yy2;
+	}
+yy46:
+	yych = *++s;
+	switch (yych) {
+	case 't':	goto yy49;
+	default:	goto yy2;
+	}
+yy47:
+	yych = *++s;
+	switch (yych) {
+	case 'd':	goto yy50;
+	default:	goto yy2;
+	}
+yy48:
+	yych = *++s;
+	switch (yych) {
+	case 'l':	goto yy51;
+	default:	goto yy2;
+	}
+yy49:
+	yych = *++s;
+	switch (yych) {
+	case 'C':	goto yy52;
+	default:	goto yy2;
+	}
+yy50:
+	yych = *++s;
+	switch (yych) {
+	case 'C':	goto yy53;
+	default:	goto yy2;
+	}
+yy51:
+	yych = *++s;
+	switch (yych) {
+	case 'a':	goto yy54;
+	default:	goto yy2;
+	}
+yy52:
+	yych = *++s;
+	switch (yych) {
+	case 'l':	goto yy55;
+	default:	goto yy2;
+	}
+yy53:
+	yych = *++s;
+	switch (yych) {
+	case 'l':	goto yy56;
+	default:	goto yy2;
+	}
+yy54:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy57;
+	default:	goto yy2;
+	}
+yy55:
+	yych = *++s;
+	switch (yych) {
+	case 'a':	goto yy58;
+	default:	goto yy2;
+	}
+yy56:
+	yych = *++s;
+	switch (yych) {
+	case 'a':	goto yy59;
+	default:	goto yy2;
+	}
+yy57:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy60;
+	default:	goto yy2;
+	}
+yy58:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy62;
+	default:	goto yy2;
+	}
+yy59:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy63;
+	default:	goto yy2;
+	}
+yy60:
+	++s;
+#line 164 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::BaseClass; }
+#line 653 "<stdout>"
+yy62:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy64;
+	default:	goto yy2;
+	}
+yy63:
+	yych = *++s;
+	switch (yych) {
+	case 's':	goto yy66;
+	default:	goto yy2;
+	}
+yy64:
+	++s;
+#line 165 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::PointClass; }
+#line 670 "<stdout>"
+yy66:
+	++s;
+#line 163 "hammer_fgd.y"
+	{ return  GoldSource::FGDTokenTypes::SolidClass; }
+#line 675 "<stdout>"
+}
+#line 190 "hammer_fgd.y"
+
 	
-	return 1;
+	return GoldSource::FGDTokenTypes::EndOfFile;
 }
 
 void yy::HammerFGDParser::error(const std::string& m)
