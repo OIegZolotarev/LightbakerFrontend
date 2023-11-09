@@ -16,11 +16,16 @@ enum class FGDTokenTypes
 	SolidClass = 0,
 	BaseClass,
 	PointClass,
+	EqualsSign,
+	Colon,
 	StringLiteral,
 	Identifier,
 	Number,
-	Comment,
 	BaseDef,
+	OpeningParenthesis,
+	ClosingParenthesis,
+	OpeningBracket,
+	ClosingBracket,
 	SizeBoundingBox,
 	Iconsprite,
 	Color,
@@ -29,9 +34,9 @@ enum class FGDTokenTypes
 	String,
 	Sprite,
 	Studio,
-	Model,
 	Flags,
-	Choices,	
+	Choices,
+	Comment,
 	EndOfFile
 };
 
@@ -44,11 +49,6 @@ class HammerFGDFile
 public:
 	HammerFGDFile(FileData* fd);
 	~HammerFGDFile();
-
-	char* ParserCursor()
-	{
-		return nullptr;
-	}
 };
 
 }

@@ -16,14 +16,15 @@
 #include "..\common.h"
 #include "..\hammer_fgd.h"
 
-GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx);
+int yylex(GoldSource::HammerFGDFile* ctx);
 
 }
 
 %token	SolidClass "@SolidClass" BaseClass "@BaseClass" PointClass "@PointClass" 
-%token  StringLiteral Identifier Number BaseDef "base" 
+%token  EqualsSign "=" Colon ":" StringLiteral Identifier Number BaseDef "base"
+%token  OpeningParenthesis "(" ClosingParenthesis ")" OpeningBracket "[" ClosingBracket "]"  
 %token SizeBoundingBox "size" Iconsprite "iconsprite" Color "color"
-%token IntegerType "integer" Color255 "color255" String "string" Sprite "sprite" Model "model" Studio "studio" Flags "flags" Choices "choices" 
+%token IntegerType "integer" Color255 "color255" String "string" Sprite "sprite" Studio "studio" Flags "flags" Choices "choices" 
 %token EndOfFile
 
 %%
@@ -39,16 +40,16 @@ classes:  /* empty */
 
 
 // Брашевая энтити
-SolidClassDef: SolidClass BasesClassesOpt '=' Identifier ':' StringLiteral '[' ClassFieldsOpt ']';
+SolidClassDef: SolidClass BasesClassesOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket;
 
 BasesClassesOpt:  /* empty */
-|BaseDef '(' identifierListOpt ')';
+|BaseDef OpeningBracket identifierListOpt ClosingBracket;
 
 // Точечная энтити
-PointClassDef: PointClass  PointEntityConstructorListOpt '=' Identifier ':' StringLiteral '[' ClassFieldsOpt ']';
+PointClassDef: PointClass  PointEntityConstructorListOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket;
 
 // Базовый класс
-BaseClassDef: BaseClass '=' '[' ClassFieldsOpt ']';
+BaseClassDef: BaseClass EqualsSign OpeningBracket ClassFieldsOpt ClosingBracket;
 
 // Параметры точечных энтиткй:
 
@@ -62,16 +63,16 @@ PointEntityConstructor: IconspriteDefOpt
 | ColorDefOpt;
 
 // Цвет
-ColorDefOpt: Color '(' Number Number Number ')'
+ColorDefOpt: Color OpeningParenthesis Number Number Number ClosingParenthesis
 
 // ББокс
-BoundingBoxDefOpt: SizeBoundingBox '(' Number Number Number ',' Number Number Number ')'
+BoundingBoxDefOpt: SizeBoundingBox OpeningParenthesis Number Number Number ',' Number Number Number ClosingParenthesis
 
 // Модель
-StudioDefOpt: Studio '(' StringLiteral ')'
+StudioDefOpt: Studio OpeningParenthesis StringLiteral ClosingParenthesis
 
 // Спрайт
-IconspriteDefOpt: Iconsprite '(' StringLiteral ')'
+IconspriteDefOpt: Iconsprite OpeningParenthesis StringLiteral ClosingParenthesis
 
 
 identifierListOpt: /* empty */
@@ -87,20 +88,20 @@ ClassFieldsOpt: /* empty */
 // Описание свойства энтити
 ClassFieldDef: 
 // Обычные поля
-Identifier '[' TypeId ']' ':' StringLiteral ':' DefaultValueOpt; 
+Identifier OpeningBracket TypeId ClosingBracket Colon StringLiteral Colon DefaultValueOpt; 
 // Флаги
-| Identifier '[' Flags ']' '=' '[' FlagsValues ']'
+| Identifier OpeningBracket Flags ClosingBracket EqualsSign OpeningBracket FlagsValues ClosingBracket
 // Перечисление
-| Identifier '[' Choices ']' ':' StringLiteral ':' Number '=' '[' EnumValues ']'
+| Identifier OpeningBracket Choices ClosingBracket Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket
 
 
 // Значения флагов
 FlagsValues: /* empty */
-| Number ':' StringLiteral;
+| Number Colon StringLiteral;
 
 // Значения перечислений
 EnumValues: /* empty */
-| Number ':' StringLiteral;
+| Number Colon StringLiteral;
 
 // Типы свойств энтити
 TypeId: IntegerType
@@ -117,10 +118,8 @@ DefaultValueOpt: /**/
 %%
 
 
-GoldSource::FGDTokenTypes yylex(GoldSource::HammerFGDFile* ctx)
+int yylex(GoldSource::HammerFGDFile* ctx)
 {
-char* s = ctx->ParserCursor();
-
     /*!re2c        		
 		re2c:yyfill:enable = 0;
         re2c:define:YYCTYPE = char;
@@ -129,54 +128,40 @@ char* s = ctx->ParserCursor();
         SolidClass = "@SolidClass";        	
 		BaseClass = "@BaseClass";      		
 		PointClass = "@PointClass";
+		EqualsSign = '=';
+		Colon = ':';
 		StringLiteral = '".*"';
 		Identifier = [a-zA-Z_]+[0-9]*[a-zA-Z_]*;
 		Number = [0-9]+;
+		OpeningParenthesis = '(';
+		ClosingParenthesis = ')';
+		OpeningBracket = '[';
+		ClosingBracket = ']';
 		Comment = '\\'.*;
-
-        BaseDef = 'base';
-        SizeBoundingBox = 'size';
-        Iconsprite = 'iconsprite';
-        Color = 'color';
-        IntegerType = 'integer';
-        Color255 = 'color255';
-        String = 'string';
-        Sprite = 'sprite';
-        Studio = 'studio';
-        Model = 'model';
-        Flags = 'flags';
-        Choices = 'choices';
 		
 		
 		 [\x00] {
-            return GoldSource::FGDTokenTypes::EndOfFile;
+            return FGDTokens::EndOfFile;
         }
 		
 		
-		SolidClass { return GoldSource::FGDTokenTypes::SolidClass; }
-		BaseClass { return GoldSource::FGDTokenTypes::BaseClass; }
-        PointClass { return GoldSource::FGDTokenTypes::PointClass; }
-        StringLiteral { return GoldSource::FGDTokenTypes::StringLiteral;}
-        Identifier { return GoldSource::FGDTokenTypes::Identifier; }
-        Number { return GoldSource::FGDTokenTypes::Number; }
-        Comment { return GoldSource::FGDTokenTypes::Comment; }
-
-        BaseDef  { return GoldSource::FGDTokenTypes::        BaseDef ; }
-        SizeBoundingBox  { return GoldSource::FGDTokenTypes::        SizeBoundingBox ; }
-        Iconsprite  { return GoldSource::FGDTokenTypes::        Iconsprite ; }
-        Color {  return GoldSource::FGDTokenTypes::Color; }
-        IntegerType  { return GoldSource::FGDTokenTypes::IntegerType ; }
-        Color255  { return GoldSource::FGDTokenTypes::Color255 ; }
-        String  { return GoldSource::FGDTokenTypes::String ; }
-        Sprite  { return GoldSource::FGDTokenTypes::Sprite ; }
-        Studio  { return GoldSource::FGDTokenTypes::Studio ; }
-        Model  { return GoldSource::FGDTokenTypes::Model ; }
-        Flags  { return GoldSource::FGDTokenTypes::Flags ; }
-        Choices  { return GoldSource::FGDTokenTypes::Choices ; }
+		SolidClass { return FGDTokens::SolidClass; }
+		BaseClass { return FGDTokens::BaseClass; }
+        PointClass { return FGDTokens::PointClass; }
+        EqualsSign { return FGDTokens::EqualsSign; }
+        Colon { return FGDTokens::Colon; }
+        StringLiteral { return FGDTokens::StringLiteral;}
+        Identifier { return FGDTokens::Identifier; }
+        Number { return FGDTokens::Number; }
+        OpeningParenthesis { return FGDTokens::OpeningParenthesis; }
+        ClosingParenthesis { return FGDTokens::ClosingParenthesis; }
+        OpeningBracket { return FGDTokens::OpeningBracket; }
+        ClosingBracket { return FGDTokens::ClosingBracket; }
+        Comment { return FGDTokens::Comment; }
         
     */
 	
-	return GoldSource::FGDTokenTypes::EndOfFile;
+	return 1;
 }
 
 void yy::HammerFGDParser::error(const std::string& m)

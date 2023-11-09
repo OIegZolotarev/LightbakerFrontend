@@ -266,6 +266,9 @@
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp">
       <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
     </ClCompile>
+    <ClCompile Include="hammer_fgd\hammer_fgd_lexer_autogen.cpp">
+      <Filter>Исходные файлы\GoldSourceBSP\FGD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">

@@ -201,6 +201,7 @@
     <ClCompile Include="goldsource_lightmap_atlas.cpp" />
     <ClCompile Include="hammer_fgd.cpp" />
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp" />
+    <ClCompile Include="hammer_fgd\hammer_fgd_lexer_autogen.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
