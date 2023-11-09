@@ -310,12 +310,15 @@ ModelType: Studio
 FlagsValues: FlagsValues FlagValue
 |%empty;
 
+
+// Значение флага : Описание : Включен по умолчанию
 FlagValue:  Number Colon StringLiteral Colon Number
 
 // Значения перечислений
 EnumValues: EnumValues EnumValue
 |%empty;
 
+// Значение  : Описание
 EnumValue:  Number Colon StringLiteral
 
 
