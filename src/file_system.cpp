@@ -155,7 +155,10 @@ FileData* FileSystem::LoadFile(const char* fileName)
 
 	fseek(fp, 0, SEEK_END);
 	length = ftell(fp);
-	data = new byte[length];
+	data = new byte[length + 1];
+	memset(data, 0, length + 1);
+
+
 	rewind(fp);
 	
 	fread(data, 1, length,fp);

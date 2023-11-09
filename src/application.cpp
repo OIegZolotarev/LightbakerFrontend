@@ -17,6 +17,7 @@
 #ifndef LINUX
 #include <corecrt_malloc.h>
 #endif
+#include "hammer_fgd.h"
 
 
 Application::Application()
@@ -171,6 +172,11 @@ void Application::FlagDelayedInitDone()
 
 	if (!m_strFileToLoad.empty())
 		Application::GetMainWindow()->GetSceneRenderer()->LoadModel(m_strFileToLoad.c_str(), LRF_LOAD_ALL);
+
+
+	// TEST
+	auto fd = FileSystem::Instance()->LoadFile("E:/Projects/PC/LightbakerFrontend/bin/tests/fgd/halflife_2020.fgd");
+	GoldSource::HammerFGDFile* pFGD = new GoldSource::HammerFGDFile(fd);
 }
 
 LightBaker3000* Application::GetLightBakerApplication()
