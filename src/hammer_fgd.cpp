@@ -35,18 +35,18 @@ FGDEntityClass::~FGDEntityClass()
 
 }
 
-FGDEntityClass::FGDEntityClass(FGDEntityClassType type, std::string className, std::string description)
+FGDEntityClass::FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList & props)
 {
 	m_Type = type;
 	m_ClassName = className;
 	m_Description = description;
+
+	m_Properties = props;
 }
 
-void FGDEntityClass::SetColor255(float r, float g, float b)
+void FGDEntityClass::SetColor(glm::vec3 color)
 {
-	m_Color.r = r / 255.f;
-	m_Color.g = g / 255.f;
-	m_Color.b = b / 255.f;
+	m_Color = color;
 }
 
 void FGDEntityClass::SetBBox(glm::vec3 size)
@@ -84,4 +84,9 @@ void FGDEntityClass::SetEditorSprite(std::string sprite)
 void FGDEntityClass::SetPropertyExtra(std::string p, float value)
 {
 	// Do nothing for now
+}
+
+FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList & values) : FGDPropertyDescriptor(name, "", desc)
+{
+	m_Values = values;
 }

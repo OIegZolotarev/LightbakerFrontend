@@ -48,7 +48,26 @@ enum class FGDEntityClassType
 	BaseDef
 };
 
-typedef std::pair<FGDTokenTypes, std::string> TokenTypeAndValue;
+typedef struct  FGDFlagsValue_s
+{
+	std::string description = "";
+	int value = 0;
+	bool enabled = false;
+	 
+	FGDFlagsValue_s(std::string& _descr, int _val, bool _enDefault)
+	{
+		description = _descr;
+		value = _val;
+		enabled = _enDefault;
+	}
+
+	FGDFlagsValue_s()
+	{		
+	}
+
+}FGDFlagsValue_t;
+
+typedef std::list<FGDFlagsValue_t>  FGDFlagsList;
 
 class FGDPropertyDescriptor
 {
@@ -68,14 +87,33 @@ public:
 	}
 };
 
+class FGDFlagsEnumProperty: public FGDPropertyDescriptor
+{
+public:
+ 	 FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList & values);
+private:
+	FGDFlagsList m_Values;
+};
+
+typedef std::list< FGDPropertyDescriptor*> FGDPropertiesList;
+
+
+#define FL_SET_COLOR (1<<0)
+#define FL_SET_SIZE (1<<1)
+#define FL_SET_MODEL (1<<2)
+#define FL_SET_SPRITE (1<<3)
+#define FL_SET_DECAL (1<<4)
+#define FL_SET_EDITOR_SPRITE (1<<5)
+#define FL_SET_BASE_CLASSES (1<<6)
+
 class FGDEntityClass
 {
 public:
 	
-	FGDEntityClass(FGDEntityClassType type, std::string className, std::string description);
+	FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList & props);
 	~FGDEntityClass();
 
-	void SetColor255(float r, float g, float b);
+	void SetColor(glm::vec3 color);
 	void SetBBox(glm::vec3 size);
 	void SetBBox(glm::vec3 min, glm::vec3 max);
 
@@ -90,9 +128,22 @@ public:
 		m_Properties.push_back(p);
 	}
 
+	void SetCtorFlags(int flags)
+	{
+		m_CtorDefinitionFlags = flags;
+	}
+
+	void SetBaseClasses(std::list<std::string> classes)
+	{
+		m_BaseClasses = classes;
+	}
+
 private:
 
 	FGDEntityClassType m_Type;
+	
+	int m_CtorDefinitionFlags;
+
 	std::string m_ClassName;
 	std::string m_Description;
 
@@ -104,7 +155,9 @@ private:
 	std::string m_EditorSprite;
 	bool m_bDecal;
 
-	std::vector< FGDPropertyDescriptor*> m_Properties;
+	FGDPropertiesList m_Properties;
+	
+	std::list<std::string> m_BaseClasses;
 };
 
 class HammerFGDFile

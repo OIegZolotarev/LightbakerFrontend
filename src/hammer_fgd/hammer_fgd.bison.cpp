@@ -653,11 +653,25 @@ namespace yy {
       // BaseClassDef
       char dummy1[sizeof (GoldSource::FGDEntityClass*)];
 
+      // FlagsValues
+      // EnumValues
+      char dummy2[sizeof (GoldSource::FGDFlagsList)];
+
+      // FlagValue
+      // EnumValue
+      char dummy3[sizeof (GoldSource::FGDFlagsValue_t)];
+
+      // ClassFieldsOpt
+      char dummy4[sizeof (GoldSource::FGDPropertiesList)];
+
       // ClassFieldDef
-      char dummy2[sizeof (GoldSource::FGDPropertyDescriptor*)];
+      char dummy5[sizeof (GoldSource::FGDPropertyDescriptor*)];
 
       // Number
-      char dummy3[sizeof (float)];
+      char dummy6[sizeof (float)];
+
+      // identifierListOpt
+      char dummy7[sizeof (std::list<std::string>)];
 
       // StringLiteral
       // Identifier
@@ -675,7 +689,7 @@ namespace yy {
       // StringLiteralOpt
       // ModelType
       // TypeId
-      char dummy4[sizeof (std::string)];
+      char dummy8[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -828,16 +842,15 @@ namespace yy {
         S_BaseClassRefOpt = 49,                  // BaseClassRefOpt
         S_StringLiteralOpt = 50,                 // StringLiteralOpt
         S_identifierListOpt = 51,                // identifierListOpt
-        S_identifierList = 52,                   // identifierList
-        S_ClassFieldsOpt = 53,                   // ClassFieldsOpt
-        S_ClassFieldDef = 54,                    // ClassFieldDef
-        S_ModelType = 55,                        // ModelType
-        S_FlagsValues = 56,                      // FlagsValues
-        S_FlagValue = 57,                        // FlagValue
-        S_EnumValues = 58,                       // EnumValues
-        S_EnumValue = 59,                        // EnumValue
-        S_TypeId = 60,                           // TypeId
-        S_DefaultValueOpt = 61                   // DefaultValueOpt
+        S_ClassFieldsOpt = 52,                   // ClassFieldsOpt
+        S_ClassFieldDef = 53,                    // ClassFieldDef
+        S_ModelType = 54,                        // ModelType
+        S_FlagsValues = 55,                      // FlagsValues
+        S_FlagValue = 56,                        // FlagValue
+        S_EnumValues = 57,                       // EnumValues
+        S_EnumValue = 58,                        // EnumValue
+        S_TypeId = 59,                           // TypeId
+        S_DefaultValueOpt = 60                   // DefaultValueOpt
       };
     };
 
@@ -881,12 +894,30 @@ namespace yy {
         value.move< GoldSource::FGDEntityClass* > (std::move (that.value));
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.move< GoldSource::FGDFlagsList > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.move< GoldSource::FGDFlagsValue_t > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.move< GoldSource::FGDPropertiesList > (std::move (that.value));
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.move< GoldSource::FGDPropertyDescriptor* > (std::move (that.value));
         break;
 
       case symbol_kind::S_Number: // Number
         value.move< float > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.move< std::list<std::string> > (std::move (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -946,6 +977,48 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, GoldSource::FGDFlagsList&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const GoldSource::FGDFlagsList& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, GoldSource::FGDFlagsValue_t&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const GoldSource::FGDFlagsValue_t& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, GoldSource::FGDPropertiesList&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const GoldSource::FGDPropertiesList& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
       basic_symbol (typename Base::kind_type t, GoldSource::FGDPropertyDescriptor*&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
@@ -967,6 +1040,20 @@ namespace yy {
       {}
 #else
       basic_symbol (typename Base::kind_type t, const float& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, std::list<std::string>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const std::list<std::string>& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -1018,12 +1105,30 @@ switch (yykind)
         value.template destroy< GoldSource::FGDEntityClass* > ();
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.template destroy< GoldSource::FGDFlagsList > ();
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.template destroy< GoldSource::FGDFlagsValue_t > ();
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.template destroy< GoldSource::FGDPropertiesList > ();
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.template destroy< GoldSource::FGDPropertyDescriptor* > ();
         break;
 
       case symbol_kind::S_Number: // Number
         value.template destroy< float > ();
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.template destroy< std::list<std::string> > ();
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2049,7 +2154,7 @@ switch (yykind)
     enum
     {
       yylast_ = 212,     ///< Last index in yytable_.
-      yynnts_ = 29,  ///< Number of nonterminal symbols.
+      yynnts_ = 28,  ///< Number of nonterminal symbols.
       yyfinal_ = 3 ///< Termination state number.
     };
 
@@ -2125,12 +2230,30 @@ switch (yykind)
         value.copy< GoldSource::FGDEntityClass* > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.copy< GoldSource::FGDFlagsList > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.copy< GoldSource::FGDFlagsValue_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.copy< GoldSource::FGDPropertiesList > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.copy< GoldSource::FGDPropertyDescriptor* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_Number: // Number
         value.copy< float > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.copy< std::list<std::string> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2190,12 +2313,30 @@ switch (yykind)
         value.move< GoldSource::FGDEntityClass* > (YY_MOVE (s.value));
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.move< GoldSource::FGDFlagsList > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.move< GoldSource::FGDFlagsValue_t > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.move< GoldSource::FGDPropertiesList > (YY_MOVE (s.value));
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.move< GoldSource::FGDPropertyDescriptor* > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_Number: // Number
         value.move< float > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.move< std::list<std::string> > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2293,7 +2434,35 @@ struct FGDParsingContext
     FGDPropertyDescriptor* current_property = nullptr;
 
     GoldSource::HammerFGDFile * fgd;
+
     
+    struct 
+    {
+        glm::vec3 color = { 1,1,1};
+        glm::vec3 mins = {-4,-4,-4};
+        glm::vec3 maxs = {4,4,4};
+        std::string model = "";
+        std::string sprite = "";
+        bool decal = false;
+        std::string editorSprite = "";
+
+        unsigned int flags = 0;
+        
+        std::list<std::string> baseClasses;
+
+        void clear()
+        {
+            color = { 1,1,1};
+            mins = {-4,-4,-4};
+            maxs = {4,4,4};
+            model = "";
+            sprite = "";
+            decal = false;
+            editorSprite = "";
+            flags = 0;
+        }
+
+    }entityCtorData;
 
     FGDParsingContext(GoldSource::HammerFGDFile * file)
     {
@@ -2301,11 +2470,23 @@ struct FGDParsingContext
        cursor = file->Data();
     }
 
-    FGDEntityClass* new_entity(FGDEntityClassType type, std::string className, std::string description)
+    FGDEntityClass* new_entity(FGDEntityClassType type, std::string className, std::string description,FGDPropertiesList & props)
     {
-		Con_Printf("new_entity(%d, %s, %s)\n", type, className.c_str(), description.c_str());
+		
+        current_entity = new FGDEntityClass(type, className, description, props);
 
-        current_entity = new FGDEntityClass(type, className, description);
+        if (entityCtorData.flags & FL_SET_COLOR)            current_entity->SetColor(entityCtorData.color);
+        if (entityCtorData.flags & FL_SET_SIZE)             current_entity->SetBBox(entityCtorData.mins, entityCtorData.maxs);
+        if (entityCtorData.flags & FL_SET_MODEL)            current_entity->SetModel(entityCtorData.model);
+        if (entityCtorData.flags & FL_SET_SPRITE)           current_entity->SetSprite(entityCtorData.sprite);
+        if (entityCtorData.flags & FL_SET_DECAL)            current_entity->SetDecalEntity(entityCtorData.decal);
+        if (entityCtorData.flags & FL_SET_EDITOR_SPRITE)    current_entity->SetEditorSprite(entityCtorData.editorSprite);
+        if (entityCtorData.flags & FL_SET_BASE_CLASSES)    current_entity->SetBaseClasses(entityCtorData.baseClasses);
+
+        entityCtorData.clear();
+
+        current_entity->SetCtorFlags(entityCtorData.flags);
+
         fgd->AddEntityClass(current_entity);
 
         return current_entity;
@@ -2313,52 +2494,68 @@ struct FGDParsingContext
 
     void SetColor(float r, float g, float b)
 	{
-		Con_Printf("SetColor(%f, %f, %f)\n", r, g, b);
-//         assert(current_entity);
-//         current_entity->SetColor255(r,g,b);
+        entityCtorData.color.r = r / 255.f;
+        entityCtorData.color.g = g / 255.f;
+        entityCtorData.color.b = b / 255.f;
+
+        entityCtorData.flags |= FL_SET_COLOR;
     }
 
     
     void SetBbox(float x, float y, float z)
     {
-		Con_Printf("SetBbox(%f, %f, %f)\n", x, y, z);
-//         assert(current_entity);
-//         current_entity->SetBBox(glm::vec3(x,y,z));
+		entityCtorData.mins.x = -x / 2;
+		entityCtorData.mins.y = -y / 2;
+		entityCtorData.mins.z = -z / 2;
+
+        entityCtorData.maxs.x = x / 2;
+		entityCtorData.maxs.y = y / 2;
+		entityCtorData.maxs.z = z / 2;
+
+        entityCtorData.flags |= FL_SET_SIZE;
     }
 
     void SetBbox(float x, float y, float z, float x2, float y2, float z2)
     {
-		Con_Printf("SetBbox(%f, %f, %f, %f, %f, %f)\n", x, y, z, x2, y2, z2);
-//         assert(current_entity);
-//         current_entity->SetBBox(glm::vec3(x,y,z), glm::vec3(x2,y2,z2));
+		entityCtorData.mins.x = x;
+		entityCtorData.mins.y = y;
+		entityCtorData.mins.z = z;
+
+        entityCtorData.maxs.x = x2;
+		entityCtorData.maxs.y = y2;
+		entityCtorData.maxs.z = z2;
+
+        entityCtorData.flags |= FL_SET_SIZE;
     }
 
     void SetModel(std::string model)
     {
-		Con_Printf("SetModel(%s)\n", model.c_str());
-//         assert(current_entity);
-//         current_entity->SetModel(model);
+        entityCtorData.model = model;
+        entityCtorData.flags |= FL_SET_MODEL;
     }
 
     void SetSprite(std::string model)
     {
-		Con_Printf("SetSprite(%s)\n", model.c_str());
-//         assert(current_entity);
-//         current_entity->SetSprite(model);
+        entityCtorData.sprite = model;
+        entityCtorData.flags |= FL_SET_SPRITE;
     }
 
     void SetDecalEntity(bool flag)
     {
-		Con_Printf("SetDecalEntity(%d)\n", flag);
-//         assert(current_entity);
-//         current_entity->SetDecalEntity(flag);
+        entityCtorData.decal = flag;
+        entityCtorData.flags |= FL_SET_DECAL;
     }
 
     void SetEditorSprite(std::string sprite)
     {
-		Con_Printf("SetEditorSprite(%s)\n", sprite.c_str());
-//         assert(current_entity);
-//         current_entity->SetEditorSprite(sprite);
+        entityCtorData.editorSprite = sprite;
+        entityCtorData.flags |= FL_SET_EDITOR_SPRITE;
+    }
+
+    void SetBaseClasses(std::list<std::string> & classList)
+    {        
+        entityCtorData.baseClasses = classList; 
+        entityCtorData.flags |= FL_SET_BASE_CLASSES;
     }
 
     void SetPropertyExtra(std::string property, float value)
@@ -2369,16 +2566,7 @@ struct FGDParsingContext
 //         current_entity->SetPropertyExtra(property, value);
     }
 
-    FGDPropertyDescriptor* AddProperty(std::string name, std::string typeId, std::string description)
-    {
-		Con_Printf("AddProperty(%s, %s, %s)\n", name.c_str(), typeId.c_str(), description.c_str());
-//         assert(current_entity);
-//         current_property = new FGDPropertyDescriptor(name, typeId, description);
-//         current_entity->AddProperty(current_property);
-//         return current_property;
 
-            return nullptr;
-    }
 };
 
 namespace yy { HammerFGDParser::symbol_type yylex(FGDParsingContext* ctx); }
@@ -2568,12 +2756,30 @@ namespace yy {
         value.YY_MOVE_OR_COPY< GoldSource::FGDEntityClass* > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.YY_MOVE_OR_COPY< GoldSource::FGDFlagsList > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.YY_MOVE_OR_COPY< GoldSource::FGDFlagsValue_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.YY_MOVE_OR_COPY< GoldSource::FGDPropertiesList > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.YY_MOVE_OR_COPY< GoldSource::FGDPropertyDescriptor* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_Number: // Number
         value.YY_MOVE_OR_COPY< float > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.YY_MOVE_OR_COPY< std::list<std::string> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2617,12 +2823,30 @@ namespace yy {
         value.move< GoldSource::FGDEntityClass* > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.move< GoldSource::FGDFlagsList > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.move< GoldSource::FGDFlagsValue_t > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.move< GoldSource::FGDPropertiesList > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.move< GoldSource::FGDPropertyDescriptor* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_Number: // Number
         value.move< float > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.move< std::list<std::string> > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2666,12 +2890,30 @@ namespace yy {
         value.copy< GoldSource::FGDEntityClass* > (that.value);
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.copy< GoldSource::FGDFlagsList > (that.value);
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.copy< GoldSource::FGDFlagsValue_t > (that.value);
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.copy< GoldSource::FGDPropertiesList > (that.value);
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.copy< GoldSource::FGDPropertyDescriptor* > (that.value);
         break;
 
       case symbol_kind::S_Number: // Number
         value.copy< float > (that.value);
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.copy< std::list<std::string> > (that.value);
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -2714,12 +2956,30 @@ namespace yy {
         value.move< GoldSource::FGDEntityClass* > (that.value);
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        value.move< GoldSource::FGDFlagsList > (that.value);
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        value.move< GoldSource::FGDFlagsValue_t > (that.value);
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        value.move< GoldSource::FGDPropertiesList > (that.value);
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         value.move< GoldSource::FGDPropertyDescriptor* > (that.value);
         break;
 
       case symbol_kind::S_Number: // Number
         value.move< float > (that.value);
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        value.move< std::list<std::string> > (that.value);
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -3007,12 +3267,30 @@ namespace yy {
         yylhs.value.emplace< GoldSource::FGDEntityClass* > ();
         break;
 
+      case symbol_kind::S_FlagsValues: // FlagsValues
+      case symbol_kind::S_EnumValues: // EnumValues
+        yylhs.value.emplace< GoldSource::FGDFlagsList > ();
+        break;
+
+      case symbol_kind::S_FlagValue: // FlagValue
+      case symbol_kind::S_EnumValue: // EnumValue
+        yylhs.value.emplace< GoldSource::FGDFlagsValue_t > ();
+        break;
+
+      case symbol_kind::S_ClassFieldsOpt: // ClassFieldsOpt
+        yylhs.value.emplace< GoldSource::FGDPropertiesList > ();
+        break;
+
       case symbol_kind::S_ClassFieldDef: // ClassFieldDef
         yylhs.value.emplace< GoldSource::FGDPropertyDescriptor* > ();
         break;
 
       case symbol_kind::S_Number: // Number
         yylhs.value.emplace< float > ();
+        break;
+
+      case symbol_kind::S_identifierListOpt: // identifierListOpt
+        yylhs.value.emplace< std::list<std::string> > ();
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
@@ -3067,15 +3345,15 @@ namespace yy {
     break;
 
   case 8: // SolidClassDef: "@SolidClass" CtorsOpt "=" Identifier ":" StringLiteral "[" ClassFieldsOpt "]"
-                                                                                                                          { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::Solid,yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > ()); }
+                                                                                                                          { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::Solid,yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > (), yystack_[1].value.as < GoldSource::FGDPropertiesList > ()); }
     break;
 
   case 9: // PointClassDef: "@PointClass" CtorsOpt "=" Identifier ":" StringLiteral "[" ClassFieldsOpt "]"
-                                                                                                                          { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::Point,yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > ()); }
+                                                                                                                          { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::Point,yystack_[5].value.as < std::string > (), yystack_[3].value.as < std::string > (), yystack_[1].value.as < GoldSource::FGDPropertiesList > ()); }
     break;
 
   case 10: // BaseClassDef: "@BaseClass" CtorsOpt "=" Identifier "[" ClassFieldsOpt "]"
-                                                                                                    { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::BaseDef,yystack_[3].value.as < std::string > (), "<none>"); }
+                                                                                                    { yylhs.value.as < GoldSource::FGDEntityClass* > () = ctx->new_entity(FGDEntityClassType::BaseDef,yystack_[3].value.as < std::string > (), "<none>", yystack_[1].value.as < GoldSource::FGDPropertiesList > ()); }
     break;
 
   case 21: // ColorDefOpt: "color" "(" Number Number Number ")"
@@ -3110,6 +3388,10 @@ namespace yy {
                                                                              { ctx->SetPropertyExtra(yystack_[3].value.as < std::string > (),yystack_[1].value.as < float > ()); }
     break;
 
+  case 29: // BaseClassRefOpt: "base" "(" identifierListOpt ")"
+                                                                                 { ctx->SetBaseClasses(yystack_[1].value.as < std::list<std::string> > ()); }
+    break;
+
   case 30: // StringLiteralOpt: StringLiteral
                                 { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > ();}
     break;
@@ -3118,83 +3400,127 @@ namespace yy {
         { yylhs.value.as < std::string > () = ""; }
     break;
 
-  case 38: // ClassFieldDef: Identifier "(" TypeId ")" ":" StringLiteral DefaultValueOpt
-                                                                                             { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty(yystack_[6].value.as < std::string > (), yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+  case 32: // identifierListOpt: identifierListOpt "," Identifier
+                                                      { yystack_[2].value.as < std::list<std::string> > ().push_back(yystack_[0].value.as < std::string > ()); yylhs.value.as < std::list<std::string> > () = yystack_[2].value.as < std::list<std::string> > (); }
     break;
 
-  case 39: // ClassFieldDef: Identifier "(" "flags" ")" "=" "[" FlagsValues "]"
-                                                                                                              { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty(yystack_[7].value.as < std::string > (), yystack_[5].value.as < std::string > (), "<flags>"); }
+  case 33: // identifierListOpt: Identifier
+            { yylhs.value.as < std::list<std::string> > ().push_back(yystack_[0].value.as < std::string > ()); }
     break;
 
-  case 40: // ClassFieldDef: Identifier "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
-                                                                                                                                                { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty(yystack_[11].value.as < std::string > (), yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
+  case 34: // identifierListOpt: %empty
+        { (void)0; }
     break;
 
-  case 41: // ClassFieldDef: "model" "(" ModelType ")" ":" StringLiteral DefaultValueOpt
-                                                                                            { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("model", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+  case 35: // ClassFieldsOpt: ClassFieldsOpt ClassFieldDef
+                                              { yystack_[1].value.as < GoldSource::FGDPropertiesList > ().push_back(yystack_[0].value.as < GoldSource::FGDPropertyDescriptor* > ()); yylhs.value.as < GoldSource::FGDPropertiesList > () = yystack_[1].value.as < GoldSource::FGDPropertiesList > ();}
     break;
 
-  case 42: // ClassFieldDef: "color" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
-                                                                                                                                           { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("color", yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
+  case 36: // ClassFieldsOpt: %empty
+         { (void)0; }
     break;
 
-  case 43: // ClassFieldDef: "color" "(" TypeId ")" ":" StringLiteral DefaultValueOpt
-                                                                                          { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("color", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+  case 37: // ClassFieldDef: Identifier "(" TypeId ")" ":" StringLiteral DefaultValueOpt
+                                                                                             { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor(yystack_[6].value.as < std::string > (), yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
     break;
 
-  case 44: // ClassFieldDef: "sound" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
-                                                                                                                                           { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("sound", yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
+  case 38: // ClassFieldDef: Identifier "(" "flags" ")" "=" "[" FlagsValues "]"
+                                                                                                              { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDFlagsEnumProperty(yystack_[7].value.as < std::string > (),"<spawnflags>",yystack_[1].value.as < GoldSource::FGDFlagsList > ()); }
     break;
 
-  case 45: // ClassFieldDef: "sound" "(" TypeId ")" ":" StringLiteral DefaultValueOpt
-                                                                                           { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("sound", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+  case 39: // ClassFieldDef: Identifier "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
+                                                                                                                                                { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDFlagsEnumProperty(yystack_[11].value.as < std::string > (),yystack_[6].value.as < std::string > (),yystack_[1].value.as < GoldSource::FGDFlagsList > ()); }
     break;
 
-  case 46: // ClassFieldDef: "size" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
-                                                                                                                                                     { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("size", yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
+  case 40: // ClassFieldDef: "model" "(" ModelType ")" ":" StringLiteral DefaultValueOpt
+                                                                                            { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("model", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
     break;
 
-  case 47: // ClassFieldDef: Identifier "(" "decal" ")"
-                                                         { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = ctx->AddProperty("decal", "decal", "decal"); }
+  case 41: // ClassFieldDef: "color" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
+                                                                                                                                           {yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("color", yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
     break;
 
-  case 48: // ModelType: "studio"
+  case 42: // ClassFieldDef: "color" "(" TypeId ")" ":" StringLiteral DefaultValueOpt
+                                                                                          { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("color", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+    break;
+
+  case 43: // ClassFieldDef: "sound" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
+                                                                                                                                           { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("sound", yystack_[9].value.as < std::string > (), yystack_[6].value.as < std::string > ()); }
+    break;
+
+  case 44: // ClassFieldDef: "sound" "(" TypeId ")" ":" StringLiteral DefaultValueOpt
+                                                                                           { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("sound", yystack_[4].value.as < std::string > (), yystack_[1].value.as < std::string > ()); }
+    break;
+
+  case 45: // ClassFieldDef: "size" "(" "choices" ")" ":" StringLiteral ":" Number "=" "[" EnumValues "]"
+                                                                                                                                                     { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDFlagsEnumProperty("size", yystack_[6].value.as < std::string > (), yystack_[1].value.as < GoldSource::FGDFlagsList > ()); }
+    break;
+
+  case 46: // ClassFieldDef: Identifier "(" "decal" ")"
+                                                         { yylhs.value.as < GoldSource::FGDPropertyDescriptor* > () = new FGDPropertyDescriptor("decal", "decal", "decal"); }
+    break;
+
+  case 47: // ModelType: "studio"
            { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 49: // ModelType: "sprite"
+  case 48: // ModelType: "sprite"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 56: // TypeId: "integer"
+  case 49: // FlagsValues: FlagsValues FlagValue
+                                   { yystack_[1].value.as < GoldSource::FGDFlagsList > ().push_back(yystack_[0].value.as < GoldSource::FGDFlagsValue_t > ()); yylhs.value.as < GoldSource::FGDFlagsList > () = yystack_[1].value.as < GoldSource::FGDFlagsList > ();}
+    break;
+
+  case 50: // FlagsValues: %empty
+        { (void)0; }
+    break;
+
+  case 51: // FlagValue: Number ":" StringLiteral ":" Number
+                                                    { yylhs.value.as < GoldSource::FGDFlagsValue_t > () = FGDFlagsValue_t(yystack_[2].value.as < std::string > (), yystack_[4].value.as < float > (), yystack_[0].value.as < float > ()); }
+    break;
+
+  case 52: // EnumValues: EnumValues EnumValue
+                                  { yystack_[1].value.as < GoldSource::FGDFlagsList > ().push_back(yystack_[0].value.as < GoldSource::FGDFlagsValue_t > ()); yylhs.value.as < GoldSource::FGDFlagsList > () = yystack_[1].value.as < GoldSource::FGDFlagsList > ();}
+    break;
+
+  case 53: // EnumValues: %empty
+        { (void)0;}
+    break;
+
+  case 54: // EnumValue: Number ":" StringLiteral
+                                       { yylhs.value.as < GoldSource::FGDFlagsValue_t > () = FGDFlagsValue_t(yystack_[0].value.as < std::string > (), yystack_[2].value.as < float > (), true); }
+    break;
+
+  case 55: // TypeId: "integer"
         { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 57: // TypeId: "color255"
+  case 56: // TypeId: "color255"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 58: // TypeId: "string"
+  case 57: // TypeId: "string"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 59: // TypeId: "sprite"
+  case 58: // TypeId: "sprite"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 60: // TypeId: "studio"
+  case 59: // TypeId: "studio"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 61: // TypeId: "target_destination"
+  case 60: // TypeId: "target_destination"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 62: // TypeId: "target_source"
+  case 61: // TypeId: "target_source"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
-  case 63: // TypeId: "sound"
+  case 62: // TypeId: "sound"
   { yylhs.value.as < std::string > () = yystack_[0].value.as < std::string > (); }
     break;
 
@@ -3550,32 +3876,32 @@ namespace yy {
   }
 
 
-  const short HammerFGDParser::yypact_ninf_ = -141;
+  const short HammerFGDParser::yypact_ninf_ = -140;
 
   const signed char HammerFGDParser::yytable_ninf_ = -1;
 
   const short
   HammerFGDParser::yypact_[] =
   {
-    -141,    19,   102,  -141,  -141,  -141,  -141,  -141,  -141,  -141,
-    -141,    18,    21,    41,    13,    36,    50,    62,   101,   103,
-     104,   105,   106,  -141,  -141,  -141,  -141,  -141,  -141,  -141,
-    -141,  -141,    42,    77,   108,   109,  -141,   110,   113,   112,
-     115,   111,   115,   114,   119,   118,   116,     6,   117,   120,
-     121,  -141,   122,  -141,   123,  -141,   124,   125,  -141,  -141,
-    -141,   127,   128,  -141,   130,  -141,  -141,   -10,   129,  -141,
-     132,    40,   131,   133,  -141,   134,   135,   136,   137,  -141,
-    -141,    -6,  -141,   140,  -141,  -141,    47,   126,    59,     9,
-      71,    -2,  -141,   141,  -141,  -141,  -141,  -141,   142,  -141,
-     143,   144,  -141,  -141,  -141,   145,   146,   147,   148,  -141,
-    -141,   149,   150,   151,  -141,   155,  -141,   161,   162,   163,
-     164,   165,   166,   167,   168,   169,   154,   139,   170,   171,
-     172,   173,   174,   175,   176,   177,  -141,  -141,   180,   181,
-     182,   183,   181,   181,   184,   181,    39,   185,    74,  -141,
-     186,   187,  -141,  -141,   188,  -141,   193,  -141,  -141,   189,
-    -141,  -141,   195,   196,   197,   198,   178,   179,   190,   191,
-     201,  -141,  -141,  -141,  -141,   199,    45,    46,    88,    92,
-    -141,   202,  -141,  -141,  -141,  -141,  -141,   203,  -141
+    -140,    16,   109,  -140,  -140,  -140,  -140,  -140,  -140,  -140,
+    -140,    18,    21,    41,    13,    36,    39,    62,    74,    82,
+      84,    96,   105,  -140,  -140,  -140,  -140,  -140,  -140,  -140,
+    -140,  -140,    45,    97,   112,   110,   113,   111,   115,   114,
+     117,   106,   117,   116,   120,   119,   118,  -140,    40,   122,
+     121,   123,  -140,   124,  -140,   125,  -140,   127,   126,  -140,
+     130,  -140,   131,  -140,   132,  -140,  -140,   -10,   129,  -140,
+    -140,    42,   133,   135,  -140,   136,   137,   138,   139,  -140,
+    -140,    -6,   134,  -140,  -140,    47,   102,    59,     9,    71,
+      -2,  -140,   142,  -140,  -140,  -140,  -140,   140,  -140,   141,
+     143,  -140,  -140,  -140,   144,   145,   146,   147,  -140,  -140,
+     148,   149,   150,  -140,   154,  -140,   160,   161,   162,   163,
+     164,   165,   166,   167,   168,   153,   169,   128,   170,   171,
+     172,   173,   174,   176,   177,  -140,  -140,   180,   181,   182,
+     183,   181,   181,   184,   181,    46,   185,    52,  -140,   186,
+     187,  -140,  -140,   188,  -140,   193,  -140,  -140,   189,  -140,
+    -140,   195,   196,   197,   198,   178,   179,   190,   191,   201,
+    -140,  -140,  -140,  -140,   199,    88,    92,    94,    95,  -140,
+     202,  -140,  -140,  -140,  -140,  -140,   203,  -140
   };
 
   const signed char
@@ -3584,89 +3910,89 @@ namespace yy {
        4,     0,     2,     1,    12,    12,    12,     3,     5,     6,
        7,     0,     0,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,    11,    20,    15,    14,    17,    18,    13,
-      19,    16,     0,     0,     0,     0,    33,     0,     0,     0,
-      31,     0,    31,     0,     0,     0,     0,     0,     0,     0,
-       0,    30,     0,    26,     0,    37,     0,     0,    28,    35,
-      29,    32,     0,    27,     0,    25,    24,     0,     0,    37,
-       0,     0,     0,     0,    10,     0,     0,     0,     0,    36,
-      37,     0,    34,     0,    23,    21,     0,     0,     0,     0,
-       0,     0,     8,     0,    56,    57,    58,    59,     0,    60,
-       0,     0,    62,    61,    63,     0,     0,     0,     0,    49,
-      48,     0,     0,     0,     9,     0,    47,     0,     0,     0,
+      19,    16,     0,     0,     0,     0,    34,     0,     0,     0,
+      31,     0,    31,     0,     0,     0,     0,    33,     0,     0,
+       0,     0,    30,     0,    26,     0,    36,     0,     0,    28,
+       0,    29,     0,    27,     0,    25,    24,     0,     0,    36,
+      32,     0,     0,     0,    10,     0,     0,     0,     0,    35,
+      36,     0,     0,    23,    21,     0,     0,     0,     0,     0,
+       0,     8,     0,    55,    56,    57,    58,     0,    59,     0,
+       0,    61,    60,    62,     0,     0,     0,     0,    48,    47,
+       0,     0,     0,     9,     0,    46,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,     0,     0,    22,    51,     0,    66,
-       0,     0,    66,    66,     0,    66,     0,     0,     0,    38,
-       0,     0,    43,    41,     0,    45,     0,    39,    50,     0,
-      64,    65,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,    54,    54,    54,    54,     0,     0,     0,     0,     0,
-      52,     0,    40,    53,    46,    42,    44,     0,    55
+       0,     0,     0,     0,     0,    22,    50,     0,    65,     0,
+       0,    65,    65,     0,    65,     0,     0,     0,    37,     0,
+       0,    42,    40,     0,    44,     0,    38,    49,     0,    63,
+      64,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      53,    53,    53,    53,     0,     0,     0,     0,     0,    51,
+       0,    39,    52,    45,    41,    43,     0,    54
   };
 
   const short
   HammerFGDParser::yypgoto_[] =
   {
-    -141,  -141,  -141,  -141,  -141,  -141,  -141,   107,  -141,  -141,
-    -141,  -141,  -141,  -141,  -141,  -141,  -141,    89,  -141,  -141,
-     -68,  -141,  -141,  -141,  -141,   -63,  -141,     7,  -140
+    -140,  -140,  -140,  -140,  -140,  -140,  -140,    14,  -140,  -140,
+    -140,  -140,  -140,  -140,  -140,  -140,  -140,   104,  -140,   -68,
+    -140,  -140,  -140,  -140,   -56,  -140,    -4,  -139
   };
 
   const unsigned char
   HammerFGDParser::yydefgoto_[] =
   {
        0,     1,     2,     7,     8,     9,    10,    11,    23,    24,
-      25,    26,    27,    28,    29,    30,    31,    52,    47,    61,
-      67,    79,   111,   146,   158,   176,   183,   105,   149
+      25,    26,    27,    28,    29,    30,    31,    53,    48,    67,
+      79,   110,   145,   157,   175,   182,   104,   148
   };
 
   const unsigned char
   HammerFGDParser::yytable_[] =
   {
-      73,    81,   152,   153,    73,   155,    74,    75,    73,    76,
-      92,    75,    91,    76,   114,    75,    59,    76,    77,     3,
-      60,    78,    77,    34,    14,    78,    77,    32,    15,    78,
-      16,    15,   109,    16,   110,    17,    18,    19,    17,    18,
-      19,    20,    21,    22,    20,    21,    22,    33,    83,    35,
-     156,    15,    43,    16,    84,   157,   181,   181,    17,    18,
-      19,   182,   184,    36,    20,    21,    22,    94,    95,    96,
-      97,    98,    99,   100,   101,    37,   102,   103,   104,    94,
-      95,    96,    97,   160,    99,   161,   107,    44,   102,   103,
-     104,    94,    95,    96,    97,   108,    99,   113,   112,   181,
-     102,   103,   104,   181,   185,     4,     5,     6,   186,   177,
-     178,   179,    12,    13,    38,    45,    39,    40,    41,    42,
-      46,    48,    49,    50,    51,    53,    56,    57,    62,    55,
-      58,    54,    64,    68,    63,    70,    65,    66,     0,    71,
-      69,    72,    82,     0,    80,    85,    86,    87,    88,    89,
-      90,    93,   115,   106,   137,     0,   116,   117,   118,   119,
-     120,   121,   122,   123,   124,   125,   126,   127,   136,   128,
-     129,   130,   131,   132,   133,   134,   135,     0,     0,   138,
-     139,   140,   141,   142,   143,   144,   145,   147,   148,   150,
-     151,   154,     0,   171,   172,   166,   159,   162,   163,   164,
-     165,   167,   168,   169,     0,   173,   174,   170,   175,   187,
-     180,     0,   188
+      73,    81,   151,   152,    73,   154,    74,    75,    73,    76,
+      91,    75,    90,    76,   113,    75,     3,    76,    77,    12,
+      13,    78,    77,    34,    14,    78,    77,    32,    15,    78,
+      16,    15,   108,    16,   109,    17,    18,    19,    17,    18,
+      19,    20,    21,    22,    20,    21,    22,    33,    60,    35,
+      82,    15,    36,    16,    61,    43,    83,   155,    17,    18,
+      19,   159,   156,   160,    20,    21,    22,    93,    94,    95,
+      96,    97,    98,    99,   100,    37,   101,   102,   103,    93,
+      94,    95,    96,   107,    98,   112,   106,    38,   101,   102,
+     103,    93,    94,    95,    96,    39,    98,    40,   111,   180,
+     101,   102,   103,   180,   181,   180,   180,    44,   183,    41,
+     184,   185,     4,     5,     6,   176,   177,   178,    42,    45,
+      54,    46,    49,    47,    50,    51,    52,    57,    58,   105,
+       0,    56,    59,    62,    64,    63,    68,   137,    65,    66,
+      70,    69,    71,    72,    80,    92,    55,    84,    85,    86,
+      87,    88,    89,   114,   115,   116,     0,   117,   118,   119,
+     120,   121,   122,   123,   124,   125,   126,   135,   127,   128,
+     129,   130,   131,   132,   133,   134,     0,     0,     0,   138,
+     139,   140,   141,   142,   136,   143,   144,   146,   147,   149,
+     150,   153,     0,   170,   171,   165,   158,   161,   162,   163,
+     164,   166,   167,   168,     0,   172,   173,   169,   174,   186,
+     179,     0,   187
   };
 
   const short
   HammerFGDParser::yycheck_[] =
   {
-      10,    69,   142,   143,    10,   145,    16,    17,    10,    19,
-      16,    17,    80,    19,    16,    17,    10,    19,    28,     0,
-      14,    31,    28,    10,     6,    31,    28,     6,    10,    31,
+      10,    69,   141,   142,    10,   144,    16,    17,    10,    19,
+      16,    17,    80,    19,    16,    17,     0,    19,    28,     5,
+       6,    31,    28,    10,     6,    31,    28,     6,    10,    31,
       12,    10,    23,    12,    25,    17,    18,    19,    17,    18,
       19,    23,    24,    25,    23,    24,    25,     6,     8,    13,
-      11,    10,    10,    12,    14,    16,    11,    11,    17,    18,
-      19,    16,    16,    13,    23,    24,    25,    20,    21,    22,
+       8,    10,    13,    12,    14,    10,    14,    11,    17,    18,
+      19,     9,    16,    11,    23,    24,    25,    20,    21,    22,
       23,    24,    25,    26,    27,    13,    29,    30,    31,    20,
-      21,    22,    23,     9,    25,    11,    27,    10,    29,    30,
-      31,    20,    21,    22,    23,    88,    25,    90,    27,    11,
-      29,    30,    31,    11,    16,     3,     4,     5,    16,   172,
-     173,   174,     5,     6,    13,     7,    13,    13,    13,    13,
-      11,    11,     9,    11,     9,    14,     7,     9,    11,    15,
-      14,    42,    11,     9,    14,     8,    14,    14,    -1,    11,
-      15,    11,    10,    -1,    15,    14,    13,    13,    13,    13,
-      13,    11,    11,    27,    15,    -1,    14,    14,    14,    14,
-      14,    14,    14,    14,    14,    14,    11,     6,    14,     7,
-       7,     7,     7,     7,     7,     7,     7,    -1,    -1,     9,
-       9,     9,     9,     9,     9,     9,     9,     7,     7,     7,
+      21,    22,    23,    87,    25,    89,    27,    13,    29,    30,
+      31,    20,    21,    22,    23,    13,    25,    13,    27,    11,
+      29,    30,    31,    11,    16,    11,    11,    10,    16,    13,
+      16,    16,     3,     4,     5,   171,   172,   173,    13,     7,
+      14,    11,    11,    10,     9,    11,     9,     7,     9,    27,
+      -1,    15,    14,    11,    11,    14,     9,     9,    14,    14,
+      10,    15,    11,    11,    15,    11,    42,    14,    13,    13,
+      13,    13,    13,    11,    14,    14,    -1,    14,    14,    14,
+      14,    14,    14,    14,    14,    11,     6,    14,     7,     7,
+       7,     7,     7,     7,     7,     7,    -1,    -1,    -1,     9,
+       9,     9,     9,     9,    15,     9,     9,     7,     7,     7,
        7,     7,    -1,    15,    15,     6,    11,    11,    11,    11,
        7,     6,     6,     6,    -1,    15,    15,     9,     7,     7,
       11,    -1,     9
@@ -3679,21 +4005,21 @@ namespace yy {
       39,    40,    40,    40,     6,    10,    12,    17,    18,    19,
       23,    24,    25,    41,    42,    43,    44,    45,    46,    47,
       48,    49,     6,     6,    10,    13,    13,    13,    13,    13,
-      13,    13,    13,    10,    10,     7,    11,    51,    11,     9,
-      11,     9,    50,    14,    50,    15,     7,     9,    14,    10,
-      14,    52,    11,    14,    11,    14,    14,    53,     9,    15,
-       8,    11,    11,    10,    16,    17,    19,    28,    31,    54,
-      15,    53,    10,     8,    14,    14,    13,    13,    13,    13,
-      13,    53,    16,    11,    20,    21,    22,    23,    24,    25,
-      26,    27,    29,    30,    31,    60,    27,    27,    60,    23,
-      25,    55,    27,    60,    16,    11,    14,    14,    14,    14,
-      14,    14,    14,    14,    14,    14,    11,     6,     7,     7,
-       7,     7,     7,     7,     7,     7,    14,    15,     9,     9,
-       9,     9,     9,     9,     9,     9,    56,     7,     7,    61,
-       7,     7,    61,    61,     7,    61,    11,    16,    57,    11,
-       9,    11,    11,    11,    11,     7,     6,     6,     6,     6,
-       9,    15,    15,    15,    15,     7,    58,    58,    58,    58,
-      11,    11,    16,    59,    16,    16,    16,     7,     9
+      13,    13,    13,    10,    10,     7,    11,    10,    51,    11,
+       9,    11,     9,    50,    14,    50,    15,     7,     9,    14,
+       8,    14,    11,    14,    11,    14,    14,    52,     9,    15,
+      10,    11,    11,    10,    16,    17,    19,    28,    31,    53,
+      15,    52,     8,    14,    14,    13,    13,    13,    13,    13,
+      52,    16,    11,    20,    21,    22,    23,    24,    25,    26,
+      27,    29,    30,    31,    59,    27,    27,    59,    23,    25,
+      54,    27,    59,    16,    11,    14,    14,    14,    14,    14,
+      14,    14,    14,    14,    14,    11,     6,     7,     7,     7,
+       7,     7,     7,     7,     7,    14,    15,     9,     9,     9,
+       9,     9,     9,     9,     9,    55,     7,     7,    60,     7,
+       7,    60,    60,     7,    60,    11,    16,    56,    11,     9,
+      11,    11,    11,    11,     7,     6,     6,     6,     6,     9,
+      15,    15,    15,    15,     7,    57,    57,    57,    57,    11,
+      11,    16,    58,    16,    16,    16,     7,     9
   };
 
   const signed char
@@ -3702,10 +4028,10 @@ namespace yy {
        0,    33,    34,    35,    35,    36,    36,    36,    37,    38,
       39,    40,    40,    41,    41,    41,    41,    41,    41,    41,
       41,    42,    43,    43,    44,    45,    46,    47,    48,    49,
-      50,    50,    51,    51,    52,    52,    53,    53,    54,    54,
-      54,    54,    54,    54,    54,    54,    54,    54,    55,    55,
-      56,    56,    57,    58,    58,    59,    60,    60,    60,    60,
-      60,    60,    60,    60,    61,    61,    61
+      50,    50,    51,    51,    51,    52,    52,    53,    53,    53,
+      53,    53,    53,    53,    53,    53,    53,    54,    54,    55,
+      55,    56,    57,    57,    58,    59,    59,    59,    59,    59,
+      59,    59,    59,    60,    60,    60
   };
 
   const signed char
@@ -3714,10 +4040,10 @@ namespace yy {
        0,     2,     1,     2,     0,     1,     1,     1,     9,     9,
        7,     2,     0,     1,     1,     1,     1,     1,     1,     1,
        1,     6,    10,     6,     4,     4,     3,     4,     4,     4,
-       1,     0,     2,     0,     3,     1,     2,     0,     7,     8,
-      12,     7,    12,     7,    12,     7,    12,     4,     1,     1,
-       2,     0,     5,     2,     0,     3,     1,     1,     1,     1,
-       1,     1,     1,     1,     2,     2,     0
+       1,     0,     3,     1,     0,     2,     0,     7,     8,    12,
+       7,    12,     7,    12,     7,    12,     4,     1,     1,     2,
+       0,     5,     2,     0,     3,     1,     1,     1,     1,     1,
+       1,     1,     1,     2,     2,     0
   };
 
 
@@ -3738,9 +4064,9 @@ namespace yy {
   "PointClassDef", "BaseClassDef", "CtorsOpt", "Ctor", "ColorDefOpt",
   "BoundingBoxDefOpt", "StudioDefOpt", "SpriteDefOpt", "DecalDefOpt",
   "IconspriteDefOpt", "ExtendedConstructor", "BaseClassRefOpt",
-  "StringLiteralOpt", "identifierListOpt", "identifierList",
-  "ClassFieldsOpt", "ClassFieldDef", "ModelType", "FlagsValues",
-  "FlagValue", "EnumValues", "EnumValue", "TypeId", "DefaultValueOpt", YY_NULLPTR
+  "StringLiteralOpt", "identifierListOpt", "ClassFieldsOpt",
+  "ClassFieldDef", "ModelType", "FlagsValues", "FlagValue", "EnumValues",
+  "EnumValue", "TypeId", "DefaultValueOpt", YY_NULLPTR
   };
 #endif
 
@@ -3749,13 +4075,13 @@ namespace yy {
   const short
   HammerFGDParser::yyrline_[] =
   {
-       0,   196,   196,   200,   201,   204,   205,   206,   210,   213,
-     216,   220,   221,   224,   225,   226,   227,   228,   229,   230,
-     231,   234,   237,   238,   241,   244,   247,   250,   253,   256,
-     262,   263,   265,   266,   268,   269,   272,   273,   280,   282,
-     284,   287,   290,   291,   294,   295,   299,   302,   306,   307,
-     310,   311,   313,   316,   317,   319,   324,   325,   326,   327,
-     328,   329,   330,   331,   335,   336,   337
+       0,   250,   250,   254,   255,   258,   259,   260,   264,   267,
+     270,   274,   275,   278,   279,   280,   281,   282,   283,   284,
+     285,   288,   291,   292,   295,   298,   301,   304,   307,   310,
+     312,   313,   318,   319,   320,   323,   324,   331,   333,   335,
+     338,   341,   342,   345,   346,   350,   353,   357,   358,   361,
+     362,   366,   369,   370,   373,   378,   379,   380,   381,   382,
+     383,   384,   385,   389,   390,   391
   };
 
   void
@@ -3803,7 +4129,7 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
     };
 
     
-#line 357 "<stdout>"
+#line 411 "<stdout>"
 {
 	char yych;
 	yych = *ctx->cursor;
@@ -3895,20 +4221,20 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
 yy2:
 yy3:
 	++ctx->cursor;
-#line 362 "hammer_fgd.y"
+#line 416 "hammer_fgd.y"
 	{ return s(yy::HammerFGDParser::make_EndOfFile); }
-#line 451 "<stdout>"
+#line 505 "<stdout>"
 yy5:
 	++ctx->cursor;
-#line 395 "hammer_fgd.y"
+#line 449 "hammer_fgd.y"
 	{ ctx->loc.columns(); return yylex(ctx); }
-#line 456 "<stdout>"
+#line 510 "<stdout>"
 yy7:
 	++ctx->cursor;
 yy8:
-#line 393 "hammer_fgd.y"
+#line 447 "hammer_fgd.y"
 	{ ctx->loc.lines();   return yylex(ctx); }
-#line 462 "<stdout>"
+#line 516 "<stdout>"
 yy9:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -3923,19 +4249,19 @@ yy10:
 	}
 yy12:
 	++ctx->cursor;
-#line 371 "hammer_fgd.y"
+#line 425 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_OpeningParenthesis); }
-#line 479 "<stdout>"
+#line 533 "<stdout>"
 yy14:
 	++ctx->cursor;
-#line 372 "hammer_fgd.y"
+#line 426 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_ClosingParenthesis); }
-#line 484 "<stdout>"
+#line 538 "<stdout>"
 yy16:
 	++ctx->cursor;
-#line 369 "hammer_fgd.y"
+#line 423 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Comma); }
-#line 489 "<stdout>"
+#line 543 "<stdout>"
 yy18:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -3953,9 +4279,9 @@ yy18:
 	default:	goto yy20;
 	}
 yy20:
-#line 370 "hammer_fgd.y"
+#line 424 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
-#line 509 "<stdout>"
+#line 563 "<stdout>"
 yy21:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -3964,14 +4290,14 @@ yy21:
 	}
 yy22:
 	++ctx->cursor;
-#line 368 "hammer_fgd.y"
+#line 422 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Colon); }
-#line 520 "<stdout>"
+#line 574 "<stdout>"
 yy24:
 	++ctx->cursor;
-#line 367 "hammer_fgd.y"
+#line 421 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_EqualsSign); }
-#line 525 "<stdout>"
+#line 579 "<stdout>"
 yy26:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4052,9 +4378,9 @@ yy27:
 	default:	goto yy29;
 	}
 yy29:
-#line 392 "hammer_fgd.y"
+#line 446 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Identifier, std::string(anchor, ctx->cursor)); }
-#line 608 "<stdout>"
+#line 662 "<stdout>"
 yy30:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4521,19 +4847,19 @@ yy37:
 	}
 yy38:
 	++ctx->cursor;
-#line 373 "hammer_fgd.y"
+#line 427 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_OpeningBracket); }
-#line 1077 "<stdout>"
+#line 1131 "<stdout>"
 yy40:
 	++ctx->cursor;
-#line 374 "hammer_fgd.y"
+#line 428 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_ClosingBracket); }
-#line 1082 "<stdout>"
+#line 1136 "<stdout>"
 yy42:
 	++ctx->cursor;
-#line 391 "hammer_fgd.y"
+#line 445 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_StringLiteral, std::string(anchor+1, ctx->cursor-1)); }
-#line 1087 "<stdout>"
+#line 1141 "<stdout>"
 yy44:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4542,9 +4868,9 @@ yy44:
 	default:	goto yy44;
 	}
 yy46:
-#line 394 "hammer_fgd.y"
+#line 448 "hammer_fgd.y"
 	{                     return yylex(ctx); }
-#line 1098 "<stdout>"
+#line 1152 "<stdout>"
 yy47:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -6370,9 +6696,9 @@ yy87:
 	default:	goto yy88;
 	}
 yy88:
-#line 375 "hammer_fgd.y"
+#line 429 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_BaseDef); }
-#line 2926 "<stdout>"
+#line 2980 "<stdout>"
 yy89:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -6848,9 +7174,9 @@ yy96:
 	default:	goto yy97;
 	}
 yy97:
-#line 376 "hammer_fgd.y"
+#line 430 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_SizeBoundingBox); }
-#line 3404 "<stdout>"
+#line 3458 "<stdout>"
 yy98:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7289,9 +7615,9 @@ yy107:
 	default:	goto yy108;
 	}
 yy108:
-#line 378 "hammer_fgd.y"
+#line 432 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Color); }
-#line 3845 "<stdout>"
+#line 3899 "<stdout>"
 yy109:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7361,9 +7687,9 @@ yy109:
 	default:	goto yy110;
 	}
 yy110:
-#line 382 "hammer_fgd.y"
+#line 436 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Decal) ; }
-#line 3917 "<stdout>"
+#line 3971 "<stdout>"
 yy111:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7433,9 +7759,9 @@ yy111:
 	default:	goto yy112;
 	}
 yy112:
-#line 388 "hammer_fgd.y"
+#line 442 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Flags, std::string(anchor, ctx->cursor)) ; }
-#line 3989 "<stdout>"
+#line 4043 "<stdout>"
 yy113:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7621,9 +7947,9 @@ yy115:
 	default:	goto yy116;
 	}
 yy116:
-#line 387 "hammer_fgd.y"
+#line 441 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Model, std::string(anchor, ctx->cursor)) ; }
-#line 4177 "<stdout>"
+#line 4231 "<stdout>"
 yy117:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7693,9 +8019,9 @@ yy117:
 	default:	goto yy118;
 	}
 yy118:
-#line 385 "hammer_fgd.y"
+#line 439 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Sound, std::string(anchor, ctx->cursor)) ; }
-#line 4249 "<stdout>"
+#line 4303 "<stdout>"
 yy119:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8198,9 +8524,9 @@ yy130:
 	default:	goto yy131;
 	}
 yy131:
-#line 381 "hammer_fgd.y"
+#line 435 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Sprite, std::string(anchor, ctx->cursor)) ; }
-#line 4754 "<stdout>"
+#line 4808 "<stdout>"
 yy132:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8270,9 +8596,9 @@ yy132:
 	default:	goto yy133;
 	}
 yy133:
-#line 390 "hammer_fgd.y"
+#line 444 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_String, std::string(anchor, ctx->cursor)) ; }
-#line 4826 "<stdout>"
+#line 4880 "<stdout>"
 yy134:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8342,9 +8668,9 @@ yy134:
 	default:	goto yy135;
 	}
 yy135:
-#line 386 "hammer_fgd.y"
+#line 440 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Studio, std::string(anchor, ctx->cursor)) ; }
-#line 4898 "<stdout>"
+#line 4952 "<stdout>"
 yy136:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8493,9 +8819,9 @@ yy140:
 	default:	goto yy141;
 	}
 yy141:
-#line 389 "hammer_fgd.y"
+#line 443 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Choices, std::string(anchor, ctx->cursor)) ; }
-#line 5049 "<stdout>"
+#line 5103 "<stdout>"
 yy142:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8629,9 +8955,9 @@ yy144:
 	default:	goto yy145;
 	}
 yy145:
-#line 379 "hammer_fgd.y"
+#line 433 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_IntegerType, std::string(anchor, ctx->cursor)) ; }
-#line 5185 "<stdout>"
+#line 5239 "<stdout>"
 yy146:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8780,9 +9106,9 @@ yy150:
 	default:	goto yy151;
 	}
 yy151:
-#line 380 "hammer_fgd.y"
+#line 434 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Color255, std::string(anchor, ctx->cursor)) ; }
-#line 5336 "<stdout>"
+#line 5390 "<stdout>"
 yy152:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9154,9 +9480,9 @@ yy160:
 	}
 yy161:
 	++ctx->cursor;
-#line 365 "hammer_fgd.y"
+#line 419 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_BaseClass); }
-#line 5710 "<stdout>"
+#line 5764 "<stdout>"
 yy163:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9240,9 +9566,9 @@ yy165:
 	default:	goto yy166;
 	}
 yy166:
-#line 377 "hammer_fgd.y"
+#line 431 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Iconsprite); }
-#line 5796 "<stdout>"
+#line 5850 "<stdout>"
 yy167:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9361,14 +9687,14 @@ yy168:
 	}
 yy169:
 	++ctx->cursor;
-#line 366 "hammer_fgd.y"
+#line 420 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_PointClass); }
-#line 5917 "<stdout>"
+#line 5971 "<stdout>"
 yy171:
 	++ctx->cursor;
-#line 364 "hammer_fgd.y"
+#line 418 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_SolidClass); }
-#line 5922 "<stdout>"
+#line 5976 "<stdout>"
 yy173:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9728,9 +10054,9 @@ yy178:
 	default:	goto yy179;
 	}
 yy179:
-#line 383 "hammer_fgd.y"
+#line 437 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_TargetSource, std::string(anchor, ctx->cursor)) ; }
-#line 6284 "<stdout>"
+#line 6338 "<stdout>"
 yy180:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -10032,11 +10358,11 @@ yy184:
 	default:	goto yy185;
 	}
 yy185:
-#line 384 "hammer_fgd.y"
+#line 438 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_TargetDestination, std::string(anchor, ctx->cursor)) ; }
-#line 6588 "<stdout>"
+#line 6642 "<stdout>"
 }
-#line 396 "hammer_fgd.y"
+#line 450 "hammer_fgd.y"
 
 		
 }

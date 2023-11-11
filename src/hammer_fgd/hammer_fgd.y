@@ -24,7 +24,35 @@ struct FGDParsingContext
     FGDPropertyDescriptor* current_property = nullptr;
 
     GoldSource::HammerFGDFile * fgd;
+
     
+    struct 
+    {
+        glm::vec3 color = { 1,1,1};
+        glm::vec3 mins = {-4,-4,-4};
+        glm::vec3 maxs = {4,4,4};
+        std::string model = "";
+        std::string sprite = "";
+        bool decal = false;
+        std::string editorSprite = "";
+
+        unsigned int flags = 0;
+        
+        std::list<std::string> baseClasses;
+
+        void clear()
+        {
+            color = { 1,1,1};
+            mins = {-4,-4,-4};
+            maxs = {4,4,4};
+            model = "";
+            sprite = "";
+            decal = false;
+            editorSprite = "";
+            flags = 0;
+        }
+
+    }entityCtorData;
 
     FGDParsingContext(GoldSource::HammerFGDFile * file)
     {
@@ -32,11 +60,24 @@ struct FGDParsingContext
        cursor = file->Data();
     }
 
-    FGDEntityClass* new_entity(FGDEntityClassType type, std::string className, std::string description)
+    FGDEntityClass* new_entity(FGDEntityClassType type, std::string className, std::string description,FGDPropertiesList & props)
     {
-		Con_Printf("new_entity(%d, %s, %s)\n", type, className.c_str(), description.c_str());
+		
+        current_entity = new FGDEntityClass(type, className, description, props);
+        current_entity->SetCtorFlags(entityCtorData.flags);
 
-        current_entity = new FGDEntityClass(type, className, description);
+        if (entityCtorData.flags & FL_SET_COLOR)            current_entity->SetColor(entityCtorData.color);
+        if (entityCtorData.flags & FL_SET_SIZE)             current_entity->SetBBox(entityCtorData.mins, entityCtorData.maxs);
+        if (entityCtorData.flags & FL_SET_MODEL)            current_entity->SetModel(entityCtorData.model);
+        if (entityCtorData.flags & FL_SET_SPRITE)           current_entity->SetSprite(entityCtorData.sprite);
+        if (entityCtorData.flags & FL_SET_DECAL)            current_entity->SetDecalEntity(entityCtorData.decal);
+        if (entityCtorData.flags & FL_SET_EDITOR_SPRITE)    current_entity->SetEditorSprite(entityCtorData.editorSprite);
+        if (entityCtorData.flags & FL_SET_BASE_CLASSES)    current_entity->SetBaseClasses(entityCtorData.baseClasses);
+
+        entityCtorData.clear();
+
+        
+
         fgd->AddEntityClass(current_entity);
 
         return current_entity;
@@ -44,52 +85,68 @@ struct FGDParsingContext
 
     void SetColor(float r, float g, float b)
 	{
-		Con_Printf("SetColor(%f, %f, %f)\n", r, g, b);
-//         assert(current_entity);
-//         current_entity->SetColor255(r,g,b);
+        entityCtorData.color.r = r / 255.f;
+        entityCtorData.color.g = g / 255.f;
+        entityCtorData.color.b = b / 255.f;
+
+        entityCtorData.flags |= FL_SET_COLOR;
     }
 
     
     void SetBbox(float x, float y, float z)
     {
-		Con_Printf("SetBbox(%f, %f, %f)\n", x, y, z);
-//         assert(current_entity);
-//         current_entity->SetBBox(glm::vec3(x,y,z));
+		entityCtorData.mins.x = -x / 2;
+		entityCtorData.mins.y = -y / 2;
+		entityCtorData.mins.z = -z / 2;
+
+        entityCtorData.maxs.x = x / 2;
+		entityCtorData.maxs.y = y / 2;
+		entityCtorData.maxs.z = z / 2;
+
+        entityCtorData.flags |= FL_SET_SIZE;
     }
 
     void SetBbox(float x, float y, float z, float x2, float y2, float z2)
     {
-		Con_Printf("SetBbox(%f, %f, %f, %f, %f, %f)\n", x, y, z, x2, y2, z2);
-//         assert(current_entity);
-//         current_entity->SetBBox(glm::vec3(x,y,z), glm::vec3(x2,y2,z2));
+		entityCtorData.mins.x = x;
+		entityCtorData.mins.y = y;
+		entityCtorData.mins.z = z;
+
+        entityCtorData.maxs.x = x2;
+		entityCtorData.maxs.y = y2;
+		entityCtorData.maxs.z = z2;
+
+        entityCtorData.flags |= FL_SET_SIZE;
     }
 
     void SetModel(std::string model)
     {
-		Con_Printf("SetModel(%s)\n", model.c_str());
-//         assert(current_entity);
-//         current_entity->SetModel(model);
+        entityCtorData.model = model;
+        entityCtorData.flags |= FL_SET_MODEL;
     }
 
     void SetSprite(std::string model)
     {
-		Con_Printf("SetSprite(%s)\n", model.c_str());
-//         assert(current_entity);
-//         current_entity->SetSprite(model);
+        entityCtorData.sprite = model;
+        entityCtorData.flags |= FL_SET_SPRITE;
     }
 
     void SetDecalEntity(bool flag)
     {
-		Con_Printf("SetDecalEntity(%d)\n", flag);
-//         assert(current_entity);
-//         current_entity->SetDecalEntity(flag);
+        entityCtorData.decal = flag;
+        entityCtorData.flags |= FL_SET_DECAL;
     }
 
     void SetEditorSprite(std::string sprite)
     {
-		Con_Printf("SetEditorSprite(%s)\n", sprite.c_str());
-//         assert(current_entity);
-//         current_entity->SetEditorSprite(sprite);
+        entityCtorData.editorSprite = sprite;
+        entityCtorData.flags |= FL_SET_EDITOR_SPRITE;
+    }
+
+    void SetBaseClasses(std::list<std::string> & classList)
+    {        
+        entityCtorData.baseClasses = classList; 
+        entityCtorData.flags |= FL_SET_BASE_CLASSES;
     }
 
     void SetPropertyExtra(std::string property, float value)
@@ -100,16 +157,7 @@ struct FGDParsingContext
 //         current_entity->SetPropertyExtra(property, value);
     }
 
-    FGDPropertyDescriptor* AddProperty(std::string name, std::string typeId, std::string description)
-    {
-		Con_Printf("AddProperty(%s, %s, %s)\n", name.c_str(), typeId.c_str(), description.c_str());
-//         assert(current_entity);
-//         current_property = new FGDPropertyDescriptor(name, typeId, description);
-//         current_entity->AddProperty(current_property);
-//         return current_property;
 
-            return nullptr;
-    }
 };
 
 namespace yy { HammerFGDParser::symbol_type yylex(FGDParsingContext* ctx); }
@@ -184,9 +232,16 @@ using namespace GoldSource;
 
 %type<std::string> IntegerType Color255 String Sprite Studio TargetDestination TargetSource Sound Model
 
+%type<GoldSource::FGDFlagsValue_t> FlagValue EnumValue
+%type<GoldSource::FGDFlagsList> FlagsValues EnumValues
+
+%type<GoldSource::FGDPropertyDescriptor*> ClassFieldDef
+%type<GoldSource::FGDPropertiesList> ClassFieldsOpt
 
 %type<GoldSource::FGDEntityClass*> EntityClassDef SolidClassDef PointClassDef BaseClassDef
-%type<GoldSource::FGDPropertyDescriptor*> ClassFieldDef
+
+%type<std::list<std::string>> identifierListOpt
+
 
 
 
@@ -207,13 +262,13 @@ EntityClassDef: SolidClassDef
 
 
 // Брашевая энтити
-SolidClassDef: SolidClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Solid,$4, $6); };
+SolidClassDef: SolidClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Solid,$4, $6, $8); };
 
 // Точечная энтити
-PointClassDef: PointClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Point,$4, $6); };
+PointClassDef: PointClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Point,$4, $6, $8); };
 
 // Базовый класс
-BaseClassDef: BaseClass CtorsOpt EqualsSign Identifier OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::BaseDef,$4, "<none>"); };
+BaseClassDef: BaseClass CtorsOpt EqualsSign Identifier OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::BaseDef,$4, "<none>", $6); };
 
 // Параметры точечных энтиткй:
 
@@ -253,53 +308,50 @@ IconspriteDefOpt: Iconsprite OpeningParenthesis StringLiteral ClosingParenthesis
 ExtendedConstructor: Identifier OpeningParenthesis Number ClosingParenthesis { ctx->SetPropertyExtra($1,$3); }
 
 // Ссылка на базовый класс
-BaseClassRefOpt: BaseDef OpeningParenthesis identifierListOpt ClosingParenthesis
-
-
-
-
+BaseClassRefOpt: BaseDef OpeningParenthesis identifierListOpt ClosingParenthesis { ctx->SetBaseClasses($3); }
 
 StringLiteralOpt: StringLiteral { $$ = $1;}
 |%empty { $$ = ""; };
 
-identifierListOpt: identifierListOpt identifierList
-|%empty;
+//identifierListOpt: identifierList Identifier  
+//|%empty;
 
-identifierList: identifierList Comma Identifier
-|				Identifier;
+identifierListOpt: identifierListOpt Comma Identifier { $1.push_back($3); $$ = $1; }
+|Identifier { $$.push_back($1); };
+|%empty { (void)0; };
 
 // Список свойств энтити
-ClassFieldsOpt: ClassFieldsOpt ClassFieldDef
-| %empty;
+ClassFieldsOpt: ClassFieldsOpt ClassFieldDef  { $1.push_back($2); $$ = $1;}
+| %empty { (void)0; };
 
 
 
 // Описание свойства энтити
 ClassFieldDef: 
 // Обычные поля
-Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = ctx->AddProperty($1, $3, $6); };
+Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor($1, $3, $6); };
 // Флаги
-| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = ctx->AddProperty($1, $3, "<flags>"); };
+| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,"<spawnflags>",$7); };
 // Перечисление
-| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = ctx->AddProperty($1, $3, $6); };
+| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,$6,$11); };
 
 // Особый случай для поля "model"
-| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = ctx->AddProperty("model", $3, $6); };
+| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor("model", $3, $6); };
 
 // Особый случай для поля "color"
-| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = ctx->AddProperty("color", $3, $6); };
-| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = ctx->AddProperty("color", $3, $6); };
+| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket {$$ = new FGDPropertyDescriptor("color", $3, $6); };
+| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor("color", $3, $6); };
 
 // Особый случай для поля "sound"
-| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = ctx->AddProperty("sound", $3, $6); };
-| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt  { $$ = ctx->AddProperty("sound", $3, $6); };
+| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDPropertyDescriptor("sound", $3, $6); };
+| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt  { $$ = new FGDPropertyDescriptor("sound", $3, $6); };
 
 
 // Особый случай для поля "size"
-| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = ctx->AddProperty("size", $3, $6); };
+| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty("size", $6, $11); };
 
 // Особый случай для поля "texture(decal)"
-| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = ctx->AddProperty("decal", "decal", "decal"); };
+| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = new FGDPropertyDescriptor("decal", "decal", "decal"); };
 
 
 
@@ -307,19 +359,19 @@ ModelType: Studio
 | Sprite;
 
 // Значения флагов
-FlagsValues: FlagsValues FlagValue
-|%empty;
+FlagsValues: FlagsValues FlagValue { $1.push_back($2); $$ = $1;}
+|%empty { (void)0; };
 
 
 // Значение флага : Описание : Включен по умолчанию
-FlagValue:  Number Colon StringLiteral Colon Number
+FlagValue:  Number Colon StringLiteral Colon Number { $$ = FGDFlagsValue_t($3, $1, $5); };
 
 // Значения перечислений
-EnumValues: EnumValues EnumValue
-|%empty;
+EnumValues: EnumValues EnumValue  { $1.push_back($2); $$ = $1;}
+|%empty { (void)0;};
 
 // Значение  : Описание
-EnumValue:  Number Colon StringLiteral
+EnumValue:  Number Colon StringLiteral { $$ = FGDFlagsValue_t($3, $1, true); };
 
 
 
