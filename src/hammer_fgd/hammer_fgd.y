@@ -75,9 +75,7 @@ struct FGDParsingContext
         if (entityCtorData.flags & FL_SET_BASE_CLASSES)    current_entity->SetBaseClasses(entityCtorData.baseClasses);
 
         entityCtorData.clear();
-
         
-
         fgd->AddEntityClass(current_entity);
 
         return current_entity;

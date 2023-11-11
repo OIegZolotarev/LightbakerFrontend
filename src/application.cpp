@@ -177,6 +177,7 @@ void Application::FlagDelayedInitDone()
 	// TEST
 	auto fd = FileSystem::Instance()->LoadFile("E:/Projects/PC/LightbakerFrontend/bin/tests/fgd/halflife_2020.fgd");
 	GoldSource::HammerFGDFile* pFGD = new GoldSource::HammerFGDFile(fd);
+	
 }
 
 LightBaker3000* Application::GetLightBakerApplication()

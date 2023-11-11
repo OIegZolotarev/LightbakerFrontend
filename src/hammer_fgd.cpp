@@ -19,16 +19,40 @@ char* HammerFGDFile::Data()
 HammerFGDFile::HammerFGDFile(FileData* fd)
 {
 	m_pFileData = fd;
-
 	ParseFGD(this);
+	RelinkInheritedProperties();
 }
 
 HammerFGDFile::~HammerFGDFile()
 {
-
+	for (auto kv : m_Entities)
+	{
+		delete kv.second;
+	}
 }
 
+void HammerFGDFile::AddEntityClass(FGDEntityClass* entityDef)
+{	
+	classesMapping_t ttt = classesMapping_t(entityDef->ClassName(), entityDef);
+	m_Entities.insert(ttt);
+}
 
+void HammerFGDFile::RelinkInheritedProperties()
+{
+	for (auto & kv : m_Entities)
+	{
+		FGDEntityClass* classDef = kv.second;
+		classDef->RelinkInheritedProperties(this);
+	}
+}
+
+GoldSource::FGDEntityClass* HammerFGDFile::FindEntityClass(std::string& baseClassStr)
+{
+	if (!m_Entities.contains(baseClassStr))
+		return nullptr;
+
+	return m_Entities[baseClassStr];
+}
 
 FGDEntityClass::~FGDEntityClass()
 {
@@ -84,6 +108,36 @@ void FGDEntityClass::SetEditorSprite(std::string sprite)
 void FGDEntityClass::SetPropertyExtra(std::string p, float value)
 {
 	// Do nothing for now
+}
+
+const std::string & FGDEntityClass::ClassName() const
+{
+	return m_ClassName;
+}
+
+void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile*  pOwner)
+{
+	for (auto & baseClassStr : m_BaseClasses)
+	{
+		FGDEntityClass* baseClass = pOwner->FindEntityClass(baseClassStr);
+
+		if (!baseClass)
+			continue;
+
+		baseClass->RelinkInheritedProperties(pOwner);
+
+
+		if (!(m_CtorDefinitionFlags & FL_SET_COLOR) && baseClass->m_CtorDefinitionFlags & FL_SET_COLOR)			SetColor(baseClass->m_Color);
+		if (!(m_CtorDefinitionFlags & FL_SET_SIZE) && baseClass->m_CtorDefinitionFlags & FL_SET_SIZE)				SetBBox(baseClass->m_Mins, baseClass->m_Maxs);
+		if (!(m_CtorDefinitionFlags & FL_SET_MODEL) && baseClass->m_CtorDefinitionFlags & FL_SET_MODEL)			SetModel(baseClass->m_Model);
+		if (!(m_CtorDefinitionFlags & FL_SET_SPRITE) && baseClass->m_CtorDefinitionFlags & FL_SET_SPRITE)			SetSprite(baseClass->m_Sprite);
+		if (!(m_CtorDefinitionFlags & FL_SET_DECAL) && baseClass->m_CtorDefinitionFlags & FL_SET_DECAL)			SetDecalEntity(baseClass->m_bDecal);
+		if (!(m_CtorDefinitionFlags & FL_SET_EDITOR_SPRITE) && baseClass->m_CtorDefinitionFlags & FL_SET_EDITOR_SPRITE)	SetEditorSprite(baseClass->m_EditorSprite);
+
+		// TODO: скопировать свойства базовых классов? Сделать два списка свойств - наследованные и объявленные
+		// Добавить для скорости третий список? Или же проще их копировать?
+
+	}
 }
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList & values) : FGDPropertyDescriptor(name, "", desc)

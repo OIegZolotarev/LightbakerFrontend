@@ -10,37 +10,6 @@
 namespace GoldSource
 {
 
-
-enum class FGDTokenTypes
-{
-	SolidClass = 0,
-	BaseClass,
-	PointClass,
-	EqualsSign,
-	Colon,
-	StringLiteral,
-	Identifier,
-	Number,
-	BaseDef,
-	OpeningParenthesis,
-	ClosingParenthesis,
-	OpeningBracket,
-	ClosingBracket,
-	Comment,
-	SizeBoundingBox,
-	Iconsprite,
-	Color,
-	IntegerType,
-	Color255,
-	String,
-	Sprite,
-	Studio,
-	Flags,
-	Choices,
-	
-	EndOfFile
-};
-
 enum class FGDEntityClassType
 {
 	Solid,
@@ -95,7 +64,7 @@ private:
 	FGDFlagsList m_Values;
 };
 
-typedef std::list< FGDPropertyDescriptor*> FGDPropertiesList;
+typedef std::list<FGDPropertyDescriptor*> FGDPropertiesList;
 
 
 #define FL_SET_COLOR (1<<0)
@@ -108,6 +77,8 @@ typedef std::list< FGDPropertyDescriptor*> FGDPropertiesList;
 
 class FGDEntityClass
 {
+	friend class HammerFGDFile;
+
 public:
 	
 	FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList & props);
@@ -138,6 +109,7 @@ public:
 		m_BaseClasses = classes;
 	}
 
+	const std::string & ClassName() const;
 private:
 
 	FGDEntityClassType m_Type;
@@ -158,13 +130,16 @@ private:
 	FGDPropertiesList m_Properties;
 	
 	std::list<std::string> m_BaseClasses;
+
+	void RelinkInheritedProperties(class HammerFGDFile * pFile);
 };
 
 class HammerFGDFile
 {	
 	FileData* m_pFileData = nullptr;
 
-	std::vector<FGDEntityClass*> m_Entities;
+	typedef std::pair<std::string, FGDEntityClass*> classesMapping_t;
+	std::unordered_map<std::string, FGDEntityClass*> m_Entities;
 
 public:
 	HammerFGDFile(FileData* fd);
@@ -177,12 +152,10 @@ public:
 		return m_pFileData->Name();
 	}
 
-
-	void AddEntityClass(FGDEntityClass* entityDef)
-	{
-		m_Entities.push_back(entityDef);
-	}
+	void AddEntityClass(FGDEntityClass* entityDef);
+	void RelinkInheritedProperties();
 	
+	FGDEntityClass* FindEntityClass(std::string& baseClassStr);
 };
 
 }
