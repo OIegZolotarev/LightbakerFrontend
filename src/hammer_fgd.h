@@ -40,10 +40,18 @@ typedef std::list<FGDFlagsValue_t>  FGDFlagsList;
 
 class FGDPropertyDescriptor
 {
+protected:
 	std::string m_Name;
 	std::string m_Descr;
 
 public:
+
+	FGDPropertyDescriptor(FGDPropertyDescriptor* pOther)
+	{
+		m_Name = pOther->m_Name;
+		m_Descr = pOther->m_Descr;
+	}
+
 	FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr)
 	{
 		m_Name = name;
@@ -54,14 +62,20 @@ public:
 	{
 
 	}
+	std::string& GetName();
 };
 
 class FGDFlagsEnumProperty: public FGDPropertyDescriptor
 {
 public:
  	 FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList & values);
+	 FGDFlagsEnumProperty(FGDFlagsEnumProperty* pOther);
+
+	 bool IsSpawnflagsProperty();
+
 private:
 	FGDFlagsList m_Values;
+	bool m_isFlagsProperty;
 };
 
 typedef std::list<FGDPropertyDescriptor*> FGDPropertiesList;
@@ -131,6 +145,7 @@ private:
 	
 	std::list<std::string> m_BaseClasses;
 
+	FGDPropertyDescriptor* FindProperty(std::string & propertyName);
 	void RelinkInheritedProperties(class HammerFGDFile * pFile);
 };
 

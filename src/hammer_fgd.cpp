@@ -136,11 +136,73 @@ void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile*  pOwner)
 
 		// TODO: скопировать свойства базовых классов? —делать два списка свойств - наследованные и объ€вленные
 		// ƒобавить дл€ скорости третий список? »ли же проще их копировать?
-
 	}
+
+	for (auto it = m_BaseClasses.rbegin(); it != m_BaseClasses.rend(); it++)
+	{
+		FGDEntityClass* baseClass = pOwner->FindEntityClass(*it);
+
+		if (!baseClass)
+			continue;
+
+		// Ѕазовые классы идут в пор€дке наследовани€ (надеюсь), поэтому копировать свойства достаточно на один уровень назад
+		// TODO: добавить проверку что базовый класс определен на момент упоминани€?
+		for (auto prop : baseClass->m_Properties)
+		{
+			auto existingProperty = FindProperty(prop->GetName());
+			
+			// Ќекоторые классы друг-друга перекрывают. Ќадо отсе€ть такие пол€
+			// TODO: проверить что не нужно соедин€ть флаги.
+			if (existingProperty)
+			{
+				continue;
+			}
+
+			if (typeid(prop) == typeid((FGDPropertyDescriptor*)0))
+			{
+				m_Properties.push_front(new FGDPropertyDescriptor(prop));
+			}
+			else if (typeid(prop) == typeid((FGDFlagsEnumProperty*)0))
+			{
+				auto castedProp = static_cast<FGDFlagsEnumProperty* > (prop);
+				m_Properties.push_front(new FGDFlagsEnumProperty(castedProp));
+			}
+			
+		}
+			
+	}
+}
+
+GoldSource::FGDPropertyDescriptor* FGDEntityClass::FindProperty(std::string& propertyName)
+{
+	for (auto it : m_Properties)
+	{
+		if (it->GetName() == propertyName)
+		{
+			return it;
+		}
+	}
+
+	return nullptr;
 }
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList & values) : FGDPropertyDescriptor(name, "", desc)
 {
 	m_Values = values;
+}
+
+FGDFlagsEnumProperty::FGDFlagsEnumProperty(FGDFlagsEnumProperty* pOther) : FGDPropertyDescriptor(pOther)
+{
+	m_Values = pOther->m_Values;
+	m_isFlagsProperty = (m_Name == "spawnflags");
+}
+
+bool FGDFlagsEnumProperty::IsSpawnflagsProperty()
+{
+	return m_isFlagsProperty;
+}
+
+std::string& FGDPropertyDescriptor::GetName()
+{
+	return m_Name;
 }

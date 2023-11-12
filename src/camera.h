@@ -14,7 +14,7 @@ enum class CameraMouseModes
 {
 	Pan,
 	Rotate,
-	Zoom,
+	Zoom,	
 	None
 };
 
@@ -35,7 +35,8 @@ typedef std::function<void(bool bHit, SDL_Event& event)> pfnKeyStrokeCallback;
 enum class CameraControlScheme
 {
 	ValveHammerEditor = 0,
-	Blender,
+	BlenderTouchpad,
+	Blender
 };
 
 class CameraCommandKeyStroke
@@ -79,12 +80,14 @@ class Camera: public IEventHandler
 	CameraMouseModes m_Mode = CameraMouseModes::None;
 
 	KeystrokeList m_vKeyStrokesBlenderTouchpad;
+	KeystrokeList m_vKeyStrokesBlender;
 	KeystrokeList m_vKeyStrokesVHE;
 
 	void SetupKeystrokes();
 
 	void SetupCommonKeystrokesCallbacks();
 	void SetupKeystrokesBlenderTouchpad();
+	void SetupKeystrokesBlender();
 	void SetupKeystrokesVHE();
 
 	pfnKeyStrokeCallback callbackRotate;
@@ -149,6 +152,8 @@ class Camera: public IEventHandler
 
 	void UpdateOrientation();
 
+	bool CalcMovementSpeeds();
+
 public:
 	Camera(SceneRenderer * pSceneRenderer);
 	~Camera();
@@ -172,4 +177,5 @@ public:
 	glm::vec3	GetForwardVector();
 
 	void LookAtPoint(glm::vec3 pos);
+
 };

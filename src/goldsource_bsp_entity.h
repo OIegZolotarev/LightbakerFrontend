@@ -20,9 +20,9 @@ class BSPEntity
 
     std::weak_ptr<SceneEntity> m_SceneEntity;  
 
-    glm::vec3 ConvertOriginToSceneSpace();
-    static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
-    static glm::vec4 ConvertLightColorAndIntensity(LightEntity * pEntity);
+    glm::vec3           ConvertOriginToSceneSpace();
+    static glm::vec3    ConvertOriginFromSceneSpace(glm::vec3 pos);
+    static glm::vec4    ConvertLightColorAndIntensity(LightEntity * pEntity);
 
 public:
     BSPEntity();

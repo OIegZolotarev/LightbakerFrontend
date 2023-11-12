@@ -200,6 +200,12 @@ void SelectionManager::UnSelect()
 void SelectionManager::UnSelectEverythingBut(ISelectableObject* object)
 {
 	m_pSelectionInvokedObject = object;
+
+	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+
+	
+	// ƒостаточно безопасно кидать без проверки типов...
+	m_pLastSelectedObject = scene->GetEntityWeakRef((SceneEntity*)object);
 }
 
 SelectionManager::SelectionManager()

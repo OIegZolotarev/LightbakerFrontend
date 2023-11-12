@@ -200,6 +200,7 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
     <ClCompile Include="edit_history.cpp" />
@@ -218,6 +219,7 @@ build.bat
     <ClCompile Include="gl_texture.cpp" />
     <ClCompile Include="goldsource_bsp_renderer.cpp" />
     <ClCompile Include="goldsource_bsp_world.cpp" />
+    <ClCompile Include="goldsource_game_configuration.cpp" />
     <ClCompile Include="goldsource_lightmap_atlas.cpp" />
     <ClCompile Include="hammer_fgd.cpp" />
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp" />
@@ -270,6 +272,7 @@ build.bat
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="game_configuration.h" />
     <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
     <ClInclude Include="goldsource_bsp_disk_structs.h" />
@@ -293,6 +296,7 @@ build.bat
     <ClInclude Include="goldsource_bsp_mem_structs.h" />
     <ClInclude Include="goldsource_bsp_renderer.h" />
     <ClInclude Include="goldsource_bsp_world.h" />
+    <ClInclude Include="goldsource_game_configuration.h" />
     <ClInclude Include="goldsource_lightmap_atlas.h" />
     <ClInclude Include="hammer_fgd.h" />
     <ClInclude Include="helper_geometry_shader.h" />

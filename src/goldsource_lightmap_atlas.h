@@ -42,8 +42,6 @@ namespace GoldSource
 
 #define LIGHTMAP_BYTES 4
 
-
-
 class LightmapAtlas
 {
 
