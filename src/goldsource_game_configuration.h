@@ -26,9 +26,17 @@ class HammerGameConfiguration: public GameConfiguration
 	}m_CompilationPrograms;
 
 	std::list<std::string> m_FGDFiles;
-public:
-	HammerGameConfiguration(std::string gameRootDir);
+
+
+	GameEngines m_EngineHint = GameEngines::GoldSource;
+
+  public:
+    HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
 	~HammerGameConfiguration();
+
+  private:
+    void ParseLiblistGam();
+    void ParseGameInfo();
 };
 
 }

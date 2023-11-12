@@ -186,13 +186,6 @@ std::string FileSystem::BaseNameFromPath(std::string& fullPath)
 	return c.stem().string();
 }
 
-std::string FileSystem::ParentPath(std::string& fullPath)
-{
-	std::filesystem::path p = std::filesystem::path(fullPath);
-	auto c = std::filesystem::canonical(p);
-
-	return c.parent_path().string();
-}
 
 void FileSystem::ChangeCurrentDirectoryToFileDirectory(const std::string& fileName)
 {

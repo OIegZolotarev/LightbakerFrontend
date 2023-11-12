@@ -302,6 +302,10 @@ nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j
 
 	}
 
+	auto v = prop_descriptor["value"];
+
+	
+
 	return prop_descriptor;
 }
 

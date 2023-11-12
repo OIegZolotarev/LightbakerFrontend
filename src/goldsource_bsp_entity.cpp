@@ -14,7 +14,7 @@ using namespace GoldSource;
 
 BSPEntity::BSPEntity()
 {
-
+    
 }
 
 BSPEntity::~BSPEntity()
@@ -122,6 +122,9 @@ void BSPEntity::PopulateScene()
 		ptr->CopyProperties(std::move(m_vProperties));
         ptr->SetPosition(ConvertOriginToSceneSpace());
         ptr->FlagDataLoaded();
+        
+        ptr->SetMins(glm::vec3(-4, -4, -4));
+        ptr->SetMaxs(glm::vec3(4, 4, 4));
     }
 
     

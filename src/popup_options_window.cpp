@@ -1,240 +1,219 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2023 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2023 CrazyRussian
 */
 
-#include "ui_common.h"
 #include "popup_options_window.h"
 #include "application.h"
 #include "imgui.h"
 #include "imgui_internal.h"
+#include "ui_common.h"
 
-#include "ui_options_pages.h"
 #include "Camera.h"
+#include "ui_options_pages.h"
 #include "ui_styles_manager.h"
-
 
 using namespace ProgramOptions;
 
 extern uiOptionPage_t g_OptionsPages[(int)OptionsPage::Total];
 
-
 void RegisterOptions()
 {
-	VariantValue* opt = nullptr;
+    VariantValue *opt = nullptr;
 
-	BeginOptionPage(OptionsPage::General, "General");
+    BeginOptionPage(OptionsPage::General, "General");
 
-	AddGroup("Appearance");
-	opt = AddOption(ApplicationSettings::GUIColorScheme, "UI colors", PropertiesTypes::Enum);	
-	UIStyles::Manager::Instance()->PopulateStylesOption(opt);
+    AddGroup("Appearance");
+    opt = AddOption(ApplicationSettings::GUIColorScheme, "UI colors", PropertiesTypes::Enum);
+    UIStyles::Manager::Instance()->PopulateStylesOption(opt);
 
+    AddGroup("Scene");
+    AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
+    AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
 
-	AddGroup("Scene");
-	AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
-	AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
+    AddGroup("Background");
+    AddOption(ApplicationSettings::UseGradientBackground, "Use gradient", PropertiesTypes::Bool);
+    AddOption(ApplicationSettings::BackgroundColor1, "Color 1", PropertiesTypes::ColorRGB);
+    AddOption(ApplicationSettings::BackgroundColor2, "Color 2 (gradient)", PropertiesTypes::ColorRGB);
 
-	AddGroup("Background");
-	AddOption(ApplicationSettings::UseGradientBackground, "Use gradient", PropertiesTypes::Bool);
-	AddOption(ApplicationSettings::BackgroundColor1, "Color 1", PropertiesTypes::ColorRGB);	
-	AddOption(ApplicationSettings::BackgroundColor2, "Color 2 (gradient)", PropertiesTypes::ColorRGB);
-
-	
-
-	BeginOptionPage(OptionsPage::Camera, "Camera");
-
-	opt = AddOption(ApplicationSettings::CameraControlScheme, "Camera control scheme", PropertiesTypes::Enum);
-	opt->AddEnumValue("Valve Hammer Editor", (int)CameraControlScheme::ValveHammerEditor);
-	opt->AddEnumValue("Blender", (int)CameraControlScheme::Blender);
+    BeginOptionPage(OptionsPage::Camera, "Camera");
 
 
-	AddGroup("Movement");
+    // Порядок перечислений должен совпадать с основным перечислением!!
+    opt = AddOption(ApplicationSettings::CameraControlScheme, "Camera control scheme", PropertiesTypes::Enum);
+    opt->AddEnumValue("Valve Hammer Editor", (int)CameraControlScheme::ValveHammerEditor);
+    opt->AddEnumValue("Blender", (int)CameraControlScheme::Blender);
+    opt->AddEnumValue("Blender (touchpad)",  (int)CameraControlScheme::BlenderTouchpad);
+    
+    
 
-	AddOption(ApplicationSettings::CameraMovementSpeed, "Speed", PropertiesTypes::Float);
-	
-	opt = AddOption(ApplicationSettings::CameraAccel, "Acceleration", PropertiesTypes::Float);
-	//opt->SetNumericalLimits(0, 300);
+    AddGroup("Movement");
 
-	opt = AddOption(ApplicationSettings::CameraDecel, "Decelaration", PropertiesTypes::Float);
-	//opt->SetNumericalLimits(0, 300);
+    AddOption(ApplicationSettings::CameraMovementSpeed, "Speed", PropertiesTypes::Float);
 
+    opt = AddOption(ApplicationSettings::CameraAccel, "Acceleration", PropertiesTypes::Float);
+    // opt->SetNumericalLimits(0, 300);
 
-	AddGroup("Parameters");
+    opt = AddOption(ApplicationSettings::CameraDecel, "Deceleration", PropertiesTypes::Float);
+    // opt->SetNumericalLimits(0, 300);
 
-	opt = AddOption(ApplicationSettings::CameraFov, "Field of view", PropertiesTypes::Float);
-	opt->SetNumericalLimits(1, 179);
+    AddGroup("Parameters");
 
-	opt = AddOption(ApplicationSettings::CameraZNear, "Near plane", PropertiesTypes::Float);
-	opt->SetNumericalLimits(0.001, 10);
+    opt = AddOption(ApplicationSettings::CameraFov, "Field of view", PropertiesTypes::Float);
+    opt->SetNumericalLimits(1, 179);
 
-	opt = AddOption(ApplicationSettings::CameraZFar, "Far plane", PropertiesTypes::Float);
-	opt->SetNumericalLimits(10, 1000000);
+    opt = AddOption(ApplicationSettings::CameraZNear, "Near plane", PropertiesTypes::Float);
+    opt->SetNumericalLimits(0.001, 10);
 
-	
+    opt = AddOption(ApplicationSettings::CameraZFar, "Far plane", PropertiesTypes::Float);
+    opt->SetNumericalLimits(10, 1000000);
 
-	BeginOptionPage(OptionsPage::Keyboard, "Keyboard");
-	
+    BeginOptionPage(OptionsPage::Keyboard, "Keyboard");
 }
 
 OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)
 {
-	//RegisterOptions();
+    // RegisterOptions();
 }
 
 OptionsDialog::~OptionsDialog()
 {
-
 }
 
 void OptionsDialog::Render()
 {
-	if (!RenderHeader())
-		return;
+    if (!RenderHeader())
+        return;
 
+    // if (ImGui::BeginTable("###LayoutLeftRight", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp,
+    // ImVec2(-FLT_MIN,-20)))
+    {
+        // 		ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 20 );
+        // 		ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 80);
+        //
+        //
+        // 		ImGui::TableNextRow();
+        // 		ImGui::TableSetColumnIndex(0);
 
+        ImVec2 size(-FLT_MIN, -FLT_MIN);
 
-	//if (ImGui::BeginTable("###LayoutLeftRight", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp, ImVec2(-FLT_MIN,-20)))
-	{
+        uiOptionPage_t *pageToRender = nullptr;
 
-// 		ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 20 );
-// 		ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 80);
-// 		
-// 
-// 		ImGui::TableNextRow();
-// 		ImGui::TableSetColumnIndex(0);
+        if (ImGui::BeginTabBar("###Category"))
+        {
+            for (int i = 0; i < ARRAYSIZE(g_OptionsPages); i++)
+            {
+                auto page = &g_OptionsPages[i];
 
+                if (page->selected)
+                    pageToRender = page;
 
+                // if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
+                if (ImGui::BeginTabItem(page->pageDescription.c_str()))
+                {
+                    pageToRender = page;
 
-		ImVec2 size(-FLT_MIN,-FLT_MIN);
+                    for (int k = 0; k < ARRAYSIZE(g_OptionsPages); k++)
+                    {
+                        if (k == i)
+                            continue;
+                        g_OptionsPages[k].selected = false;
+                    }
 
-		uiOptionPage_t* pageToRender = nullptr;
+                    ImGui::EndTabItem();
+                }
+            }
 
-		if (ImGui::BeginTabBar("###Category"))
-		{
-			for (int i = 0; i < ARRAYSIZE(g_OptionsPages); i++)
-			{
-				auto page = &g_OptionsPages[i];
+            // ImGui::EndListBox();
+            ImGui::EndTabBar();
+        }
 
-				if (page->selected)
-					pageToRender = page;
+        if (pageToRender)
+        {
+            if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
+            {
+                RenderOptionsPages(pageToRender);
+                ImGui::EndChild();
+            }
+        }
 
-				//if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
-				if (ImGui::BeginTabItem(page->pageDescription.c_str()))
-				{
-					pageToRender = page;
+        // ImGui::EndTable();
+    }
 
-					for (int k = 0; k < ARRAYSIZE(g_OptionsPages); k++)
-					{
-						if (k == i) continue;
-						g_OptionsPages[k].selected = false;
-					}
-
-					ImGui::EndTabItem();
-				}
-			}
-
-			//ImGui::EndListBox();
-			ImGui::EndTabBar();
-		}
-
-
-
-		if (pageToRender)
-		{
-			if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
-			{
-				RenderOptionsPages(pageToRender);
-				ImGui::EndChild();
-			}
-		}
-
-		//ImGui::EndTable();
-	}
-
-	RenderFooter();
-
+    RenderFooter();
 }
 
 void OptionsDialog::RenderFooter()
 {
-	
-		if (ImGui::Button("OK"))
-			OnOkPressed();
+    if (ImGui::Button("OK"))
+        OnOkPressed();
 
-		ImGui::SameLine();
+    ImGui::SameLine();
 
-		if (ImGui::Button("Cancel"))
-			OnCancelPressed();
+    if (ImGui::Button("Cancel"))
+        OnCancelPressed();
 
-	
-	
-
-	ImGui::EndPopup();
+    ImGui::EndPopup();
 }
 
 bool OptionsDialog::RenderHeader()
 {
-	static const char* key = "Options";
-	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRenderer->GetScene();
+    static const char *key = "Options";
+    auto sceneRenderer     = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+    auto scene             = sceneRenderer->GetScene();
 
-	if (m_bVisible)
-	{
-		ImGui::OpenPopup(key);
-	}
+    if (m_bVisible)
+    {
+        ImGui::OpenPopup(key);
+    }
 
-	if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
-		return false;
+    if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
+        return false;
 
-	ImGui::SetWindowSize(ImVec2(600, 400));
+    ImGui::SetWindowSize(ImVec2(600, 400));
 
-	return true;
+    return true;
 }
 
-void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t* page)
+void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t *page)
 {
-	if (ImGui::BeginChildFrame(53, ImVec2(0,0)))
-	{
-		
-		if (ImGui::BeginTable("split", 2, ImGuiTableFlags_SizingStretchProp))
-		{
-			ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 50);
-			ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 50);
+    if (ImGui::BeginChildFrame(53, ImVec2(0, 0)))
+    {
+        if (ImGui::BeginTable("split", 2, ImGuiTableFlags_SizingStretchProp))
+        {
+            ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 50);
+            ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 50);
 
-			int i = 0;
+            int i = 0;
 
-			for (auto& it : page->items)
-			{
-				ImGui::PushID(i++); // Use field index as identifier.
+            for (auto &it : page->items)
+            {
+                ImGui::PushID(i++); // Use field index as identifier.
 
-				// Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
-				ImGui::TableNextRow();
+                // Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
+                ImGui::TableNextRow();
 
-				it->RenderImGUI();
+                it->RenderImGUI();
 
-				ImGui::PopID();
-			}
+                ImGui::PopID();
+            }
 
-			ImGui::EndTable();
-		}
-		ImGui::EndChildFrame();
-	}
+            ImGui::EndTable();
+        }
+        ImGui::EndChildFrame();
+    }
 }
-
-
 
 void OptionsDialog::OnOpen()
 {
-
 }
 
 void OptionsDialog::OnOkPressed()
 {
-	m_bVisible = false;
+    m_bVisible = false;
 }
 
 void OptionsDialog::OnCancelPressed()
 {
-	m_bVisible = false;
+    m_bVisible = false;
 }
-

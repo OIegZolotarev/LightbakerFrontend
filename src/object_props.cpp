@@ -106,7 +106,19 @@ const char* VariantValue::GetString() const
 void VariantValue::SetEnumValue(int val)
 {
 	initialized = true;
-	value.asEnum = val;
+    int idx     = 0;
+
+	for (auto it: m_EnumOrFlagsValues)
+    {
+        if (it.second == val)
+        {
+            value.asEnum = idx;
+		}
+
+		idx++;
+	}
+
+	
 }
 
 void VariantValue::SetFlags(int val)

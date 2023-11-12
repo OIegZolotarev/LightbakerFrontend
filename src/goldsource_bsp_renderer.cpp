@@ -26,14 +26,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 /***
-*
-*  Copyright (c) 1998, Valve LLC. All rights reserved.
-*
-*  This product contains software technology licensed from Id
-*  Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
-*  All Rights Reserved.
-*
-****/
+ *
+ *  Copyright (c) 1998, Valve LLC. All rights reserved.
+ *
+ *  This product contains software technology licensed from Id
+ *  Software, Inc. ("Id Technology").  Id Technology (c) 1996 Id Software, Inc.
+ *  All Rights Reserved.
+ *
+ ****/
+
 
 #include "application.h"
 #include "goldsource_bsp_disk_structs.h"
@@ -45,208 +46,199 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 using namespace GoldSource;
 
-
-void BSPRenderer::RecursiveWorldNode(mnode_t* node)
+void BSPRenderer::RecursiveWorldNode(mnode_t *node)
 {
-	int			i, c, side, * pindex;
-	glm::vec3		acceptpt, rejectpt;
-	mplane_t* plane;
-	msurface_t* surf, ** mark;
-	mleaf_t* pleaf;
-	double		d, dot;
-	
-	glm::vec3 mins, maxs;
-	
-	if (!node) return;
-	if (!node->plane) return;
-	if (node->contents == CONTENTS_SOLID)
-		return;		// solid
+    int i, c, side, *pindex;
+    glm::vec3 acceptpt, rejectpt;
+    mplane_t *plane;
+    msurface_t *surf, **mark;
+    mleaf_t *pleaf;
+    double d, dot;
 
-	if (node->visframe != m_visFrameCount)
-		return;
+    glm::vec3 mins, maxs;
 
-	// 	if (R_CullBox (node->minmaxs, node->minmaxs+3))
-	// 		return;
+    if (!node)
+        return;
+    if (!node->plane)
+        return;
+    if (node->contents == CONTENTS_SOLID)
+        return; // solid
 
-	// if a leaf node, draw stuff
-	if (node->contents < 0)
-	{
+    if (node->visframe != m_visFrameCount)
+        return;
 
-		pleaf = (mleaf_t*)node;
-		
-		//if (Frustrum->Cull(pleaf->minmaxs, pleaf->minmaxs + 3))
-//			return;
+    // 	if (R_CullBox (node->minmaxs, node->minmaxs+3))
+    // 		return;
 
-		mark = pleaf->firstmarksurface;
-		c = pleaf->nummarksurfaces;
+    // if a leaf node, draw stuff
+    if (node->contents < 0)
+    {
+        pleaf = (mleaf_t *)node;
 
-		if (c)
-		{
-			do
-			{
-				(*mark)->visframe = m_visFrameCount;
-				mark++;
-			} while (--c);
-		}
+        // if (Frustrum->Cull(pleaf->minmaxs, pleaf->minmaxs + 3))
+        //			return;
 
-		// deal with model fragments in this leaf
-// 			if (pleaf->efrags)
-// 				R_StoreEfrags (&pleaf->efrags);
+        mark = pleaf->firstmarksurface;
+        c    = pleaf->nummarksurfaces;
 
-	//	return;
-	}
+        if (c)
+        {
+            do
+            {
+                (*mark)->visframe = m_visFrameCount;
+                mark++;
+            } while (--c);
+        }
 
-	// node is just a decision point, so go down the apropriate sides
+        // deal with model fragments in this leaf
+        // 			if (pleaf->efrags)
+        // 				R_StoreEfrags (&pleaf->efrags);
 
-	// find which side of the node we are on
-	plane = node->plane;
+        //	return;
+    }
 
-	switch (plane->type)
-	{
-	case PLANE_X:
-		dot = m_vecEyesPosition.x - plane->dist;
-		break;
-	case PLANE_Y:
-		dot = m_vecEyesPosition.y - plane->dist;
-		break;
-	case PLANE_Z:
-		dot = m_vecEyesPosition.z - plane->dist;
-		break;
-	default:
-		dot = glm::dot(m_vecEyesPosition, plane->normal) - plane->dist;
-		break;
-	}
+    // node is just a decision point, so go down the apropriate sides
 
-	if (dot >= 0)
-		side = 0;
-	else
-		side = 1;
+    // find which side of the node we are on
+    plane = node->plane;
 
-	// recurse down the children, front side first
-	RecursiveWorldNode(node->children[side]);
+    switch (plane->type)
+    {
+    case PLANE_X:
+        dot = m_vecEyesPosition.x - plane->dist;
+        break;
+    case PLANE_Y:
+        dot = m_vecEyesPosition.y - plane->dist;
+        break;
+    case PLANE_Z:
+        dot = m_vecEyesPosition.z - plane->dist;
+        break;
+    default:
+        dot = glm::dot(m_vecEyesPosition, plane->normal) - plane->dist;
+        break;
+    }
 
-	// draw stuff
-	c = node->numsurfaces;
+    if (dot >= 0)
+        side = 0;
+    else
+        side = 1;
 
-	if (c)
-	{
-		
-		surf = m_pWorld->Faces(node->firstsurface);
+    // recurse down the children, front side first
+    RecursiveWorldNode(node->children[side]);
 
-		if (dot < -BACKFACE_EPSILON)
-			side = SURF_PLANEBACK;
-		else if (dot > BACKFACE_EPSILON)
-			side = 0;
-		{
-			for (; c; c--, surf++)
-			{
+    // draw stuff
+    c = node->numsurfaces;
 
-				// TODO: implement
-// 				if (surf->visframe != m_visFrameCount)
-// 					continue;
+    if (c)
+    {
+        surf = m_pWorld->Faces(node->firstsurface);
 
-				if (surf->texinfo->flags & SURF_SKY) continue;
+        if (dot < -BACKFACE_EPSILON)
+            side = SURF_PLANEBACK;
+        else if (dot > BACKFACE_EPSILON)
+            side = 0;
+        {
+            for (; c; c--, surf++)
+            {
+                // TODO: implement
+                // 				if (surf->visframe != m_visFrameCount)
+                // 					continue;
 
-// 				if (surf->texinfo->flags2 & SURF_ALPHA_TRANSPARENT || surf->texinfo->flags2 & SURF_WATER)
-// 				{
-// 					surf->texturechain = r_alpha_surfaces;
-// 					r_alpha_surfaces = surf;
-// 					continue;
-// 				}
-				
-				RenderBrushPoly(surf);
+                if (surf->texinfo->flags & SURF_SKY)
+                    continue;
 
+                // 				if (surf->texinfo->flags2 & SURF_ALPHA_TRANSPARENT || surf->texinfo->flags2 &
+                // SURF_WATER)
+                // 				{
+                // 					surf->texturechain = r_alpha_surfaces;
+                // 					r_alpha_surfaces = surf;
+                // 					continue;
+                // 				}
 
-			}
-		}
+                RenderBrushPoly(surf);
+            }
+        }
+    }
 
-	}
-
-	// recurse down the back side
-	RecursiveWorldNode(node->children[!side]);
+    // recurse down the back side
+    RecursiveWorldNode(node->children[!side]);
 }
 
-BSPRenderer::BSPRenderer(BSPWorld* world)
+BSPRenderer::BSPRenderer(BSPWorld *world)
 {
-	m_pWorld = world;
+    m_pWorld = world;
 }
 
 BSPRenderer::~BSPRenderer()
 {
-
 }
 
 void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
 {
-	// Make Z-Axis look up
-	m_vecEyesPosition = cameraPosition.xzy;
+    // Make Z-Axis look up
+    m_vecEyesPosition = cameraPosition.xzy;
 
-	glPushMatrix();
-	glRotatef(-90, 1, 0, 0);	    // put Z going up
-	glRotatef(90, 0, 0, 1);	    // put Z going up
+    glPushMatrix();
+    glRotatef(-90, 1, 0, 0); // put Z going up
+    glRotatef(90, 0, 0, 1);  // put Z going up
 
-	RecursiveWorldNode(m_pWorld->GetNodes(0));
+    RecursiveWorldNode(m_pWorld->GetNodes(0));
 
-	glPopMatrix();
+    glPopMatrix();
 }
 
-void BSPRenderer::RenderBrushPoly(msurface_t* fa)
+void BSPRenderer::RenderBrushPoly(msurface_t *fa)
 {
-	mtexture_t* t;
-	byte* base;
-	int			maps;
-	
-	int smax, tmax;
+    mtexture_t *t;
+    byte *base;
+    int maps;
 
-// 	glActiveTexture(GL_TEXTURE0);
-// 	glEnable(GL_TEXTURE_2D);
-// 	glBindTexture(GL_TEXTURE_2D, t->gl_texturenum);
-// 
-// 	// 
-// 	glActiveTexture(GL_TEXTURE1);
-// 	glEnable(GL_TEXTURE_2D);
-// 	
-// 	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
-// 
-// 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-// 	glActiveTexture(GL_TEXTURE0);
+    int smax, tmax;
 
+    // 	glActiveTexture(GL_TEXTURE0);
+    // 	glEnable(GL_TEXTURE_2D);
+    // 	glBindTexture(GL_TEXTURE_2D, t->gl_texturenum);
+    //
+    // 	//
+    // 	glActiveTexture(GL_TEXTURE1);
+    // 	glEnable(GL_TEXTURE_2D);
+    //
+    // 	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
+    //
+    // 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    // 	glActiveTexture(GL_TEXTURE0);
 
-	auto p = fa->polys;
+    auto p = fa->polys;
 
-	glCullFace(GL_FRONT);
-	glEnable(GL_TEXTURE_2D);
-	
-	
-	glActiveTexture(GL_TEXTURE1);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);	
-	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    glCullFace(GL_FRONT);
+    glEnable(GL_TEXTURE_2D);
 
+    glActiveTexture(GL_TEXTURE1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
-	glActiveTexture(GL_TEXTURE0);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
-	//glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
+    // glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	
+    glBegin(GL_POLYGON);
+    auto v = p->verts[0];
+    for (int i = 0; i < p->numverts; i++, v += VERTEXSIZE)
+    {
+        glMultiTexCoord2f(GL_TEXTURE0, v[3], v[4]);
+        glMultiTexCoord2f(GL_TEXTURE1, v[5], v[6]);
 
-	glBegin(GL_POLYGON);
-	auto v = p->verts[0];
-	for (int i = 0; i < p->numverts; i++, v += VERTEXSIZE)
-	{
-		glMultiTexCoord2f(GL_TEXTURE0,v[3], v[4]);
-		glMultiTexCoord2f(GL_TEXTURE1, v[5], v[6]);
-		
-		glColor3f(1,1,1);
-		glVertex3fv(v);
-	}
-	glEnd();
+        glColor3f(1, 1, 1);
+        glVertex3fv(v);
+    }
+    glEnd();
 
-	glEnable(GL_TEXTURE_2D);
-	glCullFace(GL_BACK);
+    glEnable(GL_TEXTURE_2D);
+    glCullFace(GL_BACK);
 
-	glActiveTexture(GL_TEXTURE1);
-	glDisable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE1);
+    glDisable(GL_TEXTURE_2D);
+    glActiveTexture(GL_TEXTURE0);
 }

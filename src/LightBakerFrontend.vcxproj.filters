@@ -273,7 +273,7 @@
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_game_configuration.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -1,841 +1,834 @@
 ﻿/*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
-#include "common.h"
 #include "camera.h"
+#include "common.h"
 
 #include "application.h"
 #include <algorithm>
 
-
-
-
-Camera::Camera(SceneRenderer * pSceneRenderer)
+Camera::Camera(SceneRenderer *pSceneRenderer)
 {
-	
-	auto settings = Application::Instance()->GetPersistentStorage();
+    auto settings = Application::Instance()->GetPersistentStorage();
 
-	m_pFov = settings->GetSetting(ApplicationSettings::CameraFov);
-	m_pZNear = settings->GetSetting(ApplicationSettings::CameraZNear);
-	m_pZFar = settings->GetSetting(ApplicationSettings::CameraZFar);
-	
-	m_pAccelSpeed = settings->GetSetting(ApplicationSettings::CameraAccel);
-	m_pDeccelSpeed = settings->GetSetting(ApplicationSettings::CameraDecel);
-	m_pMoveSpeed = settings->GetSetting(ApplicationSettings::CameraMovementSpeed);
+    m_pFov                  = settings->GetSetting(ApplicationSettings::CameraFov);
+    m_pZNear                = settings->GetSetting(ApplicationSettings::CameraZNear);
+    m_pZFar                 = settings->GetSetting(ApplicationSettings::CameraZFar);
+    m_pAccelSpeed           = settings->GetSetting(ApplicationSettings::CameraAccel);
+    m_pDeccelSpeed          = settings->GetSetting(ApplicationSettings::CameraDecel);
+    m_pMoveSpeed            = settings->GetSetting(ApplicationSettings::CameraMovementSpeed);
+    m_pCameraControlsScheme = settings->GetSetting(ApplicationSettings::CameraControlScheme);
 
-	m_Origin = { 0,0,0 };
-	m_Angles = { 0,0,0 };
-	
-	m_matModelView = glm::mat4(1.f);
-	m_matProjection = glm::mat4(1.f);
+    m_Origin = {0, 0, 0};
+    m_Angles = {0, 0, 0};
 
-	SetupCommonKeystrokesCallbacks();
-	SetupKeystrokes();
-	m_pSceneRenderer = pSceneRenderer;
+    m_matModelView  = glm::mat4(1.f);
+    m_matProjection = glm::mat4(1.f);
+
+    SetupCommonKeystrokesCallbacks();
+    SetupKeystrokes();
+    m_pSceneRenderer = pSceneRenderer;
 }
 
 Camera::~Camera()
 {
-	ClearPointersVector(m_vKeyStrokesBlenderTouchpad);
-	ClearPointersVector(m_vKeyStrokesBlender);
-	ClearPointersVector(m_vKeyStrokesVHE);
+    ClearPointersVector(m_vKeyStrokesBlenderTouchpad);
+    ClearPointersVector(m_vKeyStrokesBlender);
+    ClearPointersVector(m_vKeyStrokesVHE);
 }
 
 void Camera::SetupKeystrokes()
 {
-	SetupKeystrokesBlenderTouchpad();
-	SetupKeystrokesBlender();
-	SetupKeystrokesVHE();
+    SetupKeystrokesBlenderTouchpad();
+    SetupKeystrokesBlender();
+    SetupKeystrokesVHE();
 }
 
 void Camera::SetupKeystrokesBlenderTouchpad()
 {
-	CameraCommandKeyStroke* keystrokeRotate = new CameraCommandKeyStroke();
-	keystrokeRotate->AddMouseKey(SDL_BUTTON_LMASK);
-	keystrokeRotate->AddKeyboardKey("Left Alt");
-	keystrokeRotate->SetCallback(callbackRotate);
+    CameraCommandKeyStroke *keystrokeRotate = new CameraCommandKeyStroke();
+    keystrokeRotate->AddMouseKey(SDL_BUTTON_LMASK);
+    keystrokeRotate->AddKeyboardKey("Left Alt");
+    keystrokeRotate->SetCallback(callbackRotate);
 
-	m_vKeyStrokesBlenderTouchpad.push_back(keystrokeRotate);
+    m_vKeyStrokesBlenderTouchpad.push_back(keystrokeRotate);
 
-	// Panning
+    // Panning
 
-	CameraCommandKeyStroke* keystrokePan = new CameraCommandKeyStroke();
-	keystrokePan->AddMouseKey(SDL_BUTTON_LMASK);
-	keystrokePan->AddKeyboardKey("Left Shift");
-	keystrokePan->AddKeyboardKey("Left Alt");
-	keystrokePan->SetCallback(callbackPan);
+    CameraCommandKeyStroke *keystrokePan = new CameraCommandKeyStroke();
+    keystrokePan->AddMouseKey(SDL_BUTTON_LMASK);
+    keystrokePan->AddKeyboardKey("Left Shift");
+    keystrokePan->AddKeyboardKey("Left Alt");
+    keystrokePan->SetCallback(callbackPan);
 
+    m_vKeyStrokesBlenderTouchpad.push_back(keystrokePan);
 
-	m_vKeyStrokesBlenderTouchpad.push_back(keystrokePan);
+    // Zoom
 
-	// Zoom
+    CameraCommandKeyStroke *keystrokeZoom = new CameraCommandKeyStroke();
+    keystrokeZoom->AddMouseKey(SDL_BUTTON_LMASK);
+    keystrokeZoom->AddKeyboardKey("Left Alt");
+    keystrokeZoom->AddKeyboardKey("Left Ctrl");
+    keystrokeZoom->SetCallback(callbackZoom);
+    m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoom);
 
-	CameraCommandKeyStroke* keystrokeZoom = new CameraCommandKeyStroke();
-	keystrokeZoom->AddMouseKey(SDL_BUTTON_LMASK);
-	keystrokeZoom->AddKeyboardKey("Left Alt");
-	keystrokeZoom->AddKeyboardKey("Left Ctrl");
-	keystrokeZoom->SetCallback(callbackZoom);
-	m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoom);
+    // Wheel and +-
 
-	// Wheel and +-	
+    CameraCommandKeyStroke *keystrokeZoomIn = new CameraCommandKeyStroke();
+    keystrokeZoomIn->AddKeyboardKey("Keypad +");
+    keystrokeZoomIn->SetWheelDirection(1, false);
+    keystrokeZoomIn->SetCallback(callbackZoomIn);
+    m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoomIn);
 
-	CameraCommandKeyStroke* keystrokeZoomIn = new CameraCommandKeyStroke();
-	keystrokeZoomIn->AddKeyboardKey("Keypad +");
-	keystrokeZoomIn->SetWheelDirection(1, false);
-	keystrokeZoomIn->SetCallback(callbackZoomIn);
-	m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoomIn);
-
-	CameraCommandKeyStroke* keystrokeZoomOut = new CameraCommandKeyStroke();
-	keystrokeZoomOut->AddKeyboardKey("Keypad -");
-	keystrokeZoomOut->SetWheelDirection(-1, false);
-	keystrokeZoomOut->SetCallback(callbackZoomOut);
-	m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoomOut);
+    CameraCommandKeyStroke *keystrokeZoomOut = new CameraCommandKeyStroke();
+    keystrokeZoomOut->AddKeyboardKey("Keypad -");
+    keystrokeZoomOut->SetWheelDirection(-1, false);
+    keystrokeZoomOut->SetCallback(callbackZoomOut);
+    m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoomOut);
 }
 
 void Camera::SetupKeystrokesBlender()
 {
-	// Rotate
+    // Rotate
 
-	CameraCommandKeyStroke* keystrokeRotate = new CameraCommandKeyStroke();
-	keystrokeRotate->AddMouseKey(SDL_BUTTON_MMASK);
-	keystrokeRotate->SetCallback(callbackRotate);
+    CameraCommandKeyStroke *keystrokeRotate = new CameraCommandKeyStroke();
+    keystrokeRotate->AddMouseKey(SDL_BUTTON_MMASK);
+    keystrokeRotate->SetCallback(callbackRotate);
 
-	m_vKeyStrokesBlender.push_back(keystrokeRotate);
+    m_vKeyStrokesBlender.push_back(keystrokeRotate);
 
-	// Panning
+    // Panning
 
-	CameraCommandKeyStroke* keystrokePan = new CameraCommandKeyStroke();
-	keystrokePan->AddMouseKey(SDL_BUTTON_MMASK);
-	keystrokePan->AddKeyboardKey("Left Shift");
-	keystrokePan->SetCallback(callbackPan);
-	
+    CameraCommandKeyStroke *keystrokePan = new CameraCommandKeyStroke();
+    keystrokePan->AddMouseKey(SDL_BUTTON_MMASK);
+    keystrokePan->AddKeyboardKey("Left Shift");
+    keystrokePan->SetCallback(callbackPan);
 
-	m_vKeyStrokesBlender.push_back(keystrokePan);
+    m_vKeyStrokesBlender.push_back(keystrokePan);
 
-	// Zoom
+    // Zoom
 
-	CameraCommandKeyStroke* keystrokeZoom = new CameraCommandKeyStroke();
-	keystrokeZoom->AddMouseKey(SDL_BUTTON_MMASK);
-	keystrokeZoom->AddKeyboardKey("Left Ctrl");
-	keystrokeZoom->SetCallback(callbackZoom);
-	keystrokeZoom->SetDebugTag(42);
-	m_vKeyStrokesBlender.push_back(keystrokeZoom);
+    CameraCommandKeyStroke *keystrokeZoom = new CameraCommandKeyStroke();
+    keystrokeZoom->AddMouseKey(SDL_BUTTON_MMASK);
+    keystrokeZoom->AddKeyboardKey("Left Ctrl");
+    keystrokeZoom->SetCallback(callbackZoom);
+    keystrokeZoom->SetDebugTag(42);
+    m_vKeyStrokesBlender.push_back(keystrokeZoom);
 
-	// Zoom mouse
+    // Zoom mouse
 
-	CameraCommandKeyStroke* keystrokeZoomIn = new CameraCommandKeyStroke();
-	keystrokeZoomIn->AddKeyboardKey("Keypad +");
-	keystrokeZoomIn->SetWheelDirection(1, false);
-	keystrokeZoomIn->SetCallback(callbackZoomIn);
-	m_vKeyStrokesBlender.push_back(keystrokeZoomIn);
+    CameraCommandKeyStroke *keystrokeZoomIn = new CameraCommandKeyStroke();
+    keystrokeZoomIn->AddKeyboardKey("Keypad +");
+    keystrokeZoomIn->SetWheelDirection(1, false);
+    keystrokeZoomIn->SetCallback(callbackZoomIn);
+    m_vKeyStrokesBlender.push_back(keystrokeZoomIn);
 
-	CameraCommandKeyStroke* keystrokeZoomOut = new CameraCommandKeyStroke();
-	keystrokeZoomOut->AddKeyboardKey("Keypad -");
-	keystrokeZoomOut->SetWheelDirection(-1, false);
-	keystrokeZoomOut->SetCallback(callbackZoomOut);
-	m_vKeyStrokesBlender.push_back(keystrokeZoomOut);
+    CameraCommandKeyStroke *keystrokeZoomOut = new CameraCommandKeyStroke();
+    keystrokeZoomOut->AddKeyboardKey("Keypad -");
+    keystrokeZoomOut->SetWheelDirection(-1, false);
+    keystrokeZoomOut->SetCallback(callbackZoomOut);
+    m_vKeyStrokesBlender.push_back(keystrokeZoomOut);
 }
 
 void Camera::SetupCommonKeystrokesCallbacks()
 {
-#define DEBUG_KEYSTROKES Con_Printf
+#define DEBUG_KEYSTROKES
 
-	callbackRotate = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
+    callbackRotate = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackRotate(%d)\n", bHit);
 
-			DEBUG_KEYSTROKES("callbackRotate(%d)\n", bHit);
+        if (bHit)
+            m_Mode = CameraMouseModes::Rotate;
+        else
+            m_Mode = CameraMouseModes::None;
+    });
 
-			if (bHit)
-				m_Mode = CameraMouseModes::Rotate;
-			else
-				m_Mode = CameraMouseModes::None;
-		});
+    callbackPan = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackPan(%d) event == %d\n", bHit, event.type);
 
-	callbackPan = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			DEBUG_KEYSTROKES("callbackPan(%d) event == %d\n", bHit,event.type);
+        if (bHit)
+            m_Mode = CameraMouseModes::Pan;
+        else
+            m_Mode = CameraMouseModes::None;
+    });
 
+    callbackZoom = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackZoom(%d)\n", bHit);
 
-			if (bHit)
-				m_Mode = CameraMouseModes::Pan;
-			else
-				m_Mode = CameraMouseModes::None;
-		});
+        if (bHit)
+            m_Mode = CameraMouseModes::Zoom;
+        else
+            m_Mode = CameraMouseModes::None;
+    });
 
-	callbackZoom = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
+    callbackZoomIn = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackZoomIn(%d)\n", bHit);
 
-			DEBUG_KEYSTROKES("callbackZoom(%d)\n", bHit);
+        if (bHit)
+            DoZoomIn();
+        else
+            m_Mode = CameraMouseModes::None;
+    });
 
+    callbackZoomOut = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackZoomOut(%d)\n", bHit);
 
-			if (bHit)
-				m_Mode = CameraMouseModes::Zoom;
-			else
-				m_Mode = CameraMouseModes::None;
-		});
+        if (bHit)
+            DoZoomOut();
+        else
+            m_Mode = CameraMouseModes::None;
+    });
 
-	callbackZoomIn = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			DEBUG_KEYSTROKES("callbackZoomIn(%d)\n", bHit);
+    callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        DEBUG_KEYSTROKES("callbackToggleFPSNavigation(%d)\n", bHit);
 
-			if (bHit)
-				DoZoomIn();
-			else
-				m_Mode = CameraMouseModes::None;
-		});
+        if (bHit)
+        {
+            auto windowHandle = Application::GetMainWindow()->Handle();
+            auto viewport     = Application::GetMainWindow()->Get3DGLViewport();
 
-	callbackZoomOut = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			DEBUG_KEYSTROKES("callbackZoomOut(%d)\n", bHit);
+            int winWidth  = Application::GetMainWindow()->Width();
+            int winHeight = Application::GetMainWindow()->Height();
 
-			if (bHit)
-				DoZoomOut();
-			else
-				m_Mode = CameraMouseModes::None;
-		});
+            SDL_ShowCursor(SDL_DISABLE);
 
-	callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			DEBUG_KEYSTROKES("callbackToggleFPSNavigation(%d)\n", bHit);
+            SDL_RaiseWindow(windowHandle);
+            SDL_WarpMouseInWindow(windowHandle, winWidth / 2, winHeight / 2);
 
-			if (bHit)
-			{
-				
-				auto windowHandle = Application::GetMainWindow()->Handle();
-				auto viewport = Application::GetMainWindow()->Get3DGLViewport();
+            SDL_ShowCursor(SDL_ENABLE);
 
-				int winWidth = Application::GetMainWindow()->Width();
-				int winHeight = Application::GetMainWindow()->Height();
+            m_bFPSNavigation = !m_bFPSNavigation;
+        }
+    });
 
-				SDL_ShowCursor(SDL_DISABLE);
+    callbackMoveForward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        if (bHit)
+            SetForwardSpeed(m_pMoveSpeed->GetFloat());
+        else
+            SetForwardSpeed(0);
+    });
 
-				SDL_RaiseWindow(windowHandle);
-				SDL_WarpMouseInWindow(windowHandle, winWidth / 2, winHeight / 2);
-							
+    callbackMoveBackward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        if (bHit)
+            SetForwardSpeed(-m_pMoveSpeed->GetFloat());
+        else
+            SetForwardSpeed(0);
+    });
 
-				SDL_ShowCursor(SDL_ENABLE);
+    callbackStrafeLeft = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        if (bHit)
+            SetStrafeSpeed(-m_pMoveSpeed->GetFloat());
+        else
+            SetStrafeSpeed(0);
+    });
 
+    callbackStrafeRight = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        if (bHit)
+            SetStrafeSpeed(m_pMoveSpeed->GetFloat());
+        else
+            SetStrafeSpeed(0);
+    });
 
-
-				m_bFPSNavigation = !m_bFPSNavigation;
-			}
-		});
-
-
-
-	callbackMoveForward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			if (bHit)
-				SetForwardSpeed(m_pMoveSpeed->GetFloat());
-			else
-				SetForwardSpeed(0);
-		});
-
-	callbackMoveBackward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			if (bHit)
-				SetForwardSpeed(-m_pMoveSpeed->GetFloat());
-			else
-				SetForwardSpeed(0);
-		});
-
-	callbackStrafeLeft = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			if (bHit)
-				SetStrafeSpeed(-m_pMoveSpeed->GetFloat());
-			else
-				SetStrafeSpeed(0);
-		});
-
-
-	callbackStrafeRight = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			if (bHit)
-				SetStrafeSpeed(m_pMoveSpeed->GetFloat());
-			else
-				SetStrafeSpeed(0);
-		});
-
-	callbackMoveup = pfnKeyStrokeCallback([&](bool bHit, SDL_Event& event) -> void
-		{
-			if (bHit)
-				SetUpSpeed(m_pMoveSpeed->GetFloat());
-			else
-				SetUpSpeed(0);
-		});
-
-
-
+    callbackMoveup = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+        if (bHit)
+            SetUpSpeed(m_pMoveSpeed->GetFloat());
+        else
+            SetUpSpeed(0);
+    });
 }
 
-glm::vec3& Camera::GetAngles()
+glm::vec3 &Camera::GetAngles()
 {
-	return m_Angles;
+    return m_Angles;
 }
 
-glm::vec3& Camera::GetOrigin()
+glm::vec3 &Camera::GetOrigin()
 {
-	return m_Origin;
+    return m_Origin;
 }
 
 void Camera::Apply()
 {
-	UpdateOrientation();
+    UpdateOrientation();
 
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
 
-	SetupPerspectiveMatrix();
-	
-	glDepthRange(0, 1);
-	glMatrixMode(GL_MODELVIEW);
+    SetupPerspectiveMatrix();
 
-	SetupModelViewMatrix();
+    glDepthRange(0, 1);
+    glMatrixMode(GL_MODELVIEW);
+
+    SetupModelViewMatrix();
 }
 
 void Camera::Reset()
 {
-
 }
 
 void Camera::PopMatrices(int which, bool bApply)
 {
-
 }
 
 void Camera::PushMatrices(int which)
 {
-
 }
 
-float* Camera::GetViewMatrix()
+float *Camera::GetViewMatrix()
 {
-	return &m_matModelView[0][0];
+    return &m_matModelView[0][0];
 }
 
-float* Camera::GetProjectionMatrix()
+float *Camera::GetProjectionMatrix()
 {
-	return &m_matProjection[0][0];
+    return &m_matProjection[0][0];
 }
 
-int Camera::HandleEvent(bool bWasHandled, SDL_Event& event)
+int Camera::HandleEvent(bool bWasHandled, SDL_Event &event)
 {
-	switch (event.type)
-	{
-	case SDL_MOUSEMOTION:
-		return MouseMotionEvent(event);
-		break;
-	case SDL_MOUSEBUTTONDOWN:
-	case SDL_MOUSEBUTTONUP:
-	case SDL_KEYUP:
-	case SDL_KEYDOWN:
-		return ButtonEvent(event);
-		break;
-	case SDL_MOUSEWHEEL:
-		return MouseWheelEvent(event);
-		break;
+    switch (event.type)
+    {
+    case SDL_MOUSEMOTION:
+        return MouseMotionEvent(event);
+        break;
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+    case SDL_KEYUP:
+    case SDL_KEYDOWN:
+        return ButtonEvent(event);
+        break;
+    case SDL_MOUSEWHEEL:
+        return MouseWheelEvent(event);
+        break;
+    }
 
-	}
-
-	return 0;
+    return 0;
 }
 
 void Camera::UpdateOrientation()
 {
-	float flFrameDelta = m_pSceneRenderer->FrameDelta();
-	bool recalcPosition = CalcMovementSpeeds();
+    float flFrameDelta  = m_pSceneRenderer->FrameDelta();
+    bool recalcPosition = CalcMovementSpeeds();
 
-	if (m_bFPSNavigation)
-	{
-		Application::Instance()->HideMouseCursor();
+    if (m_bFPSNavigation)
+    {
+        Application::Instance()->HideMouseCursor();
 
-		int x, y;
-		SDL_GetMouseState(&x, &y);
+        int x, y;
+        SDL_GetMouseState(&x, &y);
 
-		int winWidth = Application::GetMainWindow()->Width();
-		int winHeight = Application::GetMainWindow()->Height();
+        int winWidth  = Application::GetMainWindow()->Width();
+        int winHeight = Application::GetMainWindow()->Height();
 
-		int mx = winWidth / 2;
-		int my = winHeight / 2;
+        int mx = winWidth / 2;
+        int my = winHeight / 2;
 
+        float xDelta = (x - mx);
+        float yDelta = (y - my);
 
-		float xDelta = (x - mx);
-		float yDelta = (y - my);
+        m_Angles[PITCH] += yDelta / 10;
+        m_Angles[YAW] += xDelta / 10;
 
-		m_Angles[PITCH] += yDelta / 10;
-		m_Angles[YAW] += xDelta / 10;
+        // Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
 
-		//Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
+        m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
-		m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
+        SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
-		SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
+        m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
+                    (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
+                    (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
+    }
+    else
+    {
+        if (recalcPosition)
+            m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
+                        (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
+                        (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
 
-		m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward + (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight + (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
-
-		
-	}
-	else
-	{
-		if (recalcPosition)
-			m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward + (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight + (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
-
-		Application::Instance()->ShowMouseCursor();
-	}
+        Application::Instance()->ShowMouseCursor();
+    }
 }
 
 bool Camera::CalcMovementSpeeds()
 {
-	if (!m_bFPSNavigation)
-		for (int i = 0; i < 3; i++)
-			m_IdealMoveSpeeds[i] = 0;
+    if (!m_bFPSNavigation)
+        for (int i = 0; i < 3; i++)
+            m_IdealMoveSpeeds[i] = 0;
 
-	float flFrameDelta = m_pSceneRenderer->FrameDelta();
-	float acceleration = m_pAccelSpeed->GetFloat();
-	float deceleration = m_pDeccelSpeed->GetFloat();
+    float flFrameDelta = m_pSceneRenderer->FrameDelta();
+    float acceleration = m_pAccelSpeed->GetFloat();
+    float deceleration = m_pDeccelSpeed->GetFloat();
 
-	bool recalcPosition = false;
+    bool recalcPosition = false;
 
-	for (int i = 0; i < 3; i++)
-	{
-		if (m_IdealMoveSpeeds[i] > 1.f)
-		{
-			m_CurrentMoveSpeeds[i] += acceleration * flFrameDelta;
-			m_CurrentMoveSpeeds[i] = std::min(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
+    for (int i = 0; i < 3; i++)
+    {
+        if (m_IdealMoveSpeeds[i] > 1.f)
+        {
+            m_CurrentMoveSpeeds[i] += acceleration * flFrameDelta;
+            m_CurrentMoveSpeeds[i] = std::min(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
 
-			recalcPosition = true;
-		}
-		else if (m_IdealMoveSpeeds[i] < -1.f)
-		{
-			m_CurrentMoveSpeeds[i] -= acceleration * flFrameDelta;
-			m_CurrentMoveSpeeds[i] = std::max(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
+            recalcPosition = true;
+        }
+        else if (m_IdealMoveSpeeds[i] < -1.f)
+        {
+            m_CurrentMoveSpeeds[i] -= acceleration * flFrameDelta;
+            m_CurrentMoveSpeeds[i] = std::max(m_IdealMoveSpeeds[i], m_CurrentMoveSpeeds[i]);
 
-			recalcPosition = true;
-		}
-		else if (abs(m_CurrentMoveSpeeds[i]) > 1.f)
-		{
-			if (m_CurrentMoveSpeeds[i] > 0)
-			{
-				m_CurrentMoveSpeeds[i] -= deceleration * flFrameDelta;
-				m_CurrentMoveSpeeds[i] = std::max(m_CurrentMoveSpeeds[i], 0.f);
-			}
-			else
-			{
-				m_CurrentMoveSpeeds[i] += deceleration * flFrameDelta;
-				m_CurrentMoveSpeeds[i] = std::min(m_CurrentMoveSpeeds[i], 0.f);
-			}
+            recalcPosition = true;
+        }
+        else if (abs(m_CurrentMoveSpeeds[i]) > 1.f)
+        {
+            if (m_CurrentMoveSpeeds[i] > 0)
+            {
+                m_CurrentMoveSpeeds[i] -= deceleration * flFrameDelta;
+                m_CurrentMoveSpeeds[i] = std::max(m_CurrentMoveSpeeds[i], 0.f);
+            }
+            else
+            {
+                m_CurrentMoveSpeeds[i] += deceleration * flFrameDelta;
+                m_CurrentMoveSpeeds[i] = std::min(m_CurrentMoveSpeeds[i], 0.f);
+            }
 
-			recalcPosition = true;
-		}
-		else
-			m_CurrentMoveSpeeds[i] = 0;
-	}
+            recalcPosition = true;
+        }
+        else
+            m_CurrentMoveSpeeds[i] = 0;
+    }
 
-	return recalcPosition;
+    return recalcPosition;
 }
 
 void Camera::LookAtPoint(glm::vec3 pos)
 {
-	m_Origin = pos - m_vForward * 30.f;
+    m_Origin = pos - m_vForward * 30.f;
+}
+
+void Camera::FormatControlsTip(std::string &dst)
+{
+    CameraControlScheme scheme = (CameraControlScheme)m_pCameraControlsScheme->GetEnumValue();
+
+    switch (scheme)
+    {
+    case CameraControlScheme::ValveHammerEditor:
+        dst = "Using VHE controls: Z - toggle 3d navigation, W/A/S/D and Space to move";
+        break;
+    case CameraControlScheme::BlenderTouchpad:
+        dst = ("Using Blender (touchpad) controls: Mouse left button + Left Alt - to rotate, Mouse left button + Left "
+               "Alt + Left Shift - to pan, Mouse left button + Left Alt + Left Ctrl - to zoom");
+        break;
+    case CameraControlScheme::Blender:
+        dst = ("Using Blender controls: Middle mouse - to rotate, Middle mouse + Left Shift - to pan, Middle mouse + "
+               "Left Ctrl - to zoom");
+        break;
+    default:
+        break;
+    }
 }
 
 glm::vec3 Camera::GetRightVector()
 {
-	return m_vRight;
+    return m_vRight;
 }
 
 glm::vec3 Camera::GetUpVector()
 {
-	return m_vUp;
+    return m_vUp;
 }
 
 glm::vec3 Camera::GetForwardVector()
 {
-	return m_vForward;
+    return m_vForward;
 }
 
 void Camera::SetupKeystrokesVHE()
 {
-	CameraCommandKeyStroke* keystrokeMoveForward = new CameraCommandKeyStroke();
-	keystrokeMoveForward->AddKeyboardKey("W");
-	keystrokeMoveForward->SetCallback(callbackMoveForward);
-	m_vKeyStrokesVHE.push_back(keystrokeMoveForward);
+    CameraCommandKeyStroke *keystrokeMoveForward = new CameraCommandKeyStroke();
+    keystrokeMoveForward->AddKeyboardKey("W");
+    keystrokeMoveForward->SetCallback(callbackMoveForward);
+    m_vKeyStrokesVHE.push_back(keystrokeMoveForward);
 
-	CameraCommandKeyStroke* keystrokeMoveBackward = new CameraCommandKeyStroke();
-	keystrokeMoveBackward->AddKeyboardKey("S");
-	keystrokeMoveBackward->SetCallback(callbackMoveBackward);
-	m_vKeyStrokesVHE.push_back(keystrokeMoveBackward);
+    CameraCommandKeyStroke *keystrokeMoveBackward = new CameraCommandKeyStroke();
+    keystrokeMoveBackward->AddKeyboardKey("S");
+    keystrokeMoveBackward->SetCallback(callbackMoveBackward);
+    m_vKeyStrokesVHE.push_back(keystrokeMoveBackward);
 
-	CameraCommandKeyStroke* keystrokeStrafeRight = new CameraCommandKeyStroke();
-	keystrokeStrafeRight->AddKeyboardKey("D");
-	keystrokeStrafeRight->SetCallback(callbackStrafeRight);
-	m_vKeyStrokesVHE.push_back(keystrokeStrafeRight);
+    CameraCommandKeyStroke *keystrokeStrafeRight = new CameraCommandKeyStroke();
+    keystrokeStrafeRight->AddKeyboardKey("D");
+    keystrokeStrafeRight->SetCallback(callbackStrafeRight);
+    m_vKeyStrokesVHE.push_back(keystrokeStrafeRight);
 
-	CameraCommandKeyStroke* keystrokeStrafeLeft = new CameraCommandKeyStroke();
-	keystrokeStrafeLeft->AddKeyboardKey("A");
-	keystrokeStrafeLeft->SetCallback(callbackStrafeLeft);
-	m_vKeyStrokesVHE.push_back(keystrokeStrafeLeft);
+    CameraCommandKeyStroke *keystrokeStrafeLeft = new CameraCommandKeyStroke();
+    keystrokeStrafeLeft->AddKeyboardKey("A");
+    keystrokeStrafeLeft->SetCallback(callbackStrafeLeft);
+    m_vKeyStrokesVHE.push_back(keystrokeStrafeLeft);
 
-	CameraCommandKeyStroke* keystrokeMoveup = new CameraCommandKeyStroke();
-	keystrokeMoveup->AddKeyboardKey("Space");
-	keystrokeMoveup->SetCallback(callbackMoveup);
-	m_vKeyStrokesVHE.push_back(keystrokeMoveup);
+    CameraCommandKeyStroke *keystrokeMoveup = new CameraCommandKeyStroke();
+    keystrokeMoveup->AddKeyboardKey("Space");
+    keystrokeMoveup->SetCallback(callbackMoveup);
+    m_vKeyStrokesVHE.push_back(keystrokeMoveup);
 
-	CameraCommandKeyStroke* keystrokeToggleFPSNavigation = new CameraCommandKeyStroke();
-	keystrokeToggleFPSNavigation->AddKeyboardKey("Z");
-	keystrokeToggleFPSNavigation->SetCallback(callbackToggleFPSNavigation);
-	m_vKeyStrokesVHE.push_back(keystrokeToggleFPSNavigation);
+    CameraCommandKeyStroke *keystrokeToggleFPSNavigation = new CameraCommandKeyStroke();
+    keystrokeToggleFPSNavigation->AddKeyboardKey("Z");
+    keystrokeToggleFPSNavigation->SetCallback(callbackToggleFPSNavigation);
+    m_vKeyStrokesVHE.push_back(keystrokeToggleFPSNavigation);
 
-	// Wheel and +-	
+    // Wheel and +-
 
-	CameraCommandKeyStroke* keystrokeZoomIn = new CameraCommandKeyStroke();
-	keystrokeZoomIn->AddKeyboardKey("Keypad +");
-	keystrokeZoomIn->SetWheelDirection(1, false);
-	keystrokeZoomIn->SetCallback(callbackZoomIn);
-	m_vKeyStrokesVHE.push_back(keystrokeZoomIn);
+    CameraCommandKeyStroke *keystrokeZoomIn = new CameraCommandKeyStroke();
+    keystrokeZoomIn->AddKeyboardKey("Keypad +");
+    keystrokeZoomIn->SetWheelDirection(1, false);
+    keystrokeZoomIn->SetCallback(callbackZoomIn);
+    m_vKeyStrokesVHE.push_back(keystrokeZoomIn);
 
-	CameraCommandKeyStroke* keystrokeZoomOut = new CameraCommandKeyStroke();
-	keystrokeZoomOut->AddKeyboardKey("Keypad -");
-	keystrokeZoomOut->SetWheelDirection(-1, false);
-	keystrokeZoomOut->SetCallback(callbackZoomOut);
-	m_vKeyStrokesVHE.push_back(keystrokeZoomOut);
+    CameraCommandKeyStroke *keystrokeZoomOut = new CameraCommandKeyStroke();
+    keystrokeZoomOut->AddKeyboardKey("Keypad -");
+    keystrokeZoomOut->SetWheelDirection(-1, false);
+    keystrokeZoomOut->SetCallback(callbackZoomOut);
+    m_vKeyStrokesVHE.push_back(keystrokeZoomOut);
 }
 
 void Camera::SetForwardSpeed(const int moveSpeed)
 {
-	m_IdealMoveSpeeds[0] = moveSpeed;
+    m_IdealMoveSpeeds[0] = moveSpeed;
 }
 
 void Camera::SetStrafeSpeed(const int moveSpeed)
 {
-	m_IdealMoveSpeeds[1] = moveSpeed;
+    m_IdealMoveSpeeds[1] = moveSpeed;
 }
 
 void Camera::SetUpSpeed(const int moveSpeed)
 {
-	m_IdealMoveSpeeds[2] = moveSpeed;
+    m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
-int Camera::MouseMotionEvent(SDL_Event& _event)
+int Camera::MouseMotionEvent(SDL_Event &_event)
 {
-	auto event = _event.motion;
-	
-	float flFrameDelta = m_pSceneRenderer->FrameDelta();
-// 	float flDist = std::max(glm::length(m_Origin),0.1f);
-// 
-// 	if (isnan(flDist))
-// 	{
-// 		flDist = 10;
-// 		m_Origin = glm::vec3(0, 0, 10);
-// 		return 0;
-// 	}
+    auto event = _event.motion;
 
-	float flDist = m_pMoveSpeed->GetFloat();
+    float flFrameDelta = m_pSceneRenderer->FrameDelta();
+    // 	float flDist = std::max(glm::length(m_Origin),0.1f);
+    //
+    // 	if (isnan(flDist))
+    // 	{
+    // 		flDist = 10;
+    // 		m_Origin = glm::vec3(0, 0, 10);
+    // 		return 0;
+    // 	}
 
-	switch (m_Mode)
-	{
-	case CameraMouseModes::Pan:
-	{
-		float xDelta = event.xrel * flFrameDelta * flDist;
-		float yDelta = event.yrel * flFrameDelta * flDist;
+    float flDist = m_pMoveSpeed->GetFloat();
 
-		m_Origin += m_vUp * yDelta + m_vRight * -xDelta;
-		return EVENT_FINISHED;
-	}
-	break;
-	case CameraMouseModes::Rotate:
-	{
-		float xDelta = event.xrel * flFrameDelta * 20;
-		float yDelta = event.yrel * flFrameDelta * 20;
+    switch (m_Mode)
+    {
+    case CameraMouseModes::Pan: {
+        float xDelta = event.xrel * flFrameDelta * flDist;
+        float yDelta = event.yrel * flFrameDelta * flDist;
 
-		m_Angles[PITCH] += yDelta;
-		m_Angles[YAW] += xDelta;
+        m_Origin += m_vUp * yDelta + m_vRight * -xDelta;
+        return EVENT_FINISHED;
+    }
+    break;
 
-		return EVENT_FINISHED;
+    case CameraMouseModes::Rotate: {
+        float xDelta = event.xrel  * 1;
+        float yDelta = event.yrel  * 1;
 
-	}
-	break;
-	case CameraMouseModes::Zoom:
-	{
-		float xDelta = event.xrel * flFrameDelta * 100;
-		float yDelta = event.yrel * flFrameDelta * 100;
+        m_Angles[PITCH] += yDelta;
+        m_Angles[YAW] += xDelta;
 
-		m_Origin += m_vForward * (xDelta + yDelta);
-		return EVENT_FINISHED;
-	}
+        m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
-	case CameraMouseModes::None:
-		break;
-	default:
-		break;
+        return EVENT_FINISHED;
+    }
+    break;
+    case CameraMouseModes::Zoom: {
+        float xDelta = event.xrel * flFrameDelta * 100;
+        float yDelta = event.yrel * flFrameDelta * 100;
 
-	}
+        m_Origin += m_vForward * (xDelta + yDelta);
+        return EVENT_FINISHED;
+    }
 
-	return 0;
+    case CameraMouseModes::None:
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
-int Camera::ButtonEvent(SDL_Event& _event)
+int Camera::ButtonEvent(SDL_Event &_event)
 {
-	auto event = _event.button;
+    auto event = _event.button;
 
-	// TODO: selectable keystrokes maybe?
-	KeystrokeList & keystrokeSet = m_vKeyStrokesBlender;
+    KeystrokeList *keystrokeSet = nullptr;
 
-	if (keystrokeSet.empty())
-		return 0;
+    CameraControlScheme controlScheme = (CameraControlScheme)m_pCameraControlsScheme->GetEnumValue();
+    switch (controlScheme)
+    {
+    case CameraControlScheme::ValveHammerEditor:
+        keystrokeSet = &m_vKeyStrokesVHE;
+        break;
+    case CameraControlScheme::BlenderTouchpad:
+        keystrokeSet = &m_vKeyStrokesBlenderTouchpad;
+        break;
+    case CameraControlScheme::Blender:
+        keystrokeSet = &m_vKeyStrokesBlender;
+        break;
+    default:
+        break;
+    }
 
-	CameraCommandKeyStroke* best = 0;
+    if (!keystrokeSet)
+        return 0;
 
-	for (auto& it : keystrokeSet)
-	{
-		if (it->AreKeysPressed())
-		{
-			best = it;
-		}
-		else
-			it->ExecuteCallback(false, _event);
-	}
+    CameraCommandKeyStroke *best = 0;
 
-	if (best)
-	{
-		best->ExecuteCallback(true, _event);
-		return EVENT_FINISHED;
-	}
-	else
-		return 0;
+    for (auto &it : *keystrokeSet)
+    {
+        if (it->AreKeysPressed())
+        {
+            best = it;
+        }
+        else
+            it->ExecuteCallback(false, _event);
+    }
+
+    if (best)
+    {
+        best->ExecuteCallback(true, _event);
+        return EVENT_FINISHED;
+    }
+    else
+        return 0;
 }
 
-int Camera::MouseWheelEvent(SDL_Event& _event)
+int Camera::MouseWheelEvent(SDL_Event &_event)
 {
-	auto event = _event.motion;
+    auto event = _event.motion;
 
-	float flFrameDelta = m_pSceneRenderer->FrameDelta();
+    float flFrameDelta = m_pSceneRenderer->FrameDelta();
 
-	float flDist = glm::length(m_Origin);
+    float flDist = glm::length(m_Origin);
 
-	if (isnan(flDist))
-	{
-		flDist = 10;
-		m_Origin = glm::vec3(0, 0, 10);
-		return 0;
-	}
+    if (isnan(flDist))
+    {
+        flDist   = 10;
+        m_Origin = glm::vec3(0, 0, 10);
+        return 0;
+    }
 
-	switch (m_Mode)
-	{
-	case CameraMouseModes::Pan:
-	{
-		float xDelta = event.xrel * flFrameDelta * flDist;
-		float yDelta = event.yrel * flFrameDelta * flDist;
+    switch (m_Mode)
+    {
+    case CameraMouseModes::Pan: {
+        float xDelta = event.xrel * flFrameDelta * flDist;
+        float yDelta = event.yrel * flFrameDelta * flDist;
 
-		m_Origin += m_vUp * yDelta + m_vRight * -xDelta;
+        m_Origin += m_vUp * yDelta + m_vRight * -xDelta;
 
-		return EVENT_FINISHED;
-	}
-	break;
-	case CameraMouseModes::Rotate:
-	{
-		float xDelta = event.xrel * flFrameDelta * 20;
-		float yDelta = event.yrel * flFrameDelta * 20;
+        return EVENT_FINISHED;
+    }
+    break;
+    case CameraMouseModes::Rotate: {
+        float xDelta = event.xrel * flFrameDelta * 20;
+        float yDelta = event.yrel * flFrameDelta * 20;
 
-		m_Angles[PITCH] += yDelta;
-		m_Angles[YAW] += xDelta;
-		
-		return EVENT_FINISHED;
-	}
-	break;
-	case CameraMouseModes::Zoom:
-	{
-		float xDelta = event.xrel * flFrameDelta * 100;
-		float yDelta = event.yrel * flFrameDelta * 100;
+        m_Angles[PITCH] += yDelta;
+        m_Angles[YAW] += xDelta;
 
-		m_Origin += m_vForward * (xDelta + yDelta);
-		
-		return EVENT_FINISHED;
-	}
-	case CameraMouseModes::None:
-		break;
-	default:
-		break;
+        return EVENT_FINISHED;
+    }
+    break;
+    case CameraMouseModes::Zoom: {
+        float xDelta = event.xrel * flFrameDelta * 100;
+        float yDelta = event.yrel * flFrameDelta * 100;
 
-	}
+        m_Origin += m_vForward * (xDelta + yDelta);
 
-	return 0;
+        return EVENT_FINISHED;
+    }
+    case CameraMouseModes::None:
+        break;
+    default:
+        break;
+    }
+
+    return 0;
 }
 
 void Camera::SetupPerspectiveMatrix()
 {
-	glMatrixMode(GL_PROJECTION);
+    glMatrixMode(GL_PROJECTION);
 
-	double fov = glm::radians(m_pFov->GetFloat());
+    double fov = glm::radians(m_pFov->GetFloat());
 
-	auto vp = Application::GetMainWindow()->Get3DGLViewport();
+    auto vp = Application::GetMainWindow()->Get3DGLViewport();
 
-	float width = vp[2];
-	float height = vp[3];
+    float width  = vp[2];
+    float height = vp[3];
 
-	if (!width || !height)
-		return;
+    if (!width || !height)
+        return;
 
-	double aspect = width / height;
-	double fov_y = 2 * atan(tan(fov / 2) / aspect); // Ìîÿ ôîðìóëà - ïëàâàåò?
-	double dbg = glm::degrees(fov_y);
-	
-	m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
+    double aspect = width / height;
+    double fov_y  = 2 * atan(tan(fov / 2) / aspect); // Ìîÿ ôîðìóëà - ïëàâàåò?
+    double dbg    = glm::degrees(fov_y);
 
-	glLoadMatrixf((float*)&m_matProjection);
+    m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
+
+    glLoadMatrixf((float *)&m_matProjection);
 }
 
 void Camera::SetupModelViewMatrix()
 {
-	glMatrixMode(GL_MODELVIEW);
+    glMatrixMode(GL_MODELVIEW);
 
-	m_matModelView = glm::mat4(1);
+    m_matModelView = glm::mat4(1);
 
-	glm::mat4 ident;
+    glm::mat4 ident;
 
-//#define QUAKE_STYLE
+    //#define QUAKE_STYLE
 
 #ifdef QUAKE_STYLE
- 	ident = glm::mat4(1);
- 	ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
- 	m_matModelView *= ident;
- 
- 	ident = glm::mat4(1);
- 	ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
- 	m_matModelView *= ident;
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
+    m_matModelView *= ident;
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
-	m_matModelView *= ident;
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
+    m_matModelView *= ident;
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, -glm::radians(m_Angles[PITCH]), glm::vec3(0, 1, 0));
-	m_matModelView *= ident;
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
+    m_matModelView *= ident;
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
-	m_matModelView *= ident;
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, -glm::radians(m_Angles[PITCH]), glm::vec3(0, 1, 0));
+    m_matModelView *= ident;
+
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
+    m_matModelView *= ident;
 #else
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
-	m_matModelView *= ident;
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
+    m_matModelView *= ident;
 
-	ident = glm::mat4(1);
-	ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
-	m_matModelView *= ident;
-
+    ident = glm::mat4(1);
+    ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
+    m_matModelView *= ident;
 
 #endif
 
-	m_matModelView = glm::translate(m_matModelView, -m_Origin);
+    m_matModelView = glm::translate(m_matModelView, -m_Origin);
 
-	glLoadMatrixf((float*)&m_matModelView);
+    glLoadMatrixf((float *)&m_matModelView);
 
-	auto matInv = glm::inverse(m_matModelView);
+    auto matInv = glm::inverse(m_matModelView);
 
-	m_vForward = -matInv[2];
-	m_vRight = matInv[0];
-	m_vUp = matInv[1];
+    m_vForward = -matInv[2];
+    m_vRight   = matInv[0];
+    m_vUp      = matInv[1];
 }
 
 CameraCommandKeyStroke::CameraCommandKeyStroke()
 {
-	for (int i = 0; i < 9; i++)
-		m_KeyboardKeys[i] = -1;
+    for (int i = 0; i < 9; i++)
+        m_KeyboardKeys[i] = -1;
 
-	m_MouseKeys = 0;
+    m_MouseKeys = 0;
 }
 
 CameraCommandKeyStroke::~CameraCommandKeyStroke()
 {
-
 }
 
-void CameraCommandKeyStroke::AddKeyboardKey(const char* keyName)
+void CameraCommandKeyStroke::AddKeyboardKey(const char *keyName)
 {
-	auto keyCode = SDL_GetKeyFromName(keyName);
-	auto scanCode = SDL_GetScancodeFromKey(keyCode);
+    auto keyCode  = SDL_GetKeyFromName(keyName);
+    auto scanCode = SDL_GetScancodeFromKey(keyCode);
 
-	for (auto& it : m_KeyboardKeys)
-	{
-		if (it == -1)
-		{
-			it = scanCode;
-			return;
-		}
-	}
+    for (auto &it : m_KeyboardKeys)
+    {
+        if (it == -1)
+        {
+            it = scanCode;
+            return;
+        }
+    }
 
-	Application::EPICFAIL("CameraCommandKeyStroke::AddKeyboardKey(): keystroke is too long");
-
+    Application::EPICFAIL("CameraCommandKeyStroke::AddKeyboardKey(): keystroke is too long");
 }
 
 void CameraCommandKeyStroke::AddMouseKey(int keyMask)
 {
-	m_MouseKeys |= keyMask;
+    m_MouseKeys |= keyMask;
 }
 
 bool CameraCommandKeyStroke::AreKeysPressed()
 {
-	const uint8_t* keyboardState = SDL_GetKeyboardState(0);
-	const uint32_t mouseState = SDL_GetMouseState(0, 0);
+    const uint8_t *keyboardState = SDL_GetKeyboardState(0);
+    const uint32_t mouseState    = SDL_GetMouseState(0, 0);
 
-	for (auto& it : m_KeyboardKeys)
-	{
-		if (it == -1)
-			break;
+    for (auto &it : m_KeyboardKeys)
+    {
+        if (it == -1)
+            break;
 
-		if (!keyboardState[it])
-			return false;
-	}
+        if (!keyboardState[it])
+            return false;
+    }
 
-	if (m_MouseKeys)
-	{
-		if (mouseState & m_MouseKeys)
-			return true;
-	}
-	else
-		return true;
+    if (m_MouseKeys)
+    {
+        if (mouseState & m_MouseKeys)
+            return true;
+    }
+    else
+        return true;
 
-	return false;
+    return false;
 }
 
 void CameraCommandKeyStroke::SetCallback(pfnKeyStrokeCallback callback)
 {
-	m_Callback = callback;
+    m_Callback = callback;
 }
 
-void CameraCommandKeyStroke::ExecuteCallback(bool bHit, SDL_Event& event)
+void CameraCommandKeyStroke::ExecuteCallback(bool bHit, SDL_Event &event)
 {
-	m_Callback(bHit, event);
+    m_Callback(bHit, event);
 }
 
 void CameraCommandKeyStroke::SetWheelDirection(int direction, bool needOtherKeys)
 {
-	m_WheelConditions = direction;
-	m_bNeedOtherKeys = needOtherKeys;
+    m_WheelConditions = direction;
+    m_bNeedOtherKeys  = needOtherKeys;
 }
 
 bool CameraCommandKeyStroke::CanBeExecuteFromMouseWheel(int direction)
 {
-	bool sameSign = (m_WheelConditions ^ direction) >= 0;
+    bool sameSign = (m_WheelConditions ^ direction) >= 0;
 
-	if (m_bNeedOtherKeys)
-	{
-		return sameSign && AreKeysPressed();
-	}
-	else
-		return sameSign;
+    if (m_bNeedOtherKeys)
+    {
+        return sameSign && AreKeysPressed();
+    }
+    else
+        return sameSign;
 }
 
-
 void Camera::DoZoomIn()
-{	
-	m_Origin += m_vForward * std::max(glm::length(m_Origin) / 2.f,1.f);
+{
+    m_Origin += m_vForward * std::max(glm::length(m_Origin) / 2.f, 1.f);
 }
 
 void Camera::DoZoomOut()
-{	
-	m_Origin -= m_vForward * std::max(glm::length(m_Origin) / 2.f,1.f);
+{
+    m_Origin -= m_vForward * std::max(glm::length(m_Origin) / 2.f, 1.f);
 }
