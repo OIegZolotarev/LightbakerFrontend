@@ -188,7 +188,6 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 {
-	
 	if (!m_pScene)
 		m_pScene = new Scene;
 

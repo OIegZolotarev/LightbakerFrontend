@@ -57,6 +57,11 @@ public:
 	Scene* GetScene();
 
 	glm::vec3 GetNewLightPos();
+
+	void SetRenderMode(RenderMode param1);
+    void RenderGenericEntity(SceneEntity *pEntity);
+    RenderMode GetRenderMode();
+
 private:
 	RenderMode m_RenderMode = RenderMode::Lightshaded;
 	bool	   m_bWireframeOverlay = false;
@@ -77,13 +82,9 @@ private:
 	void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
 	lightDefWPtr_t m_pCurrentSelection;
 
-public:
-	RenderMode GetRenderMode();
-private:
-	void DumpLightmapMesh();
-	void DumpLightmapUV();
-public:
-	void SetRenderMode(RenderMode param1);
-	void RenderGenericEntity(SceneEntity* pEntity);
+  
+    void DumpLightmapMesh();
+    void DumpLightmapUV();
+	
 };
 
