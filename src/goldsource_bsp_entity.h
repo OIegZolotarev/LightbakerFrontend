@@ -12,7 +12,7 @@ namespace GoldSource
 {
 class BSPEntity
 {
-    FGDEntityClass *m_FGDClass = nullptr;
+    FGDEntityClass *m_pFGDClass = nullptr;
 
     typedef std::pair<std::string, std::string> kvData;
     std::unordered_map<std::string, std::string> m_vProperties;

@@ -8,6 +8,7 @@
 #include "goldsource_bsp_entity.h"
 #include "text_utils.h"
 #include "wad_textures.h"
+#include "goldsource_game_configuration.h"
 
 
 using namespace GoldSource;
@@ -78,8 +79,17 @@ void BSPEntity::SetKeyValue(std::string& key, std::string& value)
 
 void BSPEntity::PopulateScene()
 {
-    auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+    auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();    
     auto & classname = m_vProperties["classname"];
+
+    GameConfiguration *pConfig = scene->UsedGameConfiguration();
+
+    if (typeid(pConfig) == typeid((HammerGameConfiguration*)0))
+    {
+        GoldSource::HammerGameConfiguration *hammerConfig = (HammerGameConfiguration *)pConfig;
+
+        m_pFGDClass = hammerConfig->LookupFGDClass(classname);
+    }
 
     if (classname == "light")
     {     

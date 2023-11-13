@@ -145,16 +145,6 @@ bool SelectionManager::SelectHoveredObject()
 
 	if (auto ptr = m_pLastHoveredObject.lock())
 	{
-		// Игнорируем щелчки по миру, так как гизма у нас пока "прозрачная" для selection manager
-
-		ModelOBJ* pTest = dynamic_cast<ModelOBJ*>(ptr.get());
-
-		if (pTest)
-			return false;
-
-		// 
-
-
 		for (size_t i = 0; i < m_vObjects.size(); i++)
 		{
 			if (auto ptr_other = m_vObjects[i].lock())
@@ -188,7 +178,11 @@ void SelectionManager::UnSelect()
 		ptr->SetSelected(false);
 		ptr->SetHovered(false);
 		ptr->OnUnSelect();
+
+		m_pLastSelectedObject.reset();
 	}
+
+	
 
 // 	for (auto& it : m_vObjects)
 // 	{

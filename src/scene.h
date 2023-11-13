@@ -86,4 +86,6 @@ class Scene
     void RenderGroupsShaded();
     void DumpLightmapMesh();
     void DumpLightmapUV();
+
+    GameConfiguration *UsedGameConfiguration();
 };

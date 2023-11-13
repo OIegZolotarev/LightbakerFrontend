@@ -7,6 +7,7 @@
 #include "common.h"
 #include "goldsource_game_configuration.h"
 #include "text_utils.h"
+#include <boost/algorithm/string.hpp>
 
 using namespace GoldSource;
 
@@ -25,27 +26,36 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
 }
 
 
+FGDEntityClass *HammerGameConfiguration::LookupFGDClass(std::string &classname)
+{
+    for (auto & it: m_lstFGDData)
+    {
+        auto fgdClass = it->FindEntityClass(classname);
+
+        if (fgdClass)
+            return fgdClass;
+    }
+
+    return nullptr;
+}
+
 void HammerGameConfiguration::ParseGameInfo()
 {
-    auto filePath = m_GameDirectory + "/gameinfo.gam";
+    auto filePath = m_GameDirectory + "/gameinfo.txt";
     auto fd       = FileSystem::Instance()->LoadFile(filePath);
 
     auto lines = TextUtils::SplitTextSimple((char *)fd->Data(), fd->Length(), '\n');
 
     for (auto &line : lines)
     {
-        auto items = TextUtils::SplitTextWhitespaces(line.c_str(), line.length());
 
-        if (items.size() != 2)
-            continue;
-
-        auto it = items.begin();
-
-        if (!strcasecmp((*it).c_str(), "title"))
-        {
-            it++;
-            SetDescription(*it);
-        }
+         if (!strcasecmp(line.c_str(), "title"))
+         {
+             auto descr = line.substr(5);
+             boost::trim(descr);
+             auto title = descr.substr(1, descr.size() - 1);
+             SetDescription(title);
+         }
     }
 
     fd->UnRef();
@@ -60,17 +70,12 @@ void HammerGameConfiguration::ParseLiblistGam()
 
     for (auto & line: lines)
     {
-        auto items = TextUtils::SplitTextWhitespaces(line.c_str(), line.length());
-
-        if (items.size() != 2)
-            continue;
-
-        auto it = items.begin();
-
-        if (!strcasecmp((*it).c_str(), "game"))
+        if (!strncasecmp(line.c_str(), "game ", 5))
         {
-            it++;
-            SetDescription(*it);
+            auto descr = line.substr(4);
+            boost::trim(descr);
+            auto title = descr.substr(1, descr.size() - 2);
+            SetDescription(title);
         }
 
     }
@@ -80,5 +85,9 @@ void HammerGameConfiguration::ParseLiblistGam()
 
 HammerGameConfiguration::~HammerGameConfiguration()
 {
+    for (auto it : m_lstFGDData)
+        delete it;
 
+    m_lstFGDData.clear();
+    m_FGDFiles.clear();
 }

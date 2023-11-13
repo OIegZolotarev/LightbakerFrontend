@@ -21,7 +21,7 @@ LoadFileDialog::~LoadFileDialog()
 void LoadFileDialog::Render()
 {
 	if (m_bVisible)
-		ImGuiFileDialog::Instance()->OpenDialog("LoadmodelDlgKey", "Load model", ".obj", ".");
+		ImGuiFileDialog::Instance()->OpenDialog("LoadmodelDlgKey", "Load model", ".obj | .bsp", ".");
 
 	ImVec2 minSize = ImVec2(1280 / 2, 720 / 2);
 

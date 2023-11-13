@@ -374,3 +374,8 @@ void Scene::DumpLightmapUV()
     // 	tsk->DumpUVImage("lm_debug%02u.tga");
     // 	delete tsk;
 }
+
+GameConfiguration *Scene::UsedGameConfiguration()
+{
+    return m_pGameConfiguration;
+}

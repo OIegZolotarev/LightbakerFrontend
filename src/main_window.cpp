@@ -750,21 +750,21 @@ bool MainWindow::HandleEvents(bool loop)
 
         bool bIgnorableEvent = true;
 
-        // 		switch (event.type)
-        // 		{
-        // 		case SDL_KEYDOWN:
-        // 		case SDL_KEYUP:
-        // 		case SDL_MOUSEBUTTONDOWN:
-        // 		case SDL_MOUSEBUTTONUP:
-        // 			bIgnorableEvent = false;
-        // 		}
+        switch (event.type)
+        {
+        case SDL_KEYDOWN:
+        case SDL_KEYUP:
+            if (ImGui::GetIO().WantCaptureKeyboard && bIgnorableEvent)
+                continue;
+            break;
+        case SDL_MOUSEBUTTONDOWN:
+        case SDL_MOUSEBUTTONUP:
+            if (ImGui::GetIO().WantCaptureMouse && bIgnorableEvent)
+                continue;
+            break;
 
-        if (ImGui::GetIO().WantCaptureMouse && bIgnorableEvent)
-            continue;
-
-        if (ImGui::GetIO().WantCaptureKeyboard && bIgnorableEvent)
-            continue;
-
+        }
+        
         switch (event.type)
         {
         case SDL_QUIT:

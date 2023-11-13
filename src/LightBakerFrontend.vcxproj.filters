@@ -542,6 +542,9 @@
     <None Include="..\bin\res\glprogs\scene_groupshaded.frag">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="hammer_fgd\hammer_fgd.y">
+      <Filter>Исходные файлы\GoldSource\FGD</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico">

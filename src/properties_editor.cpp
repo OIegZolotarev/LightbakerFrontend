@@ -80,6 +80,8 @@ void ObjectPropertiesEditor::UnloadObject()
 		m_pPropertiesBinding = nullptr;
 		m_vPropsData.clear();
 	}
+
+	SetupGuizmo();
 }
 
 DockPanels ObjectPropertiesEditor::GetDockSide()
