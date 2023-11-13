@@ -12,6 +12,9 @@
 #include "Camera.h"
 #include "ui_options_pages.h"
 #include "ui_styles_manager.h"
+#include "helpers.h"
+#include "imgui_popups.h"
+#include "popup_edit_gameconfiguration.h"
 
 using namespace ProgramOptions;
 
@@ -38,14 +41,11 @@ void RegisterOptions()
 
     BeginOptionPage(OptionsPage::Camera, "Camera");
 
-
     // Порядок перечислений должен совпадать с основным перечислением!!
     opt = AddOption(ApplicationSettings::CameraControlScheme, "Camera control scheme", PropertiesTypes::Enum);
     opt->AddEnumValue("Valve Hammer Editor", (int)CameraControlScheme::ValveHammerEditor);
     opt->AddEnumValue("Blender", (int)CameraControlScheme::Blender);
-    opt->AddEnumValue("Blender (touchpad)",  (int)CameraControlScheme::BlenderTouchpad);
-    
-    
+    opt->AddEnumValue("Blender (touchpad)", (int)CameraControlScheme::BlenderTouchpad);
 
     AddGroup("Movement");
 
@@ -85,59 +85,57 @@ void OptionsDialog::Render()
     if (!RenderHeader())
         return;
 
-    // if (ImGui::BeginTable("###LayoutLeftRight", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp,
-    // ImVec2(-FLT_MIN,-20)))
+    ImVec2 size(-FLT_MIN, -FLT_MIN);
+
+    uiOptionPage_t *pageToRender = nullptr;
+
+    if (ImGui::BeginTabBar("###Category"))
     {
-        // 		ImGui::TableSetupColumn("One", ImGuiTableColumnFlags_WidthStretch, 20 );
-        // 		ImGui::TableSetupColumn("Two", ImGuiTableColumnFlags_WidthStretch, 80);
-        //
-        //
-        // 		ImGui::TableNextRow();
-        // 		ImGui::TableSetColumnIndex(0);
-
-        ImVec2 size(-FLT_MIN, -FLT_MIN);
-
-        uiOptionPage_t *pageToRender = nullptr;
-
-        if (ImGui::BeginTabBar("###Category"))
+        for (int i = 0; i < ARRAYSIZE(g_OptionsPages); i++)
         {
-            for (int i = 0; i < ARRAYSIZE(g_OptionsPages); i++)
+            auto page = &g_OptionsPages[i];
+
+            if (page->selected)
+                pageToRender = page;
+
+            // if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
+            if (ImGui::BeginTabItem(page->pageDescription.c_str()))
             {
-                auto page = &g_OptionsPages[i];
+                pageToRender = page;
 
-                if (page->selected)
-                    pageToRender = page;
-
-                // if (ImGui::Selectable(page->pageDescription.c_str(), &page->selected, ImGuiSelectableFlags_None))
-                if (ImGui::BeginTabItem(page->pageDescription.c_str()))
+                for (int k = 0; k < ARRAYSIZE(g_OptionsPages); k++)
                 {
-                    pageToRender = page;
-
-                    for (int k = 0; k < ARRAYSIZE(g_OptionsPages); k++)
-                    {
-                        if (k == i)
-                            continue;
-                        g_OptionsPages[k].selected = false;
-                    }
-
-                    ImGui::EndTabItem();
+                    if (k == i)
+                        continue;
+                    g_OptionsPages[k].selected = false;
                 }
-            }
 
-            // ImGui::EndListBox();
-            ImGui::EndTabBar();
+                ImGui::EndTabItem();
+            }
         }
 
-        if (pageToRender)
+        if (ImGui::BeginTabItem("Game configurations"))
         {
             if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
             {
-                RenderOptionsPages(pageToRender);
+                RenderGameConfigurationsPage();
                 ImGui::EndChild();
             }
+
+            ImGui::EndTabItem();
         }
 
-        // ImGui::EndTable();
+        // ImGui::EndListBox();
+        ImGui::EndTabBar();
+    }
+
+    if (pageToRender)
+    {
+        if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
+        {
+            RenderOptionsPages(pageToRender);
+            ImGui::EndChild();
+        }
     }
 
     RenderFooter();
@@ -201,6 +199,69 @@ void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t *page)
             ImGui::EndTable();
         }
         ImGui::EndChildFrame();
+    }
+}
+
+void OptionsDialog::RenderGameConfigurationsPage()
+{
+    static GameConfigurationWeakPtr selectedConf;
+    
+    ImGui::SeparatorText("Registered configurations:");
+
+    if (ImGui::BeginTable("###GroupsLeftRight", 2))
+    {
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+
+        ImGui::SetNextItemWidth(-1);
+
+        if (ImGui::BeginListBox("###RegisteredConfigurations"))
+        {
+            auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
+            for (auto & it : items)
+            {
+                auto ptr = it.lock();
+
+                if (!ptr)
+                    continue;
+
+                if (ImGui::Selectable(ptr->Description(), equals(selectedConf, ptr)))
+                {
+                    selectedConf = it;
+                }
+            }
+
+            
+
+            ImGui::EndListBox();
+        }
+
+        ImGui::TableSetColumnIndex(1);
+
+        if (ImGui::Button("Add"))
+        {
+        }
+
+        if (ImGui::Button("Edit..."))
+        {
+            if (selectedConf.lock())
+            {
+                ImGui::CloseCurrentPopup();
+                m_bVisible = false;
+
+                auto popup = (PopupEditGameconfiguration*)PopupsManager::Instance()->FindPopupByID(PopupWindows::EditGameConfiguration);
+                popup->SetGameConfiguration(selectedConf);
+                PopupsManager::Instance()->ShowPopup(PopupWindows::EditGameConfiguration);
+
+                
+            }
+        }
+        
+        if (ImGui::Button("Remove"))
+        {
+        }
+
+        ImGui::EndTable();
     }
 }
 

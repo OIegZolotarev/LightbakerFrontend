@@ -302,7 +302,10 @@ void Scene::LoadLevel(const char *levelName)
 {
     auto s = std::string(levelName);
 
-    m_pGameConfiguration = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
+    auto cfg = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
+
+    if (cfg != std::nullopt)
+        m_pGameConfiguration = *cfg;
 
     auto pLevelEntity = std::make_shared<Worldspawn>(levelName);
 
@@ -375,7 +378,7 @@ void Scene::DumpLightmapUV()
     // 	delete tsk;
 }
 
-GameConfiguration *Scene::UsedGameConfiguration()
+GameConfigurationWeakPtr Scene::UsedGameConfiguration()
 {
     return m_pGameConfiguration;
 }

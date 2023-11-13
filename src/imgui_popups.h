@@ -11,7 +11,8 @@ enum class PopupWindows
 	LightBaker3KConfig = 0,
 	LoadfileDialog,
 	SceneScaleDialog,
-	ProgramOptions
+	ProgramOptions,
+	EditGameConfiguration
 };
 
 class IImGUIPopup
@@ -42,11 +43,7 @@ public:
 class PopupsManager
 {
 	std::vector<IImGUIPopup*> m_vPopups;
-
-	IImGUIPopup* FindPopupByID(PopupWindows id);
-
 	PopupsManager();
-
 public:
 	static PopupsManager* Instance();
 	~PopupsManager();
@@ -55,5 +52,7 @@ public:
 	
 	void ShowPopup(PopupWindows id);
 	void RenderPopups();
+
+	IImGUIPopup *FindPopupByID(PopupWindows id);
 };
 

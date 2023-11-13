@@ -196,6 +196,7 @@ build.bat
     <ClCompile Include="..\include\imgui\imgui_draw.cpp" />
     <ClCompile Include="..\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
@@ -233,6 +234,7 @@ build.bat
     <ClCompile Include="mod_obj_atlas_gen.cpp" />
     <ClCompile Include="mtl_library.cpp" />
     <ClCompile Include="object_props.cpp" />
+    <ClCompile Include="popup_edit_gameconfiguration.cpp" />
     <ClCompile Include="popup_options_window.cpp" />
     <ClCompile Include="popup_scene_scale.cpp" />
     <ClCompile Include="scene.cpp" />
@@ -299,6 +301,7 @@ build.bat
     <ClInclude Include="goldsource_game_configuration.h" />
     <ClInclude Include="goldsource_lightmap_atlas.h" />
     <ClInclude Include="hammer_fgd.h" />
+    <ClInclude Include="helpers.h" />
     <ClInclude Include="helper_geometry_shader.h" />
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
@@ -308,6 +311,7 @@ build.bat
     <ClInclude Include="mod_obj_atlas_gen.h" />
     <ClInclude Include="mod_obj_data.h" />
     <ClInclude Include="mtl_library.h" />
+    <ClInclude Include="popup_edit_gameconfiguration.h" />
     <ClInclude Include="popup_options_window.h" />
     <ClInclude Include="popup_scene_scale.h" />
     <ClInclude Include="scene.h" />

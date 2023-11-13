@@ -275,6 +275,12 @@
     <ClCompile Include="goldsource_game_configuration.cpp">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
+    <ClCompile Include="popup_edit_gameconfiguration.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>Исходные файлы\ImGUI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -504,6 +510,12 @@
     </ClInclude>
     <ClInclude Include="goldsource_game_configuration.h">
       <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_edit_gameconfiguration.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="helpers.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

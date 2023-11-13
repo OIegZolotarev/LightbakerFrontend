@@ -39,7 +39,7 @@ Application::~Application()
 	delete m_pCommandsRegistry;	
 	delete m_pPersistentStorage;
 	delete m_pLightBakerApplication;
-
+    delete GameConfigurationsManager::Instance();
 	
 }
 

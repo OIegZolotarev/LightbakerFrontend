@@ -27,7 +27,7 @@ class Scene
     LevelFormat DetermineLevelFormatFromFileName(std::string levelName);
     LevelFormat m_LevelFormat = LevelFormat::Unknown;
 
-    GameConfiguration *m_pGameConfiguration;
+    GameConfigurationWeakPtr m_pGameConfiguration;
 
     // Scene Entity 0 - level model
     std::list<SceneEntityPtr> m_SceneEntities;
@@ -87,5 +87,5 @@ class Scene
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-    GameConfiguration *UsedGameConfiguration();
+    GameConfigurationWeakPtr UsedGameConfiguration();
 };

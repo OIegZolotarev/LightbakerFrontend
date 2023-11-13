@@ -31,4 +31,5 @@ private:
 	//void RenderPropertyControl(VariantValue& it);
 	
 	
+void RenderGameConfigurationsPage();
 };

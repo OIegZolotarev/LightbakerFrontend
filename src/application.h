@@ -101,3 +101,9 @@ private:
  }
 
 //#define Con_Printf printf
+
+
+ #define SDL_ORGANIZATION "QuiteOldOrange"
+ #define SDL_APP_NAME "LightBaker3000Frontend"
+ 
+#define APP_VERSION "1.3.0.0"

@@ -218,9 +218,12 @@ void BSPRenderer::RenderBrushPoly(msurface_t *fa)
     glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 
+    
     glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
+
+    if (fa->texinfo->texture->loadedTexture)
+        glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
     // glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     glBegin(GL_POLYGON);

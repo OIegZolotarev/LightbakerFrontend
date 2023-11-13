@@ -19,6 +19,7 @@ GameConfiguration::GameConfiguration(std::string descr, std::string gameDirector
 
 GameConfiguration::~GameConfiguration()
 {
+    
 }
 
 const char *GameConfiguration::Name() const
@@ -71,12 +72,15 @@ GameConfigurationsManager *GameConfigurationsManager::Instance()
 GameConfigurationsManager::~GameConfigurationsManager()
 {
     for (auto &it : m_Configurations)
-        delete it;
+    {
+        it->Serialize("");
+        //delete it;
+    }
 
     m_Configurations.clear();
 }
 
-GameConfiguration *GameConfigurationsManager::FindGameByName(const char *gameName) const
+GameConfigurationWeakPtrOpt GameConfigurationsManager::FindGameByName(const char *gameName) const
 {
     for (auto &game : m_Configurations)
     {
@@ -84,10 +88,10 @@ GameConfiguration *GameConfigurationsManager::FindGameByName(const char *gameNam
             return game;
     }
 
-    return nullptr;
+    return std::nullopt;
 }
 
-GameConfiguration *GameConfigurationsManager::FindConfigurationForLevel(std::string &levelFilePath)
+GameConfigurationWeakPtrOpt GameConfigurationsManager::FindConfigurationForLevel(std::string &levelFilePath)
 {
     for (auto &it : m_Configurations)
     {
@@ -101,19 +105,19 @@ GameConfiguration *GameConfigurationsManager::FindConfigurationForLevel(std::str
 
     // If none configuration data found - fail
     if (!lookupResult)
-        return nullptr;
+        return GameConfigurationWeakPtr();
 
-    GameConfiguration *pNewConfiguration = nullptr;
+    GameConfigurationPtr pNewConfiguration = nullptr;
 
     std::string gameDir = std::get<0>(*lookupResult);
     GameEngines engine  = std::get<1>(*lookupResult);
     switch (engine)
     {
     case GameEngines::GoldSource:
-        pNewConfiguration = new GoldSource::HammerGameConfiguration(gameDir, engine);
+        pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(gameDir, engine);
         break;
-    case GameEngines::Xash3d:
-        pNewConfiguration = new GoldSource::HammerGameConfiguration(gameDir, engine);
+    case GameEngines::Xash3d:        
+        pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(gameDir, engine);
         break;
     default:
         break;
@@ -125,7 +129,22 @@ GameConfiguration *GameConfigurationsManager::FindConfigurationForLevel(std::str
     return pNewConfiguration;
 }
 
- GameConfigurationsManager::GameConfigurationsManager()
+const std::list<GameConfigurationPtr> & GameConfigurationsManager::AllConfigurations() const
+{
+    return m_Configurations;
+}
+
+const std::list<GameConfigurationWeakPtr> GameConfigurationsManager::AllConfigurationsWeakPtr() const
+{
+    std::list<GameConfigurationWeakPtr> result;
+
+    for (auto & it : m_Configurations)
+        result.push_back(std::weak_ptr(it));
+
+    return result;
+}
+
+GameConfigurationsManager::GameConfigurationsManager()
 {
     (void)0;
 }

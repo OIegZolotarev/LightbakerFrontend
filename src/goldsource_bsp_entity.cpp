@@ -82,12 +82,13 @@ void BSPEntity::PopulateScene()
     auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();    
     auto & classname = m_vProperties["classname"];
 
-    GameConfiguration *pConfig = scene->UsedGameConfiguration();
+    GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
+    auto pConfigPtr = pConfigWeakPtr.lock();
+    GameConfiguration *pConfig = pConfigPtr.get();
 
     if (typeid(pConfig) == typeid((HammerGameConfiguration*)0))
     {
         GoldSource::HammerGameConfiguration *hammerConfig = (HammerGameConfiguration *)pConfig;
-
         m_pFGDClass = hammerConfig->LookupFGDClass(classname);
     }
 

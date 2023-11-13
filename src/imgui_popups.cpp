@@ -11,6 +11,7 @@
 #include "popup_loadfile_dialog.h"
 #include "popup_scene_scale.h"
 #include "popup_options_window.h"
+#include "popup_edit_gameconfiguration.h"
 
 IImGUIPopup::IImGUIPopup(PopupWindows id)
 {
@@ -42,6 +43,7 @@ PopupsManager::PopupsManager()
 	m_vPopups.push_back(new LoadFileDialog());
 	m_vPopups.push_back(new SceneScaleDialog());
 	m_vPopups.push_back(new OptionsDialog());
+    m_vPopups.push_back(new PopupEditGameconfiguration());
 }
 
 PopupsManager* PopupsManager::Instance()
@@ -73,9 +75,16 @@ void PopupsManager::ShowPopup(PopupWindows id)
 
 void PopupsManager::RenderPopups()
 {
+	// TODO: make actual popup stack, since ImGUI can't stack ones
+
 	for (auto& it : m_vPopups)
 	{
 		if (it->IsVisible())
-			it->Render();
+        {
+            ImGui::PushID(it);
+            it->Render();
+            ImGui::PopID();
+        }
+			
 	}
 }

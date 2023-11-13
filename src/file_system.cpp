@@ -319,6 +319,27 @@ std::string FileSystem::ExtractFileName(const char* path)
 	return name + "." + ext;
 }
 
+FILE *FileSystem::OpenFileForWriting(std::string & fileName)
+{
+    FILE *fp = 0;
+
+#ifdef LINUX
+    fp = fopen(fileName.c_str());
+#else
+    fopen_s(&fp, fileName.c_str(), "wb");
+#endif
+
+    if (!fp)
+        return nullptr;
+
+	return fp;
+}
+
+void FileSystem::MakeDir(std::string path)
+{
+    std::filesystem::create_directory(path);
+}
+
 // ��������� ��� ����� �� �������
 // ����������� ��� ���� ������� � ��� �� �������� ��� � �������� ����
 // ��������� �������

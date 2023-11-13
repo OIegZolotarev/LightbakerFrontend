@@ -126,7 +126,9 @@ void MainWindow::InitBackend()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
     io.MouseDrawCursor = true;
 
-    char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
+
+    //char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
+    char *p = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
     sprintf_s(g_IMGuiIniPath, sizeof(g_IMGuiIniPath), "%s/imgui.ini", p);
 
     io.IniFilename = g_IMGuiIniPath;

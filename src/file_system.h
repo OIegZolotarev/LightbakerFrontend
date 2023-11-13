@@ -115,7 +115,7 @@ class FileSystem
     //		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
     std::string MakeTemplatePath(const char *fileName, const char *templ);
 
-    bool FileExists(std::string fileName);
+    static bool FileExists(std::string fileName);
 
     int CopyFile(const char *srcPath, const char *dstPath);
 
@@ -130,4 +130,6 @@ class FileSystem
     static std::string ExtractFileExtension(const char *path);
 
     static std::string ExtractFileName(const char *path);
+    static [[nodiscard]] FILE *OpenFileForWriting(std::string & fileName);
+    static void MakeDir(std::string path);
 };

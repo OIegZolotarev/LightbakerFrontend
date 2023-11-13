@@ -25,7 +25,10 @@ public:
     void SetDescription(std::string & descr);
     void SetGameDirectory(std::string & gameDir);
 
+    virtual void Serialize(std::string fileName) const {};
+    virtual void Deserialize(std::string fileName) {};
     
+    virtual void EditDialog(){}
 };
 
 enum class GameEngines
@@ -36,10 +39,15 @@ enum class GameEngines
 
 typedef std::tuple<std::string, GameEngines> gamelookupresult_t;
 
+typedef std::shared_ptr<GameConfiguration> GameConfigurationPtr;
+typedef std::weak_ptr<GameConfiguration> GameConfigurationWeakPtr;
+
+typedef std::optional<GameConfigurationWeakPtr> GameConfigurationWeakPtrOpt;
+
 class GameConfigurationsManager
 {
     GameConfigurationsManager();
-    std::list<GameConfiguration *> m_Configurations;
+    std::list<GameConfigurationPtr> m_Configurations;
 
     // For GoldSource/Xash3d games returns game directory + detected engine type (by detecting liblist.gam/gameinfo.txt)
     std::optional<gamelookupresult_t> ScanForGameDefinitionFile(std::string &levelFileName, size_t maxRecursion = 3);
@@ -49,6 +57,9 @@ class GameConfigurationsManager
 	static GameConfigurationsManager *Instance();
     ~GameConfigurationsManager();
 
-	GameConfiguration *FindGameByName(const char *gameName) const;
-    GameConfiguration *FindConfigurationForLevel(std::string & levelFilePath);
+	GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
+    GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
+    
+    const std::list<GameConfigurationPtr> & AllConfigurations() const;
+    const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;
 };

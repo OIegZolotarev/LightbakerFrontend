@@ -37,6 +37,11 @@ class HammerGameConfiguration : public GameConfiguration
     ~HammerGameConfiguration();
 
     FGDEntityClass *LookupFGDClass(std::string &classname);
+
+    void Deserialize(std::string fileName) override;
+    void Serialize(std::string fileName) const override;
+
+    void EditDialog() override;
 };
 
 } // namespace GoldSource
