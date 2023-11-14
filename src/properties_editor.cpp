@@ -498,7 +498,7 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 
-		EditTransaction *transaction = new EditTransaction(m_pPropertiesBinding->GetSerialNumber());
+		EditTransaction *transaction = new EditTransaction();
 
 		if (m_pGuizmoPropertyPosition)
 		transaction->AddAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue,

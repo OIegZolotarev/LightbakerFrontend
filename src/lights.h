@@ -129,7 +129,7 @@ public:
 	void UpdateObjectProperties(VariantValue* data, size_t num) override;
 	bool IsObjectValid() override;
 
-	int GetSerialNumber() override;
+	size_t GetSerialNumber() override;
 	void OnPropertyChangeSavedToHistory() override;
 
 	ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;

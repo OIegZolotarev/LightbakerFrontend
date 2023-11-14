@@ -261,6 +261,44 @@ void Application::HideMouseCursor()
 	ImGui::GetIO().MouseDrawCursor = false;
 }
 
+const char *date    = __DATE__;
+const char *mon[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+const char mond[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+
+// Greetings to:
+//  Xash3D-FWGS team,
+//  Uncle Mike,
+//  and Id Software
+// returns days since Sep 6 2022
+int Application::Q_buildnum(void)
+{
+    int m = 0, d = 0, y = 0;
+    static int b = 0;
+
+    if (b != 0)
+        return b;
+
+    for (m = 0; m < 11; m++)
+    {
+        if (!strncasecmp(&date[0], mon[m], 3))
+            break;
+        d += mond[m];
+    }
+
+    d += atoi(&date[4]) - 1;
+    y = atoi(&date[7]) - 1900;
+    b = d + (int)((y - 1) * 365.25f);
+
+    if (((y % 4) == 0) && m > 1)
+    {
+        b += 1;
+    }
+
+    b -= 44443; // Sep 06 2022
+
+    return b;
+}
+
 float Application::GetBakingProgress()
 {
 	return m_flBakingPercentage;

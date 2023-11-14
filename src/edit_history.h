@@ -56,6 +56,8 @@ public:
     {
         m_lstActions.push_back(pAction);
 	}
+    
+	bool Empty();
 };
 
 class CEditHistory

@@ -155,9 +155,6 @@
     <ClCompile Include="..\include\imgui\imgui_demo.cpp">
       <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
-    <ClCompile Include="edit_history.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="text_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -284,6 +281,9 @@
     <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp">
       <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
+    <ClCompile Include="edit_history.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -395,9 +395,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="debug_panel.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="edit_history.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="text_utils.h">
@@ -519,6 +516,9 @@
     </ClInclude>
     <ClInclude Include="helpers.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="edit_history.h">
+      <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

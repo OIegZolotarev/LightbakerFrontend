@@ -120,7 +120,7 @@ public:
 		return true;
 	}
 
-	virtual int	GetSerialNumber()
+	virtual size_t GetSerialNumber()
 	{
 		return 0;
 	}

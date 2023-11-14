@@ -80,9 +80,13 @@ public:
 	void ShowMouseCursor();
 	void HideMouseCursor();
 
+	
+    
+    static int Q_buildnum(void);
+
+
 private:
 	std::string m_strFileToLoad = "";
-
 
 	// Baker state
 

@@ -252,7 +252,7 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 void MainWindow::SetTitle(std::string &fileName)
 {
-    m_strTitle = std::format("LightBaker3000 FrontEnd - {0}", fileName);
+    m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} - {0}", fileName, Application::Q_buildnum());
     SDL_SetWindowTitle(m_pSDLWindow, m_strTitle.c_str());
 }
 
