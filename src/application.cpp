@@ -18,13 +18,14 @@
 #include <corecrt_malloc.h>
 #endif
 #include "hammer_fgd.h"
+#include "grid_renderer.h"
 
 
 Application::Application()
 {
-	m_pCommandsRegistry =	new CCommandsRegistry;
-	m_pFileSystem =			new FileSystem;	
-	m_pPersistentStorage =	nullptr;
+	m_pCommandsRegistry		=	new CCommandsRegistry;
+	m_pFileSystem			=	new FileSystem;	
+	m_pPersistentStorage	=	nullptr;
 
 	m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
@@ -40,6 +41,7 @@ Application::~Application()
 	delete m_pPersistentStorage;
 	delete m_pLightBakerApplication;
     delete GameConfigurationsManager::Instance();
+    
 	
 }
 

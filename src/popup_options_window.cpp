@@ -26,10 +26,6 @@ void RegisterOptions()
 
     BeginOptionPage(OptionsPage::General, "General");
 
-    AddGroup("Appearance");
-    opt = AddOption(ApplicationSettings::GUIColorScheme, "UI colors", PropertiesTypes::Enum);
-    UIStyles::Manager::Instance()->PopulateStylesOption(opt);
-
     AddGroup("Scene");
     AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
@@ -68,7 +64,20 @@ void RegisterOptions()
     opt = AddOption(ApplicationSettings::CameraZFar, "Far plane", PropertiesTypes::Float);
     opt->SetNumericalLimits(10, 1000000);
 
-    BeginOptionPage(OptionsPage::Keyboard, "Keyboard");
+    BeginOptionPage(OptionsPage::Appearence, "Appeareance");
+
+    AddGroup("Appearance");
+    opt = AddOption(ApplicationSettings::GUIColorScheme, "UI colors", PropertiesTypes::Enum);
+    UIStyles::Manager::Instance()->PopulateStylesOption(opt);
+
+    AddGroup("Grid");
+    opt = AddOption(ApplicationSettings::GridAxisColor, "Axis color", PropertiesTypes::ColorRGB);
+    opt = AddOption(ApplicationSettings::GridMainColor, "Main color", PropertiesTypes::ColorRGB);
+    opt = AddOption(ApplicationSettings::Grid64thLineColor, "64th lines color", PropertiesTypes::ColorRGB);
+    opt = AddOption(ApplicationSettings::Grid1024thLineColor, "1024th lines color", PropertiesTypes::ColorRGB);
+    opt = AddOption(ApplicationSettings::GridCustomColor, "Custom color", PropertiesTypes::ColorRGB);
+    opt = AddOption(ApplicationSettings::GridCustomStep, "Highlight every n'th line", PropertiesTypes::Int);
+    
 }
 
 OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)

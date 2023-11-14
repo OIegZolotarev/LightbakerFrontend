@@ -33,10 +33,11 @@ class SceneRenderer: public IEventHandler
 {	
 public:
 	SceneRenderer(class MainWindow* pTargetWindow);
+	~SceneRenderer();
 
+	
 	void RegisterRendermodesCommands();
 
-	~SceneRenderer();
 
 	class Camera* GetCamera();
 

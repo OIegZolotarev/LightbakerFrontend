@@ -122,9 +122,6 @@
     <ClCompile Include="lb3k_wrapper.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="properties_editor.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -284,6 +281,15 @@
     <ClCompile Include="edit_history.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="properties_editor.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="grid_renderer.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editor_grid_shader.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -356,9 +362,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="object_props.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="properties_editor.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="selection_3d.h">
@@ -520,6 +523,15 @@
     <ClInclude Include="edit_history.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="properties_editor.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="grid_renderer.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editor_grid_shader.h">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -559,6 +571,12 @@
     </None>
     <None Include="hammer_fgd\hammer_fgd.y">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\editor_grid.frag">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\editor_grid.vert">
+      <Filter>GLSL</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

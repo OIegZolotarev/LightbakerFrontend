@@ -201,6 +201,7 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
@@ -222,6 +223,7 @@ build.bat
     <ClCompile Include="goldsource_bsp_world.cpp" />
     <ClCompile Include="goldsource_game_configuration.cpp" />
     <ClCompile Include="goldsource_lightmap_atlas.cpp" />
+    <ClCompile Include="grid_renderer.cpp" />
     <ClCompile Include="hammer_fgd.cpp" />
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
@@ -274,6 +276,7 @@ build.bat
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="game_configuration.h" />
     <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
@@ -300,6 +303,7 @@ build.bat
     <ClInclude Include="goldsource_bsp_world.h" />
     <ClInclude Include="goldsource_game_configuration.h" />
     <ClInclude Include="goldsource_lightmap_atlas.h" />
+    <ClInclude Include="grid_renderer.h" />
     <ClInclude Include="hammer_fgd.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="helper_geometry_shader.h" />
@@ -345,6 +349,8 @@ build.bat
     <ResourceCompile Include="LightBakerFrontend.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\res\glprogs\editor_grid.frag" />
+    <None Include="..\bin\res\glprogs\editor_grid.vert" />
     <None Include="..\bin\res\glprogs\helper_geometry.frag" />
     <None Include="..\bin\res\glprogs\helper_geometry.vert" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />

@@ -1,484 +1,480 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
-#include "common.h"
 #include "persistent.h"
-#include <nlohmann/json.hpp>
 #include "application.h"
-#include <string>
+#include "common.h"
 #include "igui_panel.h"
 #include "ui_options_pages.h"
+#include <nlohmann/json.hpp>
+#include <string>
 
-
-PersistentStorage::PersistentStorage(Application * appInstance)
+PersistentStorage::PersistentStorage(Application *appInstance)
 {
-	extern void RegisterOptions();
-	extern ProgramOptions::uiOptionPage_t g_OptionsPages[(int)ProgramOptions::OptionsPage::Total];
+    extern void RegisterOptions();
+    extern ProgramOptions::uiOptionPage_t g_OptionsPages[(int)ProgramOptions::OptionsPage::Total];
 
-	RegisterOptions();
-	// TODO: calc this
-	m_ApplicationProps.reserve(32);
+    RegisterOptions();
+    // TODO: calc this
+    m_ApplicationProps.reserve(32);
 
-	for (auto & it : g_OptionsPages)
-	{
-		for (auto& opt : it.items)
-		{
-			if (opt->ItemType() == ProgramOptions::OptionPageItemType::Value)
-			{
-				auto val = (ProgramOptions::OptionsValue*)opt;
-				
-				val->GetValue()->ValidateValue();
-				m_ApplicationProps.push_back(val->GetValue());
-			}
-		}
-	}
+    for (auto &it : g_OptionsPages)
+    {
+        for (auto &opt : it.items)
+        {
+            if (opt->ItemType() == ProgramOptions::OptionPageItemType::Value)
+            {
+                auto val = (ProgramOptions::OptionsValue *)opt;
 
+                val->GetValue()->ValidateValue();
+                m_ApplicationProps.push_back(val->GetValue());
+            }
+        }
+    }
 
-	auto setting = GetSetting(ApplicationSettings::BackgroundColor1);
-	setting->SetColorRGBA(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
-
-	setting = GetSetting(ApplicationSettings::RebakeSceneAfterChanges);
-	setting->SetBool(true);
-
-	setting = GetSetting(ApplicationSettings::CameraFov);
-	setting->SetFloat(110);
-
-	setting = GetSetting(ApplicationSettings::CameraZNear);
-	setting->SetFloat(1.f);
-
-	setting = GetSetting(ApplicationSettings::CameraZFar);
-	setting->SetFloat(4096.f);
-
-	setting = GetSetting(ApplicationSettings::CameraMovementSpeed);
-	setting->SetFloat(400);
-
-	setting = GetSetting(ApplicationSettings::CameraAccel);
-	setting->SetFloat(1000);
-
-	setting = GetSetting(ApplicationSettings::CameraDecel);
-	setting->SetFloat(1000);
-
-	LoadFromFile(appInstance);
+    SetDefaultValues();
+    LoadFromFile(appInstance);
 }
 
-void PersistentStorage::LoadFromFile(Application* appInstance)
+void PersistentStorage::SetDefaultValues()
 {
-	char persistent_file[1024];
-	char* p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
-	sprintf_s(persistent_file, sizeof(persistent_file), "%s/persistent.json", p);
+    auto setting = GetSetting(ApplicationSettings::BackgroundColor1);
+    setting->SetColorRGBA(glm::vec4(0.25f, 0.25f, 0.25f, 1.0f));
 
-	FileData* fd = Application::Instance()->GetFileSystem()->LoadFile(persistent_file);
+    setting = GetSetting(ApplicationSettings::RebakeSceneAfterChanges);
+    setting->SetBool(true);
 
-	if (!fd)
-	{
-		m_bFreshFile = true;
-		return;
-	}
+    setting = GetSetting(ApplicationSettings::CameraFov);
+    setting->SetFloat(110);
 
-	m_bFreshFile = false;
-	
-	try
-	{
-		std::string json_data = std::string(std::string_view((char*)fd->Data(),fd->Length()));
-		nlohmann::json j = nlohmann::json::parse(json_data);
+    setting = GetSetting(ApplicationSettings::CameraZNear);
+    setting->SetFloat(1.f);
 
-		if (j.contains("MRU"))
-		{
-			auto & MRU = j["MRU"];
-			
-			for (auto items : MRU)
-			{
-				m_lstMRUFiles.push_back(mruFile_t(items[0].get<std::string>(), 
-												  items[1].get<std::time_t>()));
+    setting = GetSetting(ApplicationSettings::CameraZFar);
+    setting->SetFloat(4096.f);
 
-			}
+    setting = GetSetting(ApplicationSettings::CameraMovementSpeed);
+    setting->SetFloat(400);
 
-			SortMRU();
-		}
+    setting = GetSetting(ApplicationSettings::CameraAccel);
+    setting->SetFloat(1000);
 
-		if (j.contains("ApplicationSettings"))
-			ParseApplicationSettings(j["ApplicationSettings"]);
+    setting = GetSetting(ApplicationSettings::CameraDecel);
+    setting->SetFloat(1000);
 
-		if (j.contains("BakerSettings"))
-		{
-			appInstance->GetLightBakerApplication()->Settings()->FromJSON(j["BakerSettings"]);
-		}
-// 	
-// 		std::list<nlohmann::json> panels_state;
-// 
-// 		for (auto& it : PanelsId::_values())
-// 		{
-// 			if (it._value == PanelsId::None)
-// 				continue;
-// 
-// 			if (it._value == PanelsId::MaxPanels)
-// 				continue;
-// 
-// 			nlohmann::json panel_desc;
-// 			panel_desc["Valid"] = m_bPanelsValid[it._value];
-// 			panel_desc["Id"] = it._to_string();
-// 
-// 			panels_state.push_back(panel_desc);
-// 		}
-// 
-// 		j["PanelsState"] = panels_state;
+    setting = GetSetting(ApplicationSettings::GridAxisColor);
+    setting->SetColorRGB(glm::vec3{1,0,0});
 
-		if (j.contains("PanelsState"))
-		{
-			auto & items = j["PanelsState"];
+    setting = GetSetting(ApplicationSettings::GridMainColor);
+    setting->SetColorRGB(glm::vec3{.2f, .2f, .2f});
 
-			for (auto & it : items)
-			{
-				PanelsId id = PanelsId::_from_string(it["Id"].get<std::string>().c_str());
-				bool isValid = it["Valid"];
+    setting = GetSetting(ApplicationSettings::Grid64thLineColor);
+    setting->SetColorRGB(glm::vec3{.2f, .2f, .2f});
 
-				m_bPanelsValid[id._value] = isValid;
+    setting = GetSetting(ApplicationSettings::Grid1024thLineColor);
+    setting->SetColorRGB(glm::vec3{1, 1, 0.4f});
 
-			}
-		}
+    setting = GetSetting(ApplicationSettings::GridCustomColor);
+    setting->SetColorRGB(glm::vec3{0, 0, 0});
 
-	}
-	catch (std::exception& e)
-	{
-		e;
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Exception while parsing persistent data", e.what(), 0);
-		//Application::EPICFAIL(e.what());
-	}
+    setting = GetSetting(ApplicationSettings::GridCustomStep);
+    setting->SetInt(0);
+}
 
-	delete fd;
+void PersistentStorage::LoadFromFile(Application *appInstance)
+{
+    char persistent_file[1024];
+    char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
+    sprintf_s(persistent_file, sizeof(persistent_file), "%s/persistent.json", p);
+
+    FileData *fd = Application::Instance()->GetFileSystem()->LoadFile(persistent_file);
+
+    if (!fd)
+    {
+        m_bFreshFile = true;
+        return;
+    }
+
+    m_bFreshFile = false;
+
+    try
+    {
+        std::string json_data = std::string(std::string_view((char *)fd->Data(), fd->Length()));
+        nlohmann::json j      = nlohmann::json::parse(json_data);
+
+        if (j.contains("MRU"))
+        {
+            auto &MRU = j["MRU"];
+
+            for (auto items : MRU)
+            {
+                m_lstMRUFiles.push_back(mruFile_t(items[0].get<std::string>(), items[1].get<std::time_t>()));
+            }
+
+            SortMRU();
+        }
+
+        if (j.contains("ApplicationSettings"))
+            ParseApplicationSettings(j["ApplicationSettings"]);
+
+        if (j.contains("BakerSettings"))
+        {
+            appInstance->GetLightBakerApplication()->Settings()->FromJSON(j["BakerSettings"]);
+        }
+        //
+        // 		std::list<nlohmann::json> panels_state;
+        //
+        // 		for (auto& it : PanelsId::_values())
+        // 		{
+        // 			if (it._value == PanelsId::None)
+        // 				continue;
+        //
+        // 			if (it._value == PanelsId::MaxPanels)
+        // 				continue;
+        //
+        // 			nlohmann::json panel_desc;
+        // 			panel_desc["Valid"] = m_bPanelsValid[it._value];
+        // 			panel_desc["Id"] = it._to_string();
+        //
+        // 			panels_state.push_back(panel_desc);
+        // 		}
+        //
+        // 		j["PanelsState"] = panels_state;
+
+        if (j.contains("PanelsState"))
+        {
+            auto &items = j["PanelsState"];
+
+            for (auto &it : items)
+            {
+                PanelsId id  = PanelsId::_from_string(it["Id"].get<std::string>().c_str());
+                bool isValid = it["Valid"];
+
+                m_bPanelsValid[id._value] = isValid;
+            }
+        }
+    }
+    catch (std::exception &e)
+    {
+        e;
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Exception while parsing persistent data", e.what(), 0);
+        // Application::EPICFAIL(e.what());
+    }
+
+    delete fd;
 }
 
 PersistentStorage::~PersistentStorage()
 {
-	SaveToFile();
+    SaveToFile();
 }
 
-
-
-void PersistentStorage::PushMRUFile(const char* fileName)
+void PersistentStorage::PushMRUFile(const char *fileName)
 {
-	auto p = std::filesystem::path(fileName);
-	auto f = std::filesystem::canonical(p);
+    auto p = std::filesystem::path(fileName);
+    auto f = std::filesystem::canonical(p);
 
-	std::string canonicalFileName = { f.string() };
+    std::string canonicalFileName = {f.string()};
 
-	for (auto& it : m_lstMRUFiles)
-	{
-		if (!strcasecmp(it.first.c_str(), canonicalFileName.c_str()))
-		{
-			it.second = std::time(nullptr);
-			SortMRU();
-			return;
-		}
-	}
+    for (auto &it : m_lstMRUFiles)
+    {
+        if (!strcasecmp(it.first.c_str(), canonicalFileName.c_str()))
+        {
+            it.second = std::time(nullptr);
+            SortMRU();
+            return;
+        }
+    }
 
-	mruFile_t desc(fileName, std::time(nullptr));
+    mruFile_t desc(fileName, std::time(nullptr));
 
-	m_lstMRUFiles.push_front(desc);
-	SortMRU();
+    m_lstMRUFiles.push_front(desc);
+    SortMRU();
 
-	while (m_lstMRUFiles.size() > 10)
-		m_lstMRUFiles.pop_back();
+    while (m_lstMRUFiles.size() > 10)
+        m_lstMRUFiles.pop_back();
 }
 
 void PersistentStorage::SortMRU()
 {
-	m_lstMRUFiles.sort([](mruFile_t& a, mruFile_t& b) -> bool
-		{
-			return (a.second > b.second);
-		});
+    m_lstMRUFiles.sort([](mruFile_t &a, mruFile_t &b) -> bool { return (a.second > b.second); });
 }
 
-std::list<mruFile_t>& PersistentStorage::GetMRUFiles()
+std::list<mruFile_t> &PersistentStorage::GetMRUFiles()
 {
-	return m_lstMRUFiles;
+    return m_lstMRUFiles;
 }
 
-VariantValue* PersistentStorage::GetSetting(ApplicationSettings id)
+VariantValue *PersistentStorage::GetSetting(ApplicationSettings id)
 {
-	for (auto& it : m_ApplicationProps)
-	{
-		if (it->GetId() == (int)id)
-			return it;
-	}
+    for (auto &it : m_ApplicationProps)
+    {
+        if (it->GetId() == (int)id)
+            return it;
+    }
 
-	return nullptr;
+    return nullptr;
 }
 
 bool PersistentStorage::GetSettingBool(ApplicationSettings id)
 {
-	VariantValue* p = GetSetting(id);
-	assert(p);
+    VariantValue *p = GetSetting(id);
+    assert(p);
 
-	return p->GetAsBool();
+    return p->GetAsBool();
 }
 
-nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json& j, VariantValue* it)
+nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json &j, VariantValue *it)
 {
-	nlohmann::json prop_descriptor;
+    nlohmann::json prop_descriptor;
 
-	prop_descriptor["id"] = it->GetId();
-	prop_descriptor["display_name"] = it->DisplayName();
-	prop_descriptor["type"] = it->GetType();
-	
+    prop_descriptor["id"]           = it->GetId();
+    prop_descriptor["display_name"] = it->DisplayName();
+    prop_descriptor["type"]         = it->GetType();
 
-	switch (it->GetType())
-	{
-	case PropertiesTypes::Enum:
-		prop_descriptor["value"] = it->GetEnumValue();
-		break;
-	case PropertiesTypes::Flags:
-		prop_descriptor["value"] = it->GetFlags();
-		break;
-	case PropertiesTypes::Position:
-		{
-			nlohmann::json field;
+    switch (it->GetType())
+    {
+    case PropertiesTypes::Enum:
+        prop_descriptor["value"] = it->GetEnumValue();
+        break;
+    case PropertiesTypes::Flags:
+        prop_descriptor["value"] = it->GetFlags();
+        break;
+    case PropertiesTypes::Position: {
+        nlohmann::json field;
 
-			auto pos = it->GetPosition();
+        auto pos = it->GetPosition();
 
-			field["x"] = pos[0];
-			field["y"] = pos[1];
-			field["z"] = pos[2];
-			
-			prop_descriptor["value"] = field;
-		}
-		break;
-	case PropertiesTypes::ColorRGB:
-	{
-		nlohmann::json field;
+        field["x"] = pos[0];
+        field["y"] = pos[1];
+        field["z"] = pos[2];
 
-		auto val = it->GetColorRGB();
+        prop_descriptor["value"] = field;
+    }
+    break;
+    case PropertiesTypes::ColorRGB: {
+        nlohmann::json field;
 
-		field["r"] = val[0];
-		field["g"] = val[1];
-		field["b"] = val[2];
+        auto val = it->GetColorRGB();
 
-		prop_descriptor["value"] = field;
-	}
-		break;
-	case PropertiesTypes::ColorRGBA:
-	{
-		nlohmann::json field;
+        field["r"] = val[0];
+        field["g"] = val[1];
+        field["b"] = val[2];
 
-		auto val = it->GetColorRGBA();
+        prop_descriptor["value"] = field;
+    }
+    break;
+    case PropertiesTypes::ColorRGBA: {
+        nlohmann::json field;
 
-		field["r"] = val[0];
-		field["g"] = val[1];
-		field["b"] = val[2];
-		field["a"] = val[3];
+        auto val = it->GetColorRGBA();
 
-		prop_descriptor["value"] = field;
-	}
-		break;
-	case PropertiesTypes::Float:
-		prop_descriptor["value"] = it->GetFloat();
-		break;
-	case PropertiesTypes::Angles:
-	{
-		nlohmann::json field;
+        field["r"] = val[0];
+        field["g"] = val[1];
+        field["b"] = val[2];
+        field["a"] = val[3];
 
-		auto val = it->GetAngles();
+        prop_descriptor["value"] = field;
+    }
+    break;
+    case PropertiesTypes::Float:
+        prop_descriptor["value"] = it->GetFloat();
+        break;
+    case PropertiesTypes::Angles: {
+        nlohmann::json field;
 
-		field["x"] = val[0];
-		field["y"] = val[1];
-		field["z"] = val[2];
-		
-		prop_descriptor["value"] = field;
-	}
-		break;
-	case PropertiesTypes::Int:
-		prop_descriptor["value"] = it->GetInt();
-		break;
-	case PropertiesTypes::SizeX:
-		prop_descriptor["value"] = it->GetFloat();
-		break;
-	case PropertiesTypes::Bool:
-		prop_descriptor["value"] = it->GetAsBool();
-		break;
-	default:
-		break;
+        auto val = it->GetAngles();
 
-	}
+        field["x"] = val[0];
+        field["y"] = val[1];
+        field["z"] = val[2];
 
-	auto v = prop_descriptor["value"];
+        prop_descriptor["value"] = field;
+    }
+    break;
+    case PropertiesTypes::Int:
+        prop_descriptor["value"] = it->GetInt();
+        break;
+    case PropertiesTypes::SizeX:
+        prop_descriptor["value"] = it->GetFloat();
+        break;
+    case PropertiesTypes::Bool:
+        prop_descriptor["value"] = it->GetAsBool();
+        break;
+    default:
+        break;
+    }
 
-	
+    auto v = prop_descriptor["value"];
 
-	return prop_descriptor;
+    return prop_descriptor;
 }
 
 void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
 {
-	for (auto& it : j)
-	{
-		int id = it["id"];
+    for (auto &it : j)
+    {
+        int id = it["id"];
 
-		VariantValue* descriptor = GetSetting((ApplicationSettings)id);
+        VariantValue *descriptor = GetSetting((ApplicationSettings)id);
 
-		if (!descriptor)
-			continue;
+        if (!descriptor)
+            continue;
 
-		if (it["type"] != descriptor->GetType())
-			continue;
+        if (it["type"] != descriptor->GetType())
+            continue;
 
-		switch (descriptor->GetType())
-		{
-		case PropertiesTypes::Enum:
-			//prop_descriptor["value"] = it.value.asEnum;
-			descriptor->SetEnumValue(it["value"]);
-			break;
-		case PropertiesTypes::Flags:
-			descriptor->SetFloat(it["value"]);
-			break;
-		case PropertiesTypes::Position:
-		{
-			nlohmann::json value = it["value"];
+        switch (descriptor->GetType())
+        {
+        case PropertiesTypes::Enum:
+            // prop_descriptor["value"] = it.value.asEnum;
+            descriptor->SetEnumValue(it["value"]);
+            break;
+        case PropertiesTypes::Flags:
+            descriptor->SetFloat(it["value"]);
+            break;
+        case PropertiesTypes::Position: {
+            nlohmann::json value = it["value"];
 
-			glm::vec3 val;
+            glm::vec3 val;
 
-			val[0] = value["x"];
-			val[1] = value["y"];
-			val[2] = value["z"];
+            val[0] = value["x"];
+            val[1] = value["y"];
+            val[2] = value["z"];
 
-			descriptor->SetPosition(val);
-		}
-		break;
-		case PropertiesTypes::ColorRGB:
-		{
-			nlohmann::json value = it["value"];
+            descriptor->SetPosition(val);
+        }
+        break;
+        case PropertiesTypes::ColorRGB: {
+            nlohmann::json value = it["value"];
 
-			glm::vec3 val;
+            glm::vec3 val;
 
-			val[0] = value["r"];
-			val[1] = value["g"];
-			val[2] = value["b"];
+            val[0] = value["r"];
+            val[1] = value["g"];
+            val[2] = value["b"];
 
-			descriptor->SetColorRGB(val);
-		}
-		break;
-		case PropertiesTypes::ColorRGBA:
-		{
-			nlohmann::json value = it["value"];
+            descriptor->SetColorRGB(val);
+        }
+        break;
+        case PropertiesTypes::ColorRGBA: {
+            nlohmann::json value = it["value"];
 
-			glm::vec4 val;
+            glm::vec4 val;
 
-			val[0] = value["r"];
-			val[1] = value["g"];
-			val[2] = value["b"];
-			val[3] = value["a"];
+            val[0] = value["r"];
+            val[1] = value["g"];
+            val[2] = value["b"];
+            val[3] = value["a"];
 
-			descriptor->SetColorRGBA(val);
-		}
-		break;
-		case PropertiesTypes::Float:
-			//prop_descriptor["value"] = it.value.asFloat;
-			descriptor->SetFloat(it["value"]);
-			break;
-		case PropertiesTypes::Angles:
-		{
-			nlohmann::json value = it["value"];
+            descriptor->SetColorRGBA(val);
+        }
+        break;
+        case PropertiesTypes::Float:
+            // prop_descriptor["value"] = it.value.asFloat;
+            descriptor->SetFloat(it["value"]);
+            break;
+        case PropertiesTypes::Angles: {
+            nlohmann::json value = it["value"];
 
-			glm::vec3 val;
+            glm::vec3 val;
 
-			val[0] = value["x"];
-			val[1] = value["y"];
-			val[2] = value["z"];
+            val[0] = value["x"];
+            val[1] = value["y"];
+            val[2] = value["z"];
 
-			descriptor->SetAngles(val);
-		}
-		break;
-		case PropertiesTypes::Int:
-			descriptor->SetInt(it["value"]);
-			break;
-		case PropertiesTypes::SizeX:
-			descriptor->SetFloat(it["value"]);
-			break;
-		case PropertiesTypes::Bool:
-			descriptor->SetBool(it["value"]);
-			break;
-		default:
-			break;
+            descriptor->SetAngles(val);
+        }
+        break;
+        case PropertiesTypes::Int:
+            descriptor->SetInt(it["value"]);
+            break;
+        case PropertiesTypes::SizeX:
+            descriptor->SetFloat(it["value"]);
+            break;
+        case PropertiesTypes::Bool:
+            descriptor->SetBool(it["value"]);
+            break;
+        default:
+            break;
+        }
 
-		}
-
-		//prop_descriptor["display_name"] = it.display_name;
-		//prop_descriptor["type"] = it.type;
-	}
+        // prop_descriptor["display_name"] = it.display_name;
+        // prop_descriptor["type"] = it.type;
+    }
 }
 
 bool PersistentStorage::IsPanelAtValidPosition(PanelsId id)
 {
-	return m_bPanelsValid[id._value];
+    return m_bPanelsValid[id._value];
 }
 
 void PersistentStorage::FlagPanelIsAtValidPosition(PanelsId id)
 {
-	m_bPanelsValid[id._value] = true;
+    m_bPanelsValid[id._value] = true;
 }
 
 bool PersistentStorage::IsFreshFile()
 {
-	return m_bFreshFile;
+    return m_bFreshFile;
 }
 
 void PersistentStorage::SaveToFile()
 {
-	char persistent_file[1024];
-	char* p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
-	sprintf_s(persistent_file, sizeof(persistent_file), "%s/persistent.json", p);
+    char persistent_file[1024];
+    char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
+    sprintf_s(persistent_file, sizeof(persistent_file), "%s/persistent.json", p);
 
-	try
-	{		
-		nlohmann::json j;		
-		j["MRU"] = m_lstMRUFiles;
-		
-		FILE* fp = 0;
-		
-		fopen_s(&fp, persistent_file, "wb");
+    try
+    {
+        nlohmann::json j;
+        j["MRU"] = m_lstMRUFiles;
 
-		if (!fp)
-			return;
+        FILE *fp = 0;
 
-		std::list<nlohmann::json> props;
+        fopen_s(&fp, persistent_file, "wb");
 
-		for (auto& it : m_ApplicationProps)
-		{
-			props.push_back(SerializeApplicationProperty(j,it));
-		}
+        if (!fp)
+            return;
 
-		j["ApplicationSettings"] = props;
+        std::list<nlohmann::json> props;
 
-		std::list<nlohmann::json> panels_state;
+        for (auto &it : m_ApplicationProps)
+        {
+            props.push_back(SerializeApplicationProperty(j, it));
+        }
 
-		for (auto& it : PanelsId::_values())
-		{
-			if (it._value == PanelsId::None)
-				continue;
+        j["ApplicationSettings"] = props;
 
-			if (it._value == PanelsId::MaxPanels)
-				continue;
+        std::list<nlohmann::json> panels_state;
 
-			nlohmann::json panel_desc;
-			panel_desc["Valid"] = m_bPanelsValid[it._value];
-			panel_desc["Id"] = it._to_string();
+        for (auto &it : PanelsId::_values())
+        {
+            if (it._value == PanelsId::None)
+                continue;
 
-			panels_state.push_back(panel_desc);
-		}
+            if (it._value == PanelsId::MaxPanels)
+                continue;
 
-		j["PanelsState"] = panels_state;
+            nlohmann::json panel_desc;
+            panel_desc["Valid"] = m_bPanelsValid[it._value];
+            panel_desc["Id"]    = it._to_string();
 
-		j["BakerSettings"] = Application::Instance()->GetLightBakerApplication()->Settings()->ToJSON();
+            panels_state.push_back(panel_desc);
+        }
 
-		std::string data = j.dump(4);
-		fprintf(fp, "%s", data.c_str());
-		fclose(fp);
-	}
-	catch (std::exception& e)
-	{
-		e;
-	}
+        j["PanelsState"] = panels_state;
 
-	
+        j["BakerSettings"] = Application::Instance()->GetLightBakerApplication()->Settings()->ToJSON();
+
+        std::string data = j.dump(4);
+        fprintf(fp, "%s", data.c_str());
+        fclose(fp);
+    }
+    catch (std::exception &e)
+    {
+        e;
+    }
 }

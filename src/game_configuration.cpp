@@ -63,12 +63,6 @@ void GameConfiguration::SetGameDirectory(std::string &gameDir)
     m_GameDirectory = gdPathCanonical.string();
 }
 
-GameConfigurationsManager *GameConfigurationsManager::Instance()
-{
-    static GameConfigurationsManager *sInstance = new GameConfigurationsManager;
-    return sInstance;
-}
-
 GameConfigurationsManager::~GameConfigurationsManager()
 {
     for (auto &it : m_Configurations)
@@ -142,11 +136,6 @@ const std::list<GameConfigurationWeakPtr> GameConfigurationsManager::AllConfigur
         result.push_back(std::weak_ptr(it));
 
     return result;
-}
-
-GameConfigurationsManager::GameConfigurationsManager()
-{
-    (void)0;
 }
 
 std::optional<gamelookupresult_t> GameConfigurationsManager::ScanForGameDefinitionFile(std::string &levelFileName,

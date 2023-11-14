@@ -2,7 +2,6 @@
 BasedOnStyle: Microsoft
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
-IncludeBlocks: Preserve
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
 

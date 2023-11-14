@@ -35,3 +35,22 @@ template <typename T, typename U> inline bool equals(const std::weak_ptr<T> &t, 
 {
     return !t.owner_before(u) && !u.owner_before(t);
 }
+
+template <typename T, typename D = T> class Singleton
+{
+    friend D;
+    static_assert(std::is_base_of_v<T, D>, "T should be a base type for D");
+
+  public:
+    static T * Instance()
+    {
+        static D * inst = new D;
+        return inst;
+    }
+
+  private:
+    Singleton()                  = default;
+    ~Singleton()                 = default;
+    Singleton(const Singleton &) = delete;
+    Singleton &operator=(const Singleton &) = delete;
+};

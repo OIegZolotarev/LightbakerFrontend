@@ -14,7 +14,8 @@ enum class OptionsPage
 {
 	General = 0,
 	Camera,
-	Keyboard,
+	//Keyboard,
+	Appearence,
 	Total
 };
 

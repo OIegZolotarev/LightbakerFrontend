@@ -25,7 +25,13 @@ enum class ApplicationSettings
 	CameraFov,
 	CameraAccel,
 	CameraDecel,
-	GUIColorScheme
+	GUIColorScheme,
+	GridAxisColor,
+	GridMainColor,
+	Grid64thLineColor,
+	Grid1024thLineColor,
+	GridCustomColor,
+	GridCustomStep
 };
 
 typedef std::pair<std::string, std::time_t> mruFile_t;
@@ -47,7 +53,10 @@ class PersistentStorage
 public:
 	
 	PersistentStorage(class Application * appInstance);
-	~PersistentStorage();
+
+  void SetDefaultValues();
+
+  ~PersistentStorage();
 
 	void						PushMRUFile(const char* fileName);
 

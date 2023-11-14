@@ -13,6 +13,7 @@
 #include "draw_utils.h"
 #include "..\include\ImGuizmo\ImGuizmo.h"
 #include "properties_editor.h"
+#include "grid_renderer.h"
 
 SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 {
@@ -40,6 +41,8 @@ SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 			DumpLightmapUV();
 		}));
 
+	
+	GridRenderer::Instance()->Init();
 }
 
 
@@ -89,7 +92,7 @@ SceneRenderer::~SceneRenderer()
 	delete m_pUnitBoundingBox;
 
 	delete SelectionManager::Instance();
-
+    delete GridRenderer::Instance();;
 	delete m_pDirectionModel; m_pDirectionModel = 0;
 	m_pDirectionArrow = 0;
 }
@@ -112,8 +115,6 @@ void SceneRenderer::RenderScene()
 	auto pers = Application::Instance()->GetPersistentStorage();
 	auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
 
-	if (showGround->GetAsBool())
-		Debug_DrawGround();
 
 
 	if (m_pScene)
@@ -139,6 +140,10 @@ void SceneRenderer::RenderScene()
 		RenderHelperGeometry(selectionManager);
 	}
 
+	if (showGround->GetAsBool())
+    {
+        GridRenderer::Instance()->Render();
+    }
 
 
 }

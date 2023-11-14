@@ -534,8 +534,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
     break;
 
     case CameraMouseModes::Rotate: {
-        float xDelta = event.xrel  * 1;
-        float yDelta = event.yrel  * 1;
+        float xDelta = event.xrel * 1 * flFrameDelta;
+        float yDelta = event.yrel * 1 * flFrameDelta;
 
         m_Angles[PITCH] += yDelta;
         m_Angles[YAW] += xDelta;

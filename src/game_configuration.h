@@ -44,17 +44,14 @@ typedef std::weak_ptr<GameConfiguration> GameConfigurationWeakPtr;
 
 typedef std::optional<GameConfigurationWeakPtr> GameConfigurationWeakPtrOpt;
 
-class GameConfigurationsManager
-{
-    GameConfigurationsManager();
+class GameConfigurationsManager: public Singleton<GameConfigurationsManager>
+{    
     std::list<GameConfigurationPtr> m_Configurations;
 
     // For GoldSource/Xash3d games returns game directory + detected engine type (by detecting liblist.gam/gameinfo.txt)
     std::optional<gamelookupresult_t> ScanForGameDefinitionFile(std::string &levelFileName, size_t maxRecursion = 3);
 
  public:
-  
-	static GameConfigurationsManager *Instance();
     ~GameConfigurationsManager();
 
 	GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;

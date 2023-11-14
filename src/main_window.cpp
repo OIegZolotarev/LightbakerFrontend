@@ -20,6 +20,7 @@
 #include "goldsource_bsp_disk_structs.h"
 #include "hammer_fgd.h"
 #include "wad_textures.h"
+#include "grid_renderer.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -298,7 +299,7 @@ void MainWindow::MainLoop()
 
         RenderGUI();
 
-        LimitToTargetFPS();
+        //LimitToTargetFPS();
         SDL_GL_SwapWindow(m_pSDLWindow);
     }
 }
@@ -495,8 +496,14 @@ float MainWindow::RenderMainMenu()
             COMMAND_ITEM(GlobalCommands::DeleteSelection);
 
             ImGui::Separator();
+            COMMAND_ITEM(GlobalCommands::DecreaseGridStep);
+            COMMAND_ITEM(GlobalCommands::IncreaseGridStep);
+
+            ImGui::Separator();
             COMMAND_ITEM(GlobalCommands::DumpLightmapMesh);
             COMMAND_ITEM(GlobalCommands::DumpLightmapUV);
+
+
 
             ImGui::EndMenu();
         }
@@ -615,7 +622,7 @@ void MainWindow::RenderGUI()
             Application::Instance()->FlagDelayedInitDone();
         }
     }
-
+    
     float menuHeight    = RenderMainMenu();
     float toolbarHeight = RenderMainToolbar(menuHeight);
 
