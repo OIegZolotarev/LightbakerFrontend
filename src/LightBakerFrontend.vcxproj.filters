@@ -60,6 +60,9 @@
     <Filter Include="Исходные файлы\GoldSource\BSP">
       <UniqueIdentifier>{9823dc40-24f5-4ea0-9318-ab0c8ff65846}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Editor">
+      <UniqueIdentifier>{570afb04-f59b-40ac-bb8b-59482267f6c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">

@@ -156,3 +156,32 @@ void CDeleteLightAction::Undo()
 
 	scene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
 }
+
+EditTransaction::EditTransaction()
+{    
+}
+
+EditTransaction::~EditTransaction()
+{
+    for (auto & it: m_lstActions)
+		delete it;
+
+	m_lstActions.clear();
+}
+
+void EditTransaction::Redo()
+{
+    for (auto &it : m_lstActions)
+        it->Redo();
+}
+
+void EditTransaction::Undo()
+{
+    for (auto &it : m_lstActions)
+        it->Undo();
+}
+
+bool EditTransaction::Empty()
+{
+    return m_lstActions.empty();
+}

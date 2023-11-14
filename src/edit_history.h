@@ -10,7 +10,7 @@
 class IEditAction
 {
 protected:
-	int m_SerialNumber;
+	size_t m_SerialNumber;
 public:
 	IEditAction() = default;
 	~IEditAction() = default;
@@ -25,7 +25,7 @@ class CPropertyChangeAction : public IEditAction
 	VariantValue m_NewValue;
 
 public:
-	CPropertyChangeAction(int serialNumber, VariantValue oldValue, VariantValue newValue);
+    CPropertyChangeAction(size_t serialNumber, VariantValue oldValue, VariantValue newValue);
 	
 	void Redo() override;
 	void Undo() override;
@@ -42,6 +42,22 @@ public:
 	void Undo() override;
 };
 
+class EditTransaction: public IEditAction
+{    
+    std::list<IEditAction *> m_lstActions;
+public:
+    EditTransaction();
+    ~EditTransaction();
+
+    void Redo() override;
+    void Undo() override;
+
+	void AddAction(IEditAction * pAction)
+    {
+        m_lstActions.push_back(pAction);
+	}
+};
+
 class CEditHistory
 {
 	std::list<IEditAction*> m_lstActions;
@@ -55,3 +71,5 @@ public:
 	void Undo();
 	void Redo();
 };
+
+

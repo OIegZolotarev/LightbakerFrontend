@@ -497,11 +497,22 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 		m_bGuizmoEdited = false;
 
 		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
-		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, *m_pGuizmoPropertyPosition));
 
+		EditTransaction *transaction = new EditTransaction(m_pPropertiesBinding->GetSerialNumber());
+
+		if (m_pGuizmoPropertyPosition)
+		transaction->AddAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue,
+                                                         *m_pGuizmoPropertyPosition));
+				
 		if (m_pGuizmoPropertyRotation)
-			history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue2, *m_pGuizmoPropertyRotation));
+		transaction->AddAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue2,
+                                                          *m_pGuizmoPropertyRotation));
 		
+
+		if (!transaction->Empty())
+            delete transaction;
+		else
+			history->PushAction(transaction);
 
 		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
 
