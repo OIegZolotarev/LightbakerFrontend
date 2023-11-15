@@ -315,27 +315,30 @@ void Camera::UpdateOrientation()
     if (m_bFPSNavigation)
     {
         Application::Instance()->HideMouseCursor();
+        SDL_SetRelativeMouseMode(SDL_TRUE);
 
         int x, y;
         SDL_GetMouseState(&x, &y);
 
-        int winWidth  = Application::GetMainWindow()->Width();
-        int winHeight = Application::GetMainWindow()->Height();
+        m_Mode = CameraMouseModes::Rotate;
 
-        int mx = winWidth / 2;
-        int my = winHeight / 2;
-
-        float xDelta = (x - mx);
-        float yDelta = (y - my);
-
-        m_Angles[PITCH] += yDelta / 10;
-        m_Angles[YAW] += xDelta / 10;
+//         int winWidth  = Application::GetMainWindow()->Width();
+//         int winHeight = Application::GetMainWindow()->Height();
+// 
+//         int mx = winWidth / 2;
+//         int my = winHeight / 2;
+// 
+//         float xDelta = (x - mx);
+//         float yDelta = (y - my);
+// 
+//         m_Angles[PITCH] += yDelta * 100 * flFrameDelta;
+         //m_Angles[YAW] += xDelta * 100 * flFrameDelta;
 
         // Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
 
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
-        SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
+       // SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
         m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
                     (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
@@ -349,6 +352,8 @@ void Camera::UpdateOrientation()
                         (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
 
         Application::Instance()->ShowMouseCursor();
+        SDL_SetRelativeMouseMode(SDL_FALSE);
+        m_Mode = CameraMouseModes::None;
     }
 }
 
@@ -534,11 +539,11 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
     break;
 
     case CameraMouseModes::Rotate: {
-        float xDelta = event.xrel * 1 * flFrameDelta;
-        float yDelta = event.yrel * 1 * flFrameDelta;
+        float xDelta = event.xrel;
+        float yDelta = event.yrel;
 
-        m_Angles[PITCH] += yDelta;
-        m_Angles[YAW] += xDelta;
+        m_Angles[PITCH] += yDelta * 0.5f;
+        m_Angles[YAW] += xDelta * 0.5f;
 
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 

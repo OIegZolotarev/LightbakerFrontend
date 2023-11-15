@@ -287,6 +287,7 @@ void MainWindow::MainLoop()
 
     while (!m_bTerminated)
     {
+        GLBackend::Instance()->NewFrame();
         Application::Instance()->CheckIfBakngFinished();
         m_bTerminated = !HandleEvents(!m_bTerminated);
 
@@ -608,6 +609,7 @@ void MainWindow::RenderGUI()
 
     static int delayInit = 2;
 
+    
     ImGui::NewFrame();
 
     if (delayInit > 0)
