@@ -28,6 +28,7 @@ void DrawMesh::Bind()
 
 void DrawMesh::Draw(size_t first /*= 0*/, size_t num /*= 0*/)
 {
+    GLBackend::Instance()->OnMeshDrawn(this, num > 0 ? num : m_NumElements);
     glDrawArrays(m_drawMode, first, num > 0 ? num : m_NumElements);
 }
 
@@ -299,6 +300,12 @@ GLBackend::GLBackend()
     ReloadAllShaders();
 }
 
+void GLBackend::OnMeshDrawn(DrawMesh *pMesh, size_t numTriangles)
+{
+    m_RenderStats.nDrawCalls++;
+    m_RenderStats.nTriangles += numTriangles;
+}
+
 GLBackend *GLBackend::Instance()
 {
     static GLBackend *pInstance = new GLBackend;
@@ -373,4 +380,10 @@ void GLBackend::ReloadAllShaders()
 
     m_pGroupShadedSceneShader = new GroupShadedSceneShaderProgram;
     m_pDiffuseSceneShader     = new DiffuseSceneShaderProgram;
+}
+
+void GLBackend::NewFrame()
+{
+    m_RenderStats.nDrawCalls = 0;
+    m_RenderStats.nTriangles = 0;
 }

@@ -81,6 +81,12 @@ class DrawMesh
     void BindAndDraw();
 };
 
+typedef struct renderStats_s
+{
+    size_t nDrawCalls = 0;
+    size_t nTriangles = 0;
+} renderStats_t;
+
 class GLBackend
 {
     GLBackend();
@@ -94,6 +100,12 @@ class GLBackend
     GeometrySelectionShaderProgram *m_pGeometrySelectionShader = nullptr;
     SpotlightConeShaderProgram *m_pSpotlightConeShader         = nullptr;
     EditorGridShaderProgram *m_pEditorGridShader               = nullptr;
+
+    friend DrawMesh;
+
+
+    renderStats_t m_RenderStats;
+    void OnMeshDrawn(DrawMesh *pMesh, size_t numTriangles);
 
   public:
     static GLBackend *Instance();
@@ -114,4 +126,10 @@ class GLBackend
     SpotlightConeShaderProgram *SpotlightConeShader();
 
     void ReloadAllShaders();
+
+    void NewFrame();
+    renderStats_t *RenderStats()
+    {
+        return &m_RenderStats;
+    }
 };

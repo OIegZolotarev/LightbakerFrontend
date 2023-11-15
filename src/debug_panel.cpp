@@ -26,5 +26,11 @@ void DebugPanel::Render()
 	//ImGui::LoadIniSettingsFromDisk
 
 	ImGui::Text("FPS: %d\n", fps);
+
+	auto *stats = GLBackend::Instance()->RenderStats();
+
+	ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
+	ImGui::Text("Triangles: %d\n", stats->nTriangles);
+
 	ImGui::End();
 }
