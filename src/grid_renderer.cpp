@@ -26,6 +26,8 @@ void GridRenderer::Init()
 
     CreateMesh();
 
+    // TODO: крашится на русской раскладке
+
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
         GlobalCommands::IncreaseGridStep, "Increase grid step", "]", 0, CMD_ONLY_TEXT, [&]() { StepUpGrid(); }));
 
@@ -43,41 +45,22 @@ void GridRenderer::CreateMesh()
     float min_coord = -(grid_size) / 2;
     float max_coord = -min_coord;
 
-    float x1 = min_coord;
-    float x2 = max_coord;
 
-    float y1 = min_coord;
-    float y2 = max_coord;
+    m_pGridMesh->Begin(GL_TRIANGLES);
 
-    x1 = std::clamp(x1, min_coord, max_coord);
-    x2 = std::clamp(x2, min_coord, max_coord);
+    // Quad Scheme
+    // 0--1
+    // | /|
+    // |/ |
+    // 2--3
 
-    y1 = std::clamp(y1, min_coord, max_coord);
-    y2 = std::clamp(y2, min_coord, max_coord);
+    m_pGridMesh->Vertex3f(min_coord, min_coord, 0);
+    m_pGridMesh->Vertex3f(max_coord, min_coord, 0);
+    m_pGridMesh->Vertex3f(min_coord, max_coord, 0);
 
-    m_pGridMesh->Begin(GL_LINES);
-
-    for (int y = y1; y <= y2; y += spacing)
-    {
-        if ((y1 == y) || (y2 == y) || (y == 0))
-            m_pGridMesh->Color3f(0, 1, 0);
-        else
-            m_pGridMesh->Color3f(y, 0, 0);
-
-        m_pGridMesh->Vertex3f(x1, y, 0);
-        m_pGridMesh->Vertex3f(x2, y, 0);
-    }
-
-    for (int x = x1; x <= x2; x += spacing)
-    {
-        if ((x1 == x) || (x == x2) || (x == 0))
-            m_pGridMesh->Color3f(0, 1, 0);
-        else
-            m_pGridMesh->Color3f(x, 0, 0);
-
-        m_pGridMesh->Vertex3f(x, y1, 0);
-        m_pGridMesh->Vertex3f(x, y2, 0);
-    }
+    m_pGridMesh->Vertex3f(max_coord, min_coord, 0);
+    m_pGridMesh->Vertex3f(max_coord, max_coord, 0);
+    m_pGridMesh->Vertex3f(min_coord, max_coord, 0);
 
     m_pGridMesh->End();
 }
@@ -108,10 +91,7 @@ void GridRenderer::Render()
 
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_LINE_SMOOTH);
-
     
-
-
     glLineWidth(1);
     m_pGridMesh->BindAndDraw();
     glLineWidth(1);
