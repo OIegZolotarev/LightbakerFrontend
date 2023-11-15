@@ -81,6 +81,15 @@ void PersistentStorage::SetDefaultValues()
 
     setting = GetSetting(ApplicationSettings::GridCustomStep);
     setting->SetInt(0);
+
+    setting = GetSetting(ApplicationSettings::CameraMouseSensivityRotating);
+    setting->SetInt(0.5f);
+
+    setting = GetSetting(ApplicationSettings::CameraMouseSensivityPaning);
+    setting->SetInt(1.f);
+
+    setting = GetSetting(ApplicationSettings::CameraMouseSensivityZooming);
+    setting->SetInt(1.f);
 }
 
 void PersistentStorage::LoadFromFile(Application *appInstance)

@@ -126,6 +126,10 @@ class Camera : public IEventHandler
     VariantValue *m_pMoveSpeed            = nullptr;
     VariantValue *m_pCameraControlsScheme = nullptr;
 
+    VariantValue *m_pCameraSensivityRotation = nullptr;
+    VariantValue *m_pCameraSensivityPan = nullptr;
+    VariantValue *m_pCameraSensivityZoom = nullptr;
+
     glm::vec3 m_vForward = {1.f, 0, 0};
     glm::vec3 m_vRight   = {0, 1, 0};
     glm::vec3 m_vUp      = {0, 0, 1};

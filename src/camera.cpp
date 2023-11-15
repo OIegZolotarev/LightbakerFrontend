@@ -13,13 +13,16 @@ Camera::Camera(SceneRenderer *pSceneRenderer)
 {
     auto settings = Application::Instance()->GetPersistentStorage();
 
-    m_pFov                  = settings->GetSetting(ApplicationSettings::CameraFov);
-    m_pZNear                = settings->GetSetting(ApplicationSettings::CameraZNear);
-    m_pZFar                 = settings->GetSetting(ApplicationSettings::CameraZFar);
-    m_pAccelSpeed           = settings->GetSetting(ApplicationSettings::CameraAccel);
-    m_pDeccelSpeed          = settings->GetSetting(ApplicationSettings::CameraDecel);
-    m_pMoveSpeed            = settings->GetSetting(ApplicationSettings::CameraMovementSpeed);
-    m_pCameraControlsScheme = settings->GetSetting(ApplicationSettings::CameraControlScheme);
+    m_pFov                     = settings->GetSetting(ApplicationSettings::CameraFov);
+    m_pZNear                   = settings->GetSetting(ApplicationSettings::CameraZNear);
+    m_pZFar                    = settings->GetSetting(ApplicationSettings::CameraZFar);
+    m_pAccelSpeed              = settings->GetSetting(ApplicationSettings::CameraAccel);
+    m_pDeccelSpeed             = settings->GetSetting(ApplicationSettings::CameraDecel);
+    m_pMoveSpeed               = settings->GetSetting(ApplicationSettings::CameraMovementSpeed);
+    m_pCameraControlsScheme    = settings->GetSetting(ApplicationSettings::CameraControlScheme);
+    m_pCameraSensivityRotation = settings->GetSetting(ApplicationSettings::CameraMouseSensivityRotating);
+    m_pCameraSensivityPan      = settings->GetSetting(ApplicationSettings::CameraMouseSensivityPaning);
+    m_pCameraSensivityZoom     = settings->GetSetting(ApplicationSettings::CameraMouseSensivityZooming);
 
     m_Origin = {0, 0, 0};
     m_Angles = {0, 0, 0};
@@ -322,23 +325,23 @@ void Camera::UpdateOrientation()
 
         m_Mode = CameraMouseModes::Rotate;
 
-//         int winWidth  = Application::GetMainWindow()->Width();
-//         int winHeight = Application::GetMainWindow()->Height();
-// 
-//         int mx = winWidth / 2;
-//         int my = winHeight / 2;
-// 
-//         float xDelta = (x - mx);
-//         float yDelta = (y - my);
-// 
-//         m_Angles[PITCH] += yDelta * 100 * flFrameDelta;
-         //m_Angles[YAW] += xDelta * 100 * flFrameDelta;
+        //         int winWidth  = Application::GetMainWindow()->Width();
+        //         int winHeight = Application::GetMainWindow()->Height();
+        //
+        //         int mx = winWidth / 2;
+        //         int my = winHeight / 2;
+        //
+        //         float xDelta = (x - mx);
+        //         float yDelta = (y - my);
+        //
+        //         m_Angles[PITCH] += yDelta * 100 * flFrameDelta;
+        // m_Angles[YAW] += xDelta * 100 * flFrameDelta;
 
         // Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
 
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
-       // SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
+        // SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
         m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
                     (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
@@ -530,8 +533,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
     switch (m_Mode)
     {
     case CameraMouseModes::Pan: {
-        float xDelta = event.xrel * flFrameDelta * flDist;
-        float yDelta = event.yrel * flFrameDelta * flDist;
+        float xDelta = event.xrel * flFrameDelta * flDist * m_pCameraSensivityPan->GetFloat();
+        float yDelta = event.yrel * flFrameDelta * flDist * m_pCameraSensivityPan->GetFloat();
 
         m_Origin += m_vUp * yDelta + m_vRight * -xDelta;
         return EVENT_FINISHED;
@@ -542,8 +545,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
         float xDelta = event.xrel;
         float yDelta = event.yrel;
 
-        m_Angles[PITCH] += yDelta * 0.5f;
-        m_Angles[YAW] += xDelta * 0.5f;
+        m_Angles[PITCH] += yDelta * m_pCameraSensivityRotation->GetFloat();
+        m_Angles[YAW] += xDelta * m_pCameraSensivityRotation->GetFloat();
 
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
@@ -551,8 +554,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
     }
     break;
     case CameraMouseModes::Zoom: {
-        float xDelta = event.xrel * flFrameDelta * 100;
-        float yDelta = event.yrel * flFrameDelta * 100;
+        float xDelta = event.xrel * flFrameDelta * 100 * m_pCameraSensivityZoom->GetFloat();
+        float yDelta = event.yrel * flFrameDelta * 100 * m_pCameraSensivityZoom->GetFloat();
 
         m_Origin += m_vForward * (xDelta + yDelta);
         return EVENT_FINISHED;

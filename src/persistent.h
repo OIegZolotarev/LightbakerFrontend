@@ -11,6 +11,9 @@
 #include "object_props.h"
 #include "igui_panel.h"
 
+
+// To preserve old settings add new values to the end only! 
+// Otherwise old config files will brake!
 enum class ApplicationSettings
 {
 	ShowGround = 0,
@@ -31,7 +34,10 @@ enum class ApplicationSettings
 	Grid64thLineColor,
 	Grid1024thLineColor,
 	GridCustomColor,
-	GridCustomStep
+	GridCustomStep,
+	CameraMouseSensivityRotating,
+    CameraMouseSensivityPaning,
+    CameraMouseSensivityZooming,
 };
 
 typedef std::pair<std::string, std::time_t> mruFile_t;

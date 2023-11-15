@@ -63,6 +63,9 @@
     <Filter Include="Исходные файлы\Editor">
       <UniqueIdentifier>{570afb04-f59b-40ac-bb8b-59482267f6c6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\PersistentParameters">
+      <UniqueIdentifier>{fcdd47aa-f3fd-4a5a-8922-2838ebdc544d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -133,9 +136,6 @@
     </ClCompile>
     <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
       <Filter>Исходные файлы\ImGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="persistent.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="custom_font.cpp">
       <Filter>Исходные файлы</Filter>
@@ -218,14 +218,8 @@
     <ClCompile Include="stblibs_impl.cpp">
       <Filter>Исходные файлы\stb</Filter>
     </ClCompile>
-    <ClCompile Include="popup_options_window.cpp">
-      <Filter>Исходные файлы\Popups</Filter>
-    </ClCompile>
     <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl2.cpp">
       <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_options_pages.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="object_props.cpp">
       <Filter>Исходные файлы</Filter>
@@ -289,6 +283,15 @@
     </ClCompile>
     <ClCompile Include="editor_grid_shader.cpp">
       <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_options_window.cpp">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_options_pages.cpp">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClCompile>
+    <ClCompile Include="persistent.cpp">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,9 +379,6 @@
     <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h">
       <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClInclude>
-    <ClInclude Include="persistent.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="enum_iterator.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -463,12 +463,6 @@
     <ClInclude Include="shader_program.h">
       <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
-    <ClInclude Include="popup_options_window.h">
-      <Filter>Исходные файлы\Popups</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_options_pages.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="scene_entity.h">
       <Filter>Исходные файлы\Scene\Entities</Filter>
     </ClInclude>
@@ -531,6 +525,15 @@
     </ClInclude>
     <ClInclude Include="editor_grid_shader.h">
       <Filter>Исходные файлы\shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_options_window.h">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_options_pages.h">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClInclude>
+    <ClInclude Include="persistent.h">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

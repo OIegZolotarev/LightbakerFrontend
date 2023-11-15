@@ -10,11 +10,11 @@
 #include "ui_common.h"
 
 #include "Camera.h"
-#include "ui_options_pages.h"
-#include "ui_styles_manager.h"
 #include "helpers.h"
 #include "imgui_popups.h"
 #include "popup_edit_gameconfiguration.h"
+#include "ui_options_pages.h"
+#include "ui_styles_manager.h"
 
 using namespace ProgramOptions;
 
@@ -42,6 +42,17 @@ void RegisterOptions()
     opt->AddEnumValue("Valve Hammer Editor", (int)CameraControlScheme::ValveHammerEditor);
     opt->AddEnumValue("Blender", (int)CameraControlScheme::Blender);
     opt->AddEnumValue("Blender (touchpad)", (int)CameraControlScheme::BlenderTouchpad);
+
+    opt = AddOption(ApplicationSettings::CameraMouseSensivityRotating, "Mouse sensitivity (rotation)",
+                    PropertiesTypes::Float);
+    opt->SetNumericalLimits(0.1, 10);
+
+    opt = AddOption(ApplicationSettings::CameraMouseSensivityPaning, "Mouse sensitivity (pan)", PropertiesTypes::Float);
+    opt->SetNumericalLimits(0.1, 10);
+
+    opt = AddOption(ApplicationSettings::CameraMouseSensivityZooming, "Mouse sensitivity (zoom)",
+                    PropertiesTypes::Float);
+    opt->SetNumericalLimits(0.1, 10);
 
     AddGroup("Movement");
 
@@ -77,7 +88,6 @@ void RegisterOptions()
     opt = AddOption(ApplicationSettings::Grid1024thLineColor, "1024th lines color", PropertiesTypes::ColorRGB);
     opt = AddOption(ApplicationSettings::GridCustomColor, "Custom color", PropertiesTypes::ColorRGB);
     opt = AddOption(ApplicationSettings::GridCustomStep, "Highlight every n'th line", PropertiesTypes::Int);
-    
 }
 
 OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)
@@ -214,7 +224,7 @@ void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t *page)
 void OptionsDialog::RenderGameConfigurationsPage()
 {
     static GameConfigurationWeakPtr selectedConf;
-    
+
     ImGui::SeparatorText("Registered configurations:");
 
     if (ImGui::BeginTable("###GroupsLeftRight", 2))
@@ -227,7 +237,7 @@ void OptionsDialog::RenderGameConfigurationsPage()
         if (ImGui::BeginListBox("###RegisteredConfigurations"))
         {
             auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
-            for (auto & it : items)
+            for (auto &it : items)
             {
                 auto ptr = it.lock();
 
@@ -239,8 +249,6 @@ void OptionsDialog::RenderGameConfigurationsPage()
                     selectedConf = it;
                 }
             }
-
-            
 
             ImGui::EndListBox();
         }
@@ -258,14 +266,13 @@ void OptionsDialog::RenderGameConfigurationsPage()
                 ImGui::CloseCurrentPopup();
                 m_bVisible = false;
 
-                auto popup = (PopupEditGameconfiguration*)PopupsManager::Instance()->FindPopupByID(PopupWindows::EditGameConfiguration);
+                auto popup = (PopupEditGameconfiguration *)PopupsManager::Instance()->FindPopupByID(
+                    PopupWindows::EditGameConfiguration);
                 popup->SetGameConfiguration(selectedConf);
                 PopupsManager::Instance()->ShowPopup(PopupWindows::EditGameConfiguration);
-
-                
             }
         }
-        
+
         if (ImGui::Button("Remove"))
         {
         }
