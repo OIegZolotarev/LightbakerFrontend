@@ -70,8 +70,8 @@ public:
 	GLuint CurrentLightmapTexture();
 	byte* LightmapBuffer();
 	
-	size_t BlockWidth();
-	size_t BlockHeight();
+	const size_t BlockWidth() const;
+	const size_t BlockHeight() const;
 	void Reset();
 };
 

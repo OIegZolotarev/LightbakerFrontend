@@ -50,7 +50,14 @@ class BSPRenderer
 
 	void RenderBrushPoly(msurface_t* fa);
 	void RecursiveWorldNode(mnode_t* node);
+
+	void BuildSurfaceDisplayList(msurface_t *fa);
+
+
+	DrawMesh *m_pMesh = nullptr;
+
 public:
+
 	BSPRenderer(BSPWorld* world);
 	~BSPRenderer();
 

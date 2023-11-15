@@ -141,6 +141,8 @@ typedef struct msurface_s
 
     float min[2], max[2];
     
+    // CrazyRussian
+    size_t meshOffset, meshLength; // 
     
 } msurface_t;
 

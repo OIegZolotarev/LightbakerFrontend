@@ -828,125 +828,6 @@ void BSPWorld::Mod_SetParent(mnode_t* node, mnode_t* parent)
 	Mod_SetParent(node->children[1], node);
 }
 
-void BSPWorld::BuildSurfaceDisplayList(msurface_t* fa)
-{
-	int			i, lindex, lnumverts;
-	medge_t* pedges, * r_pedge;	
-	int			vertpage;	
-	glm::vec3 vec;
-	float		s = 0, t = 0;
-	glpoly_t* poly;
-
-	// reconstruct the polygon
-	pedges = m_vEdges.data();
-	lnumverts = fa->numedges;
-	vertpage = 0;
-
-	//
-	// draw texture
-	//
-	//poly = (glpoly_t*)Mem_Alloc(loadmodel->mem_pool, sizeof(glpoly_t) + (lnumverts - 4) * VERTEXSIZE * sizeof(float));
-
-	// TODO: это неправильно, надо разобраться в ядреном матане сверху, сейчас отжирает больше нужного
-	poly = (glpoly_t*)new glpoly_t[lnumverts];
-	
-	poly->next = fa->polys;
-	poly->flags = fa->flags;
-	fa->polys = poly;
-	poly->numverts = lnumverts;
-
-	for (i = 0; i < lnumverts; i++)
-	{
-		lindex = m_vSurfedges[fa->firstedge + i];
-
-		if (lindex > 0)
-		{
-			r_pedge = &pedges[lindex];
-			vec = m_vVertices[r_pedge->v[0]];
-		}
-		else
-		{
-			r_pedge = &pedges[-lindex];
-			vec = m_vVertices[r_pedge->v[1]];
-		}
-		glm::vec3 ofs = fa->texinfo->vecs[0].xyz;
-		s = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
-		s /= fa->texinfo->texture->width;
-
-		ofs = fa->texinfo->vecs[1].xyz;
-		t = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
-		t /= fa->texinfo->texture->height;
-
-		*(glm::vec3*)&poly->verts[i] = vec;
-		poly->verts[i][3] = s;
-		poly->verts[i][4] = t;
-
-		//
-		// lightmap texture coordinates
-		//
-
-
-		ofs = fa->texinfo->vecs[0].xyz;
-		s = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
-		s -= fa->texturemins[0];
-		s += fa->light_s * 16;
-		s += 8;
-		s /= m_pLightmapState->BlockWidth() * 16;
-		
-		ofs = fa->texinfo->vecs[1].xyz;
-		t = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
-		t -= fa->texturemins[1];
-		t += fa->light_t * 16;
-		t += 8;
-		t /= m_pLightmapState->BlockHeight() * 16; //fa->texinfo->texture->height;
-
-		poly->verts[i][5] = s;
-		poly->verts[i][6] = t;
-	}
-
-	//
-	// remove co-linear points - Ed
-	//
-	// 	if (!(fa->flags & SURF_UNDERWATER))
-	// 	{
-	// 		for (i = 0; i < lnumverts; ++i)
-	// 		{
-	// 			vec3_t v1, v2;
-	// 			float* prev, * me, * next;
-	// 			float f;
-	// 
-	// 			prev = poly->verts[(i + lnumverts - 1) % lnumverts];
-	// 			me = poly->verts[i];
-	// 			next = poly->verts[(i + 1) % lnumverts];
-	// 
-	// 			VectorSubtract(me, prev, v1);
-	// 			VectorNormalize(v1);
-	// 			VectorSubtract(next, prev, v2);
-	// 			VectorNormalize(v2);
-	// 
-	// 			// skip co-linear points
-	// #define COLINEAR_EPSILON 0.001
-	// 			if ((fabs(v1[0] - v2[0]) <= COLINEAR_EPSILON) &&
-	// 				(fabs(v1[1] - v2[1]) <= COLINEAR_EPSILON) &&
-	// 				(fabs(v1[2] - v2[2]) <= COLINEAR_EPSILON))
-	// 			{
-	// 				int j;
-	// 				for (j = i + 1; j < lnumverts; ++j)
-	// 				{
-	// 					int k;
-	// 					for (k = 0; k < VERTEXSIZE; ++k)
-	// 						poly->verts[j - 1][k] = poly->verts[j][k];
-	// 				}
-	// 				--lnumverts;
-	// 				++nColinElim;
-	// 				// retry next vertex next time, which is now current vertex
-	// 				--i;
-	// 			}
-	// 		}
-	// 	}
-
-	poly->numverts = lnumverts;
-}
 
 void BSPWorld::GL_CreateSurfaceLightmap(msurface_t* surf)
 {
@@ -1078,9 +959,134 @@ void BSPWorld::Mod_LoadEntities(lump_t* l)
 	}
 }
 
+void BSPWorld::BuildSurfaceDisplayList(msurface_t *fa)
+{
+    int i, lindex, lnumverts;
+    medge_t *pedges, *r_pedge;
+    int vertpage;
+    glm::vec3 vec;
+    float s = 0, t = 0;
+    glpoly_t *poly;
+
+    // reconstruct the polygon
+    pedges    = m_vEdges.data();
+    lnumverts = fa->numedges;
+    vertpage  = 0;
+
+    //
+    // draw texture
+    //
+    // poly = (glpoly_t*)Mem_Alloc(loadmodel->mem_pool, sizeof(glpoly_t) + (lnumverts - 4) * VERTEXSIZE *
+    // sizeof(float));
+
+    // TODO: это неправильно, надо разобраться в ядреном матане сверху, сейчас отжирает больше нужного
+    poly = (glpoly_t *)new glpoly_t[lnumverts];
+
+    poly->next     = fa->polys;
+    poly->flags    = fa->flags;
+    fa->polys      = poly;
+    poly->numverts = lnumverts;
+
+    for (i = 0; i < lnumverts; i++)
+    {
+        lindex = m_vSurfedges[fa->firstedge + i];
+
+        if (lindex > 0)
+        {
+            r_pedge = &pedges[lindex];
+            vec     = m_vVertices[r_pedge->v[0]];
+        }
+        else
+        {
+            r_pedge = &pedges[-lindex];
+            vec     = m_vVertices[r_pedge->v[1]];
+        }
+        glm::vec3 ofs = fa->texinfo->vecs[0].xyz;
+        s             = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+        s /= fa->texinfo->texture->width;
+
+        ofs = fa->texinfo->vecs[1].xyz;
+        t   = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+        t /= fa->texinfo->texture->height;
+
+        *(glm::vec3 *)&poly->verts[i] = vec;
+        poly->verts[i][3]             = s;
+        poly->verts[i][4]             = t;
+
+        //
+        // lightmap texture coordinates
+        //
+
+        ofs = fa->texinfo->vecs[0].xyz;
+        s   = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+        s -= fa->texturemins[0];
+        s += fa->light_s * 16;
+        s += 8;
+        s /= m_pLightmapState->BlockWidth() * 16;
+
+        ofs = fa->texinfo->vecs[1].xyz;
+        t   = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+        t -= fa->texturemins[1];
+        t += fa->light_t * 16;
+        t += 8;
+        t /= m_pLightmapState->BlockHeight() * 16; // fa->texinfo->texture->height;
+
+        poly->verts[i][5] = s;
+        poly->verts[i][6] = t;
+    }
+
+    //
+    // remove co-linear points - Ed
+    //
+    // 	if (!(fa->flags & SURF_UNDERWATER))
+    // 	{
+    // 		for (i = 0; i < lnumverts; ++i)
+    // 		{
+    // 			vec3_t v1, v2;
+    // 			float* prev, * me, * next;
+    // 			float f;
+    //
+    // 			prev = poly->verts[(i + lnumverts - 1) % lnumverts];
+    // 			me = poly->verts[i];
+    // 			next = poly->verts[(i + 1) % lnumverts];
+    //
+    // 			VectorSubtract(me, prev, v1);
+    // 			VectorNormalize(v1);
+    // 			VectorSubtract(next, prev, v2);
+    // 			VectorNormalize(v2);
+    //
+    // 			// skip co-linear points
+    // #define COLINEAR_EPSILON 0.001
+    // 			if ((fabs(v1[0] - v2[0]) <= COLINEAR_EPSILON) &&
+    // 				(fabs(v1[1] - v2[1]) <= COLINEAR_EPSILON) &&
+    // 				(fabs(v1[2] - v2[2]) <= COLINEAR_EPSILON))
+    // 			{
+    // 				int j;
+    // 				for (j = i + 1; j < lnumverts; ++j)
+    // 				{
+    // 					int k;
+    // 					for (k = 0; k < VERTEXSIZE; ++k)
+    // 						poly->verts[j - 1][k] = poly->verts[j][k];
+    // 				}
+    // 				--lnumverts;
+    // 				++nColinElim;
+    // 				// retry next vertex next time, which is now current vertex
+    // 				--i;
+    // 			}
+    // 		}
+    // 	}
+
+    poly->numverts = lnumverts;
+}
+
 msurface_t* GoldSource::BSPWorld::Faces(size_t firstSurface)
 {
 	return &m_vFaces[firstSurface];
+}
+
+std::vector<GoldSource::msurface_t> & BSPWorld::GetFaces()
+{
+    return m_vFaces;
 }
 
 void BSPWorld::PopulateScene()

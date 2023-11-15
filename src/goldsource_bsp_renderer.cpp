@@ -167,10 +167,25 @@ void BSPRenderer::RecursiveWorldNode(mnode_t *node)
 BSPRenderer::BSPRenderer(BSPWorld *world)
 {
     m_pWorld = world;
+    
+    m_pMesh  = new DrawMesh;
+
+    std::vector<msurface_t> & surfaces =  m_pWorld->GetFaces();
+
+    m_pMesh->Begin(GL_TRIANGLES);
+
+    for (auto & surf: surfaces)
+    {
+        BuildSurfaceDisplayList(&surf);
+    }
+
+    m_pMesh->End();
 }
 
 BSPRenderer::~BSPRenderer()
 {
+    if (m_pMesh)
+        delete m_pMesh;
 }
 
 void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
@@ -182,7 +197,14 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
     glRotatef(-90, 1, 0, 0); // put Z going up
     glRotatef(90, 0, 0, 1);  // put Z going up
 
+    //m_pMesh->BindAndDraw();
+
+
+    m_pMesh->Bind();
+    
     RecursiveWorldNode(m_pWorld->GetNodes(0));
+
+    m_pMesh->Unbind();
 
     glPopMatrix();
 }
@@ -195,20 +217,19 @@ void BSPRenderer::RenderBrushPoly(msurface_t *fa)
 
     int smax, tmax;
 
-    // 	glActiveTexture(GL_TEXTURE0);
-    // 	glEnable(GL_TEXTURE_2D);
-    // 	glBindTexture(GL_TEXTURE_2D, t->gl_texturenum);
-    //
-    // 	//
-    // 	glActiveTexture(GL_TEXTURE1);
-    // 	glEnable(GL_TEXTURE_2D);
-    //
-    // 	glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
-    //
-    // 	glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    // 	glActiveTexture(GL_TEXTURE0);
-
     auto p = fa->polys;
+
+    if (1)
+    {
+        //glActiveTexture(GL_TEXTURE0);
+        //glEnable(GL_TEXTURE_2D);
+
+        if (fa->texinfo->texture->loadedTexture)
+            glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
+
+        m_pMesh->Draw(fa->meshOffset, fa->meshLength);
+        return;
+    }
 
     glCullFace(GL_FRONT);
     glEnable(GL_TEXTURE_2D);
@@ -244,4 +265,119 @@ void BSPRenderer::RenderBrushPoly(msurface_t *fa)
     glActiveTexture(GL_TEXTURE1);
     glDisable(GL_TEXTURE_2D);
     glActiveTexture(GL_TEXTURE0);
+}
+
+void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
+{
+    int i, lindex, lnumverts;
+    const medge_t *pedges, *r_pedge;
+    int vertpage;
+    glm::vec3 vec;
+    float s = 0, t = 0;
+    
+    // reconstruct the polygon
+    pedges = m_pWorld->GetEdges().data();
+    lnumverts = fa->numedges;
+    vertpage  = 0;
+
+    auto & surfEdges = m_pWorld->GetSurfEdges();
+    auto & vertices  = m_pWorld->GetVertices();
+    auto lmState   = m_pWorld->GetLightmapState();
+
+    std::vector<drawVert_t> m_verts;
+    m_verts.reserve(lnumverts);
+
+    for (i = 0; i < lnumverts; i++)
+    {
+        lindex = surfEdges[fa->firstedge + i];
+
+        if (lindex > 0)
+        {
+            r_pedge = &pedges[lindex];
+            vec     = vertices[r_pedge->v[0]];
+        }
+        else
+        {
+            r_pedge = &pedges[-lindex];
+            vec     = vertices[r_pedge->v[1]];
+        }
+
+        glm::vec3 ofs = fa->texinfo->vecs[0].xyz;
+        s             = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+        s /= fa->texinfo->texture->width;
+
+        ofs = fa->texinfo->vecs[1].xyz;
+        t   = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+        t /= fa->texinfo->texture->height;
+
+        drawVert_t dw = drawVert_t();
+
+        dw.uv = {s, t, 0};
+
+        //m_pMesh->TexCoord2f(s, t);
+
+        //
+        // lightmap texture coordinates
+        //
+
+        ofs = fa->texinfo->vecs[0].xyz;
+        s   = glm::dot(vec, ofs) + fa->texinfo->vecs[0][3];
+        s -= fa->texturemins[0];
+        s += fa->light_s * 16;
+        s += 8;
+        s /= lmState->BlockWidth() * 16;
+
+        ofs = fa->texinfo->vecs[1].xyz;
+        t   = glm::dot(vec, ofs) + fa->texinfo->vecs[1][3];
+        t -= fa->texturemins[1];
+        t += fa->light_t * 16;
+        t += 8;
+        t /= lmState->BlockHeight() * 16; // fa->texinfo->texture->height;
+
+
+        dw.color = {s, t, 0,0};
+
+        dw.xyz = {vec};
+
+        //m_pMesh->Color3f(s, t, 0);
+        //m_pMesh->Vertex3fv(&vec.x);
+
+        m_verts.push_back(dw);
+    }
+
+    fa->meshOffset = m_pMesh->CurrentElement();
+    
+
+    for (size_t i = 0; i < m_verts.size() - 2; i++)
+    {
+
+        auto & v1 = m_verts[0];
+        auto & v2 = m_verts[i + 1];
+        auto & v3 = m_verts[i + 2];
+
+        m_pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
+        m_pMesh->Color3f(v3.color.r, v3.color.g, v3.color.b);
+        m_pMesh->Vertex3fv((float *)&v3.xyz);
+
+        m_pMesh->TexCoord2f(v2.uv.x, v2.uv.y);
+        m_pMesh->Color3f(v2.color.r, v2.color.g, v2.color.b);
+        m_pMesh->Vertex3fv((float *)&v2.xyz);
+
+        m_pMesh->TexCoord2f(v1.uv.x,v1.uv.y);
+        m_pMesh->Color3f(v1.color.r, v1.color.g, v1.color.b);
+        m_pMesh->Vertex3fv((float*)&v1.xyz);
+
+
+        
+
+        
+        
+
+//         m_Data->faces.push_back(m_verts[0]);
+//         m_Data->faces.push_back(m_verts[i + 1]);
+//         m_Data->faces.push_back(m_verts[i + 2]);
+    }
+
+    fa->meshLength = m_pMesh->CurrentElement() - fa->meshOffset;
+
 }

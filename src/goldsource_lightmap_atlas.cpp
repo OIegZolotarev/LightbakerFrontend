@@ -118,7 +118,7 @@ GLuint GoldSource::LightmapAtlas::CurrentLightmapTexture()
 	return m_LightmapTextures[m_CurrentLightmapTexture];
 }
 
-size_t GoldSource::LightmapAtlas::BlockWidth()
+const size_t GoldSource::LightmapAtlas::BlockWidth() const
 {
 	return m_BlockWidth;
 }
@@ -129,7 +129,7 @@ void LightmapAtlas::Reset()
 	InitBlock();
 }
 
-size_t LightmapAtlas::BlockHeight()
+const size_t GoldSource::LightmapAtlas::BlockHeight() const
 {
 	return m_BlockHeight;
 }
