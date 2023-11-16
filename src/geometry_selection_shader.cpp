@@ -23,12 +23,7 @@ GeometrySelectionShaderProgram::~GeometrySelectionShaderProgram()
 
 }
 
-void GeometrySelectionShaderProgram::SetTransform(glm::mat4x4& mat)
-{
-	glUniformMatrix4fv(m_unTransform, 1, GL_FALSE, &mat[0][0]);
-}
-
-void GeometrySelectionShaderProgram::SetObjectId(int id)
+void GeometrySelectionShaderProgram::SetObjectId(int id) const
 {
 	union
 	{

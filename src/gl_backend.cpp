@@ -285,12 +285,12 @@ void ShaderProgram::LinkProgram()
     glLinkProgram(m_uiProgramId);
 }
 
-void ShaderProgram::Bind()
+void ShaderProgram::Bind() const
 {
     glUseProgram(m_uiProgramId);
 }
 
-void ShaderProgram::Unbind()
+void ShaderProgram::Unbind() const
 {
     glUseProgram(0);
 }
@@ -333,37 +333,37 @@ void GLBackend::DeleteAllShaders()
         delete m_pEditorGridShader;
 }
 
-HelperGeometryShaderProgram *GLBackend::HelperGeometryShader()
+const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
 {
     return m_pHelperGeometryShader;
 }
 
-EditorGridShaderProgram *GLBackend::EditorGridShader()
+const EditorGridShaderProgram *GLBackend::EditorGridShader() const
 {
     return m_pEditorGridShader;
 }
 
-GeometrySelectionShaderProgram *GLBackend::GeometrySelectionShader()
+const GeometrySelectionShaderProgram *GLBackend::GeometrySelectionShader() const
 {
     return m_pGeometrySelectionShader;
 }
 
-LightMappedSceneShaderProgram *GLBackend::LightMappedSceneShader()
+const LightMappedSceneShaderProgram *GLBackend::LightMappedSceneShader() const
 {
     return m_pLightmappedSceneShader;
 }
 
-DiffuseSceneShaderProgram *GLBackend::DiffuseSceneShader()
+const DiffuseSceneShaderProgram *GLBackend::DiffuseSceneShader() const
 {
     return m_pDiffuseSceneShader;
 }
 
-GroupShadedSceneShaderProgram *GLBackend::GroupShadedSceneShader()
+const GroupShadedSceneShaderProgram *GLBackend::GroupShadedSceneShader() const
 {
     return m_pGroupShadedSceneShader;
 }
 
-SpotlightConeShaderProgram *GLBackend::SpotlightConeShader()
+const SpotlightConeShaderProgram *GLBackend::SpotlightConeShader() const
 {
     return m_pSpotlightConeShader;
 }
@@ -386,4 +386,62 @@ void GLBackend::NewFrame()
 {
     m_RenderStats.nDrawCalls = 0;
     m_RenderStats.nTriangles = 0;
+}
+
+renderStats_t *GLBackend::RenderStats()
+{
+    return &m_RenderStats;
+}
+
+size_t GLBackend::m_CurrentTextureUnit;
+textureUnitState_t GLBackend::m_TexturesUnitStates[16];
+
+void GLBackend::BindTexture(size_t unit, gltexture_t *texture)
+{
+    auto state = &m_TexturesUnitStates[unit];
+
+    if (!texture)
+    {
+        if (state->enabled)
+        {
+            state->enabled = false;
+
+            if (m_CurrentTextureUnit != unit)
+            {
+                glActiveTexture(GL_TEXTURE0 + unit);
+                m_CurrentTextureUnit = unit;
+            }
+
+            glDisable(GL_TEXTURE_2D);            
+        }
+
+        return;
+    }
+
+    BindTexture(unit, texture->gl_texnum);
+}
+
+void GLBackend::BindTexture(size_t unit, GLuint texture)
+{
+    auto state = &m_TexturesUnitStates[unit];
+
+
+    if (m_CurrentTextureUnit != unit)
+    {
+        glActiveTexture(GL_TEXTURE0 + unit);
+        m_CurrentTextureUnit = unit;
+    }
+
+    if (!state->enabled)
+    {
+        glEnable(GL_TEXTURE_2D);
+        state->enabled = true;
+    }
+
+    if (state->texture != texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, texture);
+        state->texture = texture;
+    }
+
 }

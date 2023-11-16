@@ -22,6 +22,8 @@ LightMappedSceneShaderProgram::~LightMappedSceneShaderProgram()
 	
 }
 
+
+
 DiffuseSceneShaderProgram::DiffuseSceneShaderProgram()
 {
 	AttachVertexShader("res/glprogs/scene.vert");
@@ -55,7 +57,7 @@ GroupShadedSceneShaderProgram::~GroupShadedSceneShaderProgram()
 
 }
 
-void GroupShadedSceneShaderProgram::SetObjectColor(glm::vec4 color)
+void GroupShadedSceneShaderProgram::SetObjectColor(glm::vec4 color) const
 {
 	glUniform4f(m_unColor, color[0], color[1], color[2], color[3]);
 }

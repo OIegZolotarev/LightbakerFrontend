@@ -9,8 +9,7 @@
 
 class SpotlightConeShaderProgram : public ISceneShader
 {
-	GLuint m_unColorOverride;
-	GLuint m_unTransform;
+	GLuint m_unColorOverride;	
 	GLuint m_unHeight;
 	GLuint m_unConeAngle;
 
@@ -18,9 +17,7 @@ public:
 	SpotlightConeShaderProgram();
 	~SpotlightConeShaderProgram();
 
-	void SetColor(glm::vec4 color);
-	void SetTransform(glm::mat4x4& mat);
-
-	void SetConeHeight(float height);
-	void SetConeAngleDegrees(float angle);
+	void SetColor(glm::vec4 color) const;   
+	void SetConeHeight(float height) const;
+    void SetConeAngleDegrees(float angle) const;
 };

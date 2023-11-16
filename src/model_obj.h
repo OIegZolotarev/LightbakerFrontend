@@ -60,7 +60,7 @@ public:
 	void RenderDebug() override;
 	void RenderLightshaded() override;
 
-	void CommonDrawGeometryWithShader(ISceneShader* shader);
+	void CommonDrawGeometryWithShader(const ISceneShader* shader);
 
 	void RenderUnshaded() override;
 	void RenderGroupShaded() override;

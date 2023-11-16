@@ -15,9 +15,8 @@ class GeometrySelectionShaderProgram : public ISceneShader
 public:
 	GeometrySelectionShaderProgram();
 	~GeometrySelectionShaderProgram();
-
-	void SetTransform(glm::mat4x4& mat);
-	void SetObjectId(int id);
+	
+    void SetObjectId(int id) const;
 };
 
 

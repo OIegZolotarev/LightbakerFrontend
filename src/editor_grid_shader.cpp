@@ -11,43 +11,37 @@ EditorGridShaderProgram::~EditorGridShaderProgram()
 {
 }
 
-
-void EditorGridShaderProgram::SetTransform(glm::mat4x4 &mat)
-{
-    glUniformMatrix4fv(m_unTransform, 1, GL_FALSE, &mat[0][0]);
-}
-
-void EditorGridShaderProgram::SetGridStep(int step)
+void EditorGridShaderProgram::SetGridStep(int step) const
 {
     glUniform1i(m_unGridStep, step);
 }
 
-void EditorGridShaderProgram::SetGridCustomHighlight(int step)
+void EditorGridShaderProgram::SetGridCustomHighlight(int step) const
 {
     glUniform1i(m_unGridHiglightCustom, step);
 }
 
-void EditorGridShaderProgram::SetAxisColor(glm::vec4 color)
+void EditorGridShaderProgram::SetAxisColor(glm::vec4 color) const
 {
     glUniform4fv(m_GridAxisColor, 1, &color[0]);
 }
 
-void EditorGridShaderProgram::SetGridMainColor(glm::vec4 color)
+void EditorGridShaderProgram::SetGridMainColor(glm::vec4 color) const
 {
     glUniform4fv(m_GridMainColor, 1, &color[0]);
 }
 
-void EditorGridShaderProgram::SetGrid64thLineColor(glm::vec4 color)
+void EditorGridShaderProgram::SetGrid64thLineColor(glm::vec4 color) const
 {
     glUniform4fv(m_Grid64thLineColor, 1, &color[0]);
 }
 
-void EditorGridShaderProgram::SetGrid1024thLineColor(glm::vec4 color)
+void EditorGridShaderProgram::SetGrid1024thLineColor(glm::vec4 color) const
 {
     glUniform4fv(m_Grid1024thLineColor, 1, &color[0]);
 }
 
-void EditorGridShaderProgram::SetGridCustomColor(glm::vec4 color)
+void EditorGridShaderProgram::SetGridCustomColor(glm::vec4 color) const
 {
     glUniform4fv(m_GridCustomColor, 1, &color[0]);
 }

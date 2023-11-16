@@ -12,15 +12,12 @@ HelperGeometryShaderProgram::~HelperGeometryShaderProgram()
 	
 }
 
-void HelperGeometryShaderProgram::SetColor(glm::vec4 color)
+void HelperGeometryShaderProgram::SetColor(glm::vec4 color) const
 {
 	glUniform4fv(m_unColorOverride, 1, &color[0]);
 }
 
-void HelperGeometryShaderProgram::SetTransform(glm::mat4x4& mat)
-{
-	glUniformMatrix4fv(m_unTransform, 1,GL_FALSE, &mat[0][0]);
-}
+
 
 HelperGeometryShaderProgram::HelperGeometryShaderProgram()
 {

@@ -12,6 +12,7 @@
 #include "lightmapped_scene_shader.h"
 #include "shader_program.h"
 #include "spotlight_cone_shader.h"
+#include "gl_texture.h"
 
 typedef struct drawVert_s
 {
@@ -87,6 +88,12 @@ typedef struct renderStats_s
     size_t nTriangles = 0;
 } renderStats_t;
 
+typedef struct textureUnitState_s
+{
+    bool enabled = true;
+    GLuint texture = 0;
+} textureUnitState_t;
+
 class GLBackend
 {
     GLBackend();
@@ -102,10 +109,12 @@ class GLBackend
     EditorGridShaderProgram *m_pEditorGridShader               = nullptr;
 
     friend DrawMesh;
-
-
+    
     renderStats_t m_RenderStats;
     void OnMeshDrawn(DrawMesh *pMesh, size_t numTriangles);
+    
+    static size_t m_CurrentTextureUnit;
+    static textureUnitState_t m_TexturesUnitStates[16];
 
   public:
     static GLBackend *Instance();
@@ -113,23 +122,19 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    HelperGeometryShaderProgram *HelperGeometryShader();
-    EditorGridShaderProgram *EditorGridShader();
-
-    GeometrySelectionShaderProgram *GeometrySelectionShader();
-
-    LightMappedSceneShaderProgram *LightMappedSceneShader();
-
-    DiffuseSceneShaderProgram *DiffuseSceneShader();
-    GroupShadedSceneShaderProgram *GroupShadedSceneShader();
-
-    SpotlightConeShaderProgram *SpotlightConeShader();
+    const HelperGeometryShaderProgram *HelperGeometryShader() const;
+    const EditorGridShaderProgram *EditorGridShader() const;
+    const GeometrySelectionShaderProgram *GeometrySelectionShader() const;
+    const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
+    const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
+    const GroupShadedSceneShaderProgram *GroupShadedSceneShader() const;
+    const SpotlightConeShaderProgram *SpotlightConeShader() const;
 
     void ReloadAllShaders();
 
     void NewFrame();
-    renderStats_t *RenderStats()
-    {
-        return &m_RenderStats;
-    }
+    renderStats_t *RenderStats();
+
+    static void BindTexture(size_t unit, gltexture_t *texture);
+    static void BindTexture(size_t unit, GLuint texture);
 };

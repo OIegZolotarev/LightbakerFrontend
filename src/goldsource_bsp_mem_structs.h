@@ -63,7 +63,7 @@ typedef struct mtexture_s
     char		name[16];
     unsigned	width, height;
     
-    gltexture_t* loadedTexture;
+    gltexture_t* loadedTexture = nullptr;
 
 
     struct msurface_s* texturechain;	// for gl_texsort drawing
@@ -142,7 +142,8 @@ typedef struct msurface_s
     float min[2], max[2];
     
     // CrazyRussian
-    size_t meshOffset, meshLength; // 
+    size_t meshOffset, meshLength; 
+    GLuint diffuseTexture;
     
 } msurface_t;
 

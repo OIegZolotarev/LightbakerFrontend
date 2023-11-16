@@ -16,7 +16,6 @@ public:
 	HelperGeometryShaderProgram();
 	~HelperGeometryShaderProgram();
 		
-	void SetColor(glm::vec4 color);	
-	void SetTransform(glm::mat4x4& mat);
+	void SetColor(glm::vec4 color) const;		
 };
 

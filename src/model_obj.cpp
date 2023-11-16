@@ -73,7 +73,6 @@ ModelOBJ::~ModelOBJ()
 void ModelOBJ::DrawDebug()
 {
 
-#if 1
 	mesh.Bind();
 
 	glEnable(GL_TEXTURE_2D);
@@ -89,69 +88,7 @@ void ModelOBJ::DrawDebug()
 	}
 
 	mesh.Unbind();
-#else
- 	if (m_ModelData.faces.size() == 0)
- 		return;
- 
- 	if (m_ModelData.verts.size() == 0)
- 		return;
- 			
- 	size_t currentMaterial = m_ModelData.faces[0].material_id;
- 	mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
- 
- 	bool bNoTextures = false;
- 
- 	if (pMaterial->lightmap_texture[0])
- 	{
- 		glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
- 		bNoTextures = false;
- 	}
- 	else
- 		bNoTextures = true;
- 
- 	if (bNoTextures)
- 		glDisable(GL_TEXTURE_2D);
- 
- 	glColor3f(1, 1, 1);
- 
- 	glBegin(GL_TRIANGLES);
- 	
- 	for (auto& face : m_ModelData.faces)
- 	{
- 		if (face.material_id != currentMaterial)
- 		{
- 			currentMaterial = face.material_id;
- 			mobjmaterial_t* pMaterial = &m_vMaterials[currentMaterial];
- 
- 			if (pMaterial->lightmap_texture[0])
- 			{
- 				glBindTexture(GL_TEXTURE_2D, pMaterial->lightmap_texture[0]->gl_texnum);
- 				bNoTextures = false;
- 			}
- 			else
- 			{
- 				glDisable(GL_TEXTURE_2D);
- 			}
- 		}
- 		
- 		glTexCoord2fv(&m_ModelData.uvs[(face.uv- 1) * m_ModelData.uvSize]);
- 
- 		if (bNoTextures)
- 		{
- 			float* norm = &m_ModelData.normals[(face.norm - 1) * 3];
- 			glColor3f(
- 				(norm[0] + 1) / 2,
- 				(norm[1] + 1) / 2,
- 				(norm[2] + 1) / 2);
- 		}
- 		glVertex3fv(&m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize]);
- 	}
- 
- 	glEnd();
- 
- 
- 	glEnable(GL_TEXTURE_2D);
-#endif
+
 	
 }
 
@@ -359,12 +296,13 @@ void ModelOBJ::RenderForSelection(int objectId, SceneRenderer* pRenderer)
 
 	auto shader = GLBackend::Instance()->GeometrySelectionShader();
 	
-	auto identity = glm::mat4(1);
+	
 
 	shader->Bind();
 
-	shader->SetTransform(identity);
+	shader->SetTransformIdentity();
 	shader->SetScale(scene->GetSceneScale());
+	
 	shader->SetDefaultCamera();
 	shader->SetObjectId(objectId);
 
@@ -391,7 +329,7 @@ void ModelOBJ::RenderLightshaded()
 	CommonDrawGeometryWithShader(shader);
 }
 
-void ModelOBJ::CommonDrawGeometryWithShader(ISceneShader* shader)
+void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader* shader)
 {
 	mesh.Bind();
 
@@ -401,6 +339,7 @@ void ModelOBJ::CommonDrawGeometryWithShader(ISceneShader* shader)
 	shader->Bind();
 	shader->SetScale(scene->GetSceneScale());
 	shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
 
 	glEnable(GL_TEXTURE_2D);
 
@@ -478,6 +417,7 @@ void ModelOBJ::RenderGroupShaded()
 	shader->Bind();
 	shader->SetScale(scene->GetSceneScale());
 	shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
 
 	shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
 

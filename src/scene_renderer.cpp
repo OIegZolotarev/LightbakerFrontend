@@ -303,45 +303,7 @@ void SceneRenderer::ReloadScene(int loadFlags)
 
 void SceneRenderer::Debug_DrawGround()
 {
-	int dimensions = 1000;
-	int step = 10;
 
-
-#ifdef NICE_LINES
-	glEnable(GL_MULTISAMPLE);
-
-	glEnable(GL_LINE_SMOOTH);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-#endif
-
-	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_LINES);
-
-	glColor3f(1, 0, 0);
-
-	for (int x = -dimensions; x < dimensions; x += step)
-	{
-		glVertex3f(x, 0, -dimensions);
-		glVertex3f(x, 0, dimensions);
-	}
-
-	glColor3f(0, 1, 0);
-
-	for (int y = -dimensions; y < dimensions; y += step)
-	{
-		glVertex3f(-dimensions, 0, y);
-		glVertex3f(dimensions, 0, y);
-	}
-
-	glEnd();
-
-	glEnable(GL_TEXTURE_2D);
-
-#ifdef NICE_LINES	
-	glDisable(GL_MULTISAMPLE);
-	glDisable(GL_LINE_SMOOTH);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-#endif 
 }
 
 void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
@@ -361,6 +323,8 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
 		shader->Bind();
 		shader->SetDefaultCamera();
+        shader->SetTransformIdentity();
+
 		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
 		shader->SetScale(ptr->intensity);
 
@@ -442,6 +406,7 @@ void SceneRenderer::RenderGenericEntity(SceneEntity* pEntity)
 
 	shader->Bind();
 	shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
 
 	glm::vec4 col = glm::vec4(pEntity->GetColor(),1);
 	shader->SetColor(col);

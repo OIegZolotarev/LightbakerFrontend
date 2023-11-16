@@ -30,7 +30,7 @@ public:
 	GroupShadedSceneShaderProgram();
 	~GroupShadedSceneShaderProgram();
 
-	void SetObjectColor(glm::vec4 color);
+	void SetObjectColor(glm::vec4 color) const;
 
 private:
 	GLuint m_unColor;

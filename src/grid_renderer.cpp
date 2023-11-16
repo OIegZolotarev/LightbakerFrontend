@@ -70,6 +70,7 @@ void GridRenderer::Render()
     auto shader = GLBackend::Instance()->EditorGridShader();
     shader->Bind();
     
+    shader->SetTransformIdentity();
     shader->SetDefaultCamera();
     
     shader->SetGridStep(m_iGridResolutions);    

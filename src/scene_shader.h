@@ -15,17 +15,21 @@ private:
 	GLuint m_unScale = 0xffffffff;
 	GLuint m_unView = 0xffffffff;
 	GLuint m_unProjection = 0xffffffff;
-protected:
+    GLuint m_unTransform  = 0xffffffff;
+  protected:
 	void InitCommonSceneUniforms();
 	void LinkSamplerToUnit(const char* sampleName, GLuint unitNumber);
 public:
 	ISceneShader();
 	virtual ~ISceneShader();
 
-	void SetView(float* matrix);
-	void SetProjection(float* matrix);
-	void SetScale(float scale);
+	void SetView(float *matrix) const;
+    void SetProjection(float *matrix) const;
+    void SetScale(float scale) const;
 
-	void SetDefaultCamera();
+	void SetDefaultCamera() const;
+    
+	void SetTransform(glm::mat4 transform) const;    
+	void SetTransformIdentity() const;
 };
 
