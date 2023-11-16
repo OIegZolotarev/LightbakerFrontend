@@ -348,6 +348,33 @@ bool LightEntity::IsLightEntity()
 	return true;
 }
 
+void LightEntity::SetIntensity(float f)
+{
+    intensity = f;
+}
+
+void LightEntity::SetFlags(int _flags)
+{
+    flags = _flags;
+}
+
+void LightEntity::SetAngles(float pitch, float yaw, float roll)
+{
+    anglesDirection = glm::vec3(pitch, yaw, roll);
+}
+
+void LightEntity::SetCones(float a, float b)
+{
+    cones[0] = a;
+    cones[1] = b;
+}
+
+void LightEntity::SetSize(float sizeX, float sizeY)
+{
+    size = glm::vec2(sizeX, sizeY);
+}
+
+
 EntityClasses LightEntity::EntityClass()
 {
 	return EntityClasses::Light;

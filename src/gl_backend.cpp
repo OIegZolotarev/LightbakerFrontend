@@ -7,6 +7,9 @@
 #include "application.h"
 #include <stddef.h>
 
+size_t GLBackend::m_CurrentTextureUnit;
+textureUnitState_t GLBackend::m_TexturesUnitStates[16];
+
 DrawMesh::DrawMesh(int flags)
 {
     m_iFlags = flags;
@@ -393,8 +396,7 @@ renderStats_t *GLBackend::RenderStats()
     return &m_RenderStats;
 }
 
-size_t GLBackend::m_CurrentTextureUnit;
-textureUnitState_t GLBackend::m_TexturesUnitStates[16];
+
 
 void GLBackend::BindTexture(size_t unit, gltexture_t *texture)
 {

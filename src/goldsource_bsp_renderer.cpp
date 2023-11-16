@@ -354,14 +354,23 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
 
 }
 
+template<class T>
+inline int sortCmp(T a, T b)
+{
+    if (a == b)
+        return 0;
+
+
+    if (a > b)
+        return 1;
+    
+    return -1;
+}
+
 void BSPRenderer::BuildDisplayMesh()
 {
     std::vector<msurface_t> &surfaces = m_pWorld->GetFaces();
-
     
-
-    
-
     for (auto &s : surfaces)
     {
         if (s.texinfo->flags & SURF_SKY)
@@ -384,30 +393,18 @@ void BSPRenderer::BuildDisplayMesh()
         if (faceB->texinfo->texture->loadedTexture)
             texB = faceB->texinfo->texture->loadedTexture->gl_texnum;
 
-        if (texA == texB)
+        GLuint lmA = faceA->lightmaptexturenum;
+        GLuint lmB = faceB->lightmaptexturenum;
+
+        int cmp = sortCmp(texA, texB);
+        int lmCmp = sortCmp(lmA, lmB);
+
+        if (cmp == 0)
         {
-            GLuint lmA = faceA->lightmaptexturenum;
-            GLuint lmB = faceB->lightmaptexturenum;
-
-            if (lmA == lmB)
-                return 0;
-
-            else if (lmA > lmB)
-                return 1;
-
-            else if (lmA < lmB)
-                return -1;
-
-            return 0;
+            return lmCmp;
         }
 
-        else if (texA > texB)
-            return 1;
-
-        else if (texA < texB)
-            return -1;
-
-        return 0;
+        return cmp;
     });
 
     m_pMesh->Begin(GL_TRIANGLES);
@@ -415,12 +412,13 @@ void BSPRenderer::BuildDisplayMesh()
     displayMesh_t mesh = {0,0,0,0};
 
     GLuint diffuseTexture = 0;
+    GLuint lmTexture = 0;
 
     for (auto &surf : m_SortedFaces)
     {
         BuildSurfaceDisplayList(surf);
 
-        if (diffuseTexture != surf->diffuseTexture)
+        if (diffuseTexture != surf->diffuseTexture || lmTexture != surf->lightmaptexturenum)
         {
             if (diffuseTexture !=0)
             {
@@ -428,6 +426,7 @@ void BSPRenderer::BuildDisplayMesh()
             }
 
             diffuseTexture = surf->diffuseTexture;
+            lmTexture      = surf->lightmaptexturenum;
 
             mesh.first  = surf->meshOffset;            
             mesh.diffuse = diffuseTexture;

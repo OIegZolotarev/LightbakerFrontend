@@ -260,15 +260,20 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 
 	newLight->style = stoi(tokens[13]);
 
-	if (tokens.size() > 14)
-		newLight->size[0] = stof(tokens[14]);
-	else
-		newLight->size[0] = 0;
 
-	if (tokens.size() > 15)
-		newLight->size[1] = stof(tokens[15]);
-	else
-		newLight->size[1] = newLight->size[0];
+
+	if (tokens.size() > 14)
+    {
+        glm::vec2 size = {stof(tokens[14]), 0};
+
+        
+        if (tokens.size() > 15)
+            size[1] = stof(tokens[15]);
+        else
+            size[1] = size[0];
+
+		newLight->SetSize(size.x, size.y);
+    }
 
 	m_Data->lightDefs.push_back(newLight);
 }
