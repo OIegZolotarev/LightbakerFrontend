@@ -293,6 +293,9 @@
     <ClCompile Include="persistent.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
+    <ClCompile Include="Icosphere.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -534,6 +537,9 @@
     </ClInclude>
     <ClInclude Include="persistent.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClInclude>
+    <ClInclude Include="Icosphere.h">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

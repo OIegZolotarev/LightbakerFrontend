@@ -227,6 +227,7 @@ build.bat
     <ClCompile Include="hammer_fgd.cpp" />
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
+    <ClCompile Include="Icosphere.cpp" />
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
@@ -307,6 +308,7 @@ build.bat
     <ClInclude Include="hammer_fgd.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="helper_geometry_shader.h" />
+    <ClInclude Include="Icosphere.h" />
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="loader_thread.h" />

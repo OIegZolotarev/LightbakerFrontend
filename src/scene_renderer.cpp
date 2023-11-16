@@ -22,7 +22,7 @@ SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 	m_pScene = nullptr;
 
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1, 1, 1));
-	m_pIntensitySphere = DrawUtils::MakeWireframeSphere();
+    m_pIntensitySphere = DrawUtils::MakeIcosphere(2);
 	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
 
 	m_pDirectionModel = new ModelOBJ("res/mesh/arrow.obj");
@@ -331,7 +331,13 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 		shader->SetTransform(mat);
 
-		m_pUnitBoundingBox->BindAndDraw();
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_CULL_FACE);
+		m_pIntensitySphere->BindAndDraw();
+
+		glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
 		shader->Unbind();
 	}
 	break;
