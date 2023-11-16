@@ -170,16 +170,13 @@ BSPRenderer::BSPRenderer(BSPWorld *world)
     
     m_pMesh  = new DrawMesh;
 
-    std::vector<msurface_t> & surfaces =  m_pWorld->GetFaces();
+    BuildDisplayMesh();
 
-    m_pMesh->Begin(GL_TRIANGLES);
 
-    for (auto & surf: surfaces)
-    {
-        BuildSurfaceDisplayList(&surf);
-    }
 
-    m_pMesh->End();
+    constexpr float ang = glm::radians(90.f);
+    m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
+    m_Transform *= glm::rotate(glm::mat4(1), ang, {0.f, 0.f, 1.f});
 }
 
 BSPRenderer::~BSPRenderer()
@@ -193,78 +190,59 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
     // Make Z-Axis look up
     m_vecEyesPosition = cameraPosition.xzy;
 
-    glPushMatrix();
-    glRotatef(-90, 1, 0, 0); // put Z going up
-    glRotatef(90, 0, 0, 1);  // put Z going up
+//     glPushMatrix();
+//     glRotatef(-90, 1, 0, 0); // put Z going up
+//     glRotatef(90, 0, 0, 1);  // put Z going up
 
     //m_pMesh->BindAndDraw();
 
 
-    m_pMesh->Bind();
+    auto shader = GLBackend::Instance()->LightMappedSceneShader();
+
+
+    shader->Bind();
+    shader->SetDefaultCamera();
+    shader->SetTransform(m_Transform);
+    shader->SetScale(1);
     
-    RecursiveWorldNode(m_pWorld->GetNodes(0));
+    m_pMesh->Bind();
+
+    //glDisable(GL_CULL_FACE);
+    
+    
+   //for (int i = 0; i < 100; i++)
+    {
+        
+        shader->SetTransform(m_Transform);
+
+        for (auto &it : m_DisplayLists)
+        {
+            GLBackend::BindTexture(1, it.lm);
+            GLBackend::BindTexture(0, it.diffuse);
+
+            //         glActiveTexture(GL_TEXTURE1);
+            //         glBindTexture(GL_TEXTURE_2D, it.lm);
+            //
+            //         glActiveTexture(GL_TEXTURE0);
+            //         glBindTexture(GL_TEXTURE_2D, it.diffuse);
+
+            m_pMesh->Draw(it.first, it.count);
+        }
+    }
+
+    //RecursiveWorldNode(m_pWorld->GetNodes(0));
 
     m_pMesh->Unbind();
-
-    glPopMatrix();
+    shader->Unbind();
+    //glPopMatrix();
 }
 
 void BSPRenderer::RenderBrushPoly(msurface_t *fa)
 {
-    mtexture_t *t;
-    byte *base;
-    int maps;
-
-    int smax, tmax;
-
-    auto p = fa->polys;
-
-    if (1)
-    {
-        //glActiveTexture(GL_TEXTURE0);
-        //glEnable(GL_TEXTURE_2D);
-
-        if (fa->texinfo->texture->loadedTexture)
-            glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
-
-        m_pMesh->Draw(fa->meshOffset, fa->meshLength);
-        return;
-    }
-
-    glCullFace(GL_FRONT);
-    glEnable(GL_TEXTURE_2D);
-
-    glActiveTexture(GL_TEXTURE1);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, fa->lightmaptexturenum);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
-    
-    glActiveTexture(GL_TEXTURE0);
-    glEnable(GL_TEXTURE_2D);
-
-    if (fa->texinfo->texture->loadedTexture)
-        glBindTexture(GL_TEXTURE_2D, fa->texinfo->texture->loadedTexture->gl_texnum);
-    // glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    glBegin(GL_POLYGON);
-    auto v = p->verts[0];
-    for (int i = 0; i < p->numverts; i++, v += VERTEXSIZE)
-    {
-        glMultiTexCoord2f(GL_TEXTURE0, v[3], v[4]);
-        glMultiTexCoord2f(GL_TEXTURE1, v[5], v[6]);
-
-        glColor3f(1, 1, 1);
-        glVertex3fv(v);
-    }
-    glEnd();
-
-    glEnable(GL_TEXTURE_2D);
-    glCullFace(GL_BACK);
-
-    glActiveTexture(GL_TEXTURE1);
-    glDisable(GL_TEXTURE_2D);
-    glActiveTexture(GL_TEXTURE0);
+    GLBackend::BindTexture(1, fa->lightmaptexturenum);
+    GLBackend::BindTexture(0, fa->diffuseTexture);
+                       
+    m_pMesh->Draw(fa->meshOffset, fa->meshLength);                  
 }
 
 void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
@@ -346,6 +324,9 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
     }
 
     fa->meshOffset = m_pMesh->CurrentElement();
+
+    if (fa->texinfo->texture->loadedTexture)
+        fa->diffuseTexture = fa->texinfo->texture->loadedTexture->gl_texnum;
     
 
     for (size_t i = 0; i < m_verts.size() - 2; i++)
@@ -367,17 +348,101 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
         m_pMesh->Color3f(v1.color.r, v1.color.g, v1.color.b);
         m_pMesh->Vertex3fv((float*)&v1.xyz);
 
-
-        
-
-        
-        
-
-//         m_Data->faces.push_back(m_verts[0]);
-//         m_Data->faces.push_back(m_verts[i + 1]);
-//         m_Data->faces.push_back(m_verts[i + 2]);
     }
 
     fa->meshLength = m_pMesh->CurrentElement() - fa->meshOffset;
+
+}
+
+void BSPRenderer::BuildDisplayMesh()
+{
+    std::vector<msurface_t> &surfaces = m_pWorld->GetFaces();
+
+    
+
+    
+
+    for (auto &s : surfaces)
+    {
+        if (s.texinfo->flags & SURF_SKY)
+            continue;
+
+        m_SortedFaces.push_back(&s);
+    }
+    
+    std::qsort(m_SortedFaces.data(), m_SortedFaces.size(), sizeof(msurface_t *),
+               [](const void *pa, const void *pb) -> int {
+        const msurface_t *faceA = *(msurface_t **)(pa);
+        const msurface_t *faceB = *(msurface_t **)(pb);
+
+        GLuint texA = 0;
+        GLuint texB = 0;
+
+        if (faceA->texinfo->texture->loadedTexture)
+            texA = faceA->texinfo->texture->loadedTexture->gl_texnum;
+
+        if (faceB->texinfo->texture->loadedTexture)
+            texB = faceB->texinfo->texture->loadedTexture->gl_texnum;
+
+        if (texA == texB)
+        {
+            GLuint lmA = faceA->lightmaptexturenum;
+            GLuint lmB = faceB->lightmaptexturenum;
+
+            if (lmA == lmB)
+                return 0;
+
+            else if (lmA > lmB)
+                return 1;
+
+            else if (lmA < lmB)
+                return -1;
+
+            return 0;
+        }
+
+        else if (texA > texB)
+            return 1;
+
+        else if (texA < texB)
+            return -1;
+
+        return 0;
+    });
+
+    m_pMesh->Begin(GL_TRIANGLES);
+
+    displayMesh_t mesh = {0,0,0,0};
+
+    GLuint diffuseTexture = 0;
+
+    for (auto &surf : m_SortedFaces)
+    {
+        BuildSurfaceDisplayList(surf);
+
+        if (diffuseTexture != surf->diffuseTexture)
+        {
+            if (diffuseTexture !=0)
+            {
+                m_DisplayLists.push_back(mesh);
+            }
+
+            diffuseTexture = surf->diffuseTexture;
+
+            mesh.first  = surf->meshOffset;            
+            mesh.diffuse = diffuseTexture;
+            mesh.lm      = surf->lightmaptexturenum;              
+
+        }
+
+        mesh.count = (surf->meshOffset + surf->meshLength) - mesh.first;
+       
+
+    }
+
+    if (mesh.count != 0)
+        m_DisplayLists.push_back(mesh);
+
+    m_pMesh->End();
 
 }

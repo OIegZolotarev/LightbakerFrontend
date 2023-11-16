@@ -37,8 +37,6 @@ namespace GoldSource
 
 #define MAX_LIGHTMAPS 512
 
-#define BLOCK_WIDTH 512
-#define BLOCK_HEIGHT 512
 
 #define LIGHTMAP_BYTES 4
 

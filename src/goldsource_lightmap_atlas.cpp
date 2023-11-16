@@ -44,9 +44,9 @@ std::optional<glm::uvec2> LightmapAtlas::AllocBlock(const unsigned int w, const 
 
 	glm::uvec2 result;
 
-	best = BLOCK_HEIGHT;
+	best = m_BlockWidth;
 
-	for (i = 0; i < BLOCK_WIDTH - w; i++)
+	for (i = 0; i < m_BlockWidth - w; i++)
 	{
 		best2 = 0;
 
@@ -64,7 +64,7 @@ std::optional<glm::uvec2> LightmapAtlas::AllocBlock(const unsigned int w, const 
 		}
 	}
 
-	if (best + h > BLOCK_HEIGHT)
+	if (best + h > m_BlockHeight)
 		return std::nullopt;
 
 	for (i = 0; i < w; i++)
