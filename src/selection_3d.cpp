@@ -51,7 +51,9 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 		{
 			int objectId = 1 + i * 16;
 
+			#if 0
 			glColor4ubv((byte*)&objectId);
+			#endif
 
 			if (auto ptr = m_vObjects[i].lock())
 			{

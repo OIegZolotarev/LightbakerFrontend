@@ -262,7 +262,12 @@ void Camera::Apply()
     SetupPerspectiveMatrix();
 
     glDepthRange(0, 1);
+    
+#if 0    
     glMatrixMode(GL_MODELVIEW);
+#endif
+
+    
 
     SetupModelViewMatrix();
 }
@@ -279,14 +284,24 @@ void Camera::PushMatrices(int which)
 {
 }
 
-float *Camera::GetViewMatrix()
+const glm::mat4 Camera::GetViewMatrix() const
 {
-    return &m_matModelView[0][0];
+    return m_matModelView;
 }
 
-float *Camera::GetProjectionMatrix()
+const glm::mat4 Camera::GetProjectionMatrix() const
 {
-    return &m_matProjection[0][0];
+    return m_matProjection;
+}
+
+float* Camera::GetViewMatrixPtr() const
+{
+    return (float*)&m_matModelView[0][0];
+}
+
+float* Camera::GetProjectionMatrixPtr() const
+{
+    return (float *)&m_matProjection[0][0];
 }
 
 int Camera::HandleEvent(bool bWasHandled, SDL_Event &event)
@@ -671,7 +686,9 @@ int Camera::MouseWheelEvent(SDL_Event &_event)
 
 void Camera::SetupPerspectiveMatrix()
 {
+    #if 0
     glMatrixMode(GL_PROJECTION);
+    #endif
 
     double fov = glm::radians(m_pFov->GetFloat());
 
@@ -689,12 +706,16 @@ void Camera::SetupPerspectiveMatrix()
 
     m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
 
+    #if 0 
     glLoadMatrixf((float *)&m_matProjection);
+#endif
 }
 
 void Camera::SetupModelViewMatrix()
 {
+#if 0 
     glMatrixMode(GL_MODELVIEW);
+#endif
 
     m_matModelView = glm::mat4(1);
 
@@ -735,7 +756,9 @@ void Camera::SetupModelViewMatrix()
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 
+    #if 0
     glLoadMatrixf((float *)&m_matModelView);
+    #endif
 
     auto matInv = glm::inverse(m_matModelView);
 

@@ -27,7 +27,7 @@ void CPropertyChangeAction::Redo()
 
 	if (auto ptr = pLight.lock())
 	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<LightEntity>(ptr);
+		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
 
 		auto b = new LightPropertiesBinding(lightPtr);
 		b->UpdateObjectProperties(&m_NewValue, 1);
@@ -49,7 +49,7 @@ void CPropertyChangeAction::Undo()
 
 	if (auto ptr = pLight.lock())
 	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<LightEntity>(ptr);
+		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
 
 		auto b = new LightPropertiesBinding(lightPtr);
 		b->UpdateObjectProperties(&m_OldValue, 1);

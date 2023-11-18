@@ -255,6 +255,7 @@ build.bat
     <ClCompile Include="scene_objects_panel.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="selection_3d.cpp" />
+    <ClCompile Include="shader_program.cpp" />
     <ClCompile Include="spotlight_cone_shader.cpp" />
     <ClCompile Include="stblibs_impl.cpp" />
     <ClCompile Include="text_utils.cpp" />
@@ -265,6 +266,7 @@ build.bat
     <ClCompile Include="worldspawn.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\bin\res\glprogs\common_vertex.h" />
     <ClInclude Include="..\include\better-enums\enum.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
@@ -352,12 +354,14 @@ build.bat
   </ItemGroup>
   <ItemGroup>
     <None Include="..\bin\res\glprogs\editor_grid.frag" />
+    <None Include="..\bin\res\glprogs\editor_grid.glsl" />
     <None Include="..\bin\res\glprogs\editor_grid.vert" />
     <None Include="..\bin\res\glprogs\helper_geometry.frag" />
     <None Include="..\bin\res\glprogs\helper_geometry.vert" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />
     <None Include="..\bin\res\glprogs\object_selection.vert" />
     <None Include="..\bin\res\glprogs\scene_diffuse.frag" />
+    <None Include="..\bin\res\glprogs\scene_geometry.glsl" />
     <None Include="..\bin\res\glprogs\scene_groupshaded.frag" />
     <None Include="..\bin\res\glprogs\scene_ligtmapped.frag" />
     <None Include="..\bin\res\glprogs\scene.vert" />

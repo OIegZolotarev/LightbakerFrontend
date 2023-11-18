@@ -98,7 +98,7 @@ void MainWindow::InitBackend()
 
     // limit to which minimum size user can resize the window
     SDL_SetWindowMinimumSize(m_pSDLWindow, 500, 300);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
 
@@ -854,7 +854,9 @@ void MainWindow::GL_BeginFrame()
 {
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
-    glShadeModel(GL_SMOOTH);
+    
+    
+
     glClearDepth(1);
 
     // 	if (settingMultisample->GetAsBool())
@@ -882,34 +884,34 @@ void MainWindow::ClearBackground()
 
     if (m_pUseGradientBackground->GetAsBool())
     {
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_TEXTURE_2D);
-        glDisable(GL_CULL_FACE);
-
-        glBegin(GL_QUADS);
-
-#define ONE 1
-
-        glColor3fv((float *)&col2);
-        glVertex2f(-ONE, -ONE);
-        glVertex2f(ONE, -ONE);
-
-        glColor3fv((float *)&col1);
-
-        glVertex2f(ONE, ONE);
-        glVertex2f(-ONE, ONE);
-
-        glEnd();
-
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_DEPTH_TEST);
+//         glMatrixMode(GL_PROJECTION);
+//         glLoadIdentity();
+// 
+//         glMatrixMode(GL_MODELVIEW);
+//         glLoadIdentity();
+// 
+//         glDisable(GL_DEPTH_TEST);
+//         glDisable(GL_TEXTURE_2D);
+//         glDisable(GL_CULL_FACE);
+// 
+//         glBegin(GL_QUADS);
+// 
+// #define ONE 1
+// 
+//         glColor3fv((float *)&col2);
+//         glVertex2f(-ONE, -ONE);
+//         glVertex2f(ONE, -ONE);
+// 
+//         glColor3fv((float *)&col1);
+// 
+//         glVertex2f(ONE, ONE);
+//         glVertex2f(-ONE, ONE);
+// 
+//         glEnd();
+// 
+//         glEnable(GL_CULL_FACE);
+//         glEnable(GL_TEXTURE_2D);
+//         glEnable(GL_DEPTH_TEST);
 
         m_pSceneRenderer->GetCamera()->Apply();
     }

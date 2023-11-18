@@ -26,11 +26,11 @@ enum class LightTypes
 };
 
 // TODO: нужно ли оставить привязки свойств или же сделать этот объект провайдером свойств?
-class LightEntity : public SceneEntity
+class Lb3kLightEntity : public SceneEntity
 {
   public:
-    LightEntity();
-    LightEntity(LightEntity &other);
+    Lb3kLightEntity();
+    Lb3kLightEntity(Lb3kLightEntity &other);
 
     void SetType(LightTypes type);
 
@@ -82,23 +82,23 @@ enum LightProperties
     Style
 };
 
-typedef std::shared_ptr<LightEntity> lightDefPtr_t;
-typedef std::weak_ptr<LightEntity> lightDefWPtr_t;
+typedef std::shared_ptr<Lb3kLightEntity> lightDefPtr_t;
+typedef std::weak_ptr<Lb3kLightEntity> lightDefWPtr_t;
 
 class LightPropertiesBinding : public IObjectPropertiesBinding
 {
     lightDefWPtr_t m_pwLightDef;
 
-    void MakeSizeProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeConeBProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeConeAProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightIntensityProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightColorProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightAnglesProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightPosProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightFlagsProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightTypeProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
-    void MakeLightStyleProperty(VariantValue &p, std::shared_ptr<LightEntity> ptr);
+    void MakeSizeProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeConeBProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeConeAProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightIntensityProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightColorProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightAnglesProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightPosProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightFlagsProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightTypeProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
+    void MakeLightStyleProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
 
   public:
     LightPropertiesBinding(lightDefWPtr_t ref);

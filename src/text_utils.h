@@ -25,7 +25,7 @@ namespace TextUtils
 
 	typedef std::list<textSplitter_t> AnsiTextSplitterList;
 
-	typedef std::list<const char*> AnsiConstCharist;
+	typedef std::list<const char*> AnsiConstCharlist;
 	typedef std::list<std::string> AnsiStringList;
 	typedef std::vector<std::string> AnsiStringArray;
 

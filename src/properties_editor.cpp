@@ -69,7 +69,7 @@ void ObjectPropertiesEditor::RenderGuizmo()
 	ImGuizmo::BeginFrame();
 	Camera* cam = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera();
 		
-	EditTransform(cam->GetViewMatrix(), cam->GetProjectionMatrix(), &m_matGuizmo[0][0], false);
+	EditTransform(cam->GetViewMatrixPtr(), cam->GetProjectionMatrixPtr(), &m_matGuizmo[0][0], false);
 }
 
 void ObjectPropertiesEditor::UnloadObject()

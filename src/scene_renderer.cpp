@@ -234,6 +234,8 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
 {
+    return;
+
 	auto right = m_pCamera->GetRightVector();
 	auto up = m_pCamera->GetUpVector();
 
@@ -263,6 +265,8 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 
 void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index)
 {
+    return;
+
 	auto right = m_pCamera->GetRightVector();
 	auto up = m_pCamera->GetUpVector();
 
@@ -313,7 +317,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 	if (!_ptr)
 		return;
 
-	lightDefPtr_t ptr = std::dynamic_pointer_cast<LightEntity>(_ptr);
+	lightDefPtr_t ptr = std::dynamic_pointer_cast<Lb3kLightEntity>(_ptr);
 
 	switch (ptr->type)
 	{
@@ -347,8 +351,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		auto shader = GLBackend::Instance()->SpotlightConeShader();
 
 		shader->Bind();
-		shader->SetProjection(m_pCamera->GetProjectionMatrix());
-		shader->SetView(m_pCamera->GetViewMatrix());
+        shader->SetDefaultCamera();
 		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
 
 		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());

@@ -163,7 +163,7 @@ bool BSPEntity::UpdateProperties()
 
     if (ptr->IsLightEntity())
     {
-        LightEntity* pLight = (LightEntity*)ptr.get();
+        Lb3kLightEntity* pLight = (Lb3kLightEntity*)ptr.get();
         auto _light = ConvertLightColorAndIntensity(pLight);
 
 
@@ -213,7 +213,7 @@ glm::vec3 BSPEntity::ConvertOriginFromSceneSpace(glm::vec3 origin)
     return glm::vec3{ -origin.z, -origin.x, origin.y };
 }
 
-glm::vec4 BSPEntity::ConvertLightColorAndIntensity(LightEntity * pEntity)
+glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity * pEntity)
 {
     auto color = pEntity->GetColor() * 255.f;
     auto intensity = pEntity->GetIntensity();

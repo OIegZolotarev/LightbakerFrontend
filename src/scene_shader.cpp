@@ -54,8 +54,10 @@ void ISceneShader::SetDefaultCamera() const
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto camera = sceneRenderer->GetCamera();
 
-	SetProjection(camera->GetProjectionMatrix());
-	SetView(camera->GetViewMatrix());
+	auto matProj = camera->GetProjectionMatrix();
+    auto matModelView = camera->GetViewMatrix();
+	SetProjection((float*)&matProj);
+	SetView((float*)&matModelView);
 }
 
 void ISceneShader::SetTransform(glm::mat4 transform) const

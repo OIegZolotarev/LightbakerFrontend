@@ -66,6 +66,9 @@
     <Filter Include="Исходные файлы\PersistentParameters">
       <UniqueIdentifier>{fcdd47aa-f3fd-4a5a-8922-2838ebdc544d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\shaders\Derived">
+      <UniqueIdentifier>{51ff2c1e-4afe-4cc2-bbe8-e2980f7fce6e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -155,12 +158,6 @@
     <ClCompile Include="text_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="helper_geometry_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="lightmapped_scene_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClCompile>
     <ClCompile Include="scene_shader.cpp">
       <Filter>Исходные файлы\shaders</Filter>
     </ClCompile>
@@ -178,12 +175,6 @@
     </ClCompile>
     <ClCompile Include="popup_scene_scale.cpp">
       <Filter>Исходные файлы\Popups</Filter>
-    </ClCompile>
-    <ClCompile Include="geometry_selection_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="spotlight_cone_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
     </ClCompile>
     <ClCompile Include="mtl_library.cpp">
       <Filter>Исходные файлы\WavefrontObj</Filter>
@@ -281,9 +272,6 @@
     <ClCompile Include="grid_renderer.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="editor_grid_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClCompile>
     <ClCompile Include="popup_options_window.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
@@ -295,6 +283,24 @@
     </ClCompile>
     <ClCompile Include="Icosphere.cpp">
       <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="shader_program.cpp">
+      <Filter>Исходные файлы\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="spotlight_cone_shader.cpp">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="lightmapped_scene_shader.cpp">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="helper_geometry_shader.cpp">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="geometry_selection_shader.cpp">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="editor_grid_shader.cpp">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -406,12 +412,6 @@
     <ClInclude Include="text_utils.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="helper_geometry_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="lightmapped_scene_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClInclude>
     <ClInclude Include="scene_shader.h">
       <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
@@ -423,12 +423,6 @@
     </ClInclude>
     <ClInclude Include="popup_scene_scale.h">
       <Filter>Исходные файлы\Popups</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry_selection_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="spotlight_cone_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
     </ClInclude>
     <ClInclude Include="mtl_library.h">
       <Filter>Исходные файлы\WavefrontObj</Filter>
@@ -526,9 +520,6 @@
     <ClInclude Include="grid_renderer.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="editor_grid_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
-    </ClInclude>
     <ClInclude Include="popup_options_window.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClInclude>
@@ -540,6 +531,24 @@
     </ClInclude>
     <ClInclude Include="Icosphere.h">
       <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="..\bin\res\glprogs\common_vertex.h">
+      <Filter>GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="spotlight_cone_shader.h">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="lightmapped_scene_shader.h">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="helper_geometry_shader.h">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="geometry_selection_shader.h">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
+    </ClInclude>
+    <ClInclude Include="editor_grid_shader.h">
+      <Filter>Исходные файлы\shaders\Derived</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -585,6 +594,12 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\editor_grid.vert">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\scene_geometry.glsl">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\editor_grid.glsl">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

@@ -20,9 +20,8 @@ class GridRenderer : public Singleton<GridRenderer>
     VariantValue* m_Grid1024thLineColor;
     VariantValue* m_GridCustomColor;
     VariantValue* m_GridCustomStep;
-
-
     
+    ShaderProgram *m_pShader;
 
   public:
     ~GridRenderer();

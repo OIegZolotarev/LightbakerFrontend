@@ -3,9 +3,9 @@
     (c) 2023 CrazyRussian
 */
 
-
 #include "application.h"
 #include "grid_renderer.h"
+
 
 GridRenderer::~GridRenderer()
 {
@@ -33,6 +33,9 @@ void GridRenderer::Init()
 
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
         GlobalCommands::DecreaseGridStep, "Decrease grid step", "[", 0, CMD_ONLY_TEXT, [&]() { StepDownGrid(); }));
+
+    std::list<const char *> defs;
+    m_pShader = GLBackend::Instance()->QueryShader("res/glprogs/editor_grid.glsl", defs);
 }
 
 void GridRenderer::CreateMesh()
@@ -44,7 +47,6 @@ void GridRenderer::CreateMesh()
 
     float min_coord = -(grid_size) / 2;
     float max_coord = -min_coord;
-
 
     m_pGridMesh->Begin(GL_TRIANGLES);
 
@@ -67,6 +69,7 @@ void GridRenderer::CreateMesh()
 
 void GridRenderer::Render()
 {
+#if 0
     auto shader = GLBackend::Instance()->EditorGridShader();
     shader->Bind();
     
@@ -81,18 +84,54 @@ void GridRenderer::Render()
     shader->SetGrid64thLineColor({m_Grid64thLineColor->GetColorRGB().rgb, 1});
     shader->SetGrid1024thLineColor({m_Grid1024thLineColor->GetColorRGB().rgb, 1});
     shader->SetGridCustomColor({m_GridCustomColor->GetColorRGB().rgb, 1});
+#else
 
+    m_pShader->Bind();
 
-    glm::mat4 identity = glm::mat4(1);
+    for (auto it : m_pShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::TransformMatrix: {
+            glm::mat4 identity = glm::mat4(1);
+            it->SetMat4(identity);
+        }
+        break;
+        case UniformKind::GridStep:
+            it->SetInt(m_iGridResolutions);
+            break;
+        case UniformKind::GridHighlightCustom:
+            it->SetInt(m_GridCustomStep->GetInt());
+            break;
+        case UniformKind::GridAxisColor:
+            it->SetFloat4({m_GridAxisColor->GetColorRGB(), 1});
+            break;
+        case UniformKind::GridMainColor:
+            it->SetFloat4({m_GridMainColor->GetColorRGB(), 1});
+            break;
+        case UniformKind::Grid64thLineColor:
+            it->SetFloat4({m_Grid64thLineColor->GetColorRGB(), 1});
+            break;
+        case UniformKind::Grid1024thLineColor:
+            it->SetFloat4({m_Grid1024thLineColor->GetColorRGB(), 1});
+            break;
+        case UniformKind::GridCustomColor:
+            it->SetFloat4({m_GridCustomColor->GetColorRGB(), 1});
+            break;
+        default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
 
-    shader->SetTransform(identity);
+#endif
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_LINE_SMOOTH);
-    
+
     glLineWidth(1);
     m_pGridMesh->BindAndDraw();
     glLineWidth(1);
@@ -101,7 +140,11 @@ void GridRenderer::Render()
 
     glDisable(GL_BLEND);
 
+#if 0
     shader->Unbind();
+#else
+    m_pShader->Unbind();
+#endif
 }
 
 void GridRenderer::SetGridResolution(int steps)

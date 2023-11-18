@@ -6,6 +6,7 @@
 #include "gl_backend.h"
 #include "application.h"
 #include <stddef.h>
+#include "Camera.h"
 
 size_t GLBackend::m_CurrentTextureUnit;
 textureUnitState_t GLBackend::m_TexturesUnitStates[16];
@@ -61,20 +62,20 @@ void DrawMesh::End()
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), GL_STATIC_DRAW);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
-
-    if (!(m_iFlags * DrawMeshFlags::NoUV))
-    {
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-        glTexCoordPointer(2, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, uv));
-    }
-
-    if (!(m_iFlags & DrawMeshFlags::NoColor))
-    {
-        glEnableClientState(GL_COLOR_ARRAY);
-        glColorPointer(4, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, color));
-    }
+//     //glEnableClientState(GL_VERTEX_ARRAY);
+//     //glVertexPointer(3, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
+// 
+//     if (!(m_iFlags * DrawMeshFlags::NoUV))
+//     {
+//         //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//         //glTexCoordPointer(2, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, uv));
+//     }
+// 
+//     if (!(m_iFlags & DrawMeshFlags::NoColor))
+//     {
+//         //glEnableClientState(GL_COLOR_ARRAY);
+//         //glColorPointer(4, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, color));
+//     }
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
     glEnableVertexAttribArray(0);
@@ -212,91 +213,6 @@ void DrawMesh::BindAndDraw()
     Unbind();
 }
 
-GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
-{
-    auto fd = Application::GetFileSystem()->LoadFile(fileName);
-
-    if (!fd)
-        return 0;
-
-    auto src = std::string(std::string_view((char *)fd->Data(), fd->Length()));
-    auto ptr = src.c_str();
-
-    GLuint result = glCreateShader(type);
-    glShaderSource(result, 1, &ptr, NULL);
-    glCompileShader(result);
-
-    int success;
-    char infoLog[512];
-    glGetShaderiv(result, GL_COMPILE_STATUS, &success);
-
-    if (!success)
-    {
-        glGetShaderInfoLog(result, 512, NULL, infoLog);
-        Con_Printf("MakeShader(): failed on \"%s\":\n%s", fileName, infoLog);
-    }
-
-    delete fd;
-
-    return result;
-}
-
-ShaderProgram::ShaderProgram()
-{
-    m_uiProgramId = glCreateProgram();
-}
-
-ShaderProgram::~ShaderProgram()
-{
-    if (m_uiVertexShader)
-        glDeleteShader(m_uiVertexShader);
-    if (m_uiGeometryShader)
-        glDeleteShader(m_uiGeometryShader);
-    if (m_uiFragmentShader)
-        glDeleteShader(m_uiFragmentShader);
-
-    glDeleteProgram(m_uiProgramId);
-}
-
-bool ShaderProgram::AttachVertexShader(const char *fileName)
-{
-    m_uiVertexShader = MakeShader(fileName, GL_VERTEX_SHADER);
-    return m_uiVertexShader != 0;
-}
-
-bool ShaderProgram::AttachFragmentShader(const char *fileName)
-{
-    m_uiFragmentShader = MakeShader(fileName, GL_FRAGMENT_SHADER);
-    return m_uiFragmentShader != 0;
-}
-
-bool ShaderProgram::AttachGeometryShader(const char *fileName)
-{
-    // m_uiGeometryShader = MakeShader(fileName, GL_GEOMETRY_SHADER);
-    return m_uiGeometryShader != 0;
-}
-
-void ShaderProgram::LinkProgram()
-{
-    if (m_uiVertexShader)
-        glAttachShader(m_uiProgramId, m_uiVertexShader);
-    if (m_uiFragmentShader)
-        glAttachShader(m_uiProgramId, m_uiFragmentShader);
-    if (m_uiGeometryShader)
-        glAttachShader(m_uiProgramId, m_uiGeometryShader);
-
-    glLinkProgram(m_uiProgramId);
-}
-
-void ShaderProgram::Bind() const
-{
-    glUseProgram(m_uiProgramId);
-}
-
-void ShaderProgram::Unbind() const
-{
-    glUseProgram(0);
-}
 
 GLBackend::GLBackend()
 {
@@ -318,6 +234,7 @@ GLBackend *GLBackend::Instance()
 GLBackend::~GLBackend()
 {
     DeleteAllShaders();
+
 }
 
 void GLBackend::DeleteAllShaders()
@@ -334,6 +251,11 @@ void GLBackend::DeleteAllShaders()
         delete m_pDiffuseSceneShader;
     if (m_pEditorGridShader)
         delete m_pEditorGridShader;
+
+    for (auto it: m_LoadedShaders)
+        delete it;
+
+    m_LoadedShaders.clear();
 }
 
 const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
@@ -446,4 +368,25 @@ void GLBackend::BindTexture(size_t unit, GLuint texture)
         state->texture = texture;
     }
 
+}
+
+void GLBackend::SetUniformValue(ShaderUniform *it)
+{
+    Camera* camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+
+    switch (it->Kind())
+    {
+    case UniformKind::ProjectionMatrix:
+        it->SetMat4(camera->GetProjectionMatrix());
+        break;
+    case UniformKind::ModelViewMatrix:
+        it->SetMat4(camera->GetViewMatrix());
+        break;
+    case UniformKind::Scale:
+        it->SetFloat3({1.f, 1.f, 1.f});
+        break;
+    default:
+        __debugbreak();
+        break;
+    }
 }

@@ -80,6 +80,8 @@ private:
 	ModelOBJ*	m_pDirectionModel;
 	DrawMesh*	m_pDirectionArrow;
 
+	
+
 	void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
 	lightDefWPtr_t m_pCurrentSelection;
 

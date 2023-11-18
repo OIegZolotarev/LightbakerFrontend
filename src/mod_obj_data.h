@@ -75,7 +75,7 @@ typedef struct mobjdata_s
 	std::vector<MaterialTemplateLibrary*>	materialLibs; // owns
 
 
-	std::vector<LightEntity*>		lightDefs;
+	std::vector<Lb3kLightEntity*>		lightDefs;
 
 	void CleanLightDefs()
 	{

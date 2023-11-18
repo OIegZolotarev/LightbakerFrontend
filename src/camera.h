@@ -174,8 +174,11 @@ class Camera : public IEventHandler
     void PopMatrices(int which, bool bApply);
     void PushMatrices(int which);
 
-    float *GetViewMatrix();
-    float *GetProjectionMatrix();
+    const glm::mat4 GetViewMatrix() const;
+    const glm::mat4 GetProjectionMatrix() const;
+
+    float* GetViewMatrixPtr() const;
+    float* GetProjectionMatrixPtr() const;
 
     int HandleEvent(bool bWasHandled, SDL_Event &e) override;
 

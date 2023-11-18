@@ -114,11 +114,20 @@ class GLBackend
     void OnMeshDrawn(DrawMesh *pMesh, size_t numTriangles);
     
     static size_t m_CurrentTextureUnit;
-    static textureUnitState_t m_TexturesUnitStates[16];
+    static textureUnitState_t m_TexturesUnitStates[16];    
+    static ShaderProgram *s_BoundShaderProgram;
+
+    std::list<ShaderProgram *> m_LoadedShaders;
 
   public:
+
     static GLBackend *Instance();
     ~GLBackend();
+
+    ShaderProgram *QueryShader(const char* fileName, std::list<const char*> defines)
+    {
+        return new ShaderProgram(fileName, defines);
+    }
 
     void DeleteAllShaders();
 
@@ -137,4 +146,5 @@ class GLBackend
 
     static void BindTexture(size_t unit, gltexture_t *texture);
     static void BindTexture(size_t unit, GLuint texture);
+    static void SetUniformValue(ShaderUniform *it);
 };

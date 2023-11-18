@@ -78,7 +78,7 @@ void Scene::DoDeleteSelection()
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
-    auto newLight = std::make_shared<LightEntity>();
+    auto newLight = std::make_shared<Lb3kLightEntity>();
 
     // newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
     newLight->SetPosition(pos);

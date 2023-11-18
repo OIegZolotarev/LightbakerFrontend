@@ -24,7 +24,7 @@ class BSPEntity
 
     glm::vec3 ConvertOriginToSceneSpace();
     static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
-    static glm::vec4 ConvertLightColorAndIntensity(LightEntity *pEntity);
+    static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
   public:
 
