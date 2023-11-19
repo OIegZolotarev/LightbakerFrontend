@@ -105,8 +105,7 @@ class GLBackend
     DiffuseSceneShaderProgram *m_pDiffuseSceneShader           = nullptr;
     GroupShadedSceneShaderProgram *m_pGroupShadedSceneShader   = nullptr;
     GeometrySelectionShaderProgram *m_pGeometrySelectionShader = nullptr;
-    SpotlightConeShaderProgram *m_pSpotlightConeShader         = nullptr;
-    EditorGridShaderProgram *m_pEditorGridShader               = nullptr;
+    SpotlightConeShaderProgram *m_pSpotlightConeShader         = nullptr;    
 
     friend DrawMesh;
     
@@ -128,8 +127,7 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    const HelperGeometryShaderProgram *HelperGeometryShader() const;
-    const EditorGridShaderProgram *EditorGridShader() const;
+    const HelperGeometryShaderProgram *HelperGeometryShader() const;    
     const GeometrySelectionShaderProgram *GeometrySelectionShader() const;
     const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
     const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
@@ -141,7 +139,7 @@ class GLBackend
     void NewFrame();
     renderStats_t *RenderStats();
 
-    static void BindTexture(size_t unit, gltexture_t *texture);
+    static void BindTexture(size_t unit, const gltexture_t *texture);
     static void BindTexture(size_t unit, GLuint texture);
     static void SetUniformValue(ShaderUniform *it);
 };

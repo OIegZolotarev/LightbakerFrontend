@@ -24,7 +24,12 @@ static uniformDecl_t g_UniformDecl[]{
     {"u_Grid64thLineColor"   , UniformKind::Grid64thLineColor   , UniformDataType::FloatVec4 , 0} ,
     {"u_Grid1024thLineColor" , UniformKind::Grid1024thLineColor , UniformDataType::FloatVec4 , 0} ,
     {"u_GridCustomColor"     , UniformKind::GridCustomColor     , UniformDataType::FloatVec4 , 0} ,
-    {"u_Color"               , UniformKind::Color               , UniformDataType::FloatVec4 , 0}
+    {"u_Color"               , UniformKind::Color               , UniformDataType::FloatVec4 , 0} ,
+    {"u_RightVector"         , UniformKind::RightVector         , UniformDataType::FloatVec3 , 0} ,
+    {"u_UpVector"            , UniformKind::UpVector            , UniformDataType::FloatVec3 , 0} ,
+    {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3 , 0} ,
+    {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT0},
+    {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT1}
     // clang-format on
 };
 
@@ -96,6 +101,21 @@ void ShaderProgram::ParseProgramUniforms()
 
         // TODO: check actual uniform type and pass it to constructor
         m_vecUniforms.push_back(new ShaderUniform(decl, loc));
+
+        
+        if (decl->flags & FL_TEXTURE_UNIT0)
+            glUniform1i(loc, 0);
+        
+        if (decl->flags & FL_TEXTURE_UNIT1)
+            glUniform1i(loc, 1);
+
+        if (decl->flags & FL_TEXTURE_UNIT2)
+            glUniform1i(loc, 2);
+
+        if (decl->flags & FL_TEXTURE_UNIT3)
+            glUniform1i(loc, 3);
+
+
     }
 }
 

@@ -15,6 +15,8 @@
 #include "properties_editor.h"
 #include "grid_renderer.h"
 
+#define FAST_BB
+
 SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 {
 	m_pCamera = new Camera(this);
@@ -24,30 +26,62 @@ SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1, 1, 1));
     m_pIntensitySphere = DrawUtils::MakeIcosphere(2);
 	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
+		
+	SetupBuildboardsRenderer();
 
-	m_pDirectionModel = new ModelOBJ("res/mesh/arrow.obj");
-	m_pDirectionArrow = m_pDirectionModel->GetDrawMesh();
+
 	RegisterRendermodesCommands();
-
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DumpLightmapMesh, "Dump lightmap mesh", 0, 0, 0,
-		[&]()
-		{
-			DumpLightmapMesh();
-		}));
-
-	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::DumpLightmapUV, "Dump lightmap uv", 0, 0, 0,
-		[&]()
-		{
-			DumpLightmapUV();
-		}));
-
-	
+		
 	GridRenderer::Instance()->Init();
 }
 
 
+void SceneRenderer::SetupBuildboardsRenderer()
+{
+    float s = 1;
+
+    m_pBillBoard = new DrawMesh();
+    m_pBillBoard->Begin(GL_TRIANGLES);
+
+    m_pBillBoard->TexCoord2f(0, 0);
+    m_pBillBoard->Normal3f(-1, -1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 0 Left Up
+
+    m_pBillBoard->TexCoord2f(1, 0);
+    m_pBillBoard->Normal3f(1, -1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 1 Right Up
+
+    m_pBillBoard->TexCoord2f(0, 1);
+    m_pBillBoard->Normal3f(-1, 1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 2 Left Down
+
+    m_pBillBoard->TexCoord2f(1, 0);
+    m_pBillBoard->Normal3f(1, -1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 1 Right Up
+
+    m_pBillBoard->TexCoord2f(1, 1);
+    m_pBillBoard->Normal3f(1, 1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 3 Right Down
+
+    m_pBillBoard->TexCoord2f(0, 1);
+    m_pBillBoard->Normal3f(-1, 1, 0);
+    m_pBillBoard->Vertex2f(0, 0); // 2 Left Down
+
+    m_pBillBoard->End();
+
+	
+	std::list<const char *> defs;
+    m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", defs);
+}
+
 void SceneRenderer::RegisterRendermodesCommands()
 {
+    Application::CommandsRegistry()->RegisterCommand(
+        new CCommand(GlobalCommands::DumpLightmapMesh, "Dump lightmap mesh", 0, 0, 0, [&]() { DumpLightmapMesh(); }));
+
+    Application::CommandsRegistry()->RegisterCommand(
+        new CCommand(GlobalCommands::DumpLightmapUV, "Dump lightmap uv", 0, 0, 0, [&]() { DumpLightmapUV(); }));
+
 	Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LightshadedRenderMode, "Lightshaded", 0, 0, 0,
 		[&]()
 		{
@@ -93,8 +127,7 @@ SceneRenderer::~SceneRenderer()
 
 	delete SelectionManager::Instance();
     delete GridRenderer::Instance();;
-	delete m_pDirectionModel; m_pDirectionModel = 0;
-	m_pDirectionArrow = 0;
+    delete m_pBillBoard;
 }
 
 void SceneRenderer::RenderScene()
@@ -158,6 +191,34 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 
 	SceneEntityWeakPtr selection;
 
+#ifdef FAST_BB
+	m_pBillBoardsShader->Bind();
+    m_pBillBoard->Bind();
+
+		for (auto &it : m_pBillBoardsShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color:
+        case UniformKind::TransformMatrix:          
+        case UniformKind::Scale:        
+        case UniformKind::Diffuse:        
+            break;
+		default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
+
+#else
+    m_pBillBoard->Unbind();
+
+    glDisable(GL_CULL_FACE);
+    glUseProgram(0);
+#endif
+	
+	
+
 	for (auto& it : m_pScene->GetLightDefs())
 	{
 		if (!it)
@@ -165,8 +226,12 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 
 		if (!it->IsLightEntity())
 			continue;
+		
+		
+        sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetColor());
+        
 
-		sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(4, 4), it->GetEditorIcon(), it->GetColor());
+
 		selectionManager->PushObject(it);
 
 		if (it->IsSelected())
@@ -174,8 +239,10 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 			selection = it;
 		}
 	}
-	if (selection.lock())
-		DrawLightHelperGeometry(selection);
+
+
+	//if (selection.lock())
+//		DrawLightHelperGeometry(selection);
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
@@ -206,61 +273,61 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 
 	Application::GetMainWindow()->SetTitle(fileName);
 
-
-	// 	if (dropped_filedir)
-	// 		Application::GetPersistentStorage()->PushMRUFile(dropped_filedir);
-	// 
-	// 	
-	// 	FileData* fd = nullptr;
-	// 
-	// 	if (dropped_filedir)	
-	// 		fd = Application::GetFileSystem()->LoadFile(dropped_filedir);	
-	// 	else
-	// 	{
-	// 		// TODO: fixme
-	// 		m_pSceneModel->ReloadTextures();
-	// 	}
-	// 
-	// 	if (!fd)
-	// 	{
-	// 		// PopupError()
-	// 		// RemoveFromMRU()
-	// 		return;
-	// 	}
-
-		//m_pSceneModel = std::make_shared<ModelOBJ>(dropped_filedir);
-		//SetSceneScale(m_pSceneModel->GetSceneScale());
 }
 
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
 {
-    return;
+#ifdef FAST_BB
+	glm::mat4 matTransform = glm::translate(glm::mat4(1),pos);
 
-	auto right = m_pCamera->GetRightVector();
-	auto up = m_pCamera->GetUpVector();
 
-	glm::vec3 pt;
-
-	int pointDef[4][2] =
-	{
-		{-1,-1},
-		{1,-1},
-		{1,1},
-		{-1,1},
-	};
-
-	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
-	glColor3f(tint.x, tint.y, tint.z);
-	glBegin(GL_QUADS);
-
-	for (int i = 0; i < 4; i++)
-	{
-		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
-		glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
-		glVertex3f(pt.x, pt.y, pt.z);
+	for (auto & it: m_pBillBoardsShader->Uniforms())
+    {
+        switch (it->Kind())
+        {        
+        case UniformKind::Color:
+            it->SetFloat4({tint.xyz, 1});
+            break;
+        case UniformKind::TransformMatrix:
+            it->SetMat4(matTransform);
+            break;
+        case UniformKind::Scale:
+	        it->SetFloat3({size.xyy});                   
+            break;
+		}
 	}
 
-	glEnd();
+	GLBackend::BindTexture(0, texture);
+	m_pBillBoard->Draw();
+#else 
+
+	auto right    = GetCamera()->GetRightVector();    
+    auto up       = GetCamera()->GetUpVector();
+
+ 	glm::vec3 pt;
+ 
+ 	int pointDef[4][2] =
+ 	{
+ 		{-1,-1},
+ 		{1,-1},
+ 		{1,1},
+ 		{-1,1},
+ 	};
+
+  	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+ 	glColor3f(tint.x, tint.y, tint.z);
+ 	glBegin(GL_QUADS);
+ 
+ 	for (int i = 0; i < 4; i++)
+	{
+ 		pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
+ 		glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
+ 		glVertex3f(pt.x, pt.y, pt.z);
+ 	}
+ 
+ 	glEnd();
+
+#endif
 }
 
 void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index)
@@ -369,7 +436,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 		// 		mat *= mat2;
 		// 		mat *= mat3;
 
-				// Quake-ish order
+		// Quake-ish order
 		mat *= mat3;
 		mat *= mat2;
 		mat *= mat1;

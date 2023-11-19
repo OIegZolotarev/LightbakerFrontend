@@ -353,9 +353,8 @@ build.bat
     <ResourceCompile Include="LightBakerFrontend.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\res\glprogs\editor_grid.frag" />
+    <None Include="..\bin\res\glprogs\billboard.glsl" />
     <None Include="..\bin\res\glprogs\editor_grid.glsl" />
-    <None Include="..\bin\res\glprogs\editor_grid.vert" />
     <None Include="..\bin\res\glprogs\helper_geometry.frag" />
     <None Include="..\bin\res\glprogs\helper_geometry.vert" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />
@@ -371,6 +370,9 @@ build.bat
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="My.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

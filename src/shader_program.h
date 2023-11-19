@@ -32,7 +32,12 @@ enum class UniformKind
     Grid64thLineColor,
     Grid1024thLineColor,
     GridCustomColor,
-    Color
+    Color,
+    RightVector,
+    UpVector,
+    ForwardVector,
+    Diffuse,
+    Lightmap
 };
 
 enum class UniformDataType

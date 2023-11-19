@@ -33,7 +33,10 @@ class SceneRenderer: public IEventHandler
 {	
 public:
 	SceneRenderer(class MainWindow* pTargetWindow);
-	~SceneRenderer();
+
+  void SetupBuildboardsRenderer();
+
+  ~SceneRenderer();
 
 	
 	void RegisterRendermodesCommands();
@@ -73,14 +76,13 @@ private:
 	class MainWindow*	m_pTargetWindow;
 	Scene*		m_pScene;
 	
+	DrawMesh *m_pBillBoard;
+
 	DrawMesh*	m_pUnitBoundingBox;
 	DrawMesh*	m_pIntensitySphere;
 	DrawMesh*	m_pSpotlightCone;
-	
-	ModelOBJ*	m_pDirectionModel;
-	DrawMesh*	m_pDirectionArrow;
-
-	
+    
+	ShaderProgram *m_pBillBoardsShader = nullptr;
 
 	void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
 	lightDefWPtr_t m_pCurrentSelection;

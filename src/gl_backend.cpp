@@ -266,19 +266,13 @@ void GLBackend::DeleteAllShaders()
         delete m_pSpotlightConeShader;
     if (m_pDiffuseSceneShader)
         delete m_pDiffuseSceneShader;
-    if (m_pEditorGridShader)
-        delete m_pEditorGridShader;
+
    
 }
 
 const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
 {
     return m_pHelperGeometryShader;
-}
-
-const EditorGridShaderProgram *GLBackend::EditorGridShader() const
-{
-    return m_pEditorGridShader;
 }
 
 const GeometrySelectionShaderProgram *GLBackend::GeometrySelectionShader() const
@@ -310,8 +304,7 @@ void GLBackend::ReloadAllShaders()
 {
     DeleteAllShaders();
 
-    m_pHelperGeometryShader    = new HelperGeometryShaderProgram;
-    m_pEditorGridShader        = new EditorGridShaderProgram;
+    m_pHelperGeometryShader    = new HelperGeometryShaderProgram;    
     m_pLightmappedSceneShader  = new LightMappedSceneShaderProgram;
     m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
     m_pSpotlightConeShader     = new SpotlightConeShaderProgram;
@@ -337,7 +330,7 @@ renderStats_t *GLBackend::RenderStats()
 
 
 
-void GLBackend::BindTexture(size_t unit, gltexture_t *texture)
+void GLBackend::BindTexture(size_t unit, const gltexture_t *texture)
 {
     auto state = &m_TexturesUnitStates[unit];
 

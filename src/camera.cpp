@@ -9,6 +9,8 @@
 #include "application.h"
 #include <algorithm>
 
+#define OLD_GL
+
 Camera::Camera(SceneRenderer *pSceneRenderer)
 {
     auto settings = Application::Instance()->GetPersistentStorage();
@@ -263,7 +265,7 @@ void Camera::Apply()
 
     glDepthRange(0, 1);
     
-#if 0    
+#ifdef OLD_GL
     glMatrixMode(GL_MODELVIEW);
 #endif
 
@@ -686,7 +688,7 @@ int Camera::MouseWheelEvent(SDL_Event &_event)
 
 void Camera::SetupPerspectiveMatrix()
 {
-    #if 0
+    #ifdef OLD_GL
     glMatrixMode(GL_PROJECTION);
     #endif
 
@@ -706,14 +708,14 @@ void Camera::SetupPerspectiveMatrix()
 
     m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
 
-    #if 0 
+    #ifdef OLD_GL
     glLoadMatrixf((float *)&m_matProjection);
 #endif
 }
 
 void Camera::SetupModelViewMatrix()
 {
-#if 0 
+#ifdef OLD_GL
     glMatrixMode(GL_MODELVIEW);
 #endif
 
@@ -756,7 +758,7 @@ void Camera::SetupModelViewMatrix()
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 
-    #if 0
+    #ifdef OLD_GL
     glLoadMatrixf((float *)&m_matModelView);
     #endif
 

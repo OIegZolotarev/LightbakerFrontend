@@ -236,7 +236,7 @@ const char* LightPropertiesBinding::ObjectClassname()
 	if (!ptr)
 		return "";
 
-	return "Light source";
+	return "Light source (LB3k)";
 }
 
 Lb3kLightEntity::Lb3kLightEntity()
