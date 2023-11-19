@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "application.h"
 #include "goldsource_bsp_disk_structs.h"
 #include "goldsource_bsp_mem_structs.h"
-#include "goldsource_bsp_world.h"
+#include "goldsource_bsp_level.h"
 #include "goldsource_bsp_renderer.h"
 
 #define BACKFACE_EPSILON 0.01
@@ -164,15 +164,18 @@ void BSPRenderer::RecursiveWorldNode(mnode_t *node)
     RecursiveWorldNode(node->children[!side]);
 }
 
-BSPRenderer::BSPRenderer(BSPWorld *world)
+BSPRenderer::BSPRenderer(BSPLevel *world)
 {
     m_pWorld = world;
+
     
-    m_pMesh  = new DrawMesh;
+    auto & modelList = world->GetSubmodels();
 
-    BuildDisplayMesh();
-
-
+    for (auto & it: modelList)
+    {
+        auto renderCookie = BuildDisplayMesh(&it);
+        m_RenderInfos.push_back(renderCookie);
+    }
 
     constexpr float ang = glm::radians(90.f);
     m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
@@ -181,22 +184,13 @@ BSPRenderer::BSPRenderer(BSPWorld *world)
 
 BSPRenderer::~BSPRenderer()
 {
-    if (m_pMesh)
-        delete m_pMesh;
+    ClearPointersVector(m_RenderInfos);
 }
 
-void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
+void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
 {
     // Make Z-Axis look up
     m_vecEyesPosition = cameraPosition.xzy;
-
-//     glPushMatrix();
-//     glRotatef(-90, 1, 0, 0); // put Z going up
-//     glRotatef(90, 0, 0, 1);  // put Z going up
-
-    //m_pMesh->BindAndDraw();
-
-
     auto shader = GLBackend::Instance()->LightMappedSceneShader();
 
 
@@ -205,7 +199,12 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
     shader->SetTransform(m_Transform);
     shader->SetScale(1);
     
-    m_pMesh->Bind();
+    auto inf = m_RenderInfos[0];
+
+    auto pMesh = inf->GetDrawMesh();
+    pMesh->Bind();
+
+    auto & lists = inf->GetDisplayList();
 
     //glDisable(GL_CULL_FACE);
     
@@ -215,7 +214,8 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
         
         shader->SetTransform(m_Transform);
 
-        for (auto &it : m_DisplayLists)
+
+        for (auto &it : lists)
         {
             GLBackend::BindTexture(1, it.lm);
             GLBackend::BindTexture(0, it.diffuse);
@@ -226,26 +226,26 @@ void BSPRenderer::PerformRendering(glm::vec3 cameraPosition)
             //         glActiveTexture(GL_TEXTURE0);
             //         glBindTexture(GL_TEXTURE_2D, it.diffuse);
 
-            m_pMesh->Draw(it.first, it.count);
+            pMesh->Draw(it.first, it.count);
         }
     }
 
     //RecursiveWorldNode(m_pWorld->GetNodes(0));
 
-    m_pMesh->Unbind();
+    pMesh->Unbind();
     shader->Unbind();
     //glPopMatrix();
 }
 
 void BSPRenderer::RenderBrushPoly(msurface_t *fa)
 {
-    GLBackend::BindTexture(1, fa->lightmaptexturenum);
-    GLBackend::BindTexture(0, fa->diffuseTexture);
-                       
-    m_pMesh->Draw(fa->meshOffset, fa->meshLength);                  
+//     GLBackend::BindTexture(1, fa->lightmaptexturenum);
+//     GLBackend::BindTexture(0, fa->diffuseTexture);
+//                        
+//     pMesh->Draw(fa->meshOffset, fa->meshLength);                  
 }
 
-void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
+void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
 {
     int i, lindex, lnumverts;
     const medge_t *pedges, *r_pedge;
@@ -323,7 +323,7 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
         m_verts.push_back(dw);
     }
 
-    fa->meshOffset = m_pMesh->CurrentElement();
+    fa->meshOffset = pMesh->CurrentElement();
 
     if (fa->texinfo->texture->loadedTexture)
         fa->diffuseTexture = fa->texinfo->texture->loadedTexture->gl_texnum;
@@ -336,21 +336,21 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa)
         auto & v2 = m_verts[i + 1];
         auto & v3 = m_verts[i + 2];
 
-        m_pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
-        m_pMesh->Color3f(v3.color.r, v3.color.g, v3.color.b);
-        m_pMesh->Vertex3fv((float *)&v3.xyz);
+        pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
+        pMesh->Color3f(v3.color.r, v3.color.g, v3.color.b);
+        pMesh->Vertex3fv((float *)&v3.xyz);
 
-        m_pMesh->TexCoord2f(v2.uv.x, v2.uv.y);
-        m_pMesh->Color3f(v2.color.r, v2.color.g, v2.color.b);
-        m_pMesh->Vertex3fv((float *)&v2.xyz);
+        pMesh->TexCoord2f(v2.uv.x, v2.uv.y);
+        pMesh->Color3f(v2.color.r, v2.color.g, v2.color.b);
+        pMesh->Vertex3fv((float *)&v2.xyz);
 
-        m_pMesh->TexCoord2f(v1.uv.x,v1.uv.y);
-        m_pMesh->Color3f(v1.color.r, v1.color.g, v1.color.b);
-        m_pMesh->Vertex3fv((float*)&v1.xyz);
+        pMesh->TexCoord2f(v1.uv.x, v1.uv.y);
+        pMesh->Color3f(v1.color.r, v1.color.g, v1.color.b);
+        pMesh->Vertex3fv((float *)&v1.xyz);
 
     }
 
-    fa->meshLength = m_pMesh->CurrentElement() - fa->meshOffset;
+    fa->meshLength = pMesh->CurrentElement() - fa->meshOffset;
 
 }
 
@@ -367,16 +367,18 @@ inline int sortCmp(T a, T b)
     return -1;
 }
 
-void BSPRenderer::BuildDisplayMesh()
+GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *mod)
 {
     std::vector<msurface_t> &surfaces = m_pWorld->GetFaces();
     
-    for (auto &s : surfaces)
+    for (int i = mod->firstface; i < mod->numfaces; i++)
     {
-        if (s.texinfo->flags & SURF_SKY)
+        auto s = &surfaces[i];
+
+        if (s->texinfo->flags & SURF_SKY)
             continue;
 
-        m_SortedFaces.push_back(&s);
+        m_SortedFaces.push_back(s);
     }
     
     std::qsort(m_SortedFaces.data(), m_SortedFaces.size(), sizeof(msurface_t *),
@@ -407,7 +409,10 @@ void BSPRenderer::BuildDisplayMesh()
         return cmp;
     });
 
-    m_pMesh->Begin(GL_TRIANGLES);
+    displayList_t lists;
+    DrawMesh *pMesh = new DrawMesh;
+
+    pMesh->Begin(GL_TRIANGLES);
 
     displayMesh_t mesh = {0,0,0,0};
 
@@ -416,13 +421,13 @@ void BSPRenderer::BuildDisplayMesh()
 
     for (auto &surf : m_SortedFaces)
     {
-        BuildSurfaceDisplayList(surf);
+        BuildSurfaceDisplayList(surf, pMesh);
 
         if (diffuseTexture != surf->diffuseTexture || lmTexture != surf->lightmaptexturenum)
         {
             if (diffuseTexture !=0)
             {
-                m_DisplayLists.push_back(mesh);
+                lists.push_back(mesh);
             }
 
             diffuseTexture = surf->diffuseTexture;
@@ -435,13 +440,27 @@ void BSPRenderer::BuildDisplayMesh()
         }
 
         mesh.count = (surf->meshOffset + surf->meshLength) - mesh.first;
-       
-
     }
 
     if (mesh.count != 0)
-        m_DisplayLists.push_back(mesh);
+        lists.push_back(mesh);
 
-    m_pMesh->End();
+    pMesh->End();
 
+
+    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists);
+
+    return pResult;
+}
+
+BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl)
+{
+    m_pMesh       = pMesh;
+    m_DisplayList = std::move(dl);
+}
+
+BSPModelRenderCookie::~BSPModelRenderCookie()
+{
+    delete m_pMesh;
+    m_DisplayList.clear();
 }

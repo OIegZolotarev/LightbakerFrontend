@@ -220,6 +220,7 @@ build.bat
     <ClCompile Include="file_system.cpp" />
     <ClCompile Include="gl_texture.cpp" />
     <ClCompile Include="goldsource_bsp_renderer.cpp" />
+    <ClCompile Include="goldsource_bsp_level.cpp" />
     <ClCompile Include="goldsource_bsp_world.cpp" />
     <ClCompile Include="goldsource_game_configuration.cpp" />
     <ClCompile Include="goldsource_lightmap_atlas.cpp" />
@@ -231,6 +232,7 @@ build.bat
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
+    <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
     <ClCompile Include="mod_obj_asynch_loader.cpp" />
@@ -263,7 +265,7 @@ build.bat
     <ClCompile Include="ui_options_pages.cpp" />
     <ClCompile Include="wad_textures.cpp" />
     <ClCompile Include="win_main.cpp" />
-    <ClCompile Include="worldspawn.cpp" />
+    <ClCompile Include="model_obj_world.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\bin\res\glprogs\common_vertex.h" />
@@ -303,6 +305,7 @@ build.bat
     <ClInclude Include="gl_texture.h" />
     <ClInclude Include="goldsource_bsp_mem_structs.h" />
     <ClInclude Include="goldsource_bsp_renderer.h" />
+    <ClInclude Include="goldsource_bsp_level.h" />
     <ClInclude Include="goldsource_bsp_world.h" />
     <ClInclude Include="goldsource_game_configuration.h" />
     <ClInclude Include="goldsource_lightmap_atlas.h" />
@@ -313,6 +316,7 @@ build.bat
     <ClInclude Include="Icosphere.h" />
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_helpers.h" />
+    <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />
     <ClInclude Include="mod_obj_asynch_exporter.h" />
     <ClInclude Include="mod_obj_asynch_loader.h" />
@@ -347,7 +351,7 @@ build.bat
     <ClInclude Include="ui_common.h" />
     <ClInclude Include="ui_options_pages.h" />
     <ClInclude Include="wad_textures.h" />
-    <ClInclude Include="worldspawn.h" />
+    <ClInclude Include="model_obj_world.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc" />

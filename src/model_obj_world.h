@@ -8,19 +8,21 @@
 #include "scene_entity.h"
 #include "object_props.h"
 #include "model_obj.h"
-#include "goldsource_bsp_world.h"
+#include "goldsource_bsp_level.h"
 #include "goldsource_bsp_renderer.h"
+#include "world_entity.h"
 
-class Worldspawn: public SceneEntity
+class ModelObjWorld: public IWorldEntity
 {
 	ModelOBJ* m_pObjWorld = nullptr;
 
-	GoldSource::BSPWorld* m_pBSPWorld = nullptr;
-	GoldSource::BSPRenderer* m_pBSPRenderer = nullptr;
+    GoldSource::BSPLevel *m_pBSPWorld       = nullptr;
+    GoldSource::BSPRenderer *m_pBSPRenderer = nullptr;
 
 public:
-	Worldspawn(const char* fileName);
-	~Worldspawn();
+
+	ModelObjWorld(const char* fileName);
+	~ModelObjWorld();
 
 	DECLARE_PROPERTY(glm::vec3, EnvColor);
 	DECLARE_PROPERTY(std::string, Skybox);
@@ -38,7 +40,7 @@ public:
 
 	bool IsDataLoaded() override;
 
-	void ReloadLightmaps();
+	virtual void ReloadLightmaps();
 
 	void OnAdditionToScene() override;
 

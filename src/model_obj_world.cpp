@@ -4,12 +4,12 @@
 */
 
 #include "application.h"
-#include "worldspawn.h"
+#include "model_obj_world.h"
 #include "properties_editor.h"
-#include "goldsource_bsp_world.h"
+#include "goldsource_bsp_level.h"
 #include "camera.h"
 
-Worldspawn::Worldspawn(const char* fileName)
+ModelObjWorld::ModelObjWorld(const char* fileName)
 {
 	SetClassName("worldspawn");
 	m_EnvColor = glm::vec3(1, 1, 1);
@@ -22,14 +22,14 @@ Worldspawn::Worldspawn(const char* fileName)
 	else if (ext == ".bsp")
 	{		
 		auto fd = fs->LoadFile(fileName);
-		m_pBSPWorld = new GoldSource::BSPWorld(fd);
+		m_pBSPWorld = new GoldSource::BSPLevel(fd);
 		fd->UnRef();
 
 		m_pBSPRenderer = new GoldSource::BSPRenderer(m_pBSPWorld);
 	}
 }
 
-Worldspawn::~Worldspawn()
+ModelObjWorld::~ModelObjWorld()
 {
 
 	if (m_pBSPWorld) delete m_pBSPWorld;
@@ -37,7 +37,7 @@ Worldspawn::~Worldspawn()
 	if (m_pObjWorld) delete m_pObjWorld;
 }
 
-void Worldspawn::OnSelect()
+void ModelObjWorld::OnSelect()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();
@@ -49,7 +49,7 @@ void Worldspawn::OnSelect()
 }
 
 
-std::string Worldspawn::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)
+std::string ModelObjWorld::ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions)
 {
 	if (m_pObjWorld)
 		return m_pObjWorld->Export(newPath,lb3kOptions, m_EnvColor);
@@ -60,23 +60,23 @@ std::string Worldspawn::ExportForCompiling(const char* newPath, lightBakerSettin
 	return "none";
 }
 
-void Worldspawn::RenderBoundingBox()
+void ModelObjWorld::RenderBoundingBox()
 {
 
 }
 
-void Worldspawn::RenderDebug()
+void ModelObjWorld::RenderDebug()
 {
 	
 }
 
-void Worldspawn::RenderForSelection(int objectId, class SceneRenderer* sc)
+void ModelObjWorld::RenderForSelection(int objectId, class SceneRenderer* sc)
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderForSelection(objectId, sc);
 }
 
-void Worldspawn::RenderGroupShaded()
+void ModelObjWorld::RenderGroupShaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderGroupShaded();
@@ -85,11 +85,11 @@ void Worldspawn::RenderGroupShaded()
 	{
 		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->PerformRendering(pos);
+		m_pBSPRenderer->RenderWorld(pos);
 	}
 }
 
-void Worldspawn::RenderLightshaded()
+void ModelObjWorld::RenderLightshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderLightshaded();
@@ -98,11 +98,11 @@ void Worldspawn::RenderLightshaded()
 	{
 		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->PerformRendering(pos);
+		m_pBSPRenderer->RenderWorld(pos);
 	}
 }
 
-void Worldspawn::RenderUnshaded()
+void ModelObjWorld::RenderUnshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderUnshaded();
@@ -111,11 +111,11 @@ void Worldspawn::RenderUnshaded()
 	{
 		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->PerformRendering(pos);
+		m_pBSPRenderer->RenderWorld(pos);
 	}
 }
 
-bool Worldspawn::IsDataLoaded()
+bool ModelObjWorld::IsDataLoaded()
 {
 	if (m_pObjWorld)
 		return m_pObjWorld->IsDataLoaded();
@@ -126,7 +126,7 @@ bool Worldspawn::IsDataLoaded()
 	return false;
 }
 
-void Worldspawn::ReloadLightmaps()
+void ModelObjWorld::ReloadLightmaps()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->ReloadLightmapTextures();
@@ -135,13 +135,13 @@ void Worldspawn::ReloadLightmaps()
 		m_pBSPWorld->ReloadLightmaps();
 }
 
-void Worldspawn::OnAdditionToScene()
+void ModelObjWorld::OnAdditionToScene()
 {
 	if (m_pBSPWorld)
 		m_pBSPWorld->PopulateScene();
 }
 
-EntityClasses Worldspawn::EntityClass()
+EntityClasses ModelObjWorld::EntityClass()
 {
 	return EntityClasses::World;
 }
@@ -153,7 +153,7 @@ void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& colle
 	if (!ptr)
 		return;
 
-	Worldspawn* world = (Worldspawn*)ptr.get();
+	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
 
 	VariantValue p;
 
@@ -180,7 +180,7 @@ void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, siz
 	if (!ptr)
 		return;
 
-	Worldspawn* world = (Worldspawn*)ptr.get();
+	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
 
 	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 
@@ -199,6 +199,6 @@ void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, siz
 
 const char* WorldspawnPropertiesBinder::ObjectClassname()
 {
-	return "World";
+	return "World (Wavefront Obj)";
 }
 

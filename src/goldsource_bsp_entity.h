@@ -4,13 +4,17 @@
 */
 
 #pragma once
+#include "goldsource_bsp_level.h"
+#include "goldsource_bsp_world.h"
 #include "hammer_fgd.h"
+#include "lights.h"
+#include "scene_entity.h"
 #include <unordered_map>
 #include <utility>
 
 namespace GoldSource
 {
-class BSPEntity
+class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
 
@@ -26,8 +30,9 @@ class BSPEntity
     static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
-  public:
+    std::shared_ptr<BSPWorld> m_World;
 
+  public:
     BSPEntity();
     ~BSPEntity();
 

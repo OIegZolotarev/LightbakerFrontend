@@ -8,8 +8,9 @@
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
 #include "properties_editor.h"
-#include "worldspawn.h"
+#include "model_obj_world.h"
 #include "scene.h"
+#include "goldsource_bsp_world.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -277,7 +278,7 @@ void Scene::Reload(int loadFlags)
     if (loadFlags & LRF_RELOAD_LIGHTMAPS)
     {
         auto it            = m_SceneEntities.begin();
-        Worldspawn *entity = (Worldspawn *)(*it).get();
+        ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
 
         entity->ReloadLightmaps();
 
@@ -307,12 +308,29 @@ void Scene::LoadLevel(const char *levelName)
     if (cfg != std::nullopt)
         m_pGameConfiguration = *cfg;
 
-    auto pLevelEntity = std::make_shared<Worldspawn>(levelName);
+    auto format = DetermineLevelFormatFromFileName(levelName);
+
+    std::shared_ptr<SceneEntity> pLevelEntity;
+
+    switch (format)
+    {
+    case LevelFormat::Unknown:
+        break;
+    case LevelFormat::WavefrontOBJ:
+        pLevelEntity = std::make_shared<ModelObjWorld>(levelName);
+        break;
+    case LevelFormat::BSP:
+        pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName);
+        break;
+    default:
+        break;
+    
+    }
 
     if (!m_SceneEntities.empty())
     {
         auto it = m_SceneEntities.begin();
-        *it     = pLevelEntity;
+        *it     = pLevelEntity; // replace existing world
     }
     else
         m_SceneEntities.push_back(pLevelEntity);
@@ -329,7 +347,7 @@ std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t 
     // 	return obj->Export(newPath, lb3kOptions);
 
     auto it            = m_SceneEntities.begin();
-    Worldspawn *entity = (Worldspawn *)(*it).get();
+    ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
 
     return entity->ExportForCompiling(newPath, lb3kOptions);
 }

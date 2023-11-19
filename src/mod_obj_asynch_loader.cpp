@@ -741,8 +741,7 @@ ModObjAsynchLoader::BuildDrawMeshTask::BuildDrawMeshTask(mobjdata_t* data, Model
 void ModObjAsynchLoader::BuildDrawMeshTask::ExecuteOnCompletion()
 {
 	m_pModel->BuildDrawMesh();
-	m_pModel->AddLightsIntoScene();
-	
+	m_pModel->AddLightsIntoScene();	
 }
 
 ModObjAsynchLoader::MeshLoadingProgressStep::MeshLoadingProgressStep(size_t progress, size_t totalSteps): ITaskStepResult(TaskStepResultType::StepPerformed)

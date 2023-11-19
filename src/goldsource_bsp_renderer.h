@@ -39,41 +39,57 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 namespace GoldSource
 {
+
+typedef struct
+{
+    size_t first;
+    size_t count;
+
+    GLuint diffuse;
+    GLuint lm;
+} displayMesh_t;
+
+typedef std::list<displayMesh_t> displayList_t;
+
+class BSPModelRenderCookie
+{
+    DrawMesh * m_pMesh;
+    displayList_t m_DisplayList;
+public:
+    BSPModelRenderCookie(DrawMesh * pMesh, displayList_t dl);
+    ~BSPModelRenderCookie();
+
+    DrawMesh *GetDrawMesh()
+    {
+        return m_pMesh;
+    }
+    displayList_t &GetDisplayList()
+    {
+        return m_DisplayList;
+    }
+};
+
 class BSPRenderer
 {
     glm::vec3 m_vecEyesPosition;
     size_t m_visFrameCount = 0;
-    BSPWorld *m_pWorld;
+    BSPLevel *m_pWorld;
     
     std::vector<msurface_t *> m_SortedFaces;
-
-   
-
-    typedef struct
-    {
-        size_t first;
-        size_t count;
-
-        GLuint diffuse;
-        GLuint lm;
-    } displayMesh_t;
-     
-
-    std::list<displayMesh_t> m_DisplayLists;
-
+    
     void RenderBrushPoly(msurface_t *fa);
     void RecursiveWorldNode(mnode_t *node);
 
-    void BuildSurfaceDisplayList(msurface_t *fa);
-
-    DrawMesh *m_pMesh = nullptr;
-    void BuildDisplayMesh();
+    void BuildSurfaceDisplayList(msurface_t *fa, DrawMesh * pMesh);
+    
+    std::vector<BSPModelRenderCookie *> m_RenderInfos;
+    BSPModelRenderCookie *BuildDisplayMesh(const dmodel_t *mod);
 
   public:
-    BSPRenderer(BSPWorld *world);
+    BSPRenderer(BSPLevel *world);
     ~BSPRenderer();
 
-    void PerformRendering(glm::vec3 cameraPosition);
+    void RenderWorld(glm::vec3 cameraPosition);
 
   private:
     glm::mat4 m_Transform;
