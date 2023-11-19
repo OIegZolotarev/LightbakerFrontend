@@ -27,16 +27,22 @@ enum DrawMeshFlags
 {
     None    = 0,
     NoColor = (1 << 0),
-    NoUV    = (1 << 1)
+    NoUV    = (1 << 1),
+    HasIndices = (1<<2)
 };
 
 class DrawMesh
 {
     GLuint m_vboId    = 0;
     GLuint m_vaoId    = 0;
+    GLuint m_indBuffId = 0;
     GLenum m_drawMode = 0;
 
     std::vector<drawVert_t> m_Data;
+
+    GLenum m_IndiciesType;
+    std::vector<unsigned int> m_Indices;
+    size_t m_NumIndices;
 
     drawVert_t m_tempVert;
     size_t m_NumElements;
@@ -75,11 +81,13 @@ class DrawMesh
     void TexCoord2f(float u, float v);
     void TexCoord2fv(float *v);
 
-    size_t CurrentElement()
-    {
-        return m_Data.size();
-    }
+    void Element1i(size_t idx);
+
+    size_t CurrentElement();
+
     void BindAndDraw();
+    void Element1iv(int *vals, size_t count);
+
 };
 
 typedef struct renderStats_s

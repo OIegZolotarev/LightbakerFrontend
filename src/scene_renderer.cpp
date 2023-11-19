@@ -26,6 +26,7 @@ SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
 	m_pUnitBoundingBox = DrawUtils::MakeWireframeBox(glm::vec3(1, 1, 1));
     m_pIntensitySphere = DrawUtils::MakeIcosphere(2);
 	m_pSpotlightCone = DrawUtils::MakeWireframeCone();
+    m_pSolidCube       = DrawUtils::MakeCube(1);
 		
 	SetupBuildboardsRenderer();
 
@@ -55,17 +56,14 @@ void SceneRenderer::SetupBuildboardsRenderer()
     m_pBillBoard->Normal3f(-1, 1, 0);
     m_pBillBoard->Vertex2f(0, 0); // 2 Left Down
 
-    m_pBillBoard->TexCoord2f(1, 0);
-    m_pBillBoard->Normal3f(1, -1, 0);
-    m_pBillBoard->Vertex2f(0, 0); // 1 Right Up
-
     m_pBillBoard->TexCoord2f(1, 1);
     m_pBillBoard->Normal3f(1, 1, 0);
     m_pBillBoard->Vertex2f(0, 0); // 3 Right Down
 
-    m_pBillBoard->TexCoord2f(0, 1);
-    m_pBillBoard->Normal3f(-1, 1, 0);
-    m_pBillBoard->Vertex2f(0, 0); // 2 Left Down
+	int indicies[] = {0, 1, 2, 1, 3, 2};
+    m_pBillBoard->Element1iv(indicies, ARRAYSIZE(indicies));
+
+	// 012 - 132
 
     m_pBillBoard->End();
 
@@ -128,6 +126,7 @@ SceneRenderer::~SceneRenderer()
 	delete SelectionManager::Instance();
     delete GridRenderer::Instance();;
     delete m_pBillBoard;
+    delete m_pSolidCube;
 }
 
 void SceneRenderer::RenderScene()
@@ -241,8 +240,10 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 	}
 
 
-	//if (selection.lock())
-//		DrawLightHelperGeometry(selection);
+	if (selection.lock())
+    {
+        DrawLightHelperGeometry(selection);
+    }
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
@@ -404,7 +405,9 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_CULL_FACE);
-		m_pIntensitySphere->BindAndDraw();
+		//m_pIntensitySphere->BindAndDraw();
+
+		m_pSolidCube->BindAndDraw();
 
 		glEnable(GL_CULL_FACE);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

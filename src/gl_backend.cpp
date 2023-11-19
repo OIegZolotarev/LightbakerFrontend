@@ -3,10 +3,12 @@
     (c) 2022 CrazyRussian
 */
 
-#include "gl_backend.h"
+// clang-format off
 #include "application.h"
-#include <stddef.h>
+#include "gl_backend.h"
 #include "Camera.h"
+#include <stddef.h>
+// clang-format on
 
 size_t GLBackend::m_CurrentTextureUnit;
 textureUnitState_t GLBackend::m_TexturesUnitStates[16];
@@ -33,7 +35,19 @@ void DrawMesh::Bind()
 void DrawMesh::Draw(size_t first /*= 0*/, size_t num /*= 0*/)
 {
     GLBackend::Instance()->OnMeshDrawn(this, num > 0 ? num : m_NumElements);
-    glDrawArrays(m_drawMode, first, num > 0 ? num : m_NumElements);
+
+    if (m_iFlags & HasIndices)
+    {
+        assert(first == 0);
+
+        size_t nElements = num > 0 ? num : m_NumIndices;
+        glDrawElements(m_drawMode, nElements, m_IndiciesType, 0);
+    }
+    else
+    {
+        size_t nElements = num > 0 ? num : m_NumElements;
+        glDrawArrays(m_drawMode, first, nElements);
+    }
 }
 
 void DrawMesh::Unbind()
@@ -62,21 +76,6 @@ void DrawMesh::End()
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
     glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), GL_STATIC_DRAW);
 
-//     //glEnableClientState(GL_VERTEX_ARRAY);
-//     //glVertexPointer(3, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
-// 
-//     if (!(m_iFlags * DrawMeshFlags::NoUV))
-//     {
-//         //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-//         //glTexCoordPointer(2, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, uv));
-//     }
-// 
-//     if (!(m_iFlags & DrawMeshFlags::NoColor))
-//     {
-//         //glEnableClientState(GL_COLOR_ARRAY);
-//         //glColorPointer(4, GL_FLOAT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, color));
-//     }
-
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
     glEnableVertexAttribArray(0);
 
@@ -94,6 +93,36 @@ void DrawMesh::End()
 
     m_NumElements = m_Data.size();
     FreeVector(m_Data);
+
+    if (m_Indices.size() > 0)
+    {
+        m_iFlags |= HasIndices;
+
+        glGenBuffers(1, &m_indBuffId);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indBuffId);
+
+        if (m_NumElements < 0xFFFF)
+        {
+            std::vector<unsigned short> ushort_buffer;
+            ushort_buffer.reserve(m_Indices.size());
+
+            for (size_t i = 0; i < m_Indices.size(); i++)
+                ushort_buffer.push_back((unsigned short)m_Indices[i]);
+
+            m_IndiciesType = GL_UNSIGNED_SHORT;
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, ushort_buffer.size() * sizeof(unsigned short), ushort_buffer.data(),
+                         GL_STATIC_DRAW);
+        }
+        else
+        {
+            m_IndiciesType = GL_UNSIGNED_INT;
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned short), m_Indices.data(),
+                         GL_STATIC_DRAW);
+        }
+
+        m_NumIndices = m_Indices.size();
+        m_Indices.clear();
+    }
 
     glBindVertexArray(0);
 }
@@ -206,6 +235,16 @@ void DrawMesh::TexCoord2fv(float *v)
     m_tempVert.uv[1] = v[1];
 }
 
+void DrawMesh::Element1i(size_t idx)
+{
+    m_Indices.push_back(idx);
+}
+
+size_t DrawMesh::CurrentElement()
+{
+    return m_Data.size();
+}
+
 void DrawMesh::BindAndDraw()
 {
     Bind();
@@ -213,6 +252,11 @@ void DrawMesh::BindAndDraw()
     Unbind();
 }
 
+void DrawMesh::Element1iv(int *val, size_t count)
+{
+    for (size_t i = 0; i < count; i++)
+        m_Indices.push_back(val[i]);
+}
 
 GLBackend::GLBackend()
 {
@@ -237,18 +281,18 @@ GLBackend::~GLBackend()
     m_LoadedShaders.clear();
 }
 
-ShaderProgram * GLBackend::QueryShader(std::string fileName, std::list<const char*> defines)
+ShaderProgram *GLBackend::QueryShader(std::string fileName, std::list<const char *> defines)
 {
     ShaderProgram *result = nullptr;
     size_t hashVal        = ShaderProgram::CalculateHash(fileName, defines);
-   
-    for (auto it: m_LoadedShaders)
+
+    for (auto it : m_LoadedShaders)
     {
         if (it->Hash() == hashVal)
             return it;
     }
 
-    result = new ShaderProgram(fileName, defines);    
+    result = new ShaderProgram(fileName, defines);
     m_LoadedShaders.push_back(result);
 
     return result;
@@ -266,8 +310,6 @@ void GLBackend::DeleteAllShaders()
         delete m_pSpotlightConeShader;
     if (m_pDiffuseSceneShader)
         delete m_pDiffuseSceneShader;
-
-   
 }
 
 const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
@@ -304,7 +346,7 @@ void GLBackend::ReloadAllShaders()
 {
     DeleteAllShaders();
 
-    m_pHelperGeometryShader    = new HelperGeometryShaderProgram;    
+    m_pHelperGeometryShader    = new HelperGeometryShaderProgram;
     m_pLightmappedSceneShader  = new LightMappedSceneShaderProgram;
     m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
     m_pSpotlightConeShader     = new SpotlightConeShaderProgram;
@@ -314,7 +356,6 @@ void GLBackend::ReloadAllShaders()
 
     for (auto it : m_LoadedShaders)
         it->Reload();
-
 }
 
 void GLBackend::NewFrame()
@@ -327,8 +368,6 @@ renderStats_t *GLBackend::RenderStats()
 {
     return &m_RenderStats;
 }
-
-
 
 void GLBackend::BindTexture(size_t unit, const gltexture_t *texture)
 {
@@ -346,7 +385,7 @@ void GLBackend::BindTexture(size_t unit, const gltexture_t *texture)
                 m_CurrentTextureUnit = unit;
             }
 
-            glDisable(GL_TEXTURE_2D);            
+            glDisable(GL_TEXTURE_2D);
         }
 
         return;
@@ -358,7 +397,6 @@ void GLBackend::BindTexture(size_t unit, const gltexture_t *texture)
 void GLBackend::BindTexture(size_t unit, GLuint texture)
 {
     auto state = &m_TexturesUnitStates[unit];
-
 
     if (m_CurrentTextureUnit != unit)
     {
@@ -377,12 +415,11 @@ void GLBackend::BindTexture(size_t unit, GLuint texture)
         glBindTexture(GL_TEXTURE_2D, texture);
         state->texture = texture;
     }
-
 }
 
 void GLBackend::SetUniformValue(ShaderUniform *it)
 {
-    Camera* camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+    Camera *camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 
     switch (it->Kind())
     {
