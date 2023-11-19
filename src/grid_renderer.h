@@ -31,6 +31,9 @@ class GridRenderer : public Singleton<GridRenderer>
     void CreateMesh();
 
     void Render();
+
+    void SetupShaderUniforms();
+
     void SetGridResolution(int steps);
 
     void StepDownGrid();    

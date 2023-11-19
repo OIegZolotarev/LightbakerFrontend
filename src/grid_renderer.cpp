@@ -69,7 +69,10 @@ void GridRenderer::CreateMesh()
 
 void GridRenderer::Render()
 {
-#if 0
+
+//#define USE_OLD_SHADER
+
+#ifdef USE_OLD_SHADER
     auto shader = GLBackend::Instance()->EditorGridShader();
     shader->Bind();
     
@@ -87,7 +90,26 @@ void GridRenderer::Render()
 #else
 
     m_pShader->Bind();
+    SetupShaderUniforms();
 
+#endif
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    m_pGridMesh->BindAndDraw();
+    
+    glDisable(GL_BLEND);
+
+#ifdef USE_OLD_SHADER
+    shader->Unbind();
+#else
+    m_pShader->Unbind();
+#endif
+}
+
+void GridRenderer::SetupShaderUniforms()
+{
     for (auto it : m_pShader->Uniforms())
     {
         switch (it->Kind())
@@ -123,28 +145,6 @@ void GridRenderer::Render()
             break;
         }
     }
-
-#endif
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glEnable(GL_LINE_SMOOTH);
-
-    glLineWidth(1);
-    m_pGridMesh->BindAndDraw();
-    glLineWidth(1);
-
-    glDisable(GL_LINE_SMOOTH);
-
-    glDisable(GL_BLEND);
-
-#if 0
-    shader->Unbind();
-#else
-    m_pShader->Unbind();
-#endif
 }
 
 void GridRenderer::SetGridResolution(int steps)

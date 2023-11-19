@@ -7,6 +7,8 @@
 #include "shader_program.h"
 #include "gl_backend.h"
 #include "text_utils.h"
+#include <type_traits>
+#include <boost/functional/hash.hpp>
 
 static uniformDecl_t g_UniformDecl[]{
 
@@ -142,7 +144,7 @@ GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
     glCompileShader(result);
 
     int success;
-    
+
     glGetShaderiv(result, GL_COMPILE_STATUS, &success);
 
     if (!success)
@@ -216,17 +218,25 @@ ShaderProgram::ShaderProgram()
     m_uiProgramId = glCreateProgram();
 }
 
-ShaderProgram::ShaderProgram(const char *fileName, std::list<const char *> defs)
+ShaderProgram::ShaderProgram(std::string fileName, std::list<const char *> defs)
+{
+    m_Defines  = defs;
+    m_FileName = std::string(fileName);
+
+    LoadAndParseShader();
+
+    m_Hash = CalculateHash(m_FileName, m_Defines);
+}
+
+void ShaderProgram::LoadAndParseShader()
 {
     m_uiProgramId = glCreateProgram();
 
-    FileData *fd = FileSystem::Instance()->LoadFile(fileName);
+    FileData *fd = FileSystem::Instance()->LoadFile(m_FileName);
 
     std::string src = PreprocessIncludes(fd);
-        
-    m_Defines        = defs;
-    
-    m_uiVertexShader = MakeShader(src, ShaderTypes::Vertex, m_Defines);
+
+    m_uiVertexShader   = MakeShader(src, ShaderTypes::Vertex, m_Defines);
     m_uiFragmentShader = MakeShader(src, ShaderTypes::Fragment, m_Defines);
 
     LinkProgram();
@@ -248,6 +258,11 @@ ShaderProgram::~ShaderProgram()
 
     m_Defines.clear();
     ClearPointersVector(m_vecUniforms);
+}
+
+size_t ShaderProgram::Hash()
+{
+    return m_Hash;
 }
 
 bool ShaderProgram::AttachVertexShader(const char *fileName)
@@ -279,16 +294,14 @@ void ShaderProgram::LinkProgram()
 
     glLinkProgram(m_uiProgramId);
 
-
     GLint linked;
     char infoLog[512];
     glGetProgramiv(m_uiProgramId, GL_LINK_STATUS, &linked);
 
     if (!linked)
-    {     
-        glGetProgramInfoLog(m_uiProgramId, 512, NULL, infoLog);        
+    {
+        glGetProgramInfoLog(m_uiProgramId, 512, NULL, infoLog);
     }
-    
 }
 
 void ShaderProgram::Bind() const
@@ -301,7 +314,7 @@ void ShaderProgram::Unbind() const
     glUseProgram(0);
 }
 
-std::vector<ShaderUniform *> & ShaderProgram::Uniforms()
+std::vector<ShaderUniform *> &ShaderProgram::Uniforms()
 {
     return m_vecUniforms;
 }
@@ -317,10 +330,42 @@ ShaderUniform *ShaderProgram::UniformByKind(UniformKind kind)
     return nullptr;
 }
 
+void ShaderProgram::Reload()
+{
+    if (m_uiProgramId)
+        glDeleteProgram(m_uiProgramId);
+    if (m_uiVertexShader)
+        glDeleteProgram(m_uiVertexShader);
+    if (m_uiFragmentShader)
+        glDeleteProgram(m_uiFragmentShader);
+
+    for (auto it : m_vecUniforms)
+        delete it;
+
+    m_vecUniforms.clear();
+
+    LoadAndParseShader();
+}
+
+size_t ShaderProgram::CalculateHash(std::string &fileName, std::list<const char *> &defs)
+{
+    std::size_t nameHash = std::hash<std::string>{}(fileName);
+
+    for (auto & it: defs)
+    {
+        std::string_view view = std::string_view(it);
+        std::size_t defHash = std::hash<std::string_view>{}(view);
+
+        boost::hash_combine(nameHash, defHash);
+    }
+
+    return nameHash;
+}
+
 ShaderUniform::ShaderUniform(uniformDecl_t *decl, GLuint location)
 {
     m_pDecl    = decl;
-    m_Location = location;
+    m_Location = location;    
 }
 
 ShaderUniform::~ShaderUniform()
@@ -341,7 +386,7 @@ void ShaderUniform::SetFloat(float newVal)
 void ShaderUniform::SetFloat2(glm::vec2 newVal)
 {
     assert(m_pDecl->datatype == UniformDataType::FloatVec2);
-    
+
     // if (m_ValueCached.valFloat2 != newVal)
     {
         m_ValueCached.valFloat2 = newVal;
@@ -363,7 +408,7 @@ void ShaderUniform::SetFloat3(glm::vec3 newVal)
 void ShaderUniform::SetFloat4(glm::vec4 newVal)
 {
     assert(m_pDecl->datatype == UniformDataType::FloatVec4);
-    
+
     // if (m_ValueCached.valFloat4 != newVal)
     {
         m_ValueCached.valFloat4 = newVal;

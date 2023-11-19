@@ -124,10 +124,7 @@ class GLBackend
     static GLBackend *Instance();
     ~GLBackend();
 
-    ShaderProgram *QueryShader(const char* fileName, std::list<const char*> defines)
-    {
-        return new ShaderProgram(fileName, defines);
-    }
+    ShaderProgram *QueryShader(std::string fileName, std::list<const char*> defines);
 
     void DeleteAllShaders();
 

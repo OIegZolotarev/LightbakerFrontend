@@ -158,16 +158,20 @@ class ShaderProgram
     void ParseProgramUniforms();
 
     std::string PreprocessIncludes(FileData *fd);
-    GLuint MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines);
-    
+    GLuint MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines);    
     std::list<const char *> m_Defines;
+
+    void LoadAndParseShader();
+
+    size_t m_Hash;
 
   public:
     // Uber shader
-    ShaderProgram(const char *fileName, std::list<const char *> defs);
-
-    ShaderProgram();
+    ShaderProgram(std::string fileName, std::list<const char *> defs);
+    ShaderProgram(); 
     virtual ~ShaderProgram();
+
+    size_t Hash();
 
     bool AttachVertexShader(const char *fileName);
     bool AttachFragmentShader(const char *fileName);
@@ -181,4 +185,10 @@ class ShaderProgram
     std::vector<ShaderUniform *> & Uniforms();
     ShaderUniform *UniformByKind(UniformKind kind);
 
+    void Reload();
+    
+    static size_t CalculateHash(std::string & fileName, std::list<const char *> & defs);
+
+private:
+    std::string m_FileName;
 };

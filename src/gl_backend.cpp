@@ -234,7 +234,24 @@ GLBackend *GLBackend::Instance()
 GLBackend::~GLBackend()
 {
     DeleteAllShaders();
+    m_LoadedShaders.clear();
+}
 
+ShaderProgram * GLBackend::QueryShader(std::string fileName, std::list<const char*> defines)
+{
+    ShaderProgram *result = nullptr;
+    size_t hashVal        = ShaderProgram::CalculateHash(fileName, defines);
+   
+    for (auto it: m_LoadedShaders)
+    {
+        if (it->Hash() == hashVal)
+            return it;
+    }
+
+    result = new ShaderProgram(fileName, defines);    
+    m_LoadedShaders.push_back(result);
+
+    return result;
 }
 
 void GLBackend::DeleteAllShaders()
@@ -251,11 +268,7 @@ void GLBackend::DeleteAllShaders()
         delete m_pDiffuseSceneShader;
     if (m_pEditorGridShader)
         delete m_pEditorGridShader;
-
-    for (auto it: m_LoadedShaders)
-        delete it;
-
-    m_LoadedShaders.clear();
+   
 }
 
 const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
@@ -305,6 +318,10 @@ void GLBackend::ReloadAllShaders()
 
     m_pGroupShadedSceneShader = new GroupShadedSceneShaderProgram;
     m_pDiffuseSceneShader     = new DiffuseSceneShaderProgram;
+
+    for (auto it : m_LoadedShaders)
+        it->Reload();
+
 }
 
 void GLBackend::NewFrame()
