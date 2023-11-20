@@ -75,7 +75,7 @@ class BSPRenderer
     size_t m_visFrameCount = 0;
     BSPLevel *m_pWorld;
     
-    std::vector<msurface_t *> m_SortedFaces;
+    
     
     void RenderBrushPoly(msurface_t *fa);
     void RecursiveWorldNode(mnode_t *node);

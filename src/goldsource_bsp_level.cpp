@@ -950,9 +950,7 @@ void BSPLevel::Mod_LoadEntities(lump_t* l)
 
 			}
 
-			m_vEntities.push_back(pEntity);
-			
-
+			m_vEntities.push_back(pEntity);			
 		}
 
 
@@ -1119,6 +1117,10 @@ void BSPLevel::PopulateScene()
 {
 	for (auto it : m_vEntities)
 		it->PopulateScene();
+
+	
+	// Entities now owned by scene
+	m_vEntities.clear();
 }
 
 void BSPLevel::Mod_ReloadFacesLighting(lump_t* l)

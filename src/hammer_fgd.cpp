@@ -186,6 +186,21 @@ GoldSource::FGDPropertyDescriptor* FGDEntityClass::FindProperty(std::string& pro
 	return nullptr;
 }
 
+glm::vec3 FGDEntityClass::GetMins()
+{
+    return m_Mins;
+}
+
+glm::vec3 FGDEntityClass::GetMaxs()
+{
+    return m_Maxs;
+}
+
+glm::vec3 FGDEntityClass::GetColor()
+{
+    return m_Color;
+}
+
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList & values) : FGDPropertyDescriptor(name, "", desc)
 {
 	m_Values = values;

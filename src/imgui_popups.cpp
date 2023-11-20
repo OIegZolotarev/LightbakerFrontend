@@ -75,7 +75,8 @@ void PopupsManager::ShowPopup(PopupWindows id)
 
 void PopupsManager::RenderPopups()
 {
-	// TODO: make actual popup stack, since ImGUI can't stack ones
+	// TODO: [s]make actual popup stack, since ImGUI can't stack ones[/s]
+    // check "stacked modal" in demo
 
 	for (auto& it : m_vPopups)
 	{

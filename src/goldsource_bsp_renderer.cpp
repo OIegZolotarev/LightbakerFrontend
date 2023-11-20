@@ -369,6 +369,7 @@ inline int sortCmp(T a, T b)
 
 GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *mod)
 {
+    std::vector<msurface_t *> m_SortedFaces;
     std::vector<msurface_t> &surfaces = m_pWorld->GetFaces();
     
     for (int i = mod->firstface; i < mod->numfaces; i++)

@@ -24,6 +24,11 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
         ParseGameInfo();
         break;
     }
+
+    // TODO: fixme
+    FileData *fd = FileSystem::Instance()->LoadFile("D:/temp/halflife_2020/fgd/halflife_2020.fgd");
+    m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
+    fd->UnRef();
 }
 
 void HammerGameConfiguration::EditDialog()

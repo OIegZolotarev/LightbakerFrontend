@@ -86,4 +86,7 @@ class SceneRenderer : public IEventHandler
 
     void DumpLightmapMesh();
     void DumpLightmapUV();
+
+  public:
+    void RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, glm::vec3 m_Color);
 };

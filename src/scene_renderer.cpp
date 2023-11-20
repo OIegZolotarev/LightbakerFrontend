@@ -398,7 +398,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
         shader->SetTransformIdentity();
 
 		shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
-		shader->SetScale(ptr->intensity);
+        shader->SetScale({ptr->intensity, ptr->intensity, ptr->intensity});
 
 		glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 		shader->SetTransform(mat);
@@ -474,6 +474,31 @@ void SceneRenderer::DumpLightmapUV()
 	m_pScene->DumpLightmapUV();
 }
 
+void SceneRenderer::RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs,
+                                             glm::vec3 m_Color)
+{
+    auto shader = GLBackend::Instance()->HelperGeometryShader();
+
+    shader->Bind();
+    shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
+
+    shader->SetColor({m_Color.xyz, 1});
+
+	glm::vec3 scale = m_Maxs - m_Mins;
+
+	glm::vec3 offset = m_Mins + scale * 0.5f;
+    
+	shader->SetScale(scale.xzy);
+
+    glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), m_Position - offset);
+    shader->SetTransform(mat);
+	
+    m_pSolidCube->BindAndDraw();
+	    
+    shader->Unbind();
+}
+
 void SceneRenderer::SetRenderMode(RenderMode newMode)
 {
 	m_RenderMode = newMode;
@@ -489,7 +514,7 @@ void SceneRenderer::RenderGenericEntity(SceneEntity* pEntity)
 
 	glm::vec4 col = glm::vec4(pEntity->GetColor(),1);
 	shader->SetColor(col);
-	shader->SetScale(16);
+    shader->SetScale({16.f, 16.f, 16.f});
 
 	glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), pEntity->GetPosition());
 	shader->SetTransform(mat);

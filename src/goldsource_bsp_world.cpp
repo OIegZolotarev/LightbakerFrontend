@@ -18,10 +18,10 @@ void BSPWorld::ReloadLightmaps()
 
 void BSPWorld::OnAdditionToScene()
 {
-    
+    m_pLevel->PopulateScene();
 }
 
-BSPWorld::BSPWorld(const char *levelName) : 
+BSPWorld::BSPWorld(const char *levelName) 
 {
     FileData *fd = FileSystem::Instance()->LoadFile(levelName);
 
@@ -48,4 +48,9 @@ void BSPWorld::RenderLightshaded()
     glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetOrigin();
 
     m_pRenderer->RenderWorld(cameraPos);
+}
+
+bool BSPWorld::IsDataLoaded()
+{
+    return true;
 }

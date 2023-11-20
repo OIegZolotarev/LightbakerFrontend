@@ -18,14 +18,14 @@ enum class EntityClasses
 
 
 
-#define DECLARE_PROPERTY(Type,Name) private: Type m_##Name;\
+#define DECLARE_PROPERTY(Type,Name) protected: Type m_##Name;\
 									public: void Set##Name(Type val) { m_##Name = val; } \
 											const Type Get##Name() { return m_##Name; } \
 
 
 class SceneEntity: public ISelectableObject
 {
-	bool m_bDataLoaded = false;
+	bool m_bDataLoaded = true;
 	
 	size_t m_nSerialNumber = 0;
 	

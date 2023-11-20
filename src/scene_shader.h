@@ -11,7 +11,8 @@
 
 class ISceneShader: public ShaderProgram
 {
-private:
+  protected
+    :
 	GLuint m_unScale = 0xffffffff;
 	GLuint m_unView = 0xffffffff;
 	GLuint m_unProjection = 0xffffffff;

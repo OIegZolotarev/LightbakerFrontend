@@ -12,6 +12,11 @@ HelperGeometryShaderProgram::~HelperGeometryShaderProgram()
 	
 }
 
+void HelperGeometryShaderProgram::SetScale(glm::vec3 scale) const
+{
+    glUniform3f(m_unScale, scale.x ,scale.y, scale.z);
+}
+
 void HelperGeometryShaderProgram::SetColor(glm::vec4 color) const
 {
 	glUniform4fv(m_unColorOverride, 1, &color[0]);

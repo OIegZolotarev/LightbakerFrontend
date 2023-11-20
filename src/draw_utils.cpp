@@ -3,8 +3,8 @@
     (c) 2022 CrazyRussian
 */
 
-#include "Icosphere.h"
 #include "draw_utils.h"
+#include "Icosphere.h"
 
 DrawMesh *DrawUtils::MakeWireframeBox(glm::vec3 extents)
 {
@@ -166,7 +166,6 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
 
     pResult->Begin(GL_TRIANGLES);
 
-
     typedef struct icoVert_s
     {
         float xyz[3];
@@ -174,17 +173,16 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
         float uv[2];
     } icoVert_t;
 
+    icoVert_t *data = (icoVert_t *)s.getInterleavedVertices();
+    size_t count    = s.getInterleavedVertexCount();
 
-    icoVert_t* data = (icoVert_t*)s.getInterleavedVertices();
-    size_t count = s.getInterleavedVertexCount();    
-
-    auto indices = s.getIndices();
+    auto indices  = s.getIndices();
     auto indCount = s.getIndexCount();
 
     for (int i = 0; i < indCount; i++)
     {
         auto *v = &data[i];
-        
+
         pResult->Normal3fv(v->normal);
         pResult->Vertex3fv(v->xyz);
     }
@@ -192,87 +190,26 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
     pResult->End();
 
     return pResult;
-    
 }
 
 DrawMesh *DrawUtils::MakeCube(float size)
 {
-    DrawMesh* pResult = new DrawMesh;
-        
+    DrawMesh *pResult = new DrawMesh;
+
     float hs = size / 2;
 
-    // layout (top slice, looking from top):
-    //  
-    //  0----1
-    //  |    | 
-    //  |    |
-    //  3----2       
-    //
-    // layout (bottom slice, looking from top)
-    //
-    //  4----5
-    //  |    |
-    //  |    |
-    //  7----6       
-    //
-    // layout (west)
-    //
-    //  0----3
-    //  |    |
-    //  |    |
-    //  4----7
-    // 
-    // layout (east)
-    //
-    //  1----2
-    //  |    |
-    //  |    |
-    //  5----6
-    //
-    // layout (north)
-    //
-    //  0----1
-    //  |    |
-    //  |    |
-    //  4----5
-    //
-    // layout (south)
-    //
-    //  3----2
-    //  |    |
-    //  |    |
-    //  7----6
-    
-    int indices[] = {
-        0, 1, 3, 1, 2, 3, // top
-        4, 5, 7, 5, 6, 7, // bottom
-        0, 3, 4, 3, 7, 4, // west
-        1, 2, 5, 2, 5, 6, // east
-        0, 1, 4, 1, 5, 4, // north
-        3, 2, 7, 2, 6, 7, // south
-    };
+    glm::vec3 verts[] = {{hs, hs, -hs},  {hs, -hs, -hs},  {hs, hs, hs},  {hs, -hs, hs},
+                         {-hs, hs, -hs}, {-hs, -hs, -hs}, {-hs, hs, hs}, {-hs, -hs, hs}};
 
-    glm::vec3 verts[8]=
-    {
-        { -hs , -hs , -hs},
-        { hs  , -hs , -hs},
-        { hs  , hs  , -hs},
-        { -hs , hs  , -hs},
-        {-hs  , -hs , hs}, 
-        {hs   , -hs , hs}, 
-        {hs   , hs  , hs}, 
-        {-hs  , hs  , hs},
-    };
+    int indices[] = {4, 2, 0, 2, 7, 3, 6, 5, 7, 1, 7, 5, 0, 3, 1, 4, 1, 5,
+                   4, 6, 2, 2, 6, 7, 6, 4, 5, 1, 3, 7, 0, 2, 3, 4, 0, 1};
 
     pResult->Begin(GL_TRIANGLES);
 
-    for (glm::vec3 vert : verts)
-    {
-        pResult->Vertex3fv((float*)&vert);
-    }
+    for (auto vert : verts)
+        pResult->Vertex3fv((float *)&vert);
 
     pResult->Element1iv(indices, ARRAYSIZE(indices));
-
     pResult->End();
 
     return pResult;

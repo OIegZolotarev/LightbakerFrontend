@@ -29,6 +29,8 @@ void BSPEntity::SetKeyValue(std::string& key, std::string& value)
     {
         auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
 
+        glm::vec3 origin = {0,0,0};
+
         if (digits.size() == 3)
         {
             int i = 0;
@@ -36,18 +38,20 @@ void BSPEntity::SetKeyValue(std::string& key, std::string& value)
                 origin[i] = std::stof(*it);
         }
 
+        SetPosition(ConvertOriginToSceneSpace(origin));
 
     }
     else if (key == "_light")
     {
-		auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
-
-		if (digits.size() == 4)
-		{
-			int i = 0;
-			for (auto it = digits.begin(); it != digits.end(); it++, i++)
-				color[i] = std::stof(*it) / 255.f;
-		}
+        // 		auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
+        //     
+        // 
+        // 		if (digits.size() == 4)
+        // 		{
+        // 			int i = 0;
+        // 			for (auto it = digits.begin(); it != digits.end(); it++, i++)
+        // 				color[i] = std::stof(*it) / 255.f;
+        // 		}
     }
     else if (key == "_wad")
     {
@@ -85,91 +89,105 @@ void BSPEntity::PopulateScene()
     GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
     auto pConfigPtr = pConfigWeakPtr.lock();
     GameConfiguration *pConfig = pConfigPtr.get();
-
-    if (typeid(pConfig) == typeid((HammerGameConfiguration*)0))
+       
+    // TODO: do proper type reflection
     {
         GoldSource::HammerGameConfiguration *hammerConfig = (HammerGameConfiguration *)pConfig;
         m_pFGDClass = hammerConfig->LookupFGDClass(classname);
     }
 
-    if (classname == "light")
-    {     
-        m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Omni, false);
-        
-        auto ptr = m_SceneEntity.lock();
-
-        if (ptr)
-        {
-            ptr->SetColor(color.xyz);
-        }
-
-        ptr->CopyProperties(std::move(m_vProperties));
-    }
-    else if (classname == "light_environment")
+    if (m_pFGDClass)
     {
-		m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Direct, false);
-
-		auto ptr = m_SceneEntity.lock();
-
-		if (ptr)
-		{
-			ptr->SetColor(color.xyz);
-		}
-
-		ptr->CopyProperties(std::move(m_vProperties));
+        SetMins(m_pFGDClass->GetMins());
+        SetMaxs(m_pFGDClass->GetMaxs());
+        SetColor(m_pFGDClass->GetColor());
     }
 
-    else
-    {
-		m_SceneEntity = scene->AddNewGenericEntity();
+    SetClassName(classname.c_str());
 
-		auto ptr = m_SceneEntity.lock();
+    std::shared_ptr<SceneEntity> ptr(this);
+    scene->AddNewSceneEntity(ptr);
 
-		if (ptr)
-		{
-			ptr->SetColor(color.xyz);
-		}
-
-		ptr->CopyProperties(std::move(m_vProperties));
-        ptr->SetPosition(ConvertOriginToSceneSpace());
-        ptr->FlagDataLoaded();
-        
-        ptr->SetMins(glm::vec3(-4, -4, -4));
-        ptr->SetMaxs(glm::vec3(4, 4, 4));
-    }
+//     if (classname == "light")
+//     {     
+//         m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Omni, false);
+//         
+//         auto ptr = m_SceneEntity.lock();
+// 
+//         if (ptr)
+//         {
+//             ptr->SetColor(color.xyz);
+//         }
+// 
+//         ptr->CopyProperties(std::move(m_vProperties));
+//     }
+//     else if (classname == "light_environment")
+//     {
+// 		m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Direct, false);
+// 
+// 		auto ptr = m_SceneEntity.lock();
+// 
+// 		if (ptr)
+// 		{
+// 			ptr->SetColor(color.xyz);
+// 		}
+// 
+// 		ptr->CopyProperties(std::move(m_vProperties));
+//     }
+// 
+//     else
+//     {
+// 		m_SceneEntity = scene->AddNewGenericEntity();
+// 
+// 		auto ptr = m_SceneEntity.lock();
+// 
+// 		if (ptr)
+// 		{
+// 			ptr->SetColor(color.xyz);
+// 		}
+// 
+// 		ptr->CopyProperties(std::move(m_vProperties));
+//         ptr->SetPosition(ConvertOriginToSceneSpace());
+//         ptr->FlagDataLoaded();
+//         
+//         ptr->SetMins(glm::vec3(-4, -4, -4));
+//         ptr->SetMaxs(glm::vec3(4, 4, 4));
+//     }
 
     
 }
 
 bool BSPEntity::UpdateProperties()
 {
-    auto ptr = m_SceneEntity.lock();
-
-    if (!ptr)
-        return false;
-
-    m_vProperties = ptr->GetProperties();
-
-	// јбсолютно ниху€ не пон€тно
-	//newOrigin.x = -origin.y;
-	//newOrigin.y = origin.z;
-	//newOrigin.z = -origin.x;
-
-    auto origin = ptr->GetPosition();
-
-    std::string newOrigin = std::format("{0} {1} {2}", -origin.z, -origin.x, origin.y);
-
-    m_vProperties["origin"] = newOrigin;
-
-    if (ptr->IsLightEntity())
-    {
-        Lb3kLightEntity* pLight = (Lb3kLightEntity*)ptr.get();
-        auto _light = ConvertLightColorAndIntensity(pLight);
-
-
-        m_vProperties["_light"] = std::format("{0} {1} {2} {3}", _light.r, _light.g, _light.b, _light.a);
-        
-    }
+//     //auto ptr = m_SceneEntity.lock();
+// 
+//     if (!ptr)
+//         return false;
+// 
+//     m_vProperties = ptr->GetProperties();
+// 
+// 	// јбсолютно ниху€ не пон€тно
+// 	//newOrigin.x = -origin.y;
+// 	//newOrigin.y = origin.z;
+// 	//newOrigin.z = -origin.x;
+// 
+//     auto origin = ptr->GetPosition();
+// 
+//     std::string newOrigin = std::format("{0} {1} {2}", -origin.z, -origin.x, origin.y);
+// 
+//     m_vProperties["origin"] = newOrigin;
+// 
+//     if (ptr->IsLightEntity())
+//     {
+//         Lb3kLightEntity* pLight = (Lb3kLightEntity*)ptr.get();
+//         auto _light = ConvertLightColorAndIntensity(pLight);
+// 
+// 
+//         m_vProperties["_light"] = std::format("{0} {1} {2} {3}", _light.r, _light.g, _light.b, _light.a);
+//         
+//     }
+// 
+//     return true;
 
     return true;
 }
@@ -195,17 +213,38 @@ void BSPEntity::Export(FILE* fp)
     fprintf(fp, "}\n");
 }
 
-glm::vec3 BSPEntity::ConvertOriginToSceneSpace()
+glm::vec3 GoldSource::BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin)
 {
-	auto newOrigin = origin;
+    auto newOrigin = bspSpaceOrigin;
 
 	// јбсолютно ниху€ не пон€тно
-	newOrigin.x = -origin.y;
-	newOrigin.y = origin.z;
-	newOrigin.z = -origin.x;
+    newOrigin.x = -bspSpaceOrigin.y;
+    newOrigin.y = bspSpaceOrigin.z;
+    newOrigin.z = -bspSpaceOrigin.x;
 
     return newOrigin;
 
+}
+
+void BSPEntity::RenderUnshaded()
+{
+    
+}
+
+void BSPEntity::RenderLightshaded()
+{
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+    sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color);   
+}
+
+void BSPEntity::RenderGroupShaded()
+{
+    
+}
+
+void BSPEntity::RenderBoundingBox()
+{
+    
 }
 
 glm::vec3 BSPEntity::ConvertOriginFromSceneSpace(glm::vec3 origin)

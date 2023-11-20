@@ -23,6 +23,8 @@ class BSPWorld: public IWorldEntity
     void OnAdditionToScene() override;
 
     void RenderLightshaded() override;
+
+    bool IsDataLoaded() override;
 };
 }
 
