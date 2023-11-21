@@ -13,6 +13,8 @@ class PopupEditGameconfiguration : public IImGUIPopup
     float m_flScaleOriginal = 0;
 
     GameConfigurationWeakPtr m_pCurrentConfiguration;
+    
+    GameConfiguration *m_pEditedConfiguration = nullptr;
 
  public:
  

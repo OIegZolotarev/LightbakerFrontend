@@ -63,11 +63,37 @@ void GameConfiguration::SetGameDirectory(std::string &gameDir)
     m_GameDirectory = gdPathCanonical.string();
 }
 
+void GameConfigurationsManager::Init()
+{
+    LoadGameConfigsFromDisk();
+    return;
+}
+
+void GameConfigurationsManager::LoadGameConfigsFromDisk()
+{
+    char *p         = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
+    std::string dir = std::string(p) + "game_configs/gs_and_xash/";
+
+    if (!FileSystem::FileExists(std::string(p) + "game_configs/gs_and_xash/"))
+    {
+        return;
+    }
+
+    for (auto const &dir_entry : std::filesystem::directory_iterator{dir})
+    {
+        auto path = std::filesystem::canonical(dir_entry.path()).string();
+
+        auto pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(path);       
+        m_Configurations.push_back(pNewConfiguration);
+
+    }
+}
+
 GameConfigurationsManager::~GameConfigurationsManager()
 {
     for (auto &it : m_Configurations)
     {
-        it->Serialize("");
+        it->Serialize(it->m_SavedFileName);
         //delete it;
     }
 
@@ -136,6 +162,47 @@ const std::list<GameConfigurationWeakPtr> GameConfigurationsManager::AllConfigur
         result.push_back(std::weak_ptr(it));
 
     return result;
+}
+
+std::string GameConfigurationsManager::SuggestSaveFileName(GameEngines engine, const std::string &m_Description)
+{
+    std::string engineDir = "others";
+    char *p  = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
+
+    switch (engine)
+    {
+    case GameEngines::GoldSource:                
+    case GameEngines::Xash3d:
+        engineDir = "gs_and_xash";
+        break;
+    default:
+        break;        
+    }
+
+    std::string prefPath = p;
+    std::string engineConfigDir = prefPath + "/game_configs/" + engineDir;
+
+    std::string result = std::format("{0}/{1}", engineConfigDir, FileSystem::SanitizeFileName(m_Description));
+        
+    if (!FileSystem::FileExists(engineConfigDir))
+    {
+        FileSystem::MakeDir(engineConfigDir);
+    }
+
+    return result;
+}
+
+void GameConfigurationsManager::UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited)
+{
+    auto lockedPtr = ptr.lock();
+
+    // shared_ptr comparsion compares pointers, not managed object so this shoud be fine
+    auto it = std::find(m_Configurations.begin(), m_Configurations.end(), lockedPtr);
+
+    if (it == m_Configurations.end())
+        return;
+
+    *it = std::shared_ptr<GameConfiguration>(edited);
 }
 
 std::optional<gamelookupresult_t> GameConfigurationsManager::ScanForGameDefinitionFile(std::string &levelFileName,

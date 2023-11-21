@@ -30,7 +30,7 @@ void PopupEditGameconfiguration::Render()
 
          if (ptr)
          {
-             ptr->EditDialog();
+             m_pEditedConfiguration->EditDialog();
          }
          else
              ImGui::Text("<Configuration in destroyed>");
@@ -39,12 +39,20 @@ void PopupEditGameconfiguration::Render()
 
         if (ImGui::Button("OK"))
         {
+            GameConfigurationsManager::Instance()->UpdateGameConfiguration(m_pCurrentConfiguration,
+                                                                           m_pEditedConfiguration);
+
+            // GameConfigurationsManager takes ownership
+            //delete m_pEditedConfiguration;
+            m_bVisible = false;
         }
 
         ImGui::SameLine();
 
         if (ImGui::Button("Cancel"))
         {
+            delete m_pEditedConfiguration;
+            m_bVisible = false;
         }
 
         ImGui::EndPopup();
@@ -58,4 +66,14 @@ void PopupEditGameconfiguration::OnOpen()
 void PopupEditGameconfiguration::SetGameConfiguration(GameConfigurationWeakPtr conf)
 {
     m_pCurrentConfiguration = conf;
+
+    auto ptr = m_pCurrentConfiguration.lock();
+
+    if (!ptr)
+    {
+        m_pEditedConfiguration = nullptr;
+        return;
+    }
+
+    m_pEditedConfiguration = ptr->Clone();
 }

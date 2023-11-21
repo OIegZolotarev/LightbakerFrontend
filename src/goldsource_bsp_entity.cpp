@@ -10,8 +10,14 @@
 #include "wad_textures.h"
 #include "goldsource_game_configuration.h"
 
-
 using namespace GoldSource;
+
+// TODO: proper FGD settings
+//       loading game configs
+//       "default" flag for game config
+//       proper gameconfig reflection
+//       fix texture loading issue
+//       fix wad loading hack
 
 BSPEntity::BSPEntity()
 {

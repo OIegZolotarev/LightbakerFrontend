@@ -35,6 +35,8 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 {
     m_strTitle = title;
 
+    GameConfigurationsManager::Instance()->Init();
+
     InitBackend();
     InitCommonResources();
 

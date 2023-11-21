@@ -3,18 +3,20 @@
     (c) 2023 CrazyRussian
 */
 
-
 #include "application.h"
+#include "goldsource_game_configuration.h"
 #include "common.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
-#include "goldsource_game_configuration.h"
 
 using namespace GoldSource;
 
 GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint)
-    : GameConfiguration("", gameRootDir), m_EngineHint(engineHint)
+    : GameConfiguration("", gameRootDir)
 {
+    m_Engine      = engineHint;
+    m_Description = "<Missing description>";
+
     switch (engineHint)
     {
     case GameEngines::GoldSource:
@@ -31,34 +33,76 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
     fd->UnRef();
 }
 
+GameConfiguration *HammerGameConfiguration::Clone()
+{
+    return new HammerGameConfiguration(*this);
+}
+
+HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName)
+{    
+    m_SavedFileName = savedFileName;    
+    Deserialize(savedFileName);
+}
+
 void HammerGameConfiguration::EditDialog()
 {
+    static size_t selectedConf = 0;
+
     ImGui::InputText("Game name:", &m_Description);
     ImGui::InputText("Game directory:", &m_GameDirectory);
 
-    //     if (ImGui::BeginChildFrame(532, ImVec2(0, 0)))
-    //     {
     ImGui::SeparatorText("Compilers:");
     ImGui::InputText("CSG program", &m_CompilationPrograms.csg);
     ImGui::InputText("BSP program", &m_CompilationPrograms.bsp);
     ImGui::InputText("VIS program", &m_CompilationPrograms.vis);
     ImGui::InputText("RAD program", &m_CompilationPrograms.rad);
-    //
-    //         ImGui::EndChildFrame();
-    //     }
+
+    ImGui::SeparatorText("FGD Files");
+
+    if (ImGui::BeginListBox("###FGDFilesListBox"))
+    {
+        size_t index = 0;
+        for (auto &it : m_FGDFiles)
+        {
+            if (ImGui::Selectable(it.c_str(), index == selectedConf))
+            {
+                selectedConf = index;
+            }
+
+            index++;
+        }
+
+        ImGui::EndListBox();
+    }
+
+    if (ImGui::Button("Add"))
+    {
+        m_FGDFiles.push_back("<DUMMY>");
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Remove"))
+    {
+        if (selectedConf > m_FGDFiles.size() - 1)
+        {
+            selectedConf = 0;
+            return;
+        }
+
+        auto it = m_FGDFiles.begin();
+        std::advance(it, selectedConf);
+
+        m_FGDFiles.erase(it);
+        selectedConf = 0;
+    }
 }
 
 void HammerGameConfiguration::Serialize(std::string fileName) const
 {
     if (fileName.empty())
     {
-        char *p  = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
-        fileName = std::string(p) + "game_configs/" + m_Description + ".json";
-
-        if (!FileSystem::FileExists(std::string(p) + "game_configs/"))
-        {
-            FileSystem::MakeDir(std::string(p) + "game_configs/");
-        }
+        fileName = GameConfigurationsManager::SuggestSaveFileName(m_Engine, m_Description) + ".json";
     }
 
     try
@@ -66,7 +110,6 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
         nlohmann::json j;
         nlohmann::json compilers;
         nlohmann::json fgdFiles;
-        // j["MRU"] = m_lstMRUFiles;
 
         FILE *fp = FileSystem::OpenFileForWriting(fileName);
 
@@ -76,6 +119,19 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
             return;
         }
 
+        switch (m_Engine)
+        {
+        case GameEngines::GoldSource:
+            j["Engine"] = "GoldSource";
+            break;
+        case GameEngines::Xash3d:
+            j["Engine"] = "Xash3d";
+            break;
+        default:
+            break;
+        
+        }
+        
         j["Description"]   = m_Description;
         j["GameDirectory"] = m_GameDirectory;
 
@@ -103,8 +159,40 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
     }
 }
 
-void HammerGameConfiguration::Deserialize(std::string fileName)
+void HammerGameConfiguration::Deserialize(std::string &fileName)
 {
+    FileData *fd = FileSystem::Instance()->LoadFile(fileName);
+
+    std::string json_data = std::string(std::string_view((char *)fd->Data(), fd->Length()));
+    nlohmann::json j      = nlohmann::json::parse(json_data);
+
+    if (j.contains("Compilers"))
+    {
+        auto & compilers = j["Compilers"];
+
+        m_CompilationPrograms.csg = compilers["CSG"];
+        m_CompilationPrograms.bsp = compilers["BSP"];
+        m_CompilationPrograms.vis = compilers["VIS"];
+        m_CompilationPrograms.rad = compilers["RAD"];
+    }
+
+    if (j.contains("Description"))
+        m_Description = j["Description"];
+
+    if (j.contains("GameDirectory"))
+        m_GameDirectory = j["GameDirectory"];
+
+    if (j.contains("Engine"))
+    {
+        std::string engine = j["Engine"];
+
+        if (engine == "GoldSource")
+            m_Engine = GameEngines::GoldSource;
+        else
+            m_Engine = GameEngines::Xash3d;
+    }
+
+    fd->UnRef();
 }
 
 FGDEntityClass *HammerGameConfiguration::LookupFGDClass(std::string &classname)
@@ -129,11 +217,11 @@ void HammerGameConfiguration::ParseGameInfo()
 
     for (auto &line : lines)
     {
-        if (!strcasecmp(line.c_str(), "title"))
+        if (!strncasecmp(line.c_str(), "title", 5))
         {
             auto descr = line.substr(5);
             boost::trim(descr);
-            auto title = descr.substr(1, descr.size() - 1);
+            auto title = descr.substr(1, descr.size() - 2);
             SetDescription(title);
         }
     }

@@ -132,4 +132,8 @@ class FileSystem
     static std::string ExtractFileName(const char *path);
     static [[nodiscard]] FILE *OpenFileForWriting(std::string & fileName);
     static void MakeDir(std::string path);
+    
+    static std::string SanitizeFileName(std::string result);
+
+
 };

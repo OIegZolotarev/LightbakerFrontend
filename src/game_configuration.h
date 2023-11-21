@@ -6,36 +6,50 @@
 #pragma once
 #include <optional>
 
-class GameConfiguration
-{
-protected:
-	std::string m_GameDirectory;
-    std::string m_Description;
-public:
-
-	GameConfiguration(std::string description,std::string gameDirectory);
-	~GameConfiguration();
-
-	const char *Name() const;
-
-    const char *Description() const;
-
-    bool MatchesGameDirectoryMask(std::string & levelFilePath) const;
-  
-    void SetDescription(std::string & descr);
-    void SetGameDirectory(std::string & gameDir);
-
-    virtual void Serialize(std::string fileName) const {};
-    virtual void Deserialize(std::string fileName) {};
-    
-    virtual void EditDialog(){}
-};
 
 enum class GameEngines
 {
     GoldSource = 0,
     Xash3d
 };
+
+class GameConfiguration
+{
+    friend class GameConfigurationsManager;
+
+  protected:
+    std::string m_GameDirectory;
+    std::string m_Description;
+    
+    // File name from which one this config was loaded
+    std::string m_SavedFileName = "";
+
+    GameEngines m_Engine;
+
+  public:
+    GameConfiguration() = default;
+    GameConfiguration(std::string description, std::string gameDirectory);
+    ~GameConfiguration();
+
+    const char *Name() const;
+
+    const char *Description() const;
+
+    bool MatchesGameDirectoryMask(std::string &levelFilePath) const;
+
+    void SetDescription(std::string &descr);
+    void SetGameDirectory(std::string &gameDir);
+
+    virtual void Serialize(std::string fileName) const {};
+
+    virtual void EditDialog()
+    {
+    }
+
+    virtual GameConfiguration *Clone() = 0;
+
+};
+
 
 typedef std::tuple<std::string, GameEngines> gamelookupresult_t;
 
@@ -52,11 +66,17 @@ class GameConfigurationsManager: public Singleton<GameConfigurationsManager>
     std::optional<gamelookupresult_t> ScanForGameDefinitionFile(std::string &levelFileName, size_t maxRecursion = 3);
 
  public:
-    ~GameConfigurationsManager();
+    void Init();
+
+   void LoadGameConfigsFromDisk();
+
+   ~GameConfigurationsManager();
 
 	GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
     GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
     
     const std::list<GameConfigurationPtr> & AllConfigurations() const;
     const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;
+    static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);
+    void UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited);
 };

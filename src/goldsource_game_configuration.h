@@ -27,21 +27,22 @@ class HammerGameConfiguration : public GameConfiguration
     std::list<std::string> m_FGDFiles;
     std::list<HammerFGDFile *> m_lstFGDData;
 
-    GameEngines m_EngineHint = GameEngines::GoldSource;
-
     void ParseLiblistGam();
     void ParseGameInfo();
 
   public:
+    HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
     ~HammerGameConfiguration();
 
     FGDEntityClass *LookupFGDClass(std::string &classname);
 
-    void Deserialize(std::string fileName) override;
+    void Deserialize(std::string & fileName);
     void Serialize(std::string fileName) const override;
 
     void EditDialog() override;
+
+    GameConfiguration *Clone() override;
 };
 
 } // namespace GoldSource

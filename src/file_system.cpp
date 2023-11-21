@@ -11,11 +11,12 @@
 
 #endif
 
+#include "application.h"
 #include "common.h"
 #include "file_system.h"
 #include <filesystem>
+#include <boost/algorithm/string/replace.hpp>
 
-#include "application.h"
 
 FileData::FileData(byte* data, size_t length, const char* name)
 {
@@ -338,6 +339,36 @@ FILE *FileSystem::OpenFileForWriting(std::string & fileName)
 void FileSystem::MakeDir(std::string path)
 {
     std::filesystem::create_directory(path);
+}
+
+std::string FileSystem::SanitizeFileName(std::string name)
+{
+    std::string result;
+
+	result.reserve(name.size());
+
+	// \ / : * ? " < > |
+
+	for (auto &ch : name)
+    {
+        switch (ch)
+        {
+        case  '\\':
+		case '/':
+        case ':':
+        case '*':
+        case '?':
+        case '"':
+        case '<':
+        case '>':
+        case '|':
+            result = '#';
+			break;
+        default:
+            result += ch;
+		}
+	}
+    return result;
 }
 
 // ��������� ��� ����� �� �������

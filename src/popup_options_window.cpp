@@ -244,7 +244,10 @@ void OptionsDialog::RenderGameConfigurationsPage()
                 if (!ptr)
                     continue;
 
-                if (ImGui::Selectable(ptr->Description(), equals(selectedConf, ptr)))
+                auto desc = ptr->Description();
+                
+
+                if (ImGui::Selectable(desc, equals(selectedConf, ptr)))
                 {
                     selectedConf = it;
                 }

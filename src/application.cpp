@@ -26,7 +26,6 @@ Application::Application()
 	m_pCommandsRegistry		=	new CCommandsRegistry;
 	m_pFileSystem			=	new FileSystem;	
 	m_pPersistentStorage	=	nullptr;
-
 	m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
 
