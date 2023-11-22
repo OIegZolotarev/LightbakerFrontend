@@ -10,7 +10,7 @@
 
 LoadFileDialog::LoadFileDialog() : IImGUIPopup(PopupWindows::LoadfileDialog)
 {
-
+    m_Key = "LoadmodelDlgKey";
 }
 
 LoadFileDialog::~LoadFileDialog()

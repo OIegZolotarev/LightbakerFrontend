@@ -47,7 +47,7 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
     m_vPanels.push_back(ObjectPropertiesEditor::Instance());
     m_vPanels.push_back(new SceneObjectPanel);
-    m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
+    //m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
     m_vPanels.push_back(new DebugPanel);
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);

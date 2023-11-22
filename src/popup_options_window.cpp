@@ -3,8 +3,8 @@
     (c) 2023 CrazyRussian
 */
 
-#include "popup_options_window.h"
 #include "application.h"
+#include "popup_options_window.h"
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "ui_common.h"
@@ -92,7 +92,7 @@ void RegisterOptions()
 
 OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)
 {
-    // RegisterOptions();
+    m_Key = "Preferences";
 }
 
 OptionsDialog::~OptionsDialog()
@@ -168,25 +168,19 @@ void OptionsDialog::RenderFooter()
     ImGui::SameLine();
 
     if (ImGui::Button("Cancel"))
-        OnCancelPressed();
-
-    ImGui::EndPopup();
+        OnCancelPressed();    
 }
 
 bool OptionsDialog::RenderHeader()
 {
-    static const char *key = "Options";
     auto sceneRenderer     = Application::Instance()->GetMainWindow()->GetSceneRenderer();
     auto scene             = sceneRenderer->GetScene();
 
-    if (m_bVisible)
-    {
-        ImGui::OpenPopup(key);
-    }
+// 
+//     if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
+//         return false;
 
-    if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
-        return false;
-
+    
     ImGui::SetWindowSize(ImVec2(600, 400));
 
     return true;
@@ -266,9 +260,6 @@ void OptionsDialog::RenderGameConfigurationsPage()
         {
             if (selectedConf.lock())
             {
-                ImGui::CloseCurrentPopup();
-                m_bVisible = false;
-
                 auto popup = (PopupEditGameconfiguration *)PopupsManager::Instance()->FindPopupByID(
                     PopupWindows::EditGameConfiguration);
                 popup->SetGameConfiguration(selectedConf);
@@ -286,6 +277,11 @@ void OptionsDialog::RenderGameConfigurationsPage()
 
 void OptionsDialog::OnOpen()
 {
+}
+
+int OptionsDialog::RenderingFlags()
+{
+    return ImGuiWindowFlags_NoResize;
 }
 
 void OptionsDialog::OnOkPressed()

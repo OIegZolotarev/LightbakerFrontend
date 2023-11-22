@@ -14,7 +14,7 @@
 
 LB3kConfigPopup::LB3kConfigPopup() : IImGUIPopup(PopupWindows::LightBaker3KConfig)
 {
-
+    m_Key = "LightBaker3k options";
 }
 
 
@@ -25,16 +25,6 @@ LB3kConfigPopup::~LB3kConfigPopup()
 
 void LB3kConfigPopup::Render()
 {
-	static const char* key = "LightBaker3000 options";
-
-	if (m_bVisible)
-		ImGui::OpenPopup(key);
-
-	if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_AlwaysAutoResize))
-		return;
-
-	
-	
 	RenderSettingsControls(Application::Instance()->GetLightBakerApplication()->Settings());
 
 	if (ImGui::Button("Bake!"))
@@ -50,7 +40,7 @@ void LB3kConfigPopup::Render()
 		m_bVisible = false;
 	}
 
-	ImGui::EndPopup();
+	//ImGui::EndPopup();
 }
 
 

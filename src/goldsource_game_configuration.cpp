@@ -33,29 +33,25 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
     fd->UnRef();
 }
 
-GameConfiguration *HammerGameConfiguration::Clone()
+void HammerGameConfiguration::RenderGeneralUI()
 {
-    return new HammerGameConfiguration(*this);
-}
-
-HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName)
-{    
-    m_SavedFileName = savedFileName;    
-    Deserialize(savedFileName);
-}
-
-void HammerGameConfiguration::EditDialog()
-{
-    static size_t selectedConf = 0;
-
+    ImGui::SeparatorText("General:");
     ImGui::InputText("Game name:", &m_Description);
     ImGui::InputText("Game directory:", &m_GameDirectory);
+}
 
+void HammerGameConfiguration::RenderCompilerUI()
+{
     ImGui::SeparatorText("Compilers:");
     ImGui::InputText("CSG program", &m_CompilationPrograms.csg);
     ImGui::InputText("BSP program", &m_CompilationPrograms.bsp);
     ImGui::InputText("VIS program", &m_CompilationPrograms.vis);
     ImGui::InputText("RAD program", &m_CompilationPrograms.rad);
+}
+
+void HammerGameConfiguration::RenderFGDUI()
+{
+    static size_t selectedConf = 0;
 
     ImGui::SeparatorText("FGD Files");
 
@@ -98,6 +94,38 @@ void HammerGameConfiguration::EditDialog()
     }
 }
 
+GameConfiguration *HammerGameConfiguration::Clone()
+{
+    return new HammerGameConfiguration(*this);
+}
+
+HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName)
+{
+    m_SavedFileName = savedFileName;
+    Deserialize(savedFileName);
+}
+
+void HammerGameConfiguration::EditDialog()
+{
+    if (ImGui::BeginTabBar("###HamerGameConfigurationTabs"))
+    {
+        if (ImGui::BeginTabItem("General"))
+        {
+            RenderGeneralUI();
+            RenderFGDUI();
+            ImGui::EndTabItem();
+        }
+        
+        if (ImGui::BeginTabItem("Build programs"))
+        {
+            RenderCompilerUI();
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
+}
+
 void HammerGameConfiguration::Serialize(std::string fileName) const
 {
     if (fileName.empty())
@@ -129,9 +157,8 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
             break;
         default:
             break;
-        
         }
-        
+
         j["Description"]   = m_Description;
         j["GameDirectory"] = m_GameDirectory;
 
@@ -168,7 +195,7 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
 
     if (j.contains("Compilers"))
     {
-        auto & compilers = j["Compilers"];
+        auto &compilers = j["Compilers"];
 
         m_CompilationPrograms.csg = compilers["CSG"];
         m_CompilationPrograms.bsp = compilers["BSP"];
@@ -181,6 +208,14 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
 
     if (j.contains("GameDirectory"))
         m_GameDirectory = j["GameDirectory"];
+
+    if (j.contains("FGDFiles"))
+    {
+        auto FGDFiles = j["FGDFiles"];
+
+        for (auto & it : FGDFiles)
+            m_FGDFiles.push_back(it);
+    }
 
     if (j.contains("Engine"))
     {

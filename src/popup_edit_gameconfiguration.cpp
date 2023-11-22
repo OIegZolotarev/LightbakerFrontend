@@ -9,6 +9,7 @@
 
 PopupEditGameconfiguration::PopupEditGameconfiguration() : IImGUIPopup(PopupWindows::EditGameConfiguration)
 {
+    m_Key = "Edit game configuration";
 }
 
 PopupEditGameconfiguration::~PopupEditGameconfiguration()
@@ -17,14 +18,7 @@ PopupEditGameconfiguration::~PopupEditGameconfiguration()
 
 void PopupEditGameconfiguration::Render()
 {
-    static const char *key = "Edit game configuration";
-
-    if (m_bVisible)
-    {
-        ImGui::OpenPopup(key);
-    }
-
-    if (ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_AlwaysAutoResize))
+  
     {
         auto ptr = m_pCurrentConfiguration.lock();
 
@@ -53,9 +47,7 @@ void PopupEditGameconfiguration::Render()
         {
             delete m_pEditedConfiguration;
             m_bVisible = false;
-        }
-
-        ImGui::EndPopup();
+        }        
     }
 }
 

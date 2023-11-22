@@ -42,6 +42,12 @@ class HammerGameConfiguration : public GameConfiguration
 
     void EditDialog() override;
 
+    void RenderGeneralUI();
+
+    void RenderCompilerUI();
+
+    void RenderFGDUI();
+
     GameConfiguration *Clone() override;
 };
 

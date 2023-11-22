@@ -20,7 +20,10 @@ public:
 
 	void Render() override;	
 	void OnOpen() override;
-private:
+
+    int RenderingFlags() override;
+
+  private:
 	void OnOkPressed();
 	void OnCancelPressed();
 	void RenderFooter();
