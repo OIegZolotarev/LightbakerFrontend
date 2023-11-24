@@ -231,6 +231,7 @@ build.bat
     <ClCompile Include="Icosphere.cpp" />
     <ClCompile Include="igui_panel.cpp" />
     <ClCompile Include="imgui_helpers.cpp" />
+    <ClCompile Include="imgui_listview_ex.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="world_entity.cpp" />
@@ -318,6 +319,7 @@ build.bat
     <ClInclude Include="igui_panel.h" />
     <ClInclude Include="imgui_enum_combobox.h" />
     <ClInclude Include="imgui_helpers.h" />
+    <ClInclude Include="imgui_listview_ex.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />

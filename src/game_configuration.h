@@ -75,7 +75,7 @@ class GameConfigurationsManager: public Singleton<GameConfigurationsManager>
 	GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
     GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
     
-    const std::list<GameConfigurationPtr> & AllConfigurations() const;
+    std::list<GameConfigurationPtr> & AllConfigurations();
     const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;
     static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);
     void UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited);

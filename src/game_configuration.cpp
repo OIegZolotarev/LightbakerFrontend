@@ -149,7 +149,7 @@ GameConfigurationWeakPtrOpt GameConfigurationsManager::FindConfigurationForLevel
     return pNewConfiguration;
 }
 
-const std::list<GameConfigurationPtr> & GameConfigurationsManager::AllConfigurations() const
+std::list<GameConfigurationPtr> & GameConfigurationsManager::AllConfigurations()
 {
     return m_Configurations;
 }

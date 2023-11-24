@@ -258,13 +258,8 @@ void OptionsDialog::RenderGameConfigurationsPage()
 
         if (ImGui::Button("Edit..."))
         {
-            if (selectedConf.lock())
-            {
                 auto popup = (PopupEditGameconfiguration *)PopupsManager::Instance()->FindPopupByID(
-                    PopupWindows::EditGameConfiguration);
-                popup->SetGameConfiguration(selectedConf);
-                PopupsManager::Instance()->ShowPopup(PopupWindows::EditGameConfiguration);
-            }
+
         }
 
         if (ImGui::Button("Remove"))
@@ -292,4 +287,86 @@ void OptionsDialog::OnOkPressed()
 void OptionsDialog::OnCancelPressed()
 {
     m_bVisible = false;
+}
+
+void GameConfigurationListBinding::AddNewItem()
+{
+    // TODO: implement
+}
+
+const char *GameConfigurationListBinding::ItemDescription(size_t index)
+{
+    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
+
+    auto b = items.begin();
+    std::advance(b, index);
+
+    auto ptr = b->lock();
+
+    if (ptr)
+    {
+        return ptr->Name();
+    }
+    else
+    {
+        return "<Item destroyed>";
+    }
+}
+
+size_t GameConfigurationListBinding::ItemsCount()
+{
+    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
+    return items.size();
+}
+
+void GameConfigurationListBinding::MoveItemDown()
+{
+    if (!m_SelectedConf.lock())
+        return;
+
+    // TODO: implement
+    //throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GameConfigurationListBinding::MoveItemUp()
+{
+    if (!m_SelectedConf.lock())
+        return;
+
+    // TODO: implement
+    // throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GameConfigurationListBinding::OpenItemEditor()
+{
+    if (m_SelectedConf.lock())
+    {
+        auto popup =
+            (PopupEditGameconfiguration *)PopupsManager::Instance()->FindPopupByID(PopupWindows::EditGameConfiguration);
+        popup->SetGameConfiguration(m_SelectedConf);
+        PopupsManager::Instance()->ShowPopup(PopupWindows::EditGameConfiguration);
+    }
+}
+
+void GameConfigurationListBinding::RemoveItem(size_t item)
+{
+    auto & items = GameConfigurationsManager::Instance()->AllConfigurations();
+
+    auto it = items.begin();
+    std::advance(it, item);
+    items.erase(it);
+}
+
+void GameConfigurationListBinding::SortItems(SortDirection dir)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+void GameConfigurationListBinding::SetSelectedItem(size_t index)
+{
+    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
+
+    auto b = items.begin();
+    std::advance(b, index);
+    m_SelectedConf = *b;
 }

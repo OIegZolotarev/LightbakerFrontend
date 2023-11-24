@@ -326,6 +326,9 @@
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы\ImGUI\core</Filter>
     </ClCompile>
+    <ClCompile Include="imgui_listview_ex.cpp">
+      <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -584,6 +587,9 @@
       <Filter>Исходные файлы\ImGUI\core</Filter>
     </ClInclude>
     <ClInclude Include="imgui_enum_combobox.h">
+      <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_listview_ex.h">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
   </ItemGroup>
