@@ -8,6 +8,9 @@
 #include "common.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
+#include "lb3k_imgui_icons.h"
+#include "imgui_helpers.h"
+
 
 using namespace GoldSource;
 
@@ -36,7 +39,10 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
 void HammerGameConfiguration::RenderGeneralUI()
 {
     ImGui::SeparatorText("General:");
+    ImGui::SetNextItemWidth(600.f);
     ImGui::InputText("Game name:", &m_Description);
+
+    ImGui::SetNextItemWidth(600.f);
     ImGui::InputText("Game directory:", &m_GameDirectory);
 }
 
@@ -55,7 +61,33 @@ void HammerGameConfiguration::RenderFGDUI()
 
     ImGui::SeparatorText("FGD Files");
 
-    if (ImGui::BeginListBox("###FGDFilesListBox"))
+    
+    //if (ImGui::Button((char *)ICON_lb3k_SYMBOL_NAME "Add"))
+    if (ImGuiHelpers::ButtonWithCommonIcon(CommonIcons::ListAdd, "Add", 11, {0,1,0,1}))
+    {
+        m_FGDFiles.push_back("<DUMMY>");
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button((char *)ICON_lb3k_MINUS "Remove"))
+    {
+        if (selectedConf > m_FGDFiles.size() - 1)
+        {
+            selectedConf = 0;
+            return;
+        }
+
+        auto it = m_FGDFiles.begin();
+        std::advance(it, selectedConf);
+
+        m_FGDFiles.erase(it);
+        selectedConf = 0;
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginListBox("###FGDFilesListBox", ImVec2(-1, 0)))
     {
         size_t index = 0;
         for (auto &it : m_FGDFiles)
@@ -71,27 +103,7 @@ void HammerGameConfiguration::RenderFGDUI()
         ImGui::EndListBox();
     }
 
-    if (ImGui::Button("Add"))
-    {
-        m_FGDFiles.push_back("<DUMMY>");
-    }
 
-    ImGui::SameLine();
-
-    if (ImGui::Button("Remove"))
-    {
-        if (selectedConf > m_FGDFiles.size() - 1)
-        {
-            selectedConf = 0;
-            return;
-        }
-
-        auto it = m_FGDFiles.begin();
-        std::advance(it, selectedConf);
-
-        m_FGDFiles.erase(it);
-        selectedConf = 0;
-    }
 }
 
 GameConfiguration *HammerGameConfiguration::Clone()

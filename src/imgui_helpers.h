@@ -1,34 +1,20 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
 
+#include "common_resources.h"
 #include "ui_common.h"
 
 namespace ImGuiHelpers
 {
-template<class T>
-void EnumCombobox(T* value, const char* label)
-{
-	const char* v = value->_to_string();
+void Init();
 
-	if (ImGui::BeginCombo(label, v))
-	{
-		for (auto& it : value->_values())
-		{
-			if (ImGui::Selectable(it._to_string(), it == value->_value, 0))
-			{
-				value->_value = it._value;
-			}
-		}
+bool ImageButtonWithText(ImTextureID texId, const char *label, const ImVec2 &imageSize, const ImVec2 &uv0,
+                         const ImVec2 &uv1, int frame_padding, const ImVec4 &bg_col, const ImVec4 &tint_col);
 
-		ImGui::EndCombo();
-	}
-}
+bool ButtonWithCommonIcon(CommonIcons icon, const char *label, const float icon_size, ImVec4 tint = {1, 1, 1, 1});
 
-
-}
-
-
+} // namespace ImGuiHelpers

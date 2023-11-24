@@ -21,6 +21,7 @@
 #include "hammer_fgd.h"
 #include "wad_textures.h"
 #include "grid_renderer.h"
+#include "imgui_helpers.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -151,6 +152,8 @@ void MainWindow::InitBackend()
     // setup platform/renderer bindings
     ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
     ImGui_ImplOpenGL3_Init(glsl_version.c_str());
+
+    ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
     g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);

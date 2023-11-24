@@ -72,25 +72,22 @@
     <Filter Include="Исходные файлы\Scene\EntitiesWavefront">
       <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\ImGUI\helpers">
+      <UniqueIdentifier>{2e6b35fd-541f-463a-bb19-638bd7156cfe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\fonts">
+      <UniqueIdentifier>{b672e035-824a-44ce-bea7-48989343cbf4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\core">
+      <UniqueIdentifier>{5a1e5aca-65d3-411d-be7f-802e9ab2e57d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\custom widgets">
+      <UniqueIdentifier>{627ce8da-ba4d-4bba-9ce1-4706f5d758c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\imgui.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\imgui_draw.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\imgui_tables.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\imgui_widgets.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\backends\imgui_impl_opengl3.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\glad\glad.c">
       <Filter>Исходные файлы\GLAD</Filter>
@@ -143,20 +140,11 @@
     <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
       <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClCompile>
-    <ClCompile Include="custom_font.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="igui_panel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="console_output_panel.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="debug_panel.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\imgui_demo.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
     <ClCompile Include="text_utils.cpp">
       <Filter>Исходные файлы</Filter>
@@ -212,9 +200,6 @@
     <ClCompile Include="stblibs_impl.cpp">
       <Filter>Исходные файлы\stb</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl2.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClCompile>
     <ClCompile Include="object_props.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -259,9 +244,6 @@
     </ClCompile>
     <ClCompile Include="popup_edit_gameconfiguration.cpp">
       <Filter>Исходные файлы\Popups</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp">
-      <Filter>Исходные файлы\ImGUI</Filter>
     </ClCompile>
     <ClCompile Include="edit_history.cpp">
       <Filter>Исходные файлы\Editor</Filter>
@@ -311,28 +293,43 @@
     <ClCompile Include="goldsource_bsp_world.cpp">
       <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
     </ClCompile>
+    <ClCompile Include="igui_panel.cpp">
+      <Filter>Исходные файлы\ImGUI\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_helpers.cpp">
+      <Filter>Исходные файлы\ImGUI\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="custom_font.cpp">
+      <Filter>Исходные файлы\ImGUI\fonts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\imgui.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\imgui_demo.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\imgui_draw.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\backends\imgui_impl_opengl3.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl2.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\imgui_tables.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\imgui\imgui_widgets.cpp">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
       <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imconfig.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imgui.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imgui_internal.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imstb_rectpack.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imstb_textedit.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\imgui\imstb_truetype.h">
-      <Filter>Исходные файлы\ImGUI</Filter>
     </ClInclude>
     <ClInclude Include="ui_common.h">
       <Filter>Исходные файлы</Filter>
@@ -401,15 +398,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\include\better-enums\enum.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="imgui_helpers.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="custom_font.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="igui_panel.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="console_output_panel.h">
@@ -564,6 +552,39 @@
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
       <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="igui_panel.h">
+      <Filter>Исходные файлы\ImGUI\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_helpers.h">
+      <Filter>Исходные файлы\ImGUI\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="lb3k_imgui_icons.h">
+      <Filter>Исходные файлы\ImGUI\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="custom_font.h">
+      <Filter>Исходные файлы\ImGUI\fonts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imstb_truetype.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imconfig.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imgui.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imgui_internal.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imstb_rectpack.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\imgui\imstb_textedit.h">
+      <Filter>Исходные файлы\ImGUI\core</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_enum_combobox.h">
+      <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

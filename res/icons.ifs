@@ -1,0 +1,106 @@
+<config>
+	<project>
+		<font name="MaterialIcons-Regular.ttf">
+			<glyphs>
+				<glyph orgId="57356" newId="58527" orgName="Symbol_57356" newName="alignTop" trans="0;0" scale="1;1"/>
+				<glyph orgId="57357" newId="58528" orgName="Symbol_57357" newName="alignLeft" trans="0;0" scale="1;1"/>
+				<glyph orgId="57359" newId="58529" orgName="Symbol_57359" newName="alignCenterV" trans="0;0" scale="1;1"/>
+				<glyph orgId="57360" newId="58530" orgName="Symbol_57360" newName="alignRight" trans="0;0" scale="1;1"/>
+				<glyph orgId="57361" newId="58531" orgName="Symbol_57361" newName="alignCenterH" trans="0;0" scale="1;1"/>
+				<glyph orgId="57364" newId="58532" orgName="Symbol_57364" newName="spaceEqualH" trans="0;0" scale="1;1"/>
+				<glyph orgId="57365" newId="58533" orgName="Symbol_57365" newName="alignBottom" trans="0;0" scale="1;1"/>
+				<glyph orgId="57669" newId="58534" orgName="Symbol_57669" newName="Symbol Name" trans="0;0" scale="1;1"/>
+				<glyph orgId="57691" newId="58535" orgName="Symbol_57691" newName="minus" trans="0;0" scale="1;1"/>
+			</glyphs>
+			<prefix>MIR</prefix>
+			<genmodeflags>1305</genmodeflags>
+			<pathfilename>..\..\3rdparty\imgui-font-studio\fonts-dump\MaterialIcons-Regular.ttf</pathfilename>
+			<oversample>1</oversample>
+			<fontsize>50</fontsize>
+			<generatedfilename>lb3k_imgui_icons</generatedfilename>
+			<cardglyhpheight>40</cardglyhpheight>
+			<cardcountrowsmax>20</cardcountrowsmax>
+			<rasterizer>1</rasterizer>
+			<freetypeflag>0</freetypeflag>
+			<freetypemultiply>1</freetypemultiply>
+			<padding>3</padding>
+			<filtering>9729</filtering>
+			<enabled>true</enabled>
+			<collapsed>false</collapsed>
+		</font>
+		<font name="fa-solid-900.ttf">
+			<glyphs>
+				<glyph orgId="61639" newId="58536" orgName="floppy-disk" newName="floppy-disk" trans="0;0" scale="1;1"/>
+				<glyph orgId="61675" newId="58537" orgName="lightbulb" newName="lightbulb" trans="0;1.906" scale="1;1"/>
+				<glyph orgId="61761" newId="58538" orgName="ellipsis" newName="ellipsis" trans="0;0" scale="1;1"/>
+				<glyph orgId="61787" newId="58539" orgName="file" newName="file" trans="0;0" scale="1;1"/>
+				<glyph orgId="61792" newId="58540" orgName="arrow-down-wide-short" newName="arrow-down-wide-short" trans="0;0" scale="1;1"/>
+				<glyph orgId="61793" newId="58541" orgName="arrow-up-wide-short" newName="arrow-up-wide-short" trans="0;0" scale="1;1"/>
+			</glyphs>
+			<prefix>FAS</prefix>
+			<genmodeflags>1305</genmodeflags>
+			<pathfilename>..\..\3rdparty\imgui-font-studio\fonts-dump\fa-solid-900.ttf</pathfilename>
+			<oversample>1</oversample>
+			<fontsize>50</fontsize>
+			<generatedfilename></generatedfilename>
+			<cardglyhpheight>40</cardglyhpheight>
+			<cardcountrowsmax>20</cardcountrowsmax>
+			<rasterizer>1</rasterizer>
+			<freetypeflag>259</freetypeflag>
+			<freetypemultiply>1</freetypemultiply>
+			<padding>1</padding>
+			<filtering>9729</filtering>
+			<enabled>true</enabled>
+			<collapsed>false</collapsed>
+		</font>
+		<rangecoloring show="false" hash="10;15;35;0.5"/>
+		<previewglyphcount>11</previewglyphcount>
+		<previewglyphwidth>92.1818</previewglyphwidth>
+		<mergedfontprefix>lb3k</mergedfontprefix>
+		<mergedcardglyhpheight>40</mergedcardglyhpheight>
+		<mergedcardcountrowsmax>20</mergedcardcountrowsmax>
+		<curglyphtooltip>true</curglyphtooltip>
+		<srcglyphtooltip>true</srcglyphtooltip>
+		<dstglyphtooltip>true</dstglyphtooltip>
+		<glyphpreviewscale>0.45001</glyphpreviewscale>
+		<glyphdrawingflags>1503</glyphdrawingflags>
+		<glyphpreviewquadbeziercounsegment>12</glyphpreviewquadbeziercounsegment>
+		<glyphpreviewzoomprecision>20</glyphpreviewzoomprecision>
+		<genmodeflags>1353</genmodeflags>
+		<fonttomergein>MaterialIcons-Regular.ttf</fonttomergein>
+		<glyphdisplaytuningmode>1</glyphdisplaytuningmode>
+		<sourcefontpaneflags>1</sourcefontpaneflags>
+		<lastgeneratedpath>E:\Projects\PC\LightbakerFrontend\src</lastgeneratedpath>
+		<lastgeneratedfilename>lb3k_imgui_icons.cpp</lastgeneratedfilename>
+		<zoomglyphs>false</zoomglyphs>
+		<showbaseline>true</showbaseline>
+		<showadvancex>true</showadvancex>
+		<glyphdrawingflags>1503</glyphdrawingflags>
+		<finalselection>
+			<selection orgId="57356" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57357" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57359" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57360" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57361" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57364" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57365" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57669" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="57691" font="MaterialIcons-Regular.ttf"/>
+			<selection orgId="61639" font="fa-solid-900.ttf"/>
+			<selection orgId="61675" font="fa-solid-900.ttf"/>
+			<selection orgId="61761" font="fa-solid-900.ttf"/>
+			<selection orgId="61787" font="fa-solid-900.ttf"/>
+			<selection orgId="61792" font="fa-solid-900.ttf"/>
+			<selection orgId="61793" font="fa-solid-900.ttf"/>
+		</finalselection>
+		<fonttest>
+			<fontsize>100</fontsize>
+			<showbaseline>true</showbaseline>
+			<fontname></fontname>
+			<teststring></teststring>
+			<insertedglyphs>
+				<insert pos="0" orgId="57359" font="MaterialIcons-Regular.ttf"/>
+			</insertedglyphs>
+		</fonttest>
+	</project>
+</config>

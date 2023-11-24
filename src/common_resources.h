@@ -12,7 +12,13 @@ enum class CommonIcons
 	SpotLight,
 	DirectLight,
 	OmniLight,
-	Bake
+	Bake,
+	ListAdd,
+	ListRemove,
+	ListMoveUp,
+	ListMoveDown,
+	ListSortDesc,
+	ListSortAsc,
 };
 
 void			InitCommonResources();
