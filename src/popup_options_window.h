@@ -13,9 +13,13 @@
 class GameConfigurationListBinding : public IListBinder
 {
     GameConfigurationWeakPtr m_SelectedConf;
+    std::list<GameConfigurationPtr>::iterator m_Iterator;
+
+    std::list<GameConfigurationPtr> &m_ConfigurationItems;
+
   public:
-    const char *ItemDescription(size_t index) override;
-    size_t ItemsCount() override;
+    GameConfigurationListBinding();
+
 
     void MoveItemDown() override;
     void MoveItemUp() override;
@@ -23,15 +27,28 @@ class GameConfigurationListBinding : public IListBinder
   
     void AddNewItem() override;
     void RemoveItem(size_t index) override;
+    
     void SortItems(SortDirection dir) override;
 
-    void SetSelectedItem(size_t index) override;
+    
+    bool IsItemSelected() override;
+    const char *ItemDescription() override;
+    bool NextItem() override;
+    void ResetIterator() override;
+    void SetSelectedItem() override;
+
+    void RemoveSelectedItem() override;
+
+    bool IsEmpty() override;
 };
 
 class OptionsDialog : public IImGUIPopup
 {
     float m_flScale         = 0;
     float m_flScaleOriginal = 0;
+
+    
+    ListViewEx *m_pGameConfigurationsView;
 
   public:
     OptionsDialog();
@@ -49,8 +66,5 @@ class OptionsDialog : public IImGUIPopup
     bool RenderHeader();
 
     void RenderOptionsPages(ProgramOptions::uiOptionPage_t *page);
-
-    // void RenderPropertyControl(VariantValue& it);
-
     void RenderGameConfigurationsPage();
 };

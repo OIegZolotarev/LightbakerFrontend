@@ -164,6 +164,8 @@ void PopupsManager::RenderPopups()
 
         ptr->OpenPopup();
 
+        // TODO: crashes on minimizing-maximizng
+
         if (ptr->BeginRendering())
         {
             ImGui::PushID(ptr);

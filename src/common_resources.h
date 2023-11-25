@@ -15,10 +15,11 @@ enum class CommonIcons
 	Bake,
 	ListAdd,
 	ListRemove,
+	ListEdit,
 	ListMoveUp,
-	ListMoveDown,
-	ListSortDesc,
+	ListMoveDown,	
 	ListSortAsc,
+    ListSortDesc
 };
 
 void			InitCommonResources();

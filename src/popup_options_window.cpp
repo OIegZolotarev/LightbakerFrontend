@@ -15,6 +15,7 @@
 #include "popup_edit_gameconfiguration.h"
 #include "ui_options_pages.h"
 #include "ui_styles_manager.h"
+#include <xutility>
 
 using namespace ProgramOptions;
 
@@ -45,14 +46,14 @@ void RegisterOptions()
 
     opt = AddOption(ApplicationSettings::CameraMouseSensivityRotating, "Mouse sensitivity (rotation)",
                     PropertiesTypes::Float);
-    opt->SetNumericalLimits(0.1, 10);
+    opt->SetNumericalLimits(0.1f, 10.f);
 
     opt = AddOption(ApplicationSettings::CameraMouseSensivityPaning, "Mouse sensitivity (pan)", PropertiesTypes::Float);
-    opt->SetNumericalLimits(0.1, 10);
+    opt->SetNumericalLimits(0.1f, 10.f);
 
-    opt = AddOption(ApplicationSettings::CameraMouseSensivityZooming, "Mouse sensitivity (zoom)",
-                    PropertiesTypes::Float);
-    opt->SetNumericalLimits(0.1, 10);
+    opt =
+        AddOption(ApplicationSettings::CameraMouseSensivityZooming, "Mouse sensitivity (zoom)", PropertiesTypes::Float);
+    opt->SetNumericalLimits(0.1f, 10.f);
 
     AddGroup("Movement");
 
@@ -67,13 +68,13 @@ void RegisterOptions()
     AddGroup("Parameters");
 
     opt = AddOption(ApplicationSettings::CameraFov, "Field of view", PropertiesTypes::Float);
-    opt->SetNumericalLimits(1, 179);
+    opt->SetNumericalLimits(1.f, 179.f);
 
     opt = AddOption(ApplicationSettings::CameraZNear, "Near plane", PropertiesTypes::Float);
-    opt->SetNumericalLimits(0.001, 10);
+    opt->SetNumericalLimits(0.001f, 10.f);
 
     opt = AddOption(ApplicationSettings::CameraZFar, "Far plane", PropertiesTypes::Float);
-    opt->SetNumericalLimits(10, 1000000);
+    opt->SetNumericalLimits(10.f, 1000000.f);
 
     BeginOptionPage(OptionsPage::Appearence, "Appeareance");
 
@@ -93,10 +94,13 @@ void RegisterOptions()
 OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)
 {
     m_Key = "Preferences";
+
+    m_pGameConfigurationsView = new ListViewEx(new GameConfigurationListBinding, LV_DISABLE_MOVE_ITEMS | LV_DISABLE_SORT_ITEMS);
 }
 
 OptionsDialog::~OptionsDialog()
 {
+    delete m_pGameConfigurationsView;
 }
 
 void OptionsDialog::Render()
@@ -168,19 +172,18 @@ void OptionsDialog::RenderFooter()
     ImGui::SameLine();
 
     if (ImGui::Button("Cancel"))
-        OnCancelPressed();    
+        OnCancelPressed();
 }
 
 bool OptionsDialog::RenderHeader()
 {
-    auto sceneRenderer     = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene             = sceneRenderer->GetScene();
+    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+    auto scene         = sceneRenderer->GetScene();
 
-// 
-//     if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
-//         return false;
+    //
+    //     if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
+    //         return false;
 
-    
     ImGui::SetWindowSize(ImVec2(600, 400));
 
     return true;
@@ -221,53 +224,7 @@ void OptionsDialog::RenderGameConfigurationsPage()
 
     ImGui::SeparatorText("Registered configurations:");
 
-    if (ImGui::BeginTable("###GroupsLeftRight", 2))
-    {
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-
-        ImGui::SetNextItemWidth(-1);
-
-        if (ImGui::BeginListBox("###RegisteredConfigurations"))
-        {
-            auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
-            for (auto &it : items)
-            {
-                auto ptr = it.lock();
-
-                if (!ptr)
-                    continue;
-
-                auto desc = ptr->Description();
-                
-
-                if (ImGui::Selectable(desc, equals(selectedConf, ptr)))
-                {
-                    selectedConf = it;
-                }
-            }
-
-            ImGui::EndListBox();
-        }
-
-        ImGui::TableSetColumnIndex(1);
-
-        if (ImGui::Button("Add"))
-        {
-        }
-
-        if (ImGui::Button("Edit..."))
-        {
-                auto popup = (PopupEditGameconfiguration *)PopupsManager::Instance()->FindPopupByID(
-
-        }
-
-        if (ImGui::Button("Remove"))
-        {
-        }
-
-        ImGui::EndTable();
-    }
+    m_pGameConfigurationsView->RenderGui();
 }
 
 void OptionsDialog::OnOpen()
@@ -294,29 +251,27 @@ void GameConfigurationListBinding::AddNewItem()
     // TODO: implement
 }
 
-const char *GameConfigurationListBinding::ItemDescription(size_t index)
+//// GameConfiguration list binding
+
+const char *GameConfigurationListBinding::ItemDescription()
 {
-    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
-
-    auto b = items.begin();
-    std::advance(b, index);
-
-    auto ptr = b->lock();
-
-    if (ptr)
-    {
-        return ptr->Name();
-    }
-    else
-    {
-        return "<Item destroyed>";
-    }
+    return (*m_Iterator)->Description();
 }
 
-size_t GameConfigurationListBinding::ItemsCount()
+bool GameConfigurationListBinding::NextItem()
 {
-    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
-    return items.size();
+    m_Iterator++;
+    return m_Iterator != m_ConfigurationItems.end();
+}
+
+void GameConfigurationListBinding::ResetIterator()
+{
+    m_Iterator = m_ConfigurationItems.begin();
+}
+
+GameConfigurationListBinding::GameConfigurationListBinding()
+    : m_ConfigurationItems(GameConfigurationsManager::Instance()->AllConfigurations())
+{
 }
 
 void GameConfigurationListBinding::MoveItemDown()
@@ -324,8 +279,22 @@ void GameConfigurationListBinding::MoveItemDown()
     if (!m_SelectedConf.lock())
         return;
 
-    // TODO: implement
-    //throw std::logic_error("The method or operation is not implemented.");
+
+    std::list<GameConfigurationPtr>::iterator it =
+        std::find(m_ConfigurationItems.begin(), m_ConfigurationItems.end(), m_SelectedConf.lock());
+    
+    std::list<GameConfigurationPtr>::iterator next_it;
+    
+    next_it = it;
+    next_it++;
+
+    if (m_ConfigurationItems.end() == next_it)
+    {
+        next_it = m_ConfigurationItems.begin();
+    }
+    
+    
+    std::iter_swap(it, next_it);
 }
 
 void GameConfigurationListBinding::MoveItemUp()
@@ -333,8 +302,25 @@ void GameConfigurationListBinding::MoveItemUp()
     if (!m_SelectedConf.lock())
         return;
 
-    // TODO: implement
-    // throw std::logic_error("The method or operation is not implemented.");
+
+    std::list<GameConfigurationPtr>::iterator it =
+        std::find(m_ConfigurationItems.begin(), m_ConfigurationItems.end(), m_SelectedConf.lock());
+
+    std::list<GameConfigurationPtr>::iterator next_it;
+    
+
+    if (it == m_ConfigurationItems.begin())
+    {
+        next_it = m_ConfigurationItems.end();
+        next_it--;
+    }
+    else
+    {
+        next_it = it;
+        next_it--;
+    }
+
+    std::iter_swap(it, next_it);
 }
 
 void GameConfigurationListBinding::OpenItemEditor()
@@ -350,7 +336,7 @@ void GameConfigurationListBinding::OpenItemEditor()
 
 void GameConfigurationListBinding::RemoveItem(size_t item)
 {
-    auto & items = GameConfigurationsManager::Instance()->AllConfigurations();
+    auto &items = GameConfigurationsManager::Instance()->AllConfigurations();
 
     auto it = items.begin();
     std::advance(it, item);
@@ -359,14 +345,42 @@ void GameConfigurationListBinding::RemoveItem(size_t item)
 
 void GameConfigurationListBinding::SortItems(SortDirection dir)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    m_ConfigurationItems.sort([&](const GameConfigurationPtr &a, const GameConfigurationPtr &b) {
+        switch (dir)
+        {
+        case SortDirection::Ascending:
+            return strcmp(a->Description(), b->Description()) < 0;
+            break;
+        case SortDirection::Descending:
+            return strcmp(a->Description(), b->Description()) > 0;
+            break;
+        }
+
+        return false;
+    });
+
 }
 
-void GameConfigurationListBinding::SetSelectedItem(size_t index)
+void GameConfigurationListBinding::SetSelectedItem()
 {
-    auto items = GameConfigurationsManager::Instance()->AllConfigurationsWeakPtr();
+    m_SelectedConf = *m_Iterator;
+}
 
-    auto b = items.begin();
-    std::advance(b, index);
-    m_SelectedConf = *b;
+void GameConfigurationListBinding::RemoveSelectedItem()
+{
+    // TODO: implement confirmation dialog and file removal
+
+    m_ConfigurationItems.remove_if([&](GameConfigurationPtr ptr) -> bool { return equals(m_SelectedConf, ptr); });
+
+    m_SelectedConf.reset();
+}
+
+bool GameConfigurationListBinding::IsEmpty()
+{
+    return m_ConfigurationItems.empty();
+}
+
+bool GameConfigurationListBinding::IsItemSelected()
+{
+    return equals(m_SelectedConf, *m_Iterator);
 }

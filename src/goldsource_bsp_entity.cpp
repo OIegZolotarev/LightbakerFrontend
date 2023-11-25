@@ -12,12 +12,13 @@
 
 using namespace GoldSource;
 
-// TODO: proper FGD settings
-//       loading game configs
+// TODO: proper FGD settings ~wip
+//       loading game configs done
 //       "default" flag for game config
 //       proper gameconfig reflection
-//       fix texture loading issue
+//       fix texture loading issue 
 //       fix wad loading hack
+//       make possible to add new light into bsp
 
 BSPEntity::BSPEntity()
 {
