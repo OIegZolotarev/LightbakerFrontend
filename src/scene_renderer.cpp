@@ -229,8 +229,6 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 		
         sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetColor());
         
-
-
 		selectionManager->PushObject(it);
 
 		if (it->IsSelected())
@@ -240,10 +238,10 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 	}
 
 
-	if (selection.lock())
-    {
-        DrawLightHelperGeometry(selection);
-    }
+ 	if (selection.lock() && false)
+     {
+         DrawLightHelperGeometry(selection);
+     }
 
 	glDepthMask(GL_TRUE);
 	glDisable(GL_BLEND);
@@ -299,6 +297,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 	}
 
 	GLBackend::BindTexture(0, texture);
+    GLBackend::BindTexture(1, nullptr);
 	m_pBillBoard->Draw();
 #else 
 

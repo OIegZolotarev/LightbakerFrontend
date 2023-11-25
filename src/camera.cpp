@@ -9,7 +9,7 @@
 #include "application.h"
 #include <algorithm>
 
-#define OLD_GL
+//#define OLD_GL
 
 Camera::Camera(SceneRenderer *pSceneRenderer)
 {

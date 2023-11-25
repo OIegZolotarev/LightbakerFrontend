@@ -113,7 +113,7 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 	r->width = image_width;
 	r->height = image_height;
 
-	r->loaded;
+	r->loaded = true;
 
 	return;
 }
