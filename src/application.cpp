@@ -172,13 +172,7 @@ void Application::FlagDelayedInitDone()
 	m_bDelayedInitDone = true;
 
 	if (!m_strFileToLoad.empty())
-		Application::GetMainWindow()->GetSceneRenderer()->LoadModel(m_strFileToLoad.c_str(), LRF_LOAD_ALL);
-
-
-	// TEST
-	auto fd = FileSystem::Instance()->LoadFile("E:/Projects/PC/LightbakerFrontend/bin/tests/fgd/halflife_2020.fgd");
-	GoldSource::HammerFGDFile* pFGD = new GoldSource::HammerFGDFile(fd);
-	
+		Application::GetMainWindow()->GetSceneRenderer()->LoadModel(m_strFileToLoad.c_str(), LRF_LOAD_ALL);	
 }
 
 LightBaker3000* Application::GetLightBakerApplication()

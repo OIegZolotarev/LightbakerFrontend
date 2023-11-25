@@ -104,7 +104,10 @@ private:
  	return 1;
  }
 
-//#define Con_Printf printf
+#define DEBUG_TO_CONSOLE
+#ifdef DEBUG_TO_CONSOLE
+	#define Con_Printf printf
+#endif
 
 
  #define SDL_ORGANIZATION "QuiteOldOrange"
