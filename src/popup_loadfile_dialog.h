@@ -24,17 +24,16 @@ class LoadFileDialog : public IImGUIPopup
 
     void Render() override;
 
-    bool BeginRendering() override;
-    void EndRendering() override;
-
-
     void SetTitle(const char *title);
     void SetFilters(const char *filters);
     void SetOnSelectCallback(pfnOnSelectCallback callback);
 
     static LoadFileDialog *Instance();
 
+    void Show();
 
   protected:
     void OpenPopup() override;
+
+  
 };

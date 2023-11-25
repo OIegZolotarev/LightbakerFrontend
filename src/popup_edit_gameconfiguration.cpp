@@ -6,6 +6,7 @@
 #include "application.h"
 #include "popup_edit_gameconfiguration.h"
 #include "ui_common.h"
+#include "popup_loadfile_dialog.h"
 
 PopupEditGameconfiguration::PopupEditGameconfiguration() : IImGUIPopup(PopupWindows::EditGameConfiguration)
 {
@@ -28,8 +29,6 @@ void PopupEditGameconfiguration::Render()
          }
          else
              ImGui::Text("<Configuration in destroyed>");
-
-        
 
         if (ImGui::Button("OK"))
         {

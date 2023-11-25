@@ -40,6 +40,8 @@ class GameConfigurationListBinding : public IListBinder
     void RemoveSelectedItem() override;
 
     bool IsEmpty() override;
+
+    void RenderExtraCommands() override;
 };
 
 class OptionsDialog : public IImGUIPopup

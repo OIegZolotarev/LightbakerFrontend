@@ -166,6 +166,8 @@ void OptionsDialog::Render()
 
 void OptionsDialog::RenderFooter()
 {
+    //ImGui::Separator();
+
     if (ImGui::Button("OK"))
         OnOkPressed();
 
@@ -222,9 +224,13 @@ void OptionsDialog::RenderGameConfigurationsPage()
 {
     static GameConfigurationWeakPtr selectedConf;
 
-    ImGui::SeparatorText("Registered configurations:");
+    if (ImGui::BeginChildFrame(53, ImVec2(0, 0)))
+    {
+        ImGui::SeparatorText("Registered configurations:");
 
-    m_pGameConfigurationsView->RenderGui();
+        m_pGameConfigurationsView->RenderGui();
+        ImGui::EndChildFrame();
+    }
 }
 
 void OptionsDialog::OnOpen()
@@ -378,6 +384,15 @@ void GameConfigurationListBinding::RemoveSelectedItem()
 bool GameConfigurationListBinding::IsEmpty()
 {
     return m_ConfigurationItems.empty();
+}
+
+void GameConfigurationListBinding::RenderExtraCommands()
+{
+    if (ImGui::Button("Make default"))
+    {
+        if (m_SelectedConf.lock())
+            GameConfigurationsManager::Instance()->SetDefaultGameConfiguration(m_SelectedConf);
+    }
 }
 
 bool GameConfigurationListBinding::IsItemSelected()

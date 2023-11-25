@@ -14,7 +14,7 @@ void ListViewEx::RenderToolbar()
     constexpr float iconsSize = 13;
 
     static const char *labels[]   = {"Add", "Remove", "Edit", "Move up", "Move down", "Sort asc.", "Sort desc."};
-    static const char *noLabels[] = {"###Add",       "###Remove",    "##Edit",      "###Move up",
+    static const char *noLabels[] = {"###Add",       "###Remove",     "##Edit",     "###Move up",
                                      "###Move down", "###Sort desc.", "##Sort asc."};
 
     const char **labelsPtr;
@@ -27,31 +27,26 @@ void ListViewEx::RenderToolbar()
     ImVec4 tinting[] = {{0, 1, 0, 1}, {1, 0, 0, 1}, {1, 1, 0, 1}, {0, 0, 1, 1},
                         {0, 0, 1, 1}, {1, 0, 1, 1}, {1, 0, 1, 1}};
 
-
     size_t startingIcon = (int)CommonIcons::ListAdd;
     size_t endingIcon   = (int)CommonIcons::ListSortDesc;
     size_t iconsCount   = endingIcon - startingIcon;
-    
-    bool nextLine = false;
+
+    bool nextLine     = false;
     bool visibility[] = {
-        !(m_Flags & LV_DISABLE_ADD_ITEMS),
-        !(m_Flags & LV_DISABLE_REMOVE_ITEMS),
-        !(m_Flags & LV_DISABLE_EDIT_ITEMS),
-        !(m_Flags & LV_DISABLE_MOVE_ITEMS),
-        !(m_Flags & LV_DISABLE_MOVE_ITEMS),
-        !(m_Flags & LV_DISABLE_SORT_ITEMS),
+        !(m_Flags & LV_DISABLE_ADD_ITEMS),  !(m_Flags & LV_DISABLE_REMOVE_ITEMS), !(m_Flags & LV_DISABLE_EDIT_ITEMS),
+        !(m_Flags & LV_DISABLE_MOVE_ITEMS), !(m_Flags & LV_DISABLE_MOVE_ITEMS),   !(m_Flags & LV_DISABLE_SORT_ITEMS),
         !(m_Flags & LV_DISABLE_SORT_ITEMS),
     };
-    
+
     // Calculate which icon will be rendered last, so we can properly not call "SameLine" on it
     size_t lastIcon = 0;
 
     for (size_t i = 0; i <= iconsCount; i++)
     {
-            if (visibility[i])
-                lastIcon = i;
+        if (visibility[i])
+            lastIcon = i;
     }
-        
+
     for (size_t i = 0; i <= iconsCount; i++)
     {
         if (visibility[i])
@@ -65,14 +60,13 @@ void ListViewEx::RenderToolbar()
         // Last one should not call "SameLine"
         if (nextLine && i != lastIcon)
         {
-            ImGui::SameLine();            
+            ImGui::SameLine();
         }
-        
+
         nextLine = false;
     }
 
-   m_pListBinder->RenderExtraCommands();
-
+    m_pListBinder->RenderExtraCommands();
 }
 
 ListViewEx::ListViewEx(IListBinder *pBinder, unsigned int flags)
@@ -88,8 +82,6 @@ ListViewEx::~ListViewEx()
 
 void ListViewEx::RenderGui()
 {
-    
-
     RenderToolbar();
     // Stretch to fit
     ImGui::SetNextItemWidth(-1);
@@ -97,7 +89,6 @@ void ListViewEx::RenderGui()
     if (ImGui::BeginListBox("###RegisteredConfigurations"))
     {
         m_pListBinder->ResetIterator();
-        
 
         if (!m_pListBinder->IsEmpty())
         {
@@ -110,7 +101,7 @@ void ListViewEx::RenderGui()
                 {
                     if (bSelected)
                         m_pListBinder->OpenItemEditor();
-                    else 
+                    else
                         m_pListBinder->SetSelectedItem();
                 }
 
@@ -148,6 +139,5 @@ void ListViewEx::OnToolBarItemClicked(ToolbarButtons btn)
         break;
     default:
         break;
-    
     }
 }
