@@ -6,6 +6,7 @@
 #pragma once
 #include "game_configuration.h"
 #include "hammer_fgd.h"
+#include "imgui_listview_ex.h"
 
 namespace GoldSource
 {
@@ -30,7 +31,10 @@ class HammerGameConfiguration : public GameConfiguration
     void ParseLiblistGam();
     void ParseGameInfo();
 
+    ListViewEx *m_pFGDListView;
+
   public:
+    HammerGameConfiguration();
     HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
     ~HammerGameConfiguration();

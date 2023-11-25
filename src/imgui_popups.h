@@ -23,20 +23,25 @@ class IImGUIPopup
 protected:
 	bool m_bVisible;
 	std::string m_Key;
-private:
+
+	virtual void OpenPopup();
     bool m_bSchedulePopupOpen = false;
+
+  private:
+    
 	PopupWindows m_Id;
 
 	void SchedulePopupOpen();
-    void OpenPopup();
+    
 
 	friend class PopupsManager;
 
 public:
+
 	IImGUIPopup(PopupWindows id);
 
-	bool BeginRendering();
-    void EndRendering();
+	virtual bool BeginRendering();
+    virtual void EndRendering();
 
 	virtual int RenderingFlags();
 	virtual void Render() = 0;

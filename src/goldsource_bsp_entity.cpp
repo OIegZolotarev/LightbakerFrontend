@@ -100,6 +100,9 @@ void BSPEntity::PopulateScene()
     // TODO: do proper type reflection
     {
         GoldSource::HammerGameConfiguration *hammerConfig = (HammerGameConfiguration *)pConfig;
+
+        assert(hammerConfig);
+
         m_pFGDClass = hammerConfig->LookupFGDClass(classname);
     }
 

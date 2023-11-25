@@ -6,17 +6,20 @@
 #include "application.h"
 #include "goldsource_game_configuration.h"
 #include "common.h"
+#include "files_listview_ex.h"
+#include "imgui_helpers.h"
+#include "imgui_listview_ex.h"
+#include "lb3k_imgui_icons.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
-#include "lb3k_imgui_icons.h"
-#include "imgui_helpers.h"
-
 
 using namespace GoldSource;
 
 GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint)
     : GameConfiguration("", gameRootDir)
 {
+    m_pFGDListView = new ListViewEx(new FilesListViewBindings(m_FGDFiles), LV_DISABLE_SORT_ITEMS);
+
     m_Engine      = engineHint;
     m_Description = "<Missing description>";
 
@@ -34,6 +37,11 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
     FileData *fd = FileSystem::Instance()->LoadFile("D:/temp/halflife_2020/fgd/halflife_2020.fgd");
     m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
     fd->UnRef();
+}
+
+HammerGameConfiguration::HammerGameConfiguration()
+{
+     m_pFGDListView = new ListViewEx(new FilesListViewBindings(m_FGDFiles), LV_DISABLE_SORT_ITEMS);
 }
 
 void HammerGameConfiguration::RenderGeneralUI()
@@ -61,49 +69,7 @@ void HammerGameConfiguration::RenderFGDUI()
 
     ImGui::SeparatorText("FGD Files");
 
-    
-    //if (ImGui::Button((char *)ICON_lb3k_SYMBOL_NAME "Add"))
-    if (ImGuiHelpers::ButtonWithCommonIcon(CommonIcons::ListAdd, "Add", 11, {0,1,0,1}))
-    {
-        m_FGDFiles.push_back("<DUMMY>");
-    }
-
-    ImGui::SameLine();
-
-    if (ImGui::Button((char *)ICON_lb3k_MINUS "Remove"))
-    {
-        if (selectedConf > m_FGDFiles.size() - 1)
-        {
-            selectedConf = 0;
-            return;
-        }
-
-        auto it = m_FGDFiles.begin();
-        std::advance(it, selectedConf);
-
-        m_FGDFiles.erase(it);
-        selectedConf = 0;
-    }
-
-    ImGui::Separator();
-
-    if (ImGui::BeginListBox("###FGDFilesListBox", ImVec2(-1, 0)))
-    {
-        size_t index = 0;
-        for (auto &it : m_FGDFiles)
-        {
-            if (ImGui::Selectable(it.c_str(), index == selectedConf))
-            {
-                selectedConf = index;
-            }
-
-            index++;
-        }
-
-        ImGui::EndListBox();
-    }
-
-
+    m_pFGDListView->RenderGui();
 }
 
 GameConfiguration *HammerGameConfiguration::Clone()
@@ -111,7 +77,7 @@ GameConfiguration *HammerGameConfiguration::Clone()
     return new HammerGameConfiguration(*this);
 }
 
-HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName)
+HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName) : HammerGameConfiguration()
 {
     m_SavedFileName = savedFileName;
     Deserialize(savedFileName);
@@ -127,7 +93,7 @@ void HammerGameConfiguration::EditDialog()
             RenderFGDUI();
             ImGui::EndTabItem();
         }
-        
+
         if (ImGui::BeginTabItem("Build programs"))
         {
             RenderCompilerUI();
@@ -225,7 +191,7 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     {
         auto FGDFiles = j["FGDFiles"];
 
-        for (auto & it : FGDFiles)
+        for (auto &it : FGDFiles)
             m_FGDFiles.push_back(it);
     }
 

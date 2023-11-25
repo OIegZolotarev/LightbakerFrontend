@@ -329,6 +329,9 @@
     <ClCompile Include="imgui_listview_ex.cpp">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClCompile>
+    <ClCompile Include="files_listview_ex.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -592,6 +595,7 @@
     <ClInclude Include="imgui_listview_ex.h">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
+    <ClInclude Include="files_listview_ex.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

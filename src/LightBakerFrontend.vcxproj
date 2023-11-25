@@ -202,6 +202,7 @@ build.bat
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="editor_grid_shader.cpp" />
+    <ClCompile Include="files_listview_ex.cpp" />
     <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
@@ -284,6 +285,7 @@ build.bat
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="editor_grid_shader.h" />
+    <ClInclude Include="files_listview_ex.h" />
     <ClInclude Include="game_configuration.h" />
     <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
