@@ -174,7 +174,7 @@ void ParseFGD(GoldSource::HammerFGDFile * file)
     yy::HammerFGDParser parser(&ctx);
 
     
-    //parser.set_debug_level(999);
+    parser.set_debug_level(999);
 
     parser.parse();  
 }
@@ -218,6 +218,7 @@ using namespace GoldSource;
 %token	Flags "flags" 
 %token	Choices "choices"  
 %token	Model "model"
+%token  Sky "sky"
 %token  TargetSource "target_source"
 %token  TargetDestination "target_destination"
 %token  Sound "sound"
@@ -227,8 +228,9 @@ using namespace GoldSource;
 
 %type<float>        Number
 %type<std::string>  Identifier StringLiteral TypeId Choices ModelType StringLiteralOpt Flags
+//%type<std::string>  PropertyHelpOpt
 
-%type<std::string> IntegerType Color255 String Sprite Studio TargetDestination TargetSource Sound Model
+%type<std::string> IntegerType Color255 String Sprite Studio TargetDestination TargetSource Sound Model Sky DefaultValueOpt
 
 %type<GoldSource::FGDFlagsValue_t> FlagValue EnumValue
 %type<GoldSource::FGDFlagsList> FlagsValues EnumValues
@@ -260,13 +262,19 @@ EntityClassDef: SolidClassDef
 
 
 // Брашевая энтити
-SolidClassDef: SolidClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Solid,$4, $6, $8); };
+SolidClassDef: SolidClass CtorsOpt EqualsSign Identifier Colon StringLiteral ExtraNotesOpt OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Solid,$4, $6, $9); };
 
 // Точечная энтити
-PointClassDef: PointClass CtorsOpt EqualsSign Identifier Colon StringLiteral OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Point,$4, $6, $8); };
+PointClassDef: PointClass CtorsOpt EqualsSign Identifier Colon StringLiteral ExtraNotesOpt OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::Point,$4, $6, $9); };
 
 // Базовый класс
-BaseClassDef: BaseClass CtorsOpt EqualsSign Identifier OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::BaseDef,$4, "<none>", $6); };
+BaseClassDef: BaseClass CtorsOpt EqualsSign Identifier ExtraNotesOpt OpeningBracket ClassFieldsOpt ClosingBracket { $$ = ctx->new_entity(FGDEntityClassType::BaseDef,$4, "<none>", $7); };
+
+// Дополнительное пояснение (найдено в FGD идущих с Jackhammer'ом)
+ExtraNotesOpt: Colon StringLiteral
+|%empty;
+
+
 
 // Параметры точечных энтиткй:
 
@@ -327,29 +335,29 @@ ClassFieldsOpt: ClassFieldsOpt ClassFieldDef  { $1.push_back($2); $$ = $1;}
 // Описание свойства энтити
 ClassFieldDef: 
 // Обычные поля
-Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor($1, $3, $6); };
+Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor($1, $3, $6, $7, ""); };
 // Флаги
-| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,"<spawnflags>",$7); };
+| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,"<spawnflags>",$7, 0, ""); };
 // Перечисление
-| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,$6,$11); };
+| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,$6,$11, $8, ""); };
 
 // Особый случай для поля "model"
-| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor("model", $3, $6); };
+| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor("model", $3, $6, "", ""); };
 
 // Особый случай для поля "color"
-| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket {$$ = new FGDPropertyDescriptor("color", $3, $6); };
-| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor("color", $3, $6); };
+| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket {$$ = new FGDPropertyDescriptor("color", $3, $6, "", ""); };
+| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor("color", $3, $6, "", ""); };
 
 // Особый случай для поля "sound"
-| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDPropertyDescriptor("sound", $3, $6); };
-| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt  { $$ = new FGDPropertyDescriptor("sound", $3, $6); };
+| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDPropertyDescriptor("sound", $3, $6, "", ""); };
+| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt  { $$ = new FGDPropertyDescriptor("sound", $3, $6, "", ""); };
 
 
 // Особый случай для поля "size"
-| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty("size", $6, $11); };
+| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty("size", $6, $11, $8, ""); };
 
 // Особый случай для поля "texture(decal)"
-| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = new FGDPropertyDescriptor("decal", "decal", "decal"); };
+| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = new FGDPropertyDescriptor("decal", "decal", "decal", "", ""); };
 
 
 
@@ -379,15 +387,21 @@ TypeId: IntegerType
 | String
 | Sprite
 | Studio
+| Sky
 | TargetDestination
 | TargetSource
 | Sound;
 
 
 // Значение по умолчанию для энтити
-DefaultValueOpt: Colon StringLiteral
-| Colon Number
-| %empty;
+DefaultValueOpt: Colon StringLiteral { $$ = $2;}
+| Colon Number { $$ = std::format("{0}", $2); }
+| Colon { $$ = ""; }
+| %empty { (void)0;};;  
+
+/*// Описание свойства (Jackhammer)
+PropertyHelpOpt: StringLiteral { $$ = $1; }
+| %empty { (void)0;};; */
 
 %%
 
@@ -438,6 +452,7 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
         'sound'                     {                     return s(yy::HammerFGDParser::make_Sound, std::string(anchor, ctx->cursor)) ; }
         'studio'                    {                     return s(yy::HammerFGDParser::make_Studio, std::string(anchor, ctx->cursor)) ; }
         'model'                     {                     return s(yy::HammerFGDParser::make_Model, std::string(anchor, ctx->cursor)) ; }        
+        'sky'                       {                     return s(yy::HammerFGDParser::make_Sky, std::string(anchor, ctx->cursor)) ; }        
         'flags'                     {                     return s(yy::HammerFGDParser::make_Flags, std::string(anchor, ctx->cursor)) ; }
         'choices'                   {                     return s(yy::HammerFGDParser::make_Choices, std::string(anchor, ctx->cursor)) ; }
         'string'                    {                     return s(yy::HammerFGDParser::make_String, std::string(anchor, ctx->cursor)) ; }		

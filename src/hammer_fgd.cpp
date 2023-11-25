@@ -201,7 +201,8 @@ glm::vec3 FGDEntityClass::GetColor()
     return m_Color;
 }
 
-FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList & values) : FGDPropertyDescriptor(name, "", desc)
+FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values, float defaultValue, std::string propertyHelp)
+    : FGDPropertyDescriptor(name, "", desc, defaultValue, propertyHelp)
 {
 	m_Values = values;
 }

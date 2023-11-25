@@ -42,6 +42,9 @@ class FGDPropertyDescriptor
   protected:
     std::string m_Name;
     std::string m_Descr;
+    std::string m_DefaultValue;
+    float m_DefaultValueFloat;
+    std::string m_PropertyHelp;
 
   public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther)
@@ -50,10 +53,22 @@ class FGDPropertyDescriptor
         m_Descr = pOther->m_Descr;
     }
 
-    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr)
+    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, float defValue,
+                          std::string propertyHelp)
     {
-        m_Name  = name;
-        m_Descr = descr;
+        m_Name              = name;
+        m_Descr             = descr;
+        m_DefaultValueFloat = defValue;
+        m_PropertyHelp      = propertyHelp;
+    }
+
+    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, std::string defValue,
+                          std::string propertyHelp)
+    {
+        m_Name         = name;
+        m_Descr        = descr;
+        m_DefaultValue = defValue;
+        m_PropertyHelp = propertyHelp;
     }
 
     ~FGDPropertyDescriptor()
@@ -65,7 +80,8 @@ class FGDPropertyDescriptor
 class FGDFlagsEnumProperty : public FGDPropertyDescriptor
 {
   public:
-    FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList &values);
+    FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList &values, float defValue,
+                         std::string propertyHelp);
     FGDFlagsEnumProperty(FGDFlagsEnumProperty *pOther);
 
     bool IsSpawnflagsProperty();
@@ -120,7 +136,7 @@ class FGDEntityClass
     }
 
     const std::string &ClassName() const;
-    
+
     glm::vec3 GetMins();
     glm::vec3 GetMaxs();
 
