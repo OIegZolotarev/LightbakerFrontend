@@ -18,7 +18,7 @@ using namespace GoldSource;
 GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint)
     : GameConfiguration("", gameRootDir)
 {
-    m_pFGDListView = new ListViewEx(new FilesListViewBindings(m_FGDFiles), LV_DISABLE_SORT_ITEMS);
+    InitListViewBindings();
 
     m_Engine      = engineHint;
     m_Description = "<Missing description>";
@@ -33,15 +33,41 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
         break;
     }
 
-    // TODO: fixme
-    FileData *fd = FileSystem::Instance()->LoadFile("D:/temp/halflife_2020/fgd/halflife_2020.fgd");
-    m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
-    fd->UnRef();
+
+}
+
+HammerGameConfiguration::HammerGameConfiguration(HammerGameConfiguration &other)
+    : GameConfiguration(other.m_Description, other.m_GameDirectory)
+{
+    m_GameName     = other.m_GameName;
+    m_ModDirectory = other.m_ModDirectory;
+
+    m_WadFiles = other.m_WadFiles;
+
+    m_CompilationPrograms.csg = other.m_CompilationPrograms.csg;
+    m_CompilationPrograms.bsp = other.m_CompilationPrograms.bsp;
+    m_CompilationPrograms.vis = other.m_CompilationPrograms.vis;
+    m_CompilationPrograms.rad = other.m_CompilationPrograms.rad;
+
+    m_SavedFileName = other.m_SavedFileName;
+    m_FGDFiles      = other.m_FGDFiles;
+    m_lstFGDData    = other.m_lstFGDData;
+
+    InitListViewBindings();
+}
+
+void HammerGameConfiguration::InitListViewBindings()
+{
+    FilesListViewBindings *bindings = new FilesListViewBindings(m_FGDFiles);
+    bindings->SetDialogTitle("Select FGD file");
+    bindings->SetFileFilter(".fgd");
+
+    m_pFGDListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS);
 }
 
 HammerGameConfiguration::HammerGameConfiguration()
 {
-     m_pFGDListView = new ListViewEx(new FilesListViewBindings(m_FGDFiles), LV_DISABLE_SORT_ITEMS);
+    InitListViewBindings();
 }
 
 void HammerGameConfiguration::RenderGeneralUI()
@@ -81,6 +107,16 @@ HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName) : H
 {
     m_SavedFileName = savedFileName;
     Deserialize(savedFileName);
+
+    // TODO: make cache and add loading code to copy constructor 
+    //
+    for (auto & it : m_FGDFiles)
+    {
+        FileData *fd = FileSystem::Instance()->LoadFile(it);
+        m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
+        fd->UnRef();
+    }
+
 }
 
 void HammerGameConfiguration::EditDialog()

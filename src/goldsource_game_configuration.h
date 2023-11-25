@@ -33,10 +33,16 @@ class HammerGameConfiguration : public GameConfiguration
 
     ListViewEx *m_pFGDListView;
 
+    void InitListViewBindings();
+
   public:
     HammerGameConfiguration();
+    HammerGameConfiguration(HammerGameConfiguration &other);
     HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
+
+    
+
     ~HammerGameConfiguration();
 
     FGDEntityClass *LookupFGDClass(std::string &classname);
