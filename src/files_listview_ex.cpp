@@ -1,13 +1,27 @@
 #include "files_listview_ex.h"
+#include "popup_loadfile_dialog.h"
 
- FilesListViewBindings::FilesListViewBindings(TextUtils::AnsiStringList &container) : m_Items(container)
+FilesListViewBindings::FilesListViewBindings(TextUtils::AnsiStringList &container) : m_Items(container)
 {
-     
 }
 
 void FilesListViewBindings::AddNewItem()
 {
-    m_Items.push_back("Implement dialog");
+    auto lfd = LoadFileDialog::Instance();
+
+    lfd->SetTitle(m_DialogTitle.c_str());
+    lfd->SetFilters(m_FileFilter.c_str());
+    lfd->SetOnSelectCallback([&](std::string &fileName) { 
+        
+            auto it = std::find(m_Items.begin(), m_Items.end(), fileName);
+
+            if (it == m_Items.end())
+                m_Items.push_back(fileName); 
+        
+        });
+
+    lfd->Show();
+
 }
 
 bool FilesListViewBindings::IsEmpty()
@@ -70,7 +84,7 @@ bool FilesListViewBindings::NextItem()
 
 void FilesListViewBindings::OpenItemEditor()
 {
-    //throw std::logic_error("The method or operation is not implemented.");
+    // throw std::logic_error("The method or operation is not implemented.");
 }
 
 void FilesListViewBindings::RemoveItem(size_t index)
@@ -84,7 +98,7 @@ void FilesListViewBindings::RemoveSelectedItem()
 {
     // TODO: implement confirmation dialog and file removal
 
-    m_Items.remove_if([&](std::string &ptr) -> bool { return m_SelectedItem == ptr; });    
+    m_Items.remove_if([&](std::string &ptr) -> bool { return m_SelectedItem == ptr; });
 }
 
 void FilesListViewBindings::ResetIterator()
@@ -112,4 +126,14 @@ void FilesListViewBindings::SortItems(SortDirection dir)
 
         return false;
     });
+}
+
+void FilesListViewBindings::SetDialogTitle(const char *title)
+{
+    m_DialogTitle = title;
+}
+
+void FilesListViewBindings::SetFileFilter(const char *fileFilter)
+{
+    m_FileFilter = fileFilter;
 }

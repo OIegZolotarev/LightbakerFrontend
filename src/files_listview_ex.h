@@ -10,10 +10,13 @@
 
 class FilesListViewBindings : public IListBinder
 {
-    TextUtils::AnsiStringList &m_Items;
+    TextUtils::AnsiStringList & m_Items;
 
     std::string m_SelectedItem;
     TextUtils::AnsiStringList::iterator m_Iterator;
+
+    std::string m_DialogTitle;
+    std::string m_FileFilter;
 
   public:
     FilesListViewBindings(TextUtils::AnsiStringList &container);
@@ -37,4 +40,8 @@ class FilesListViewBindings : public IListBinder
     
     void SetSelectedItem() override;
     void SortItems(SortDirection dir) override;
+
+    void SetDialogTitle(const char *title);
+    void SetFileFilter(const char *fileFilter);
+
 };
