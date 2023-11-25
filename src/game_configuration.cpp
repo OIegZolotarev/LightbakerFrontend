@@ -10,16 +10,13 @@
 #include "goldsource_game_configuration.h"
 #include <regex>
 
-GameConfiguration::GameConfiguration(std::string descr, std::string gameDirectory)
-    : m_Description(descr)
+GameConfiguration::GameConfiguration(std::string descr, std::string gameDirectory) : m_Description(descr)
 {
     SetGameDirectory(gameDirectory);
 }
 
-
 GameConfiguration::~GameConfiguration()
 {
-    
 }
 
 const char *GameConfiguration::Name() const
@@ -38,7 +35,7 @@ bool GameConfiguration::MatchesGameDirectoryMask(std::string &levelFilePath) con
     auto levelPathCanonical = std::filesystem::canonical(levelPath).string();
 
     std::regex pathRegex(m_GameDirectory + "/*");
-    
+
     auto words_begin = std::sregex_iterator(levelPathCanonical.begin(), levelPathCanonical.end(), pathRegex);
     auto words_end   = std::sregex_iterator();
 
@@ -83,9 +80,8 @@ void GameConfigurationsManager::LoadGameConfigsFromDisk()
     {
         auto path = std::filesystem::canonical(dir_entry.path()).string();
 
-        auto pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(path);       
+        auto pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(path);
         m_Configurations.push_back(pNewConfiguration);
-
     }
 }
 
@@ -94,7 +90,7 @@ GameConfigurationsManager::~GameConfigurationsManager()
     for (auto &it : m_Configurations)
     {
         it->Serialize(it->m_SavedFileName);
-        //delete it;
+        // delete it;
     }
 
     m_Configurations.clear();
@@ -136,7 +132,7 @@ GameConfigurationWeakPtrOpt GameConfigurationsManager::FindConfigurationForLevel
     case GameEngines::GoldSource:
         pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(gameDir, engine);
         break;
-    case GameEngines::Xash3d:        
+    case GameEngines::Xash3d:
         pNewConfiguration = std::make_shared<GoldSource::HammerGameConfiguration>(gameDir, engine);
         break;
     default:
@@ -149,7 +145,7 @@ GameConfigurationWeakPtrOpt GameConfigurationsManager::FindConfigurationForLevel
     return pNewConfiguration;
 }
 
-std::list<GameConfigurationPtr> & GameConfigurationsManager::AllConfigurations()
+std::list<GameConfigurationPtr> &GameConfigurationsManager::AllConfigurations()
 {
     return m_Configurations;
 }
@@ -158,7 +154,7 @@ const std::list<GameConfigurationWeakPtr> GameConfigurationsManager::AllConfigur
 {
     std::list<GameConfigurationWeakPtr> result;
 
-    for (auto & it : m_Configurations)
+    for (auto &it : m_Configurations)
         result.push_back(std::weak_ptr(it));
 
     return result;
@@ -167,23 +163,23 @@ const std::list<GameConfigurationWeakPtr> GameConfigurationsManager::AllConfigur
 std::string GameConfigurationsManager::SuggestSaveFileName(GameEngines engine, const std::string &m_Description)
 {
     std::string engineDir = "others";
-    char *p  = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
+    char *p               = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
 
     switch (engine)
     {
-    case GameEngines::GoldSource:                
+    case GameEngines::GoldSource:
     case GameEngines::Xash3d:
         engineDir = "gs_and_xash";
         break;
     default:
-        break;        
+        break;
     }
 
-    std::string prefPath = p;
+    std::string prefPath        = p;
     std::string engineConfigDir = prefPath + "/game_configs/" + engineDir;
 
     std::string result = std::format("{0}/{1}", engineConfigDir, FileSystem::SanitizeFileName(m_Description));
-        
+
     if (!FileSystem::FileExists(engineConfigDir))
     {
         FileSystem::MakeDir(engineConfigDir);
@@ -203,6 +199,28 @@ void GameConfigurationsManager::UpdateGameConfiguration(GameConfigurationWeakPtr
         return;
 
     *it = std::shared_ptr<GameConfiguration>(edited);
+}
+
+void GameConfigurationsManager::SetDefaultGameConfiguration(GameConfigurationWeakPtr ptr)
+{
+    for (auto &it : m_Configurations)
+    {
+        if (equals(ptr, it))
+            it->SetDefault(true);
+        else
+            it->SetDefault(false);
+    }
+}
+
+GameConfigurationWeakPtr GameConfigurationsManager::GetDefaultGameConfiguration()
+{
+    auto it = std::find_if(m_Configurations.begin(), m_Configurations.end(),
+                           [](const GameConfigurationPtr &ptr) { return ptr->IsDefault(); });
+
+    if (it != m_Configurations.end())
+        return GameConfigurationWeakPtr(*it);
+    else
+        return GameConfigurationWeakPtr();
 }
 
 std::optional<gamelookupresult_t> GameConfigurationsManager::ScanForGameDefinitionFile(std::string &levelFileName,

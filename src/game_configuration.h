@@ -1,11 +1,10 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
 #include <optional>
-
 
 enum class GameEngines
 {
@@ -16,11 +15,12 @@ enum class GameEngines
 class GameConfiguration
 {
     friend class GameConfigurationsManager;
+    bool m_bDefault;
 
   protected:
     std::string m_GameDirectory;
     std::string m_Description;
-    
+
     // File name from which one this config was loaded
     std::string m_SavedFileName = "";
 
@@ -48,8 +48,16 @@ class GameConfiguration
 
     virtual GameConfiguration *Clone() = 0;
 
-};
+    void SetDefault(bool bFlag)
+    {
+        m_bDefault = bFlag;
+    }
 
+    bool IsDefault()
+    {
+        return m_bDefault;
+    }
+};
 
 typedef std::tuple<std::string, GameEngines> gamelookupresult_t;
 
@@ -58,25 +66,33 @@ typedef std::weak_ptr<GameConfiguration> GameConfigurationWeakPtr;
 
 typedef std::optional<GameConfigurationWeakPtr> GameConfigurationWeakPtrOpt;
 
-class GameConfigurationsManager: public Singleton<GameConfigurationsManager>
-{    
+class GameConfigurationsManager : public Singleton<GameConfigurationsManager>
+{
     std::list<GameConfigurationPtr> m_Configurations;
 
     // For GoldSource/Xash3d games returns game directory + detected engine type (by detecting liblist.gam/gameinfo.txt)
     std::optional<gamelookupresult_t> ScanForGameDefinitionFile(std::string &levelFileName, size_t maxRecursion = 3);
 
- public:
-    void Init();
-
-   void LoadGameConfigsFromDisk();
-
-   ~GameConfigurationsManager();
-
-	GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
-    GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
+  public:
+    ~GameConfigurationsManager();
     
-    std::list<GameConfigurationPtr> & AllConfigurations();
+    // Initialization
+    void Init();
+    void LoadGameConfigsFromDisk();
+       
+    // Searching
+    GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
+    GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
+
+    // Accessing
+    std::list<GameConfigurationPtr> &AllConfigurations();
     const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;
-    static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);
+    
+    // Saving and updating
+    static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);    
     void UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited);
+
+    // Default configurations
+    void SetDefaultGameConfiguration(GameConfigurationWeakPtr ptr);
+    GameConfigurationWeakPtr GetDefaultGameConfiguration();
 };
