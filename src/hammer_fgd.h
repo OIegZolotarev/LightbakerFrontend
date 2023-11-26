@@ -16,17 +16,46 @@ enum class FGDEntityClassType
     BaseDef
 };
 
+// Вспомогательная структура для значений по умолчанию и подсказки Jackhammer
+//
+typedef struct OptionalDefaultValAndHelp_s
+{
+    OptionalDefaultValAndHelp_s(std::string _defVal, std::string _help)
+    {
+        defaultValue = _defVal;
+        propertyHelp = _help;
+    }
+
+    OptionalDefaultValAndHelp_s(float _defVal, std::string _help)
+    {
+        defaultValueFloat = _defVal;
+        propertyHelp      = _help;
+        useFloat          = true;
+    }
+
+    OptionalDefaultValAndHelp_s()
+    {
+    }
+
+    bool useFloat            = false;
+    std::string defaultValue = "";
+    float defaultValueFloat  = 0;
+    std::string propertyHelp = "<No help provided>";
+} OptionalDefaultValAndHelp_t;
+
 typedef struct FGDFlagsValue_s
 {
     std::string description = "";
+    std::string help        = "";
     int value               = 0;
     bool enabled            = false;
 
-    FGDFlagsValue_s(std::string &_descr, int _val, bool _enDefault)
+    FGDFlagsValue_s(std::string &_descr, int _val, bool _enDefault, std::string _help)
     {
         description = _descr;
         value       = _val;
         enabled     = _enDefault;
+        help        = _help;
     }
 
     FGDFlagsValue_s()
@@ -40,11 +69,11 @@ typedef std::list<FGDFlagsValue_t> FGDFlagsList;
 class FGDPropertyDescriptor
 {
   protected:
-    std::string m_Name;
-    std::string m_Descr;
-    std::string m_DefaultValue;
-    float m_DefaultValueFloat;
-    std::string m_PropertyHelp;
+    std::string m_Name         = "";
+    std::string m_Descr        = "";
+    std::string m_DefaultValue = "";
+    float m_DefaultValueFloat  = 0;
+    std::string m_PropertyHelp = "";
 
   public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther)
@@ -53,22 +82,18 @@ class FGDPropertyDescriptor
         m_Descr = pOther->m_Descr;
     }
 
-    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, float defValue,
-                          std::string propertyHelp)
+    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr,
+                          OptionalDefaultValAndHelp_s defaultValueAndHelp)
     {
-        m_Name              = name;
-        m_Descr             = descr;
-        m_DefaultValueFloat = defValue;
-        m_PropertyHelp      = propertyHelp;
-    }
+        m_Name  = name;
+        m_Descr = descr;
 
-    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, std::string defValue,
-                          std::string propertyHelp)
-    {
-        m_Name         = name;
-        m_Descr        = descr;
-        m_DefaultValue = defValue;
-        m_PropertyHelp = propertyHelp;
+        if (defaultValueAndHelp.useFloat)
+            m_DefaultValueFloat = defaultValueAndHelp.defaultValueFloat;
+        else
+            m_DefaultValue = defaultValueAndHelp.defaultValue;
+
+        m_PropertyHelp = defaultValueAndHelp.propertyHelp;
     }
 
     ~FGDPropertyDescriptor()
@@ -80,8 +105,8 @@ class FGDPropertyDescriptor
 class FGDFlagsEnumProperty : public FGDPropertyDescriptor
 {
   public:
-    FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList &values, float defValue,
-                         std::string propertyHelp);
+    FGDFlagsEnumProperty(std::string name, std::string descr, FGDFlagsList &values,
+                         OptionalDefaultValAndHelp_s defValueAndHelp);
     FGDFlagsEnumProperty(FGDFlagsEnumProperty *pOther);
 
     bool IsSpawnflagsProperty();
@@ -100,6 +125,7 @@ typedef std::list<FGDPropertyDescriptor *> FGDPropertiesList;
 #define FL_SET_DECAL         (1 << 4)
 #define FL_SET_EDITOR_SPRITE (1 << 5)
 #define FL_SET_BASE_CLASSES  (1 << 6)
+#define FL_SET_BBOX_OFFSET   (1 << 7)
 
 class FGDEntityClass
 {
@@ -111,6 +137,7 @@ class FGDEntityClass
 
     void SetColor(glm::vec3 color);
     void SetBBox(glm::vec3 size);
+    void SetBBoxOffset(glm::vec3 offset);
     void SetBBox(glm::vec3 min, glm::vec3 max);
 
     void SetModel(std::string model);
@@ -149,6 +176,10 @@ class FGDEntityClass
 
     std::string m_ClassName;
     std::string m_Description;
+
+    // Jackhammer extensions
+    glm::vec3 m_BboxOffset;
+    size_t m_EditorSequence;
 
     glm::vec3 m_Mins = {-8, -8, -8}, m_Maxs = {8, 8, 8};
     glm::vec3 m_Color = {1, 0, 1};

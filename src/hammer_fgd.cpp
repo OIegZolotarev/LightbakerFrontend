@@ -201,8 +201,14 @@ glm::vec3 FGDEntityClass::GetColor()
     return m_Color;
 }
 
-FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values, float defaultValue, std::string propertyHelp)
-    : FGDPropertyDescriptor(name, "", desc, defaultValue, propertyHelp)
+void FGDEntityClass::SetBBoxOffset(glm::vec3 offset)
+{
+    m_BboxOffset = offset;
+}
+
+FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,
+                                           OptionalDefaultValAndHelp_t defValueAndHelp)
+    : FGDPropertyDescriptor(name, "", desc, defValueAndHelp)
 {
 	m_Values = values;
 }

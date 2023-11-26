@@ -31,6 +31,9 @@ struct FGDParsingContext
         glm::vec3 color = { 1,1,1};
         glm::vec3 mins = {-4,-4,-4};
         glm::vec3 maxs = {4,4,4};
+
+        glm::vec3 offset = {0,0,0};
+
         std::string model = "";
         std::string sprite = "";
         bool decal = false;
@@ -45,6 +48,7 @@ struct FGDParsingContext
             color = { 1,1,1};
             mins = {-4,-4,-4};
             maxs = {4,4,4};
+            offset = {0,0,0};
             model = "";
             sprite = "";
             decal = false;
@@ -73,6 +77,7 @@ struct FGDParsingContext
         if (entityCtorData.flags & FL_SET_DECAL)            current_entity->SetDecalEntity(entityCtorData.decal);
         if (entityCtorData.flags & FL_SET_EDITOR_SPRITE)    current_entity->SetEditorSprite(entityCtorData.editorSprite);
         if (entityCtorData.flags & FL_SET_BASE_CLASSES)    current_entity->SetBaseClasses(entityCtorData.baseClasses);
+        if (entityCtorData.flags & FL_SET_BBOX_OFFSET)    current_entity->SetBBoxOffset(entityCtorData.offset);
 
         entityCtorData.clear();
         
@@ -155,6 +160,13 @@ struct FGDParsingContext
 //         current_entity->SetPropertyExtra(property, value);
     }
 
+    void SetBboxOffset(float x, float y, float z)
+    {
+        entityCtorData.offset.x = x;
+        entityCtorData.offset.y = y;
+        entityCtorData.offset.z = z;
+    }
+
 
 };
 
@@ -174,7 +186,7 @@ void ParseFGD(GoldSource::HammerFGDFile * file)
     yy::HammerFGDParser parser(&ctx);
 
     
-    parser.set_debug_level(999);
+    //parser.set_debug_level(999);
 
     parser.parse();  
 }
@@ -218,6 +230,7 @@ using namespace GoldSource;
 %token	Flags "flags" 
 %token	Choices "choices"  
 %token	Model "model"
+%token	Offset "offset"
 %token  Sky "sky"
 %token  TargetSource "target_source"
 %token  TargetDestination "target_destination"
@@ -228,9 +241,11 @@ using namespace GoldSource;
 
 %type<float>        Number
 %type<std::string>  Identifier StringLiteral TypeId Choices ModelType StringLiteralOpt Flags
-//%type<std::string>  PropertyHelpOpt
+%type<std::string>  PropertyHelpOpt
 
-%type<std::string> IntegerType Color255 String Sprite Studio TargetDestination TargetSource Sound Model Sky DefaultValueOpt
+%type<OptionalDefaultValAndHelp_s> OptionalDefaultValAndHelp
+
+%type<std::string> IntegerType Color255 String Sprite Studio TargetDestination TargetSource Sound Model Sky  
 
 %type<GoldSource::FGDFlagsValue_t> FlagValue EnumValue
 %type<GoldSource::FGDFlagsList> FlagsValues EnumValues
@@ -289,7 +304,10 @@ Ctor: IconspriteDefOpt
 | SpriteDefOpt
 | DecalDefOpt
 | ExtendedConstructor
-| ColorDefOpt;
+| ColorDefOpt
+| OffsetDefOpt
+| FlagsDefOpt;
+
 
 // Цвет
 ColorDefOpt: Color OpeningParenthesis Number Number Number ClosingParenthesis { ctx->SetColor($3,$4,$5); }
@@ -309,6 +327,12 @@ DecalDefOpt: Decal OpeningParenthesis ClosingParenthesis { ctx->SetDecalEntity(t
 
 // Спрайт редактора
 IconspriteDefOpt: Iconsprite OpeningParenthesis StringLiteral ClosingParenthesis { ctx->SetEditorSprite($3); }
+
+// Флаги? TODO
+FlagsDefOpt: Flags OpeningParenthesis Identifier ClosingParenthesis { ctx->SetPropertyExtra($1,0); }
+
+// Смещение ббокс'а
+OffsetDefOpt: Offset OpeningParenthesis Number Number Number ClosingParenthesis { ctx->SetBboxOffset($3, $4, $5); }
 
 
 ExtendedConstructor: Identifier OpeningParenthesis Number ClosingParenthesis { ctx->SetPropertyExtra($1,$3); }
@@ -335,29 +359,29 @@ ClassFieldsOpt: ClassFieldsOpt ClassFieldDef  { $1.push_back($2); $$ = $1;}
 // Описание свойства энтити
 ClassFieldDef: 
 // Обычные поля
-Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor($1, $3, $6, $7, ""); };
+Identifier OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp { $$ = new FGDPropertyDescriptor($1, $3, $6, $7); };
 // Флаги
-| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,"<spawnflags>",$7, 0, ""); };
+| Identifier OpeningParenthesis Flags ClosingParenthesis EqualsSign OpeningBracket FlagsValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,"<spawnflags>",$7, OptionalDefaultValAndHelp_s(0,"")); };
 // Перечисление
-| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,$6,$11, $8, ""); };
+| Identifier OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty($1,$6,$10, $7); };
 
 // Особый случай для поля "model"
-| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral DefaultValueOpt { $$ = new FGDPropertyDescriptor("model", $3, $6, "", ""); };
+| Model OpeningParenthesis ModelType ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp { $$ = new FGDPropertyDescriptor("model", $3, $6, $7); };
 
 // Особый случай для поля "color"
-| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket {$$ = new FGDPropertyDescriptor("color", $3, $6, "", ""); };
-| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt { $$ = new FGDPropertyDescriptor("color", $3, $6, "", ""); };
+| Color OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp EqualsSign OpeningBracket EnumValues ClosingBracket {$$ = new FGDPropertyDescriptor("color", $3, $6, $7); };
+| Color OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  OptionalDefaultValAndHelp { $$ = new FGDPropertyDescriptor("color", $3, $6, $7); };
 
 // Особый случай для поля "sound"
-| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDPropertyDescriptor("sound", $3, $6, "", ""); };
-| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  DefaultValueOpt  { $$ = new FGDPropertyDescriptor("sound", $3, $6, "", ""); };
+| Sound OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDPropertyDescriptor("sound", $3, $6, $7); };
+| Sound OpeningParenthesis TypeId ClosingParenthesis Colon StringLiteral  OptionalDefaultValAndHelp  { $$ = new FGDPropertyDescriptor("sound", $3, $6, $7); };
 
 
 // Особый случай для поля "size"
-| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral Colon Number EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty("size", $6, $11, $8, ""); };
+| SizeBoundingBox OpeningParenthesis Choices ClosingParenthesis Colon StringLiteral OptionalDefaultValAndHelp EqualsSign OpeningBracket EnumValues ClosingBracket { $$ = new FGDFlagsEnumProperty("size", $6, $10, $7); };
 
 // Особый случай для поля "texture(decal)"
-| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = new FGDPropertyDescriptor("decal", "decal", "decal", "", ""); };
+| Identifier OpeningParenthesis Decal ClosingParenthesis { $$ = new FGDPropertyDescriptor("decal", "decal", "decal", OptionalDefaultValAndHelp_s(0,"")); };
 
 
 
@@ -369,15 +393,23 @@ FlagsValues: FlagsValues FlagValue { $1.push_back($2); $$ = $1;}
 |%empty { (void)0; };
 
 
-// Значение флага : Описание : Включен по умолчанию
-FlagValue:  Number Colon StringLiteral Colon Number { $$ = FGDFlagsValue_t($3, $1, $5); };
+// Значение флага : Описание : Включен по умолчанию [ : ВключенПоУмолчанию : Подсказка ]
+// $3 - Краткое описание
+// $1 - Значение
+// $5 - Включен по умолчанию
+FlagValue:  Number Colon StringLiteral Colon Number OptionalDefaultValAndHelp { $$ = FGDFlagsValue_t($3, $1, $5, $6.propertyHelp); };
 
 // Значения перечислений
+// $1 - Список значений перечисления (std::list<FGDFlagsValue_t>)
+// $2 - Значение перечисления (FGDFlagsValue_t)
 EnumValues: EnumValues EnumValue  { $1.push_back($2); $$ = $1;}
 |%empty { (void)0;};
 
 // Значение  : Описание
-EnumValue:  Number Colon StringLiteral { $$ = FGDFlagsValue_t($3, $1, true); };
+// $3 - Краткое описание
+// $1 - Значение
+// $4 - Подсказка (JackHammer)
+EnumValue:  Number Colon StringLiteral PropertyHelpOpt { $$ = FGDFlagsValue_t($3, $1, true, $4); };
 
 
 
@@ -393,15 +425,25 @@ TypeId: IntegerType
 | Sound;
 
 
+// Optional default value and help block
+OptionalDefaultValAndHelp: Colon Number Colon StringLiteral { $$ = OptionalDefaultValAndHelp_s($2, $4); }
+| Colon StringLiteral Colon StringLiteral { $$ = OptionalDefaultValAndHelp_s($2, $4); }
+| Colon Colon StringLiteral { $$ = OptionalDefaultValAndHelp_s(0, $3); }
+| Colon Number { $$ = OptionalDefaultValAndHelp_s($2,""); }
+| Colon StringLiteral { $$ = OptionalDefaultValAndHelp_s($2,""); }
+|%empty { (void)0; };
+
+/*
 // Значение по умолчанию для энтити
 DefaultValueOpt: Colon StringLiteral { $$ = $2;}
 | Colon Number { $$ = std::format("{0}", $2); }
 | Colon { $$ = ""; }
-| %empty { (void)0;};;  
+|%empty { (void)0; };
+*/
 
-/*// Описание свойства (Jackhammer)
-PropertyHelpOpt: StringLiteral { $$ = $1; }
-| %empty { (void)0;};; */
+// Описание свойства (Jackhammer)
+PropertyHelpOpt: Colon StringLiteral { $$ = $2; }
+| %empty { (void)0;};
 
 %%
 
@@ -452,6 +494,7 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
         'sound'                     {                     return s(yy::HammerFGDParser::make_Sound, std::string(anchor, ctx->cursor)) ; }
         'studio'                    {                     return s(yy::HammerFGDParser::make_Studio, std::string(anchor, ctx->cursor)) ; }
         'model'                     {                     return s(yy::HammerFGDParser::make_Model, std::string(anchor, ctx->cursor)) ; }        
+        'offset'                    {                     return s(yy::HammerFGDParser::make_Offset) ; }        
         'sky'                       {                     return s(yy::HammerFGDParser::make_Sky, std::string(anchor, ctx->cursor)) ; }        
         'flags'                     {                     return s(yy::HammerFGDParser::make_Flags, std::string(anchor, ctx->cursor)) ; }
         'choices'                   {                     return s(yy::HammerFGDParser::make_Choices, std::string(anchor, ctx->cursor)) ; }
