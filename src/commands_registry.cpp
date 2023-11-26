@@ -139,7 +139,13 @@ CCommand::CCommand(GlobalCommands id, const char* description,const char* keyStr
 				Application::EPICFAIL("Bad shortcut for command \"%s\" - unknown key %s", m_szDescription, (*it).c_str());
 
 			if (scanCode == SDLK_UNKNOWN)
-				Application::EPICFAIL("Bad shortcut for command \"%s\" - unknown key %s", m_szDescription, (*it).c_str());
+            {
+                auto err = SDL_GetError();
+                Application::EPICFAIL("Bad shortcut for command \"%s\" - unknown key %s", m_szDescription,
+                                      (*it).c_str());
+            }
+
+            
 
 			r = addKey(scanCode);
 

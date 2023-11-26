@@ -332,6 +332,9 @@
     <ClCompile Include="files_listview_ex.cpp">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClCompile>
+    <ClCompile Include="inputfield_ex.cpp">
+      <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -596,6 +599,9 @@
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
     <ClInclude Include="files_listview_ex.h">
+      <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="inputfield_ex.h">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
   </ItemGroup>

@@ -2647,7 +2647,7 @@ struct FGDParsingContext
 
     void SetPropertyExtra(std::string property, float value)
     {
-		Con_Printf("SetPropertyExtra(%s, %f)\n", property.c_str(), value);
+		//Con_Printf("SetPropertyExtra(%s, %f)\n", property.c_str(), value);
 
 //         assert(current_entity);
 //         current_entity->SetPropertyExtra(property, value);

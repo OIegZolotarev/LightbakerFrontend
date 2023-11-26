@@ -104,7 +104,7 @@ private:
  	return 1;
  }
 
-#define DEBUG_TO_CONSOLE
+//#define DEBUG_TO_CONSOLE
 #ifdef DEBUG_TO_CONSOLE
 	#define Con_Printf printf
 #endif
@@ -113,4 +113,4 @@ private:
  #define SDL_ORGANIZATION "QuiteOldOrange"
  #define SDL_APP_NAME "LightBaker3000Frontend"
  
-#define APP_VERSION "1.3.0.0"
+#define APP_VERSION "1.3.1.0"
