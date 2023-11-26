@@ -347,9 +347,20 @@ std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t 
     // 	return obj->Export(newPath, lb3kOptions);
 
     auto it            = m_SceneEntities.begin();
-    ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
+    
 
-    return entity->ExportForCompiling(newPath, lb3kOptions);
+    auto entity = (*it).get();
+    
+    
+    IWorldEntity *pWorld = dynamic_cast<IWorldEntity *>(entity);
+    if (NULL != pWorld)
+    {
+        return pWorld->ExportForCompiling(newPath, lb3kOptions);
+    }
+    else
+        Application::EPICFAIL("Bad entity 0");
+
+    return "";
 }
 
 void Scene::RenderGroupsShaded()

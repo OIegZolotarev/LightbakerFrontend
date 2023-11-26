@@ -28,7 +28,7 @@ public:
 	DECLARE_PROPERTY(std::string, Skybox);
 
 	void OnSelect() override;
-	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions);
+	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions) override;
 
 	void RenderBoundingBox() override;
 	void RenderDebug() override;

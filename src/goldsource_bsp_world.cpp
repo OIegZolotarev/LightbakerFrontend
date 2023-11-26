@@ -13,7 +13,7 @@ using namespace GoldSource;
 
 void BSPWorld::ReloadLightmaps()
 {
-    
+    m_pLevel->ReloadLightmaps();
 }
 
 void BSPWorld::OnAdditionToScene()
@@ -53,4 +53,9 @@ void BSPWorld::RenderLightshaded()
 bool BSPWorld::IsDataLoaded()
 {
     return true;
+}
+
+std::string BSPWorld::ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions)
+{    
+    return m_pLevel->Export(newPath, lb3kOptions);
 }

@@ -83,7 +83,7 @@ class BSPLevel
 
     std::vector<msurface_t> &GetFaces();
 
-    std::string Export(const char *newPath, lightBakerSettings_t *lb3kOptions, glm::vec3 m_EnvColor);
+    std::string Export(const char *newPath, lightBakerSettings_t *lb3kOptions);
     void ReloadLightmaps();
 
     const std::vector<dmodel_t> &GetSubmodels() const;

@@ -60,7 +60,7 @@ void BSPEntity::SetKeyValue(std::string& key, std::string& value)
         // 				color[i] = std::stof(*it) / 255.f;
         // 		}
     }
-    else if (key == "_wad")
+    else if (key == "_wad" || key == "wad")
     {
         // E:\Games\Half-Life\valve\halflife.wad;
         // E:\Games\Half-Life\valve\liquids.wad;
@@ -111,6 +111,12 @@ void BSPEntity::PopulateScene()
         SetMins(m_pFGDClass->GetMins());
         SetMaxs(m_pFGDClass->GetMaxs());
         SetColor(m_pFGDClass->GetColor());
+    }
+    else
+    {
+        SetMins({-4,-4,-4});
+        SetMaxs({4, 4, 4});
+        SetColor({1,0,1});
     }
 
     SetClassName(classname.c_str());

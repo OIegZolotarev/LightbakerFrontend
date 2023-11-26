@@ -166,7 +166,7 @@ void MaterialTemplateLibrary::ParseCommand(AsynchTextureLoadTask* textureLoader,
 
 #define ASSERT_HAS_MATERIAL() if (currentMaterial == nullptr)  \
 	{  \
-		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer, lineNumber); \
+		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer.c_str(), lineNumber); \
 		return; \
 	}
 

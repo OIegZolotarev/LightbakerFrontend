@@ -25,6 +25,8 @@ class BSPWorld: public IWorldEntity
     void RenderLightshaded() override;
 
     bool IsDataLoaded() override;
+
+    std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions) override;
 };
 }
 

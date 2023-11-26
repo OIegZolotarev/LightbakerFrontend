@@ -658,6 +658,8 @@ BSPLevel::~BSPLevel()
 	FreeVector(m_vSubmodels);
 
 	ClearPointersVector(m_vEntities);
+
+	m_pFileData->UnRef();
 }
 
 std::string BSPLevel::GetBaseName()
@@ -1115,6 +1117,8 @@ std::vector<GoldSource::msurface_t> & BSPLevel::GetFaces()
 
 void BSPLevel::PopulateScene()
 {
+	// TODO: design a proper way to link worldspawn and BSPWorld 
+	//
 	for (auto it : m_vEntities)
 		it->PopulateScene();
 
@@ -1186,7 +1190,7 @@ void BSPLevel::ReloadLightmaps()
 	Mod_ReloadFacesLighting(&m_Header->lumps[LUMP_FACES]);
 }
 
-std::string BSPLevel::Export(const char* newPath, lightBakerSettings_t* lb3kOptions, glm::vec3 m_EnvColor)
+std::string GoldSource::BSPLevel::Export(const char *newPath, lightBakerSettings_t *lb3kOptions)
 {
 	
 	FILE* fpOut = fopen(m_pFileData->Name().c_str(), "wb");
@@ -1197,11 +1201,19 @@ std::string BSPLevel::Export(const char* newPath, lightBakerSettings_t* lb3kOpti
 
 	m_Header->lumps[LUMP_ENTITIES].fileofs = pos;
 
+	auto scene = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetScene();
 
-	for (auto ent : m_vEntities)
+	for (auto & ent : scene->GetSceneObjects())
 	{
-		ent->UpdateProperties();
-		ent->Export(fpOut);
+        auto rawPtr = ent.get();
+
+		BSPEntity *pBSPEntity = dynamic_cast<BSPEntity *>(rawPtr);
+		
+		if (pBSPEntity)
+		{
+            pBSPEntity->UpdateProperties();
+            pBSPEntity->Export(fpOut);
+		}
 	}
 
 	m_Header->lumps[LUMP_ENTITIES].filelen = ftell(fpOut) - pos;

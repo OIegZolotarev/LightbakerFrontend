@@ -55,7 +55,7 @@ std::string ModelObjWorld::ExportForCompiling(const char* newPath, lightBakerSet
 		return m_pObjWorld->Export(newPath,lb3kOptions, m_EnvColor);
 
 	if (m_pBSPWorld)
-		return m_pBSPWorld->Export(newPath, lb3kOptions, m_EnvColor);
+		return m_pBSPWorld->Export(newPath, lb3kOptions);
 
 	return "none";
 }
