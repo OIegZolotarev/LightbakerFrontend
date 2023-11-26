@@ -7,6 +7,7 @@
 #include "game_configuration.h"
 #include "hammer_fgd.h"
 #include "imgui_listview_ex.h"
+#include "inputfield_ex.h"
 
 namespace GoldSource
 {
@@ -25,6 +26,7 @@ class HammerGameConfiguration : public GameConfiguration
         std::string rad = ""; // Не особо то и нужно :)
     } m_CompilationPrograms;
 
+    
     std::list<std::string> m_FGDFiles;
     std::list<HammerFGDFile *> m_lstFGDData;
 
@@ -32,6 +34,12 @@ class HammerGameConfiguration : public GameConfiguration
     void ParseGameInfo();
 
     ListViewEx *m_pFGDListView;
+    ListViewEx *m_pWadsListView;
+
+    InputFieldEx *m_pCSGInputField;
+    InputFieldEx *m_pBSPInputField;
+    InputFieldEx *m_pVISInputField;
+    InputFieldEx *m_pRADInputField;
 
     void InitListViewBindings();
 
@@ -40,9 +48,7 @@ class HammerGameConfiguration : public GameConfiguration
     HammerGameConfiguration(HammerGameConfiguration &other);
     HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
-
     
-
     ~HammerGameConfiguration();
 
     FGDEntityClass *LookupFGDClass(std::string &classname);
@@ -53,9 +59,7 @@ class HammerGameConfiguration : public GameConfiguration
     void EditDialog() override;
 
     void RenderGeneralUI();
-
     void RenderCompilerUI();
-
     void RenderFGDUI();
 
     GameConfiguration *Clone() override;

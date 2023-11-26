@@ -44,6 +44,9 @@ void InitCommonResources()
     LoadIcon(CommonIcons::ListMoveDown , "res/ui/common_icons/lists/move_down.png");
     LoadIcon(CommonIcons::ListSortDesc , "res/ui/common_icons/lists/sort_desc.png");
     LoadIcon(CommonIcons::ListSortAsc  , "res/ui/common_icons/lists/sort_asc.png");
+    
+    LoadIcon(CommonIcons::InputFieldClear , "res/ui/common_icons/input_field/clear.png");
+    LoadIcon(CommonIcons::InputFieldMore  , "res/ui/common_icons/input_field/more.png");
 
     // clang-format on
 }

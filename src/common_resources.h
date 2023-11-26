@@ -19,7 +19,10 @@ enum class CommonIcons
 	ListMoveUp,
 	ListMoveDown,	
 	ListSortAsc,
-    ListSortDesc
+    ListSortDesc,
+    InputFieldMore,
+    InputFieldClear,
+
 };
 
 void			InitCommonResources();

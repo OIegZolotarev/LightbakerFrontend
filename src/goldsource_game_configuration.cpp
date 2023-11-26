@@ -62,7 +62,36 @@ void HammerGameConfiguration::InitListViewBindings()
     bindings->SetDialogTitle("Select FGD file");
     bindings->SetFileFilter(".fgd");
 
-    m_pFGDListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS);
+    m_pFGDListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS | LV_DISABLE_EDIT_ITEMS);
+
+
+    bindings = new FilesListViewBindings(m_WadFiles);
+    bindings->SetDialogTitle("Select WAD file");
+    bindings->SetFileFilter(".wad");
+
+    m_pWadsListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS | LV_DISABLE_EDIT_ITEMS);
+
+
+    m_pCSGInputField = new InputFieldEx("CSG Program:", m_CompilationPrograms.csg, FL_FILE_SELECTOR);  
+    m_pBSPInputField = new InputFieldEx("BSP Program:", m_CompilationPrograms.bsp, FL_FILE_SELECTOR);
+    m_pVISInputField = new InputFieldEx("VIS Program:", m_CompilationPrograms.vis, FL_FILE_SELECTOR);
+    m_pRADInputField = new InputFieldEx("RAD Program:", m_CompilationPrograms.rad, FL_FILE_SELECTOR);
+
+    auto configureCompilerInputField = [](InputFieldEx *field) {
+        field->SetHeaderPosition(HeaderPosition::Top);
+        field->SetFileDialogTitle("Choose program");
+        #ifndef LINUX
+            field->SetFileDialogFilter(".exe");
+        #else
+            field->SetFileDialogFilter("*");
+        #endif
+    };
+
+    configureCompilerInputField(m_pCSGInputField);
+    configureCompilerInputField(m_pBSPInputField);
+    configureCompilerInputField(m_pVISInputField);
+    configureCompilerInputField(m_pRADInputField);
+   
 }
 
 HammerGameConfiguration::HammerGameConfiguration()
@@ -83,19 +112,17 @@ void HammerGameConfiguration::RenderGeneralUI()
 void HammerGameConfiguration::RenderCompilerUI()
 {
     ImGui::SeparatorText("Compilers:");
-    ImGui::InputText("CSG program", &m_CompilationPrograms.csg);
-    ImGui::InputText("BSP program", &m_CompilationPrograms.bsp);
-    ImGui::InputText("VIS program", &m_CompilationPrograms.vis);
-    ImGui::InputText("RAD program", &m_CompilationPrograms.rad);
+
+    m_pCSGInputField->RenderGui();
+    m_pBSPInputField->RenderGui();
+    m_pVISInputField->RenderGui();
+    m_pRADInputField->RenderGui();
 }
 
 void HammerGameConfiguration::RenderFGDUI()
 {
-    static size_t selectedConf = 0;
-
     ImGui::SeparatorText("FGD Files");
-
-    m_pFGDListView->RenderGui();
+    m_pFGDListView->RenderGui();    
 }
 
 GameConfiguration *HammerGameConfiguration::Clone()
@@ -136,6 +163,12 @@ void HammerGameConfiguration::EditDialog()
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("WAD Files"))
+        {
+            m_pWadsListView->RenderGui();
+            ImGui::EndTabItem();
+        }
+
         ImGui::EndTabBar();
     }
 }
@@ -152,6 +185,7 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
         nlohmann::json j;
         nlohmann::json compilers;
         nlohmann::json fgdFiles;
+
 
         FILE *fp = FileSystem::OpenFileForWriting(fileName);
 
@@ -189,6 +223,8 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
         }
 
         j["FGDFiles"] = fgdFiles;
+
+        j["WADFiles"] = m_WadFiles;
 
         std::string data = j.dump(4);
         fprintf(fp, "%s", data.c_str());
@@ -230,6 +266,12 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
         for (auto &it : FGDFiles)
             m_FGDFiles.push_back(it);
     }
+
+    if (j.contains("WADFiles"))
+    {
+        m_WadFiles = j["WADFiles"];
+    }
+    
 
     if (j.contains("Engine"))
     {
@@ -306,4 +348,12 @@ HammerGameConfiguration::~HammerGameConfiguration()
 
     m_lstFGDData.clear();
     m_FGDFiles.clear();
+
+    delete m_pFGDListView;
+    delete m_pWadsListView;
+
+    delete m_pCSGInputField;
+    delete m_pBSPInputField;
+    delete m_pVISInputField;
+    delete m_pRADInputField;
 }

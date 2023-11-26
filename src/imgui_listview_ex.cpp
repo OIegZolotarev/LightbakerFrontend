@@ -11,7 +11,7 @@
 
 void ListViewEx::RenderToolbar()
 {
-    constexpr float iconsSize = 13;
+    constexpr float iconsSize = LV_TOOLBAR_ICON_SIZE;
 
     static const char *labels[]   = {"Add", "Remove", "Edit", "Move up", "Move down", "Sort asc.", "Sort desc."};
     static const char *noLabels[] = {"###Add",       "###Remove",     "##Edit",     "###Move up",
@@ -82,6 +82,8 @@ ListViewEx::~ListViewEx()
 
 void ListViewEx::RenderGui()
 {
+    ImGui::PushID(this);
+
     RenderToolbar();
     // Stretch to fit
     ImGui::SetNextItemWidth(-1);
@@ -110,6 +112,8 @@ void ListViewEx::RenderGui()
 
         ImGui::EndListBox();
     }
+
+    ImGui::PopID();
 }
 
 void ListViewEx::OnToolBarItemClicked(ToolbarButtons btn)

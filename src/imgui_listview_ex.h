@@ -6,22 +6,14 @@
 #pragma once
 #include "common_resources.h"
 
+#define LV_TOOLBAR_ICON_SIZE 13
+
 enum class SortDirection
 {
     Ascending = 0,
     Descending
 };
 
-enum class ToolbarButtons
-{
-    Add = 0,
-    Remove,
-    Edit,
-    MoveUp,
-    MoveDown,
-    SortAsc,
-    SortDesc
-};
 
 #define LV_DISABLE_ADD_ITEMS    (1 << 0)
 #define LV_DISABLE_REMOVE_ITEMS (1 << 1)
@@ -59,6 +51,18 @@ class ListViewEx
     unsigned int m_Flags;
 
     void RenderToolbar();
+
+    
+enum class ToolbarButtons
+    {
+        Add = 0,
+        Remove,
+        Edit,
+        MoveUp,
+        MoveDown,
+        SortAsc,
+        SortDesc
+    };
 
   public:
     ListViewEx(IListBinder *pBinder, unsigned int flags);
