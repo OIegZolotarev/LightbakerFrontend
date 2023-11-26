@@ -180,6 +180,11 @@ void VariantValue::SetString(const char* value)
 	m_StringValue = value;
 }
 
+void VariantValue::SetString(std::string val)
+{
+    m_StringValue = val;
+}
+
 void VariantValue::AddEnumValue(const char* descr, int val)
 {
 	m_EnumOrFlagsValues.push_back(enumValuePair_t(descr, val));

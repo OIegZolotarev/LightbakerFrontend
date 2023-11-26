@@ -84,6 +84,7 @@ public:
 	void SetSizeX(float val);
 	void SetBool(bool val);
 	void SetString(const char* value);
+	void SetString(std::string val);
 
 	const int GetId() const;
 	const PropertiesTypes GetType() const;

@@ -51,7 +51,7 @@ void Application::Run()
 
 void Application::InitMainWindow()
 {
-	m_pPersistentStorage = new PersistentStorage(this);
+	m_pPersistentStorage = PersistentStorage::Instance();
 	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
 }
 

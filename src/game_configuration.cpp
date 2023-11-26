@@ -3,12 +3,13 @@
     (c) 2023 CrazyRussian
 */
 
-#include "application.h"
 #include "game_configuration.h"
+#include "application.h"
 #include "common.h"
 #include "goldsource_bsp_entity.h"
 #include "goldsource_game_configuration.h"
 #include <regex>
+#include "text_utils.h"
 
 GameConfiguration::GameConfiguration(std::string descr, std::string gameDirectory) : m_Description(descr)
 {
@@ -29,12 +30,23 @@ const char *GameConfiguration::Description() const
     return m_Description.c_str();
 }
 
+
+
 bool GameConfiguration::MatchesGameDirectoryMask(std::string &levelFilePath) const
 {
     auto levelPath          = std::filesystem::path(levelFilePath);
     auto levelPathCanonical = std::filesystem::canonical(levelPath).string();
 
-    std::regex pathRegex(m_GameDirectory + "/*");
+    auto str = m_GameDirectory;
+
+    TextUtils::ReplaceAll(str, "\\", "\\\\");
+
+#ifndef LINUX
+    std::regex pathRegex(str + "\\\\*");
+#else
+#pragma error("debug this")
+    std::regex pathRegex(str + "\/*");
+#endif
 
     auto words_begin = std::sregex_iterator(levelPathCanonical.begin(), levelPathCanonical.end(), pathRegex);
     auto words_end   = std::sregex_iterator();
@@ -60,9 +72,26 @@ void GameConfiguration::SetGameDirectory(std::string &gameDir)
     m_GameDirectory = gdPathCanonical.string();
 }
 
-void GameConfigurationsManager::Init()
+void GameConfigurationsManager::Init(PersistentStorage *storage)
 {
+    m_pPersistentStorage = storage;
+
     LoadGameConfigsFromDisk();
+
+    auto setting         = storage->GetSetting(ApplicationSettings::DefaultGameConfiguration);
+    auto defaultGameConf = setting->GetString();
+
+    if (*defaultGameConf)
+    {
+        for (auto &it : m_Configurations)
+        {
+            if (!strcmp(it->m_SavedFileName.c_str(), defaultGameConf))
+            {
+                SetDefaultGameConfiguration(it);
+            }
+        }
+    }
+
     return;
 }
 
@@ -199,10 +228,26 @@ void GameConfigurationsManager::UpdateGameConfiguration(GameConfigurationWeakPtr
         return;
 
     *it = std::shared_ptr<GameConfiguration>(edited);
+
+    auto setting         = m_pPersistentStorage->GetSetting(ApplicationSettings::DefaultGameConfiguration);
+    auto defaultGameConf = setting->GetString();
+
+    // Update default configuration pointer, if working with one 
+    //
+    if (!strcmp(edited->m_SavedFileName.c_str(), defaultGameConf))
+    {
+        SetDefaultGameConfiguration(*it);
+    }
+
 }
 
 void GameConfigurationsManager::SetDefaultGameConfiguration(GameConfigurationWeakPtr ptr)
 {
+    auto lock = ptr.lock();
+
+    if (!lock)
+        return;
+
     for (auto &it : m_Configurations)
     {
         if (equals(ptr, it))
@@ -210,6 +255,9 @@ void GameConfigurationsManager::SetDefaultGameConfiguration(GameConfigurationWea
         else
             it->SetDefault(false);
     }
+
+    auto setting = m_pPersistentStorage->GetSetting(ApplicationSettings::DefaultGameConfiguration);
+    setting->SetString(lock->m_SavedFileName);
 }
 
 GameConfigurationWeakPtr GameConfigurationsManager::GetDefaultGameConfiguration()

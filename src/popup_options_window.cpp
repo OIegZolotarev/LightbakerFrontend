@@ -222,15 +222,24 @@ void OptionsDialog::RenderOptionsPages(ProgramOptions::uiOptionPage_t *page)
 
 void OptionsDialog::RenderGameConfigurationsPage()
 {
-    static GameConfigurationWeakPtr selectedConf;
-
     if (ImGui::BeginChildFrame(53, ImVec2(0, 0)))
     {
         ImGui::SeparatorText("Registered configurations:");
-
         m_pGameConfigurationsView->RenderGui();
+
+        auto defaultConfiguration = GameConfigurationsManager::Instance()->GetDefaultGameConfiguration();
+
+        auto ptr = defaultConfiguration.lock();
+
+        if (ptr)
+            ImGui::Text("Default configuration: %s", ptr->Description());
+        else
+            ImGui::Text("Default configuration is not set");
+
         ImGui::EndChildFrame();
     }
+
+
 }
 
 void OptionsDialog::OnOpen()
@@ -388,6 +397,7 @@ bool GameConfigurationListBinding::IsEmpty()
 
 void GameConfigurationListBinding::RenderExtraCommands()
 {
+    ImGui::SameLine();
     if (ImGui::Button("Make default"))
     {
         if (m_SelectedConf.lock())

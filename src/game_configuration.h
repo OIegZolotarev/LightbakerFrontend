@@ -5,6 +5,8 @@
 
 #pragma once
 #include <optional>
+#include "persistent.h"
+
 
 enum class GameEngines
 {
@@ -15,9 +17,11 @@ enum class GameEngines
 class GameConfiguration
 {
     friend class GameConfigurationsManager;
-    bool m_bDefault;
+    bool m_bDefault = false;
 
   protected:
+         
+
     std::string m_GameDirectory;
     std::string m_Description;
 
@@ -73,17 +77,19 @@ class GameConfigurationsManager : public Singleton<GameConfigurationsManager>
     // For GoldSource/Xash3d games returns game directory + detected engine type (by detecting liblist.gam/gameinfo.txt)
     std::optional<gamelookupresult_t> ScanForGameDefinitionFile(std::string &levelFileName, size_t maxRecursion = 3);
 
+    PersistentStorage *m_pPersistentStorage;
+
   public:
     ~GameConfigurationsManager();
     
     // Initialization
-    void Init();
+    void Init(PersistentStorage * storage);
     void LoadGameConfigsFromDisk();
        
     // Searching
     GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
     GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
-
+    
     // Accessing
     std::list<GameConfigurationPtr> &AllConfigurations();
     const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;

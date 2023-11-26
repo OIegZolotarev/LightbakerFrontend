@@ -34,8 +34,15 @@ PersistentStorage::PersistentStorage(Application *appInstance)
         }
     }
 
+    // Special settings
+    m_ApplicationProps.push_back(new VariantValue((int)ApplicationSettings::DefaultGameConfiguration, PropertiesTypes::String, "Default Game Configuration"));
+
     SetDefaultValues();
     LoadFromFile(appInstance);
+
+    
+    // To make default game configuration avaible
+    GameConfigurationsManager::Instance()->Init(this);
 }
 
 void PersistentStorage::SetDefaultValues()
@@ -312,6 +319,9 @@ nlohmann::json PersistentStorage::SerializeApplicationProperty(nlohmann::json &j
     case PropertiesTypes::Bool:
         prop_descriptor["value"] = it->GetAsBool();
         break;
+    case PropertiesTypes::String:
+        prop_descriptor["value"] = it->GetString();
+        break;
     default:
         break;
     }
@@ -406,6 +416,9 @@ void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
         case PropertiesTypes::Bool:
             descriptor->SetBool(it["value"]);
             break;
+        case PropertiesTypes::String:
+            descriptor->SetString(it["value"]);
+            break;
         default:
             break;
         }
@@ -428,6 +441,12 @@ void PersistentStorage::FlagPanelIsAtValidPosition(PanelsId id)
 bool PersistentStorage::IsFreshFile()
 {
     return m_bFreshFile;
+}
+
+PersistentStorage *PersistentStorage::Instance()
+{
+    static PersistentStorage *sInstance = new PersistentStorage(Application::Instance());
+    return sInstance;
 }
 
 void PersistentStorage::SaveToFile()

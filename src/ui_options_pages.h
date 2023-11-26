@@ -64,8 +64,6 @@ public:
 
 	VariantValue* GetValue();
 	void RenderImGUI() override;
-
-
 };
 
 
