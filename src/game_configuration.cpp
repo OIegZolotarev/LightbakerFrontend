@@ -150,7 +150,7 @@ GameConfigurationWeakPtrOpt GameConfigurationsManager::FindConfigurationForLevel
 
     // If none configuration data found - fail
     if (!lookupResult)
-        return GameConfigurationWeakPtr();
+        return GetDefaultGameConfiguration();
 
     GameConfigurationPtr pNewConfiguration = nullptr;
 

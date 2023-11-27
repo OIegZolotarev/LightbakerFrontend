@@ -304,9 +304,8 @@ void Scene::LoadLevel(const char *levelName)
     auto s = std::string(levelName);
 
     auto cfg = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
-
-    if (cfg != std::nullopt)
-        m_pGameConfiguration = *cfg;
+    m_pGameConfiguration = *cfg;
+    
 
     auto format = DetermineLevelFormatFromFileName(levelName);
 
