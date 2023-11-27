@@ -7,13 +7,13 @@
 #include "application.h"
 #include "common.h"
 
-std::unordered_map<CommonIcons, gltexture_t *> *g_CommonIcons = nullptr;
+std::unordered_map<CommonIcons, GLTexture *> *g_CommonIcons = nullptr;
 
 void LoadIcon(CommonIcons id, const char *filePath)
 {
     FileData *pData = Application::GetFileSystem()->LoadFile(filePath);
 
-    std::pair<CommonIcons, gltexture_t *> p(id, LoadGLTexture(pData));
+    std::pair<CommonIcons, GLTexture *> p(id, LoadGLTexture(pData));
     g_CommonIcons->insert(p);
 
     delete pData;
@@ -26,7 +26,7 @@ void DestroyCommonResources()
 
 void InitCommonResources()
 {
-    g_CommonIcons = new std::unordered_map<CommonIcons, gltexture_t *>;
+    g_CommonIcons = new std::unordered_map<CommonIcons, GLTexture *>;
 
     // clang-format off
 
@@ -51,7 +51,7 @@ void InitCommonResources()
     // clang-format on
 }
 
-gltexture_t *GetCommonIcon(CommonIcons icon_id)
+GLTexture *GetCommonIcon(CommonIcons icon_id)
 {
     if (!g_CommonIcons->count(icon_id))
         return 0;

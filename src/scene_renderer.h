@@ -49,8 +49,8 @@ class SceneRenderer : public IEventHandler
     void LoadModel(const char *dropped_filedir, int loadFlags);
     void ReloadScene(int loadFlags);
 
-    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t *texture, const glm::vec3 tint);
-    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t *texture, const int index);
+    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint);
+    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const int index);
 
     void FocusCameraOnObject(SceneEntityPtr it);
 

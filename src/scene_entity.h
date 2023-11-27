@@ -72,7 +72,7 @@ class SceneEntity : public ISelectableObject
     DECLARE_PROPERTY(glm::vec3, Maxs);
 
     DECLARE_PROPERTY(glm::vec3, Color);
-    DECLARE_PROPERTY(gltexture_t *, EditorIcon);
+    DECLARE_PROPERTY(GLTexture *, EditorIcon);
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;

@@ -8,23 +8,23 @@
 #include "application.h"
 #include "loader_thread.h"
 
-void GLReloadTexture(gltexture_t* r, FileData* sourceFile);
-std::vector<gltexture_t*> g_vecGLTextures;
+void GLReloadTexture(GLTexture* r, FileData* sourceFile);
+std::vector<GLTexture*> g_vecGLTextures;
 
-gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
+GLTexture* LoadGLTexture(FileData* sourceFile, bool force)
 {
 	if (!force && sourceFile)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
 			if (it->file_name == sourceFile->Name() 
-					&& it->gl_texnum != 0)
+					&& it->GLTextureNum() != 0)
 				return it;
 		}
 	}
 
-	gltexture_t* r = new gltexture_t;
-	memset(r, 0, sizeof(gltexture_t));
+	GLTexture* r = new GLTexture;
+	memset(r, 0, sizeof(GLTexture));
 
 	GLReloadTexture(r, sourceFile);
 	
@@ -33,14 +33,14 @@ gltexture_t* LoadGLTexture(FileData* sourceFile, bool force)
 	return r;
 }
 
-gltexture_t* LoadGLTexture(const char* fileName, bool force)
+GLTexture* LoadGLTexture(const char* fileName, bool force)
 {
 	if (!force)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
 			if (!_stricmp(it->file_name.c_str(),fileName)
-				&& it->gl_texnum != 0)
+				&& it->GLTextureNum() != 0)
 				return it;
 		}
 	}
@@ -54,18 +54,18 @@ gltexture_t* LoadGLTexture(const char* fileName, bool force)
 	return r;
 }
 
-void GLReloadTexture(gltexture_t* t)
+void GLReloadTexture(GLTexture* t)
 {
 	FileData* pData = Application::GetFileSystem()->LoadFile(t->file_name.c_str());
 	GLReloadTexture(t, pData);
 	delete pData;
 }
 
-void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
+void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 {
-	r->height = -1;
-	r->width = -1;
-	r->gl_texnum = 0;
+	r->SetHeight(-1);
+	r->SetWidth(-1);
+	r->SetGLTextureNum(0);
 	
 
 	if (!sourceFile)
@@ -109,11 +109,11 @@ void GLReloadTexture(gltexture_t* r,FileData * sourceFile)
 
 	stbi_image_free(image_data);
 
-	r->gl_texnum = image_texture;
-	r->width = image_width;
-	r->height = image_height;
+	r->SetGLTextureNum(image_texture);
+	r->SetWidth(image_width);
+	r->SetHeight(image_height);
 
-	r->loaded = true;
+	r->SetLoaded(true);
 
 	return;
 }
@@ -123,14 +123,14 @@ void FreeGLTextures()
 	ClearPointersVector(g_vecGLTextures);
 }
 
-void FreeGLTexture(gltexture_t* t)
+void FreeGLTexture(GLTexture* t)
 {
 	if (!t)
 		return;
 
-	auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(), [&](gltexture_t*a) -> bool
+	auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(), [&](GLTexture*a) -> bool
 	{
-		return a->gl_texnum == t->gl_texnum;
+		return a->GLTextureNum() == t->GLTextureNum();
 	});
 
 	
@@ -144,7 +144,7 @@ void FreeGLTexture(gltexture_t* t)
 }
 
 
-void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
+void* AsynchTextureLoadTask::LoadTextureFileData(GLTexture* texture)
 {
 	FileData* pData = Application::GetFileSystem()->LoadFile(texture->file_name);
 
@@ -160,8 +160,8 @@ void* AsynchTextureLoadTask::LoadTextureFileData(gltexture_t* texture)
 	stbi_set_flip_vertically_on_load(true);
 	void * pixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
 
-	texture->width = image_width;
-	texture->height = image_height;
+	texture->SetWidth(image_width);
+	texture->SetHeight(image_height);
 
 	pData->UnRef();
 
@@ -183,10 +183,10 @@ AsynchTextureLoadTask::~AsynchTextureLoadTask()
 	assert(m_qScheduledTextures.empty());
 }
 
-gltexture_t* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
+GLTexture* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
 {
-	gltexture_t* texture = new gltexture_t;
-	memset(texture, 0, sizeof(gltexture_t));
+	GLTexture* texture = new GLTexture;
+	memset(texture, 0, sizeof(GLTexture));
 
 	texture->file_name = fileName;
 	m_qScheduledTextures.push(texture);
@@ -201,7 +201,7 @@ ITaskStepResult* AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
 	if (m_qScheduledTextures.empty())
 		return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
 
-	gltexture_t* texture = m_qScheduledTextures.front();
+	GLTexture* texture = m_qScheduledTextures.front();
 	m_qScheduledTextures.pop();
 
 	m_nPerformedSteps++;
@@ -216,7 +216,7 @@ void AsynchTextureLoadTask::OnCompletion()
 	(void)0;
 }
 
-AsynchTextureLoadResult::AsynchTextureLoadResult(gltexture_t* texture, void* pixels): ITaskStepResult(TaskStepResultType::StepPerformed)
+AsynchTextureLoadResult::AsynchTextureLoadResult(GLTexture* texture, void* pixels): ITaskStepResult(TaskStepResultType::StepPerformed)
 {
 	m_pPixels = pixels;
 	m_pTexture = texture;
@@ -238,8 +238,8 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 		return;
 	}
 
-	glGenTextures(1, &m_pTexture->gl_texnum);
-	glBindTexture(GL_TEXTURE_2D, m_pTexture->gl_texnum);
+	m_pTexture->GenerateGLHandle();
+    m_pTexture->Bind(0);
 
 	// Setup filtering parameters for display
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -255,7 +255,7 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
 	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->width, m_pTexture->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->Width(), m_pTexture->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
 
 	// thread-safe
 	g_vecGLTextures.push_back(m_pTexture);
@@ -267,4 +267,80 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 bool AsynchTextureLoadResult::NeedEndCallback()
 {
 	return true;
+}
+
+bool GLTexture::IsLoaded() const
+{
+    return loaded;
+}
+
+void GLTexture::SetLoaded(bool val)
+{
+    loaded = val;
+}
+
+int GLTexture::Width() const
+{
+    return width;
+}
+
+void GLTexture::SetWidth(int val)
+{
+    width = val;
+}
+
+int GLTexture::Height() const
+{
+    return height;
+}
+
+void GLTexture::SetHeight(int val)
+{
+    height = val;
+}
+
+int GLTexture::SpriteSheetWidth() const
+{
+    return sprite_sheet_width;
+}
+
+void GLTexture::SetSpriteSheetWidth(int val)
+{
+    sprite_sheet_width = val;
+}
+
+int GLTexture::SpriteSheetHeight() const
+{
+    return sprite_sheet_height;
+}
+
+void GLTexture::SetSpriteSheetHeight(int val)
+{
+    sprite_sheet_height = val;
+}
+
+GLuint GLTexture::GLTextureNum() const
+{
+    return gl_texnum;
+}
+
+void GLTexture::SetGLTextureNum(GLuint val)
+{
+    gl_texnum = val;
+}
+
+GLTexture::~GLTexture()
+{
+    if (gl_texnum > 0)
+        glDeleteTextures(1, &gl_texnum);
+}
+
+void GLTexture::GenerateGLHandle()
+{
+    glGenTextures(1, &gl_texnum);
+}
+
+void GLTexture::Bind(size_t unit)
+{
+    GLBackend::BindTexture(unit, this);
 }

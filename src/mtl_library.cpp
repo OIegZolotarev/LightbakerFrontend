@@ -188,10 +188,10 @@ void MaterialTemplateLibrary::ParseCommand(AsynchTextureLoadTask* textureLoader,
 		return r;
 	};
 
-	auto loadMap = [&](std::vector<std::string>& tokens) -> gltexture_t*
+	auto loadMap = [&](std::vector<std::string>& tokens) -> GLTexture*
 	{
 		auto fileName = m_Directory + "/" + tokens[1];
-		gltexture_t* result = textureLoader->ScheduleTexture(fileName.c_str());
+		GLTexture* result = textureLoader->ScheduleTexture(fileName.c_str());
 		return result;
 	};
 

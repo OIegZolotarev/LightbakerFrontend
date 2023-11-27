@@ -51,12 +51,12 @@ class CCommand
 
 
 	int					m_iFlags;
-	gltexture_t*		m_pIcon;
+	GLTexture*		m_pIcon;
 	GlobalCommands		m_eCommandId;
 	pfnCommandCallback	m_pfnCallback;
 
 public:
-	CCommand(GlobalCommands id, const char* description,const char* keyStroke, gltexture_t* icon, int flags, pfnCommandCallback callback);
+	CCommand(GlobalCommands id, const char* description,const char* keyStroke, GLTexture* icon, int flags, pfnCommandCallback callback);
 	
 	void				Execute();
 	int					Flags() { return m_iFlags; }	

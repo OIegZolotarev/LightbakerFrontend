@@ -63,7 +63,7 @@ typedef struct mtexture_s
     char		name[16];
     unsigned	width, height;
     
-    gltexture_t* loadedTexture = nullptr;
+    GLTexture* loadedTexture = nullptr;
 
 
     struct msurface_s* texturechain;	// for gl_texsort drawing

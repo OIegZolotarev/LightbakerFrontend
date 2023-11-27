@@ -2,9 +2,10 @@
 BasedOnStyle: Microsoft
 AlignConsecutiveMacros: 'true'
 AlignConsecutiveAssignments: 'true'
+AlignConsecutiveDeclarations: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
-
+AccessModifierOffset: -4
 ...
 
 

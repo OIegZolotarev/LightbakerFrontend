@@ -46,7 +46,7 @@ WADTexturePool::~WADTexturePool()
 	m_pFileData->UnRef();
 }
 
-gltexture_t* WADTexturePool::LoadTexture(const char* name)
+GLTexture* WADTexturePool::LoadTexture(const char* name)
 {
 	lumpinfo_t* info = FindLumpInfo(name);
 
@@ -100,11 +100,11 @@ WADPool::~WADPool()
 	ClearPointersVector(m_vecWadFiles);
 }
 
-gltexture_t* WADPool::LoadTexture(char* name)
+GLTexture* WADPool::LoadTexture(char* name)
 {
 	for (auto wad : m_vecWadFiles)
 	{
-		gltexture_t* result = wad->LoadTexture(name);
+		GLTexture* result = wad->LoadTexture(name);
 
 		if (result)
 			return result;
@@ -116,7 +116,7 @@ gltexture_t* WADPool::LoadTexture(char* name)
 	return nullptr;
 }
 
-gltexture_t* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
+GLTexture* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 {
 	if (!pMipTex->name[0]) return 0;
 
@@ -135,16 +135,15 @@ gltexture_t* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 
 	int pos = 0;
 
-	gltexture_t* pResult = new gltexture_t;
-
+	GLTexture* pResult = new GLTexture;
 	
-
 	pResult->file_name = pMipTex->name;
-	pResult->width = pMipTex->width;
-	pResult->height = pMipTex->height;
+	pResult->SetWidth(pMipTex->width);
+	pResult->SetHeight(pMipTex->height);
 
-	glGenTextures(1,&pResult->gl_texnum);
-	glBindTexture(GL_TEXTURE_2D, pResult->gl_texnum);
+	pResult->GenerateGLHandle();
+    pResult->Bind(0);
+	
 
 	// convert the mip palette based bitmap to RGB format...
 	if (pMipTex->name[0] == '{')
@@ -181,7 +180,7 @@ gltexture_t* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
 
 		//GL_UploadTexture(VA("(internal)%s", pMipTex->name), GL_TEXTURE_2D, 0, GL_RGBA, pMipTex->width, pMipTex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pResult->width, pResult->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pResult->Width(), pResult->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, rgba);
 	}
 	else
 	{
@@ -204,7 +203,7 @@ gltexture_t* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pResult->width, pResult->height, 0, GL_RGB, GL_UNSIGNED_BYTE, rgba);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, pResult->Width(), pResult->Height(), 0, GL_RGB, GL_UNSIGNED_BYTE, rgba);
 	}
 	return pResult;
 	

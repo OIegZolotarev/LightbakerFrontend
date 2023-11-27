@@ -326,7 +326,7 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
     fa->meshOffset = pMesh->CurrentElement();
 
     if (fa->texinfo->texture->loadedTexture)
-        fa->diffuseTexture = fa->texinfo->texture->loadedTexture->gl_texnum;
+        fa->diffuseTexture = fa->texinfo->texture->loadedTexture->GLTextureNum();
     
 
     for (size_t i = 0; i < m_verts.size() - 2; i++)
@@ -391,10 +391,10 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
         GLuint texB = 0;
 
         if (faceA->texinfo->texture->loadedTexture)
-            texA = faceA->texinfo->texture->loadedTexture->gl_texnum;
+            texA = faceA->texinfo->texture->loadedTexture->GLTextureNum();
 
         if (faceB->texinfo->texture->loadedTexture)
-            texB = faceB->texinfo->texture->loadedTexture->gl_texnum;
+            texB = faceB->texinfo->texture->loadedTexture->GLTextureNum();
 
         GLuint lmA = faceA->lightmaptexturenum;
         GLuint lmB = faceB->lightmaptexturenum;

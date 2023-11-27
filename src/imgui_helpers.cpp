@@ -120,6 +120,6 @@ bool ImGuiHelpers::ButtonWithCommonIcon(CommonIcons icon, const char *label, con
     auto style   = ImGui::GetStyle();
     auto bgColor = style.Colors[ImGuiCol_Button];
 
-    return ImGuiHelpers::ImageButtonWithText((ImTextureID)icn->gl_texnum, label, ImVec2(icon_size, icon_size),
+    return ImGuiHelpers::ImageButtonWithText((ImTextureID)icn->GLTextureNum(), label, ImVec2(icon_size, icon_size),
                                              ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, tint);
 }

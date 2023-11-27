@@ -226,7 +226,7 @@ void ModelOBJ::ValidateLightmap()
         auto mesh    = m_LightmapModelData.meshes[0];
         auto texture = mesh.lightmap_texture[0];
 
-        if (texture->gl_texnum == 0)
+        if (!texture->GLTextureNum())
             m_hasLMMesh = false;
     }
 
@@ -492,7 +492,7 @@ void ModelOBJ::ReloadLightmapTextures()
             it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
 
             if (it.diffuse_texture)
-                if (it.diffuse_texture->width == -1)
+                if (it.diffuse_texture->Width() == -1)
                     it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
         }
 

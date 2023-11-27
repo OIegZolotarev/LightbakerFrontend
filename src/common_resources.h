@@ -26,4 +26,4 @@ enum class CommonIcons
 };
 
 void			InitCommonResources();
-gltexture_t*	GetCommonIcon(CommonIcons icon_id);
+GLTexture*	GetCommonIcon(CommonIcons icon_id);

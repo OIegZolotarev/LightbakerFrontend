@@ -32,6 +32,6 @@
 
 #include "event_handler.h"
 
-#define NICE_LINES
+//#define NICE_LINES
 
 #include "helpers.h"

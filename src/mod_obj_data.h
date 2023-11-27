@@ -21,8 +21,8 @@ typedef struct mobjface_s
 typedef struct mobjmesh_s
 {
 	size_t id;
-	gltexture_t* diffuse_texture = 0;
-	gltexture_t* lightmap_texture[MAX_LIGHT_STYLES] = {0};
+	GLTexture* diffuse_texture = 0;
+	GLTexture* lightmap_texture[MAX_LIGHT_STYLES] = {0};
 
 	std::string  diffuse_texture_path;
 	std::string  lightmap_texture_path[MAX_LIGHT_STYLES];

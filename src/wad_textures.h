@@ -47,7 +47,7 @@ typedef struct
 	char		name[16];				// must be null terminated
 } lumpinfo_t;
 
-gltexture_t* LoadMiptex(struct miptex_s* pMipTex);
+GLTexture* LoadMiptex(struct miptex_s* pMipTex);
 
 class WADTexturePool
 {
@@ -64,7 +64,7 @@ public:
 	WADTexturePool(FileData* fd);
 	~WADTexturePool();
 
-	gltexture_t* LoadTexture(const char* name);
+	GLTexture* LoadTexture(const char* name);
 };
 
 
@@ -79,7 +79,7 @@ public:
 
 	static WADPool* Instance();
 	
-	gltexture_t* LoadTexture(char* name);
+	GLTexture* LoadTexture(char* name);
 };
 
 }

@@ -274,7 +274,7 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 
 }
 
-void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const glm::vec3 tint)
+void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture* texture, const glm::vec3 tint)
 {
 #ifdef FAST_BB
 	glm::mat4 matTransform = glm::translate(glm::mat4(1),pos);
@@ -314,7 +314,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
  		{-1,1},
  	};
 
-  	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+  	glBindTexture(GL_TEXTURE_2D, texture->GLTextureNum());
  	glColor3f(tint.x, tint.y, tint.z);
  	glBegin(GL_QUADS);
  
@@ -330,7 +330,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 #endif
 }
 
-void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const gltexture_t* texture, const int index)
+void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture* texture, const int index)
 {
     return;
 
@@ -347,7 +347,7 @@ void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 
 		{-1,1},
 	};
 
-	glBindTexture(GL_TEXTURE_2D, texture->gl_texnum);
+	glBindTexture(GL_TEXTURE_2D, texture->GLTextureNum());
 	glColor4ubv((GLubyte*)&index);
 	glBegin(GL_QUADS);
 

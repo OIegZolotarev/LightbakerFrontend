@@ -84,7 +84,7 @@ bool CCommandsRegistry::OnKeyDown()
 	return false;
 }
 
-CCommand::CCommand(GlobalCommands id, const char* description,const char* keyStroke, gltexture_t* icon, int flags, pfnCommandCallback callback) :
+CCommand::CCommand(GlobalCommands id, const char* description,const char* keyStroke, GLTexture* icon, int flags, pfnCommandCallback callback) :
 	m_eCommandId(id),
 	m_pIcon(icon),
 	m_iFlags(flags),
@@ -170,7 +170,7 @@ void CCommand::RenderImGUI(int size)
 
 	if (m_iFlags & CMD_ONLY_ICON)
 	{
-		if (ImGui::ImageButton(m_szDescription, (ImTextureID)m_pIcon->gl_texnum, ImVec2(size, size)))
+		if (ImGui::ImageButton(m_szDescription, (ImTextureID)m_pIcon->GLTextureNum(), ImVec2(size, size)))
 			Execute();
 	}
 	else
@@ -180,7 +180,7 @@ void CCommand::RenderImGUI(int size)
 		
 
 		//if (ImGui::ImageButton(m_szDescription, (ImTextureID)m_pIcon->gl_texnum, ImVec2(size, size)))
-		if (ImGuiHelpers::ImageButtonWithText((ImTextureID)m_pIcon->gl_texnum, m_szDescription, ImVec2(size, size), ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, ImVec4(1, 1, 1, 1)))
+		if (ImGuiHelpers::ImageButtonWithText((ImTextureID)m_pIcon->GLTextureNum(), m_szDescription, ImVec2(size, size), ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, ImVec4(1, 1, 1, 1)))
 		{
 			Execute();
 		}

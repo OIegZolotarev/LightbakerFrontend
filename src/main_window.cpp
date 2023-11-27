@@ -300,6 +300,19 @@ void MainWindow::MainLoop()
         UpdateTimers();
         GL_BeginFrame();
 
+// Multiple viewports        
+//         glEnable(GL_SCISSOR_TEST);
+//         glScissor(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+//         glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+//         m_pSceneRenderer->RenderScene();
+// 
+//         
+//         glScissor(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+//         glViewport(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+//         m_pSceneRenderer->RenderScene();
+// 
+//         glDisable(GL_SCISSOR_TEST);
+
         m_pSceneRenderer->RenderScene();
 
         LoaderThread::Instance()->ExecuteEndCallbacks(10);

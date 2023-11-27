@@ -1,6 +1,6 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
@@ -9,62 +9,74 @@
 #include "file_system.h"
 #include "loader_thread.h"
 
-typedef struct gltexture_s
-{	
-	bool loaded = false;
-	std::string file_name;
-
-	int width = 0;
-	int height = 0;
-
-	int sprite_sheet_width = 0;
-	int sprite_sheet_height = 0;
-
-	GLuint gl_texnum = 0;
-	size_t num_references = 0;
-
-
-	~gltexture_s()
-	{
-		if (gl_texnum > 0)
-			glDeleteTextures(1, &gl_texnum);
-	}
-
-}gltexture_t;
-
-gltexture_t*	LoadGLTexture(const char* fileName, bool force = false);
-gltexture_t*	LoadGLTexture(FileData* pFileData, bool force = false);
-
-void			GLReloadTexture(gltexture_t*);
-void			FreeGLTextures();
-void			FreeGLTexture(gltexture_t* t);
-
-class AsynchTextureLoadResult: public ITaskStepResult
+class GLTexture
 {
-	void* m_pPixels = nullptr;
-	gltexture_t* m_pTexture = nullptr;
-
-public:	
-	AsynchTextureLoadResult(gltexture_t* texture, void* pixels);
-	~AsynchTextureLoadResult();
-
-	void ExecuteOnCompletion() override;
-	bool NeedEndCallback() override;
-};
-
-class AsynchTextureLoadTask: public ITask
-{	
-	std::queue<gltexture_t*> m_qScheduledTextures;	
-	void* LoadTextureFileData(gltexture_t* texture);
 
 public:
-	AsynchTextureLoadTask(const char* setDescription = nullptr);
-	~AsynchTextureLoadTask();
+    bool        IsLoaded() const;
+    void        SetLoaded(bool val);
+    std::string file_name;
 
-	gltexture_t* ScheduleTexture(const char* fileName);
-	
-	ITaskStepResult* ExecuteStep(LoaderThread* loaderThread) override;
-	void OnCompletion() override;
+    int    Width() const;
+    void   SetWidth(int val);
+    int    Height() const;
+    void   SetHeight(int val);
+    int    SpriteSheetWidth() const;
+    void   SetSpriteSheetWidth(int val);
+    int    SpriteSheetHeight() const;
+    void   SetSpriteSheetHeight(int val);
+    GLuint GLTextureNum() const;
+    void   SetGLTextureNum(GLuint val);
+
+    ~GLTexture();
+
+    void GenerateGLHandle();
+
+    void Bind(size_t unit);
+
+private:
+    bool   loaded              = false;
+    int    width               = 0;
+    int    height              = 0;
+    int    sprite_sheet_width  = 0;
+    int    sprite_sheet_height = 0;
+    GLuint gl_texnum           = 0;
+
+    size_t num_references = 0;
 };
 
-//gltexture_t* LoadGLTextureAsynch(const char* fileName);
+GLTexture *LoadGLTexture(const char *fileName, bool force = false);
+GLTexture *LoadGLTexture(FileData *pFileData, bool force = false);
+
+void GLReloadTexture(GLTexture *);
+void FreeGLTextures();
+void FreeGLTexture(GLTexture *t);
+
+class AsynchTextureLoadResult : public ITaskStepResult
+{
+    void *       m_pPixels  = nullptr;
+    GLTexture *m_pTexture = nullptr;
+
+public:
+    AsynchTextureLoadResult(GLTexture *texture, void *pixels);
+    ~AsynchTextureLoadResult();
+
+    void ExecuteOnCompletion() override;
+    bool NeedEndCallback() override;
+};
+
+class AsynchTextureLoadTask : public ITask
+{
+    std::queue<GLTexture *> m_qScheduledTextures;
+    void *                    LoadTextureFileData(GLTexture *texture);
+
+public:
+    AsynchTextureLoadTask(const char *setDescription = nullptr);
+    ~AsynchTextureLoadTask();
+
+    GLTexture *    ScheduleTexture(const char *fileName);
+    ITaskStepResult *ExecuteStep(LoaderThread *loaderThread) override;
+    void             OnCompletion() override;
+};
+
+// gltexture_t* LoadGLTextureAsynch(const char* fileName);

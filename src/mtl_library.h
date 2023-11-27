@@ -11,16 +11,16 @@ typedef struct mobjmaterial_s
 	float d = 1.f;
 	float illum = 1.f;
 
-	gltexture_t* map_Ka = nullptr;
-	gltexture_t* map_Kd = nullptr;
-	gltexture_t* map_Ks = nullptr;
+	GLTexture* map_Ka = nullptr;
+	GLTexture* map_Kd = nullptr;
+	GLTexture* map_Ks = nullptr;
 
-	gltexture_t* map_Ns = nullptr;
-	gltexture_t* map_d = nullptr;
-	gltexture_t* map_bump = nullptr;
+	GLTexture* map_Ns = nullptr;
+	GLTexture* map_d = nullptr;
+	GLTexture* map_bump = nullptr;
 
-	gltexture_t* map_disp = nullptr;
-	gltexture_t* map_decal = nullptr;
+	GLTexture* map_disp = nullptr;
+	GLTexture* map_decal = nullptr;
 
 	std::unordered_map<std::string, std::string> extra_values;
 

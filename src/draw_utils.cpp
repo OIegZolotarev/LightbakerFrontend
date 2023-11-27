@@ -179,7 +179,7 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
     auto indices  = s.getIndices();
     auto indCount = s.getIndexCount();
 
-    for (int i = 0; i < indCount; i++)
+    for (size_t i = 0; i < indCount; i++)
     {
         auto *v = &data[i];
 

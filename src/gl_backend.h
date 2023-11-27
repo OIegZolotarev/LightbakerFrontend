@@ -147,7 +147,7 @@ class GLBackend
     void NewFrame();
     renderStats_t *RenderStats();
 
-    static void BindTexture(size_t unit, const gltexture_t *texture);
+    static void BindTexture(size_t unit, const GLTexture *texture);
     static void BindTexture(size_t unit, GLuint texture);
     static void SetUniformValue(ShaderUniform *it);
 };
