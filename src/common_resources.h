@@ -6,7 +6,7 @@
 #pragma once
 #include "gl_texture.h"
 
-enum class CommonIcons
+enum class CommonTextures
 {
 	LoadFile = 0,
 	SpotLight,
@@ -22,8 +22,9 @@ enum class CommonIcons
     ListSortDesc,
     InputFieldMore,
     InputFieldClear,
-
+	White,
+	Emo
 };
 
 void			InitCommonResources();
-GLTexture*	GetCommonIcon(CommonIcons icon_id);
+GLTexture*	GetCommonIcon(CommonTextures icon_id);

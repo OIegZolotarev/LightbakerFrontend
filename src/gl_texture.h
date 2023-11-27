@@ -9,26 +9,51 @@
 #include "file_system.h"
 #include "loader_thread.h"
 
+enum class TextureSource
+{
+    CommonImage,
+    GoldSourceMipTexture,
+    GoldSourceWadFile,
+    GoldSourceSprite
+};
+
+typedef struct rawpixels_s
+{
+    void *pixels;
+    size_t width;
+    size_t height;
+
+    GLint glInternalFormat;
+    GLint glFormat;
+}rawpixels_t;
+
 class GLTexture
 {
 
-public:
+public:    
+    ~GLTexture();
+
     bool        IsLoaded() const;
     void        SetLoaded(bool val);
     std::string file_name;
 
     int    Width() const;
     void   SetWidth(int val);
+    
     int    Height() const;
     void   SetHeight(int val);
+    
     int    SpriteSheetWidth() const;
     void   SetSpriteSheetWidth(int val);
+    
     int    SpriteSheetHeight() const;
     void   SetSpriteSheetHeight(int val);
+    
     GLuint GLTextureNum() const;
     void   SetGLTextureNum(GLuint val);
 
-    ~GLTexture();
+    void UploadPixels(void * pixels, GLint internalFormat, GLenum format);
+
 
     void GenerateGLHandle();
 
@@ -52,6 +77,8 @@ void GLReloadTexture(GLTexture *);
 void FreeGLTextures();
 void FreeGLTexture(GLTexture *t);
 
+// Asynchronouse loader
+//
 class AsynchTextureLoadResult : public ITaskStepResult
 {
     void *       m_pPixels  = nullptr;
@@ -67,7 +94,7 @@ public:
 
 class AsynchTextureLoadTask : public ITask
 {
-    std::queue<GLTexture *> m_qScheduledTextures;
+    std::queue<GLTexture *>   m_qScheduledTextures;
     void *                    LoadTextureFileData(GLTexture *texture);
 
 public:
@@ -79,4 +106,13 @@ public:
     void             OnCompletion() override;
 };
 
-// gltexture_t* LoadGLTextureAsynch(const char* fileName);
+class TextureManager
+{
+public:
+    TextureManager();
+    ~TextureManager();
+
+    void RegisterWADTexturePool(const char *wadFileName);
+    
+};
+

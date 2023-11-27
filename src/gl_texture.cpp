@@ -3,10 +3,10 @@
 	(c) 2022 CrazyRussian
 */
 
-#include <stb/stb_image.h>
-#include "gl_texture.h"
 #include "application.h"
+#include <stb/stb_image.h>
 #include "loader_thread.h"
+#include "gl_texture.h"
 
 void GLReloadTexture(GLTexture* r, FileData* sourceFile);
 std::vector<GLTexture*> g_vecGLTextures;
@@ -238,30 +238,7 @@ void AsynchTextureLoadResult::ExecuteOnCompletion()
 		return;
 	}
 
-	m_pTexture->GenerateGLHandle();
-    m_pTexture->Bind(0);
-
-	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
-
-	// Upload pixels into texture
-#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-#endif
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_pTexture->Width(), m_pTexture->Height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, m_pPixels);
-
-	// thread-safe
-	g_vecGLTextures.push_back(m_pTexture);
-
-	stbi_image_free(m_pPixels);
-
+	m_pTexture->UploadPixels(m_pPixels, GL_RGBA, GL_RGBA);
 }
 
 bool AsynchTextureLoadResult::NeedEndCallback()
@@ -327,6 +304,40 @@ GLuint GLTexture::GLTextureNum() const
 void GLTexture::SetGLTextureNum(GLuint val)
 {
     gl_texnum = val;
+}
+
+void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
+{
+    // TODO: emo textures
+    if (!pixels)
+    {
+        return;
+    }
+
+    GenerateGLHandle();
+    Bind(0);
+
+    // Setup filtering parameters for display
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non
+    // power-of-two textures glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                    GL_REPEAT); // This is required on WebGL for non power-of-two textures
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
+    // Upload pixels into texture
+#if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+
+    // thread-safe
+    // g_vecGLTextures.push_back(m_pTexture);
+
+    // stbi_image_free(m_pPixels);
 }
 
 GLTexture::~GLTexture()
