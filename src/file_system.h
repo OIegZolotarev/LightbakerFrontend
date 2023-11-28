@@ -5,27 +5,30 @@
 
 #pragma once
 
+// FileData - general file wrapper class
+//
 class FileData
 {
-    bool m_bOwnsData  = false;
-    byte *m_pData     = 0;
-    size_t m_szLength = 0;
+    bool   m_bOwnsData = false;
+    byte * m_pData     = 0;
+    size_t m_szLength  = 0;
 
     std::string m_Name;
 
-    int m_nReferences = 1;
+    int    m_nReferences = 1;
     size_t m_offset;
 
     friend class FileSystem;
     void FlagOwnsData();
 
-  public:
+public:
+
     FileData(byte *data, size_t length, const char *name);
     ~FileData();
 
     size_t Length();
 
-    byte *Data();
+    byte *       Data();
     std::string &Name();
 
     void Ref();
@@ -37,19 +40,69 @@ class FileData
     std::string DirName();
 };
 
-template <class T> T *FileData::Read(size_t nElements)
+enum class SeekOrigin
 {
-    size_t elementSize = sizeof(T);
+    Start,
+    Relative,
+    End
+};
 
-    size_t retOffset = m_offset;
-    m_offset += elementSize * nElements;
+class IFileHandle
+{
+protected:
+    size_t m_Offset = 0;
+    std::string m_Name;
 
-    return (T *)&m_pData[retOffset];
-}
+public:
+    IFileHandle()         = default;
+    virtual ~IFileHandle() = default;
+
+    virtual size_t TotalSize()                                                      = 0;
+    virtual size_t Read(size_t elementSize, size_t elementsCount, void *destBuffer) = 0;
+    virtual bool   Seek(size_t position, SeekOrigin origin) = 0;
+    virtual size_t Position() = 0;
+
+        const char *FileName();
+};
+
+class FileHandleOS: public IFileHandle
+{
+    FILE *m_pFileHandle = nullptr;
+
+public:
+    FileHandleOS(const char* fileName);
+    ~FileHandleOS();
+
+    size_t TotalSize();
+    size_t Position() override;
+    size_t Read(size_t elementSize, size_t elementsCount, void *destBuffer) override;
+    bool Seek(size_t position, SeekOrigin origin) override;
+
+
+};
+
+class FileHandleUncompressedArchive: public IFileHandle
+{
+    FILE *m_pArchiveFile = nullptr;
+    
+    size_t m_DataStart = 0;
+    size_t m_DataLength = 0;
+public:
+    FileHandleUncompressedArchive(FILE *fpArchive, size_t dataStart, size_t dataLength);
+    ~FileHandleUncompressedArchive();
+
+    size_t Position() override;
+
+    size_t Read(size_t elementSize, size_t elementsCount, void *destBuffer) override;
+
+    bool Seek(size_t position, SeekOrigin origin) override;
+
+    size_t TotalSize() override;
+};
 
 class IArchive
 {
-  protected:
+protected:
     std::string m_FileName;
     std::string m_BaseName;
 
@@ -57,14 +110,14 @@ class IArchive
 
     bool m_bHideFromUser = false;
 
-  public:
+public:
     IArchive(const char *fileName);
     virtual ~IArchive();
 
     virtual FileData *LoadFile(const char *name);
-    std::string &ArchiveFileName();
+    std::string &     ArchiveFileName();
 
-    const char *BaseFileName();
+    const char *                    BaseFileName();
     const std::vector<const char *> AllFiles();
 
     bool IsHidden();
@@ -74,7 +127,7 @@ class FileSystem
 {
     std::vector<IArchive *> m_vecArchiveProviders;
 
-  public:
+public:
     FileSystem();
     ~FileSystem();
 
@@ -83,7 +136,6 @@ class FileSystem
     [[nodiscard]] FileData *LoadFile(const char *fileName);
     [[nodiscard]] FileData *LoadFile(std::string &fileName);
 
-    
     void ChangeCurrentDirectoryToFileDirectory(const std::string &fileName);
 
     // Return file name without extension from path, file must exist!
@@ -119,8 +171,7 @@ class FileSystem
 
     int CopyFile(const char *srcPath, const char *dstPath);
 
-// Версии для несуществующих путей\
-
+// Версии для несуществующих путей
 #define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
 
     static std::string ExtractFilePath(const char *path);
@@ -129,11 +180,12 @@ class FileSystem
 
     static std::string ExtractFileExtension(const char *path);
 
-    static std::string ExtractFileName(const char *path);
-    static [[nodiscard]] FILE *OpenFileForWriting(std::string & fileName);
-    static void MakeDir(std::string path);
-    
+    static std::string         ExtractFileName(const char *path);
+    static [[nodiscard]] FILE *OpenFileForWriting(std::string &fileName);
+    static void                MakeDir(std::string path);
+
     static std::string SanitizeFileName(std::string result);
 
 
+    IFileHandle *OpenFileHandle(const char *filePath);
 };

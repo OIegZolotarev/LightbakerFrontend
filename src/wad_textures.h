@@ -51,20 +51,23 @@ GLTexture* LoadMiptex(struct miptex_s* pMipTex);
 
 class WADTexturePool
 {
-	FileData* m_pFileData = nullptr;
+    IFileHandle *m_pFileHandle = nullptr;
 
 	size_t m_NumEntries = 0;
-	lumpinfo_t* m_pLumpInfo = nullptr; // Данные в m_pFileData
+	lumpinfo_t* m_pLumpInfo = nullptr;
 
-	wadheader_t* m_pHeader;
+	wadheader_t* m_pHeader = nullptr;
 
 	lumpinfo_t* FindLumpInfo(const char* name);
 
+	bool m_bShared = false;
+
 public:
-	WADTexturePool(FileData* fd);
+	WADTexturePool(IFileHandle* fd, bool shared = true);
 	~WADTexturePool();
 
 	GLTexture* LoadTexture(const char* name);
+    const char* FileName();
 };
 
 
