@@ -27,8 +27,8 @@ void ListViewEx::RenderToolbar()
     ImVec4 tinting[] = {{0, 1, 0, 1}, {1, 0, 0, 1}, {1, 1, 0, 1}, {0, 0, 1, 1},
                         {0, 0, 1, 1}, {1, 0, 1, 1}, {1, 0, 1, 1}};
 
-    size_t startingIcon = (int)CommonIcons::ListAdd;
-    size_t endingIcon   = (int)CommonIcons::ListSortDesc;
+    size_t startingIcon = (int)CommonTextures::ListAdd;
+    size_t endingIcon   = (int)CommonTextures::ListSortDesc;
     size_t iconsCount   = endingIcon - startingIcon;
 
     bool nextLine     = false;
@@ -51,7 +51,7 @@ void ListViewEx::RenderToolbar()
     {
         if (visibility[i])
         {
-            if (ImGuiHelpers::ButtonWithCommonIcon(CommonIcons(startingIcon + i), labelsPtr[i], iconsSize, tinting[i]))
+            if (ImGuiHelpers::ButtonWithCommonIcon(CommonTextures(startingIcon + i), labelsPtr[i], iconsSize, tinting[i]))
                 OnToolBarItemClicked(ToolbarButtons(i));
 
             nextLine = true;

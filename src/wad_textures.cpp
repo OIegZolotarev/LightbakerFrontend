@@ -19,31 +19,34 @@ unsigned char rgba[MAX_TEX_SIZE * 4];
 
 
 
-WADTexturePool::WADTexturePool(FileData* fd)
+WADTexturePool::WADTexturePool(IFileHandle *fd, bool shared)
 {
-	m_pFileData = fd;
-	m_pFileData->Ref();
-
-	m_pHeader = (wadheader_t*)fd->Data();
+    m_pFileHandle = fd;
+	
+	m_pHeader               = new wadheader_t; 
+	
+	m_pFileHandle->Read(sizeof(wadheader_t), 1, &m_pHeader);
 	m_pHeader->numlumps = LittleLong(m_pHeader->numlumps);
 	m_pHeader->infotableofs = LittleLong(m_pHeader->infotableofs);
 
-	m_pLumpInfo = (lumpinfo_t*)(fd->Data() + m_pHeader->infotableofs);
-
-	m_NumEntries = m_pHeader->numlumps;
-
+	m_NumEntries = m_pHeader->numlumps;	
+    m_pLumpInfo = new lumpinfo_t[m_NumEntries];
+	
 	lumpinfo_t* ptr = m_pLumpInfo;
 	for (int i = 0; i < m_pHeader->numlumps; i++, ptr++)
 	{
 		ptr->filepos = LittleLong(ptr->filepos);
 		ptr->size = LittleLong(ptr->size);
 	}
-
+	
+	m_bShared = shared;
 }
 
 WADTexturePool::~WADTexturePool()
 {
-	m_pFileData->UnRef();
+    delete m_pFileHandle;
+	delete m_pLumpInfo;
+    delete m_pHeader;
 }
 
 GLTexture* WADTexturePool::LoadTexture(const char* name)
@@ -52,11 +55,15 @@ GLTexture* WADTexturePool::LoadTexture(const char* name)
 
 	if (!info)
 		return nullptr;
+	
+	miptex_t *texture = (miptex_t *)malloc(info->disksize);
+    m_pFileHandle->Read(info->disksize, 1, texture);
 
+	GLTexture * t = LoadMiptex(texture);
 
-	miptex_t* texture = (miptex_t*)(m_pFileData->Data() +info->filepos);
+	free(texture);
 
-	return LoadMiptex(texture);
+	return t;
 }
 
 lumpinfo_t* WADTexturePool::FindLumpInfo(const char* name)
@@ -68,6 +75,11 @@ lumpinfo_t* WADTexturePool::FindLumpInfo(const char* name)
 	}
 
 	return nullptr;
+}
+
+const char* GoldSource::WADTexturePool::FileName()
+{
+    return m_pFileHandle->FileName();
 }
 
 WADPool* WADPool::Instance()
@@ -89,10 +101,11 @@ WADTexturePool* WADPool::LoadWad(const char* fileName)
 	if (!fd)
 		return nullptr;
 
-	WADTexturePool* result = new WADTexturePool(fd);
-	m_vecWadFiles.push_back(result);
+	// FIXME
+	//WADTexturePool* result = new WADTexturePool(fd);
+	//m_vecWadFiles.push_back(result);
 
-	return result;
+	return nullptr;
 }
 
 WADPool::~WADPool()
@@ -128,16 +141,17 @@ GLTexture* GoldSource::LoadMiptex(struct miptex_s* pMipTex)
 	GLuint index = 0;
 
 	unsigned char* palette, * indices;
-	int    size = pMipTex->width * pMipTex->height;
+    int            size     = pMipTex->width * pMipTex->height;
 	int datasize = size + (size / 4) + (size / 16) + (size / 64);
 	indices = (unsigned char*)pMipTex + pMipTex->offsets[0];
 	palette = indices + datasize + 2;
 
 	int pos = 0;
 
-	GLTexture* pResult = new GLTexture;
+	// FIXME
+    GLTexture *pResult = new GLTexture(pMipTex->name, TextureSource::GoldSourceMipTexture, false);
 	
-	pResult->file_name = pMipTex->name;
+	//pResult->file_name = pMipTex->name;
 	pResult->SetWidth(pMipTex->width);
 	pResult->SetHeight(pMipTex->height);
 

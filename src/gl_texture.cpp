@@ -7,6 +7,9 @@
 #include <stb/stb_image.h>
 #include "loader_thread.h"
 #include "gl_texture.h"
+#include "wad_textures.h"
+#include <locale>
+#include <boost/algorithm/string.hpp>
 
 void GLReloadTexture(GLTexture* r, FileData* sourceFile);
 std::vector<GLTexture*> g_vecGLTextures;
@@ -17,13 +20,13 @@ GLTexture* LoadGLTexture(FileData* sourceFile, bool force)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
-			if (it->file_name == sourceFile->Name() 
+			if (it->Name() == sourceFile->Name() 
 					&& it->GLTextureNum() != 0)
 				return it;
 		}
 	}
 
-	GLTexture* r = new GLTexture;
+	GLTexture* r = new GLTexture(sourceFile->Name().c_str(), TextureSource::CommonImage, false);
 	memset(r, 0, sizeof(GLTexture));
 
 	GLReloadTexture(r, sourceFile);
@@ -39,7 +42,7 @@ GLTexture* LoadGLTexture(const char* fileName, bool force)
 	{
 		for (auto& it : g_vecGLTextures)
 		{
-			if (!_stricmp(it->file_name.c_str(),fileName)
+			if (!_stricmp(it->Name().c_str(),fileName)
 				&& it->GLTextureNum() != 0)
 				return it;
 		}
@@ -56,7 +59,7 @@ GLTexture* LoadGLTexture(const char* fileName, bool force)
 
 void GLReloadTexture(GLTexture* t)
 {
-	FileData* pData = Application::GetFileSystem()->LoadFile(t->file_name.c_str());
+	FileData* pData = Application::GetFileSystem()->LoadFile(t->Name().c_str());
 	GLReloadTexture(t, pData);
 	delete pData;
 }
@@ -71,7 +74,7 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 	if (!sourceFile)
 		return;
 
-	r->file_name = sourceFile->Name();
+	//	->file_name = sourceFile->Name();
 
 	// Load from file
 	int image_width = 0;
@@ -146,7 +149,7 @@ void FreeGLTexture(GLTexture* t)
 
 void* AsynchTextureLoadTask::LoadTextureFileData(GLTexture* texture)
 {
-	FileData* pData = Application::GetFileSystem()->LoadFile(texture->file_name);
+	FileData* pData = Application::GetFileSystem()->LoadFile(texture->Name());
 
 	// TODO: emo textures
 	if (!pData)
@@ -185,10 +188,11 @@ AsynchTextureLoadTask::~AsynchTextureLoadTask()
 
 GLTexture* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
 {
-	GLTexture* texture = new GLTexture;
-	memset(texture, 0, sizeof(GLTexture));
+	GLTexture* texture = new GLTexture(fileName, TextureSource::CommonImage,0);
+	//memset(texture, 0, sizeof(GLTexture));
 
-	texture->file_name = fileName;
+	//texture->file_name = fileName;
+
 	m_qScheduledTextures.push(texture);
 
 	m_nTotalSteps = m_qScheduledTextures.size();
@@ -221,7 +225,7 @@ AsynchTextureLoadResult::AsynchTextureLoadResult(GLTexture* texture, void* pixel
 	m_pPixels = pixels;
 	m_pTexture = texture;
 
-	m_strElementDescription = texture->file_name;
+	m_strElementDescription = texture->Name();
 }
 
 AsynchTextureLoadResult::~AsynchTextureLoadResult()
@@ -248,72 +252,66 @@ bool AsynchTextureLoadResult::NeedEndCallback()
 
 bool GLTexture::IsLoaded() const
 {
-    return loaded;
+    return m_bLoaded;
 }
 
 void GLTexture::SetLoaded(bool val)
 {
-    loaded = val;
+    m_bLoaded = val;
 }
 
 int GLTexture::Width() const
 {
-    return width;
+    return m_iWidth;
 }
 
 void GLTexture::SetWidth(int val)
 {
-    width = val;
+    m_iWidth = val;
 }
 
 int GLTexture::Height() const
 {
-    return height;
+    return m_iHeight;
 }
 
 void GLTexture::SetHeight(int val)
 {
-    height = val;
+    m_iHeight = val;
 }
 
 int GLTexture::SpriteSheetWidth() const
 {
-    return sprite_sheet_width;
+    return m_iSpriteSheetWidth;
 }
 
 void GLTexture::SetSpriteSheetWidth(int val)
 {
-    sprite_sheet_width = val;
+    m_iSpriteSheetWidth = val;
 }
 
 int GLTexture::SpriteSheetHeight() const
 {
-    return sprite_sheet_height;
+    return m_iSpriteSheetHeight;
 }
 
 void GLTexture::SetSpriteSheetHeight(int val)
 {
-    sprite_sheet_height = val;
+    m_iSpriteSheetHeight = val;
 }
 
-GLuint GLTexture::GLTextureNum() const
+GLuint GLTexture::GLTextureNum(size_t frame) const
 {
-    return gl_texnum;
+    return m_uiGLTexnum[frame];
 }
 
-void GLTexture::SetGLTextureNum(GLuint val)
+void GLTexture::SetGLTextureNum(GLuint val, size_t frame)
 {
-    gl_texnum = val;
+    m_uiGLTexnum[frame] = val;
 }
 
 void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
-{
-    // TODO: emo textures
-    if (!pixels)
-    {
-        return;
-    }
-
+{   
     GenerateGLHandle();
     Bind(0);
 
@@ -332,7 +330,7 @@ void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
     glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_iWidth, m_iHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     // thread-safe
     // g_vecGLTextures.push_back(m_pTexture);
@@ -340,18 +338,213 @@ void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
     // stbi_image_free(m_pPixels);
 }
 
+ GLTexture::GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames /*= 1*/)
+{
+    m_strFileName = fileName;
+    m_Source      = source;
+    m_Fallback    = fallback;
+    m_NumFrames   = nFrames;
+}
+
 GLTexture::~GLTexture()
 {
-    if (gl_texnum > 0)
-        glDeleteTextures(1, &gl_texnum);
+    if (m_uiGLTexnum)
+        glDeleteTextures(m_NumFrames, m_uiGLTexnum);
 }
 
 void GLTexture::GenerateGLHandle()
 {
-    glGenTextures(1, &gl_texnum);
+    assert(!m_uiGLTexnum);
+
+    m_uiGLTexnum = new GLuint[m_NumFrames];
+    glGenTextures(m_NumFrames, m_uiGLTexnum);
 }
 
-void GLTexture::Bind(size_t unit)
+void GLTexture::Bind(size_t unit, size_t frame)
 {
-    GLBackend::BindTexture(unit, this);
+    GLBackend::BindTexture(unit, m_uiGLTexnum[frame]);
 }
+
+void GLTexture::Ref()
+{
+    m_NumReferences++;
+}
+
+void GLTexture::Unref()
+{
+    m_NumReferences--;
+}
+
+bool GLTexture::HasAlpha()
+{
+    return m_iFlags & FL_HAS_ALPHA_CHANNEL;
+}
+
+size_t GLTexture::NumRef()
+{
+    return m_NumReferences;
+}
+
+std::string &GLTexture::Name()
+{
+    return m_strFileName;
+}
+
+TextureSource TextureManager::DetermineTextureSourceFromFileName(const char *fileName)
+{
+    auto fs  = FileSystem::Instance();
+    auto ext = fs->ExtractFileExtension(fileName);
+    boost::algorithm::to_lower(ext);
+
+	struct sLookupTable
+	{
+        const char *ext;
+        TextureSource fmt;
+	};
+
+	static sLookupTable lookup[] = {
+		{"tga", TextureSource::CommonImage},
+		{"png", TextureSource::CommonImage},
+		{"jpg", TextureSource::CommonImage},		
+		{"spr", TextureSource::GoldSourceSprite},
+    };
+
+	for (auto it: lookup)
+    {
+        if (!strcmp(it.ext, ext.c_str()))
+            return it.fmt;
+	}
+    
+
+	// Can't determine format by extension, will try with file header
+	//
+	return TextureSource::GuessByItself;
+}
+
+TextureSource TextureManager::DetermineTextureSourceFileFileSignature(void *pixels, size_t length)
+{
+    if (length < 8)
+        return TextureSource::Unknown;
+
+	return TextureSource::Unknown;
+}
+
+
+TextureManager::~TextureManager()
+{
+}
+
+void TextureManager::RegisterWAD(const char *fileName, bool shared)
+{
+    IFileHandle *fd = FileSystem::Instance()->OpenFileHandle(fileName);
+
+    GoldSource::WADTexturePool *pool = new GoldSource::WADTexturePool(fd, shared);
+    m_lstWADSPool.push_back(pool);
+}
+
+void TextureManager::UnregisterWAD(const char *fileName)
+{
+    m_lstWADSPool.remove_if([&](GoldSource::WADTexturePool * wt) {
+		
+		if (strcmp(fileName, wt->FileName()))
+        {
+            return true;
+        }
+    });
+}
+
+void TextureManager::LoadTexture(GLTexture * texture, TextureSource source /*= TextureSource::GuessByItself*/)
+{
+    LoadTexture(texture, FallbackTexture::EmoCheckerboard, source);
+}
+
+void TextureManager::LoadTexture(GLTexture *texture, void *pixels, size_t length,
+                                       TextureSource source /*= TextureSource::GuessByItself*/)
+{
+    LoadTexture(texture, pixels, length, FallbackTexture::EmoCheckerboard, source);
+}
+
+void TextureManager::LoadTexture(GLTexture *texture, FallbackTexture fallbackTexture,
+                                       TextureSource source /*= TextureSource::GuessByItself*/)
+{
+    auto fs = FileSystem::Instance();
+    auto fd = fs->LoadFile(texture->Name());
+
+	if (!fd)
+    {
+        return Instance()->MakeFallbackTexture(texture, fallbackTexture);
+    }
+
+	if (source == TextureSource::GuessByItself)
+        source = DetermineTextureSourceFromFileName(texture->Name().c_str());
+
+	LoadTexture(texture, fd->Data(), fd->Length(), fallbackTexture, source);
+	fd->UnRef();
+}
+
+void TextureManager::LoadTexture(GLTexture * texture, void *pixels, size_t length, FallbackTexture fallbackTexture,
+                                       TextureSource source /*= TextureSource::GuessByItself*/)
+{
+
+	//rawpixels_t *raw_pixels = nullptr;
+
+    switch (source)
+    {
+    case TextureSource::CommonImage:
+        //pixels = DecodeCommonImage(pixels, length);
+        break;
+    case TextureSource::GoldSourceMipTexture:
+		//pixels = Decode
+        break;
+    case TextureSource::GoldSourceWadFile:
+        break;
+    case TextureSource::GoldSourceSprite:
+        break;
+    case TextureSource::GuessByItself:
+        break;
+    case TextureSource::Unknown:
+        break;
+    default:
+        break;
+    
+	}	
+}
+
+void TextureManager::PurgeTextures()
+{
+    size_t nPurged = 0;
+    m_lstTexturesPool.remove_if([&](GLTexture *texture) 
+		{ if (!texture->NumRef())
+        {
+            nPurged++;
+            delete texture;
+            return true;
+        }
+		});
+
+	Con_Printf("TextureManager::PurgeTextures(): purged %d textures\n", nPurged);
+}
+
+void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
+{
+
+	GLTexture *pFallback = nullptr;
+
+    switch (fallbackTexture)
+    {
+    case FallbackTexture::EmoCheckerboard:
+        pFallback = m_pEmoTexture;
+        break;
+    case FallbackTexture::White:
+        pFallback = m_pWhiteTexture;
+        break;
+    default:
+        pFallback = m_pEmoTexture;
+        break;    
+	}
+
+	pResult->m_uiGLTexnum = pFallback->m_uiGLTexnum;
+    pResult->m_iWidth     = pFallback->m_iWidth;
+    pResult->m_iHeight    = pFallback->m_iHeight;
+}
+

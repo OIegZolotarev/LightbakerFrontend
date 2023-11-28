@@ -378,7 +378,7 @@ void MainWindow::InitCommands()
     };
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonIcons::LoadFile), CMD_ON_MAINTOOLBAR,
+        new CCommand(GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR,
             [&]() 
             { 
                 auto lfd = LoadFileDialog::Instance();
@@ -391,26 +391,26 @@ void MainWindow::InitCommands()
             }));
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonIcons::DirectLight),
+        new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonTextures::DirectLight),
                      CMD_ON_MAINTOOLBAR, [&]() {
                          glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
                          m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Direct);
                      }));
 
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
-        GlobalCommands::AddOmniLight, "+Omni", 0, GetCommonIcon(CommonIcons::OmniLight), CMD_ON_MAINTOOLBAR, [&]() {
+        GlobalCommands::AddOmniLight, "+Omni", 0, GetCommonIcon(CommonTextures::OmniLight), CMD_ON_MAINTOOLBAR, [&]() {
             glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
             m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Omni);
         }));
 
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
-        GlobalCommands::AddSpotLight, "+Spot", 0, GetCommonIcon(CommonIcons::SpotLight), CMD_ON_MAINTOOLBAR, [&]() {
+        GlobalCommands::AddSpotLight, "+Spot", 0, GetCommonIcon(CommonTextures::SpotLight), CMD_ON_MAINTOOLBAR, [&]() {
             glm::vec3 newLightPos = m_pSceneRenderer->GetNewLightPos();
             m_pSceneRenderer->GetScene()->AddNewLight(newLightPos, LightTypes::Spot);
         }));
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::Bake, "Bake", 0, GetCommonIcon(CommonIcons::Bake), CMD_ON_MAINTOOLBAR, []() {
+        new CCommand(GlobalCommands::Bake, "Bake", 0, GetCommonIcon(CommonTextures::Bake), CMD_ON_MAINTOOLBAR, []() {
             // Application::Instance()->ExecuteBaking();
             PopupsManager::Instance()->ShowPopup(PopupWindows::LightBaker3KConfig);
         }));

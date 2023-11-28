@@ -113,7 +113,7 @@ bool ImGuiHelpers::ImageButtonWithText(ImTextureID texId, const char *label, con
     return pressed;
 }
 
-bool ImGuiHelpers::ButtonWithCommonIcon(CommonIcons icon, const char *label, const float icon_size,
+bool ImGuiHelpers::ButtonWithCommonIcon(CommonTextures icon, const char *label, const float icon_size,
                                         ImVec4 tint /*= {1,1,1,1}*/)
 {
     auto icn    = GetCommonIcon(icon);

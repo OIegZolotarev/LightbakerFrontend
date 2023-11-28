@@ -688,36 +688,33 @@ int Camera::MouseWheelEvent(SDL_Event &_event)
 
 void Camera::SetupPerspectiveMatrix()
 {
-    #ifdef OLD_GL
-    glMatrixMode(GL_PROJECTION);
-    #endif
+
 
     double fov = glm::radians(m_pFov->GetFloat());
 
     auto vp = Application::GetMainWindow()->Get3DGLViewport();
 
-    float width  = vp[2];
-    float height = vp[3];
+    float m_iWidth  = vp[2];
+    float m_iHeight = vp[3];
 
-    if (!width || !height)
+    if (!m_iWidth || !m_iHeight)
         return;
 
-    double aspect = width / height;
+    double aspect = m_iWidth / m_iHeight;
     double fov_y  = 2 * atan(tan(fov / 2) / aspect); // Ìîÿ ôîðìóëà - ïëàâàåò?
     double dbg    = glm::degrees(fov_y);
 
     m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
 
-    #ifdef OLD_GL
+#ifdef OLD_GL
+    glMatrixMode(GL_PROJECTION);
     glLoadMatrixf((float *)&m_matProjection);
 #endif
 }
 
 void Camera::SetupModelViewMatrix()
 {
-#ifdef OLD_GL
-    glMatrixMode(GL_MODELVIEW);
-#endif
+
 
     m_matModelView = glm::mat4(1);
 
@@ -759,6 +756,7 @@ void Camera::SetupModelViewMatrix()
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 
     #ifdef OLD_GL
+    glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float *)&m_matModelView);
     #endif
 

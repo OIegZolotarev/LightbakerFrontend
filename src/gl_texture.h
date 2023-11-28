@@ -8,66 +8,111 @@
 #include "common.h"
 #include "file_system.h"
 #include "loader_thread.h"
+//#include "wad_textures.h"
+
+namespace GoldSource
+{
+class WADTexturePool;
+};
 
 enum class TextureSource
 {
     CommonImage,
     GoldSourceMipTexture,
     GoldSourceWadFile,
-    GoldSourceSprite
+    GoldSourceSprite,
+    GuessByItself,
+    Unknown
 };
 
-typedef struct rawpixels_s
+typedef struct rawimage_s
 {
-    void *pixels;
-    size_t width;
-    size_t height;
+    size_t frameIndex = 0;
+    size_t mipLevel   = 0;
+
+    void * pixels;
+    size_t m_iWidth;
+    size_t m_iHeight;
 
     GLint glInternalFormat;
     GLint glFormat;
-}rawpixels_t;
+} rawimage_t;
+
+class RawTexture
+{
+    std::list<rawimage_t *> m_Frames;
+
+public:
+    RawTexture(size_t nFrames);
+    ~RawTexture();
+
+    void AddRawFrame(rawimage_t *frame);
+
+    size_t      NumFrames();
+    rawimage_t *RawFrame(size_t index);
+};
+
+#define FL_HAS_ALPHA_CHANNEL (1 << 0)
 
 class GLTexture
 {
+    friend class TextureManager;
 
-public:    
+public:
+    GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames = 1);
     ~GLTexture();
 
-    bool        IsLoaded() const;
-    void        SetLoaded(bool val);
-    std::string file_name;
+    bool IsLoaded() const;
+    void SetLoaded(bool val);
 
-    int    Width() const;
-    void   SetWidth(int val);
-    
-    int    Height() const;
-    void   SetHeight(int val);
-    
-    int    SpriteSheetWidth() const;
-    void   SetSpriteSheetWidth(int val);
-    
-    int    SpriteSheetHeight() const;
-    void   SetSpriteSheetHeight(int val);
-    
-    GLuint GLTextureNum() const;
-    void   SetGLTextureNum(GLuint val);
+    int  Width() const;
+    void SetWidth(int val);
 
-    void UploadPixels(void * pixels, GLint internalFormat, GLenum format);
+    int  Height() const;
+    void SetHeight(int val);
 
+    int  SpriteSheetWidth() const;
+    void SetSpriteSheetWidth(int val);
+
+    int  SpriteSheetHeight() const;
+    void SetSpriteSheetHeight(int val);
+
+    GLuint GLTextureNum(size_t frame = 0) const;
+    void   SetGLTextureNum(GLuint val, size_t frame = 0);
+
+    void UploadPixels(void *pixels, GLint internalFormat, GLenum format);
 
     void GenerateGLHandle();
+    void Bind(size_t unit, size_t frame = 0);
 
-    void Bind(size_t unit);
+    void Ref();
+    void Unref();
+
+    bool HasAlpha();
+
+    size_t       NumRef();
+    std::string &Name();
 
 private:
-    bool   loaded              = false;
-    int    width               = 0;
-    int    height              = 0;
-    int    sprite_sheet_width  = 0;
-    int    sprite_sheet_height = 0;
-    GLuint gl_texnum           = 0;
+    bool m_bLoaded = false;
+    int  m_iWidth  = 0;
+    int  m_iHeight = 0;
 
-    size_t num_references = 0;
+    int m_iSpriteSheetWidth  = 0;
+    int m_iSpriteSheetHeight = 0;
+
+    TextureSource m_Source   = TextureSource::Unknown;
+    bool          m_Fallback = false;
+
+    RawTexture *m_pRawTextureData;
+
+    size_t m_NumFrames  = 0;
+    GLuint* m_uiGLTexnum = nullptr;
+
+    size_t m_NumReferences = 0;
+
+    int         m_iFlags      = 0;
+    std::string m_strFileName = "";
 };
 
 GLTexture *LoadGLTexture(const char *fileName, bool force = false);
@@ -81,7 +126,7 @@ void FreeGLTexture(GLTexture *t);
 //
 class AsynchTextureLoadResult : public ITaskStepResult
 {
-    void *       m_pPixels  = nullptr;
+    void *     m_pPixels  = nullptr;
     GLTexture *m_pTexture = nullptr;
 
 public:
@@ -94,25 +139,61 @@ public:
 
 class AsynchTextureLoadTask : public ITask
 {
-    std::queue<GLTexture *>   m_qScheduledTextures;
-    void *                    LoadTextureFileData(GLTexture *texture);
+    std::queue<GLTexture *> m_qScheduledTextures;
+    void *                  LoadTextureFileData(GLTexture *texture);
 
 public:
     AsynchTextureLoadTask(const char *setDescription = nullptr);
     ~AsynchTextureLoadTask();
 
-    GLTexture *    ScheduleTexture(const char *fileName);
+    GLTexture *      ScheduleTexture(const char *fileName);
     ITaskStepResult *ExecuteStep(LoaderThread *loaderThread) override;
     void             OnCompletion() override;
 };
 
-class TextureManager
-{
-public:
-    TextureManager();
-    ~TextureManager();
+/// Texture manager
 
-    void RegisterWADTexturePool(const char *wadFileName);
-    
+enum class FallbackTexture
+{
+    EmoCheckerboard = 0,
+    White,
 };
 
+class TextureManager
+{
+    std::list<GoldSource::WADTexturePool *> m_lstWADSPool;
+    std::list<GLTexture *>                  m_lstTexturesPool;
+
+    static TextureSource DetermineTextureSourceFromFileName(const char *fileName);
+    static TextureSource DetermineTextureSourceFileFileSignature(void *pixels, size_t length);
+
+    GLTexture *m_pEmoTexture;
+    GLTexture *m_pWhiteTexture;
+
+public:
+    ~TextureManager();
+
+    static TextureManager *Instance()
+    {
+        static TextureManager *sInstance = new TextureManager;
+        return sInstance;
+    }
+
+    void RegisterWAD(const char *fileName, bool shared);
+    void UnregisterWAD(const char *fileName);
+
+    // Shorter forms, falls back to EMO texture
+    static void LoadTexture(GLTexture *texture, TextureSource source = TextureSource::GuessByItself);
+    static void LoadTexture(GLTexture *texture, void *pixels, size_t length,
+                            TextureSource source = TextureSource::GuessByItself);
+
+    static void LoadTexture(GLTexture *texture, FallbackTexture fallbackTexture,
+                            TextureSource source = TextureSource::GuessByItself);
+    static void LoadTexture(GLTexture *texture, void *pixels, size_t length, FallbackTexture fallbackTexture,
+                            TextureSource source = TextureSource::GuessByItself);
+
+    void PurgeTextures();
+
+private:
+    void MakeFallbackTexture(GLTexture *texture, FallbackTexture fallbackTexture);
+};

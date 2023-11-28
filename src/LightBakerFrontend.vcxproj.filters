@@ -84,6 +84,9 @@
     <Filter Include="Исходные файлы\ImGUI\custom widgets">
       <UniqueIdentifier>{627ce8da-ba4d-4bba-9ce1-4706f5d758c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Textures">
+      <UniqueIdentifier>{ee7760aa-8d02-4886-910e-8eaf6b50b7dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -105,9 +108,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_texture.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
@@ -214,9 +214,6 @@
     </ClCompile>
     <ClCompile Include="byteorder.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="wad_textures.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_lightmap_atlas.cpp">
       <Filter>Исходные файлы\Scene\GoldSource</Filter>
@@ -335,6 +332,12 @@
     <ClCompile Include="inputfield_ex.cpp">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClCompile>
+    <ClCompile Include="wad_textures.cpp">
+      <Filter>Исходные файлы\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_texture.cpp">
+      <Filter>Исходные файлы\Textures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -362,9 +365,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="event_handler.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="gl_texture.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h">
@@ -477,9 +477,6 @@
     </ClInclude>
     <ClInclude Include="byteorder.h">
       <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="wad_textures.h">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_lightmap_atlas.h">
       <Filter>Исходные файлы\Scene\GoldSource</Filter>
@@ -603,6 +600,12 @@
     </ClInclude>
     <ClInclude Include="inputfield_ex.h">
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="wad_textures.h">
+      <Filter>Исходные файлы\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_texture.h">
+      <Filter>Исходные файлы\Textures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

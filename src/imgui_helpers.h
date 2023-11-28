@@ -15,6 +15,6 @@ void Init();
 bool ImageButtonWithText(ImTextureID texId, const char *label, const ImVec2 &imageSize, const ImVec2 &uv0,
                          const ImVec2 &uv1, int frame_padding, const ImVec4 &bg_col, const ImVec4 &tint_col);
 
-bool ButtonWithCommonIcon(CommonIcons icon, const char *label, const float icon_size, ImVec4 tint = {1, 1, 1, 1});
+bool ButtonWithCommonIcon(CommonTextures icon, const char *label, const float icon_size, ImVec4 tint = {1, 1, 1, 1});
 
 } // namespace ImGuiHelpers

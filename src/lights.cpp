@@ -266,13 +266,13 @@ void Lb3kLightEntity::SetType(LightTypes newType)
 	switch (type)
 	{
 	case LightTypes::Omni:
-		SetEditorIcon(GetCommonIcon(CommonIcons::OmniLight));
+        SetEditorIcon(GetCommonIcon(CommonTextures::OmniLight));
 		break;
 	case LightTypes::Spot:
-		SetEditorIcon(GetCommonIcon(CommonIcons::SpotLight));
+        SetEditorIcon(GetCommonIcon(CommonTextures::SpotLight));
 		break;
 	case LightTypes::Direct:
-		SetEditorIcon(GetCommonIcon(CommonIcons::DirectLight));
+        SetEditorIcon(GetCommonIcon(CommonTextures::DirectLight));
 		break;
 	default:
 		break;
