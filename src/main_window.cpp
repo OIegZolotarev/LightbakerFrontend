@@ -23,6 +23,7 @@
 #include "imgui_helpers.h"
 #include "wad_textures.h"
 #include "popup_loadfile_dialog.h"
+#include <list>
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -60,6 +61,8 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
 MainWindow::~MainWindow()
 {
+    delete m_pBackgroundMesh;
+    delete m_pBackgroundShader;
     FreeGLTextures();
     FreeVector(m_vEventHandlers);
     delete m_pSceneRenderer;
@@ -164,6 +167,35 @@ void MainWindow::InitBackend()
 
     m_Console.AddLog("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
     m_Console.AddLog("GL_VERSION: %s\n", glGetString(GL_VERSION));
+        
+    InitBackgroundRenderer();
+
+
+}
+
+void MainWindow::InitBackgroundRenderer()
+{
+    m_pBackgroundShader = GLBackend::Instance()->QueryShader("res/glprogs/background.glsl", {});
+
+    // TODO: try some more intersting ways described here:
+    // https://stackoverflow.com/questions/2588875/whats-the-best-way-to-draw-a-fullscreen-quad-in-opengl-3-2
+
+    m_pBackgroundMesh = new DrawMesh();
+
+    m_pBackgroundMesh->Begin(GL_TRIANGLE_STRIP);
+    m_pBackgroundMesh->Color3f(1, 0, 0);
+    m_pBackgroundMesh->Vertex2f(-1, -1);
+
+    m_pBackgroundMesh->Color3f(1, 0, 0);
+    m_pBackgroundMesh->Vertex2f(+1, -1);
+
+    m_pBackgroundMesh->Color3f(0, 0, 0);
+    m_pBackgroundMesh->Vertex2f(-1, +1);
+
+    m_pBackgroundMesh->Color3f(0, 0, 0);
+    m_pBackgroundMesh->Vertex2f(+1, +1);
+
+    m_pBackgroundMesh->End();
 }
 
 void MainWindow::InitDocks()
@@ -906,41 +938,37 @@ void MainWindow::ClearBackground()
     auto col2 = m_pBackgroudColorSetting2->GetColorRGB();
 
     glClearColor(col1[0], col1[1], col1[2], 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
     if (m_pUseGradientBackground->GetAsBool())
     {
-        //          glMatrixMode(GL_PROJECTION);
-        //          glLoadIdentity();
-        //
-        //          glMatrixMode(GL_MODELVIEW);
-        //          glLoadIdentity();
-        //
-        //          glDisable(GL_DEPTH_TEST);
-        //          glDisable(GL_TEXTURE_2D);
-        //          glDisable(GL_CULL_FACE);
-        //
-        //          glBegin(GL_QUADS);
-        //
-        //  #define ONE 1
-        //
-        //          glColor3fv((float *)&col2);
-        //          glVertex2f(-ONE, -ONE);
-        //          glVertex2f(ONE, -ONE);
-        //
-        //          glColor3fv((float *)&col1);
-        //
-        //          glVertex2f(ONE, ONE);
-        //          glVertex2f(-ONE, ONE);
-        //
-        //          glEnd();
-        //
-        //          glEnable(GL_CULL_FACE);
-        //          glEnable(GL_TEXTURE_2D);
-        //          glEnable(GL_DEPTH_TEST);
+        glDepthMask(0);
 
-        m_pSceneRenderer->GetCamera()->Apply();
+        m_pBackgroundShader->Bind();
+        m_pBackgroundMesh->Bind();
+
+        for (auto &it : m_pBackgroundShader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4({col1.xyz, 1});
+                break;
+            case UniformKind::Color2:
+                it->SetFloat4({col2.xyz, 1});
+                break;
+            default:
+                __debugbreak();
+                break;
+            }
+        }
+        
+        m_pBackgroundMesh->Draw();
+
+        glDepthMask(1);
     }
+    else
+        glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void MainWindow::UpdateTimers()

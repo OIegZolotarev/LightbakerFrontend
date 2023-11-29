@@ -297,7 +297,7 @@ void Lb3kLightEntity::OnUnhovered()
 
 void Lb3kLightEntity::RenderForSelection(int objectId,SceneRenderer * pRenderer)
 {	
-	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(4, 4), GetEditorIcon(), objectId);
+	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(8, 8), GetEditorIcon(), objectId);
 }
 
 void Lb3kLightEntity::OnSelect()

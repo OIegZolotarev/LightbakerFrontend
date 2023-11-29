@@ -42,6 +42,9 @@ void SceneRenderer::SetupBuildboardsRenderer()
     float s = 1;
 
     m_pBillBoard = new DrawMesh();
+
+	// TODO: try triangle strip
+
     m_pBillBoard->Begin(GL_TRIANGLES);
 
     m_pBillBoard->TexCoord2f(0, 0);
@@ -68,8 +71,12 @@ void SceneRenderer::SetupBuildboardsRenderer()
     m_pBillBoard->End();
 
 	
+	
+    m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", {});
+    
 	std::list<const char *> defs;
-    m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", defs);
+	defs.push_back("SELECTION");
+    m_pBillBoardsShaderSel = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", defs);
 }
 
 void SceneRenderer::RegisterRendermodesCommands()
@@ -332,6 +339,37 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 
 void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture* texture, const int index)
 {
+    m_pBillBoardsShaderSel->Bind();
+    m_pBillBoard->Bind();
+
+	glm::mat4 matTransform = glm::translate(glm::mat4(1), pos);
+
+    for (auto &it : m_pBillBoardsShaderSel->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color: 
+		{
+            byte *pixel = (byte*)&index;
+            it->SetFloat4({pixel[0] / 255.f, pixel[1] / 255.f, pixel[2] / 255.f, pixel[3] / 255.f});
+            //it->SetFloat4({1.f,1.f,1.f,1.f});
+        }
+            break;
+        case UniformKind::TransformMatrix:
+            it->SetMat4(matTransform);
+            break;
+        case UniformKind::Scale:
+            it->SetFloat3({size.xyy});
+            break;
+        default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
+
+	m_pBillBoard->Draw();
+
+#if 0
     return;
 
 	auto right = m_pCamera->GetRightVector();
@@ -359,6 +397,8 @@ void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 
 	}
 
 	glEnd();
+
+#endif
 }
 
 Camera* SceneRenderer::GetCamera()

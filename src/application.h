@@ -104,7 +104,7 @@ private:
  	return 1;
  }
 
-//#define DEBUG_TO_CONSOLE
+#define DEBUG_TO_CONSOLE
 #ifdef DEBUG_TO_CONSOLE
 	#define Con_Printf printf
 #endif

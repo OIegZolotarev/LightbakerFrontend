@@ -25,6 +25,9 @@ static uniformDecl_t g_UniformDecl[]{
     {"u_Grid1024thLineColor" , UniformKind::Grid1024thLineColor , UniformDataType::FloatVec4 , 0} ,
     {"u_GridCustomColor"     , UniformKind::GridCustomColor     , UniformDataType::FloatVec4 , 0} ,
     {"u_Color"               , UniformKind::Color               , UniformDataType::FloatVec4 , 0} ,
+    {"u_Color2"              , UniformKind::Color2              , UniformDataType::FloatVec4 , 0} ,
+    {"u_Color3"              , UniformKind::Color3              , UniformDataType::FloatVec4 , 0} ,
+    {"u_Color4"              , UniformKind::Color4              , UniformDataType::FloatVec4 , 0} ,
     {"u_RightVector"         , UniformKind::RightVector         , UniformDataType::FloatVec3 , 0} ,
     {"u_UpVector"            , UniformKind::UpVector            , UniformDataType::FloatVec3 , 0} ,
     {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3 , 0} ,
@@ -321,6 +324,7 @@ void ShaderProgram::LinkProgram()
     if (!linked)
     {
         glGetProgramInfoLog(m_uiProgramId, 512, NULL, infoLog);
+        Con_Printf(infoLog);
     }
 }
 

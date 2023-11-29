@@ -80,6 +80,7 @@ class SceneRenderer : public IEventHandler
     DrawMesh *m_pSpotlightCone;
 
     ShaderProgram *m_pBillBoardsShader = nullptr;
+    ShaderProgram *m_pBillBoardsShaderSel = nullptr;
 
     void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;

@@ -47,7 +47,7 @@ class DrawMesh
     drawVert_t m_tempVert;
     size_t m_NumElements;
 
-    int m_iFlags;
+    int m_iFlags = 0;
 
   public:
     DrawMesh(int flags = DrawMeshFlags::None);
