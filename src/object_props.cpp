@@ -195,7 +195,7 @@ const int VariantValue::GetId() const
 	return id;
 }
 
-const const char* VariantValue::DisplayName() const
+const char* VariantValue::DisplayName() const
 {
 	return display_name.c_str();
 }

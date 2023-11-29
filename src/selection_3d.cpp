@@ -27,7 +27,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 {
 	// Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
 
-	if (ImGuizmo::IsOver() && ImGuizmo::IsEnabled())
+	if (ImGuizmo::IsOver() /*&& ImGuizmo::IsEnabled()*/)
 	{
 		m_pLastHoveredObject.reset();
 		Application::GetMainWindow()->ClearBackground();

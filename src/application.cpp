@@ -6,7 +6,7 @@
 #include "application.h"
 #include "../tiny-process-library/process.hpp"
 #include <thread>
-#include <SDL_thread.h>
+#include <SDL2/SDL_thread.h>
 #include <functional>
 #include "properties_editor.h"
 

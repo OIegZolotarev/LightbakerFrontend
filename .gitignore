@@ -15,4 +15,4 @@ src/.vs/LightBakerFrontend/v16/.suo
 build/*
 bin/tests/*
 bin/test.raw
-*.lib
+bin/LightBakerFrontend.lib

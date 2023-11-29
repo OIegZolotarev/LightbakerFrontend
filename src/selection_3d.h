@@ -41,7 +41,21 @@ class SelectionManager
 
 	ISelectableObjectWeakRef m_pLastHoveredObject;
 	ISelectableObjectWeakRef m_pLastSelectedObject;
+    ISelectableObject *m_pSelectionInvokedObject;
+
+	static bool m_bGizmoEnabled = false;	
+
 public:
+
+	static void EnableGizmo(bool status)
+    {
+        m_bGizmoEnabled = status;
+    }
+
+	static bool IsGizmoEnabled()    
+	{
+        return m_bGizmoEnabled;
+    }
 
 	static SelectionManager* Instance();
 
@@ -55,8 +69,7 @@ public:
 	bool SelectHoveredObject();
 	void UnSelect();
 	void UnSelectEverythingBut(ISelectableObject* param1);
-private:
-	ISelectableObject* m_pSelectionInvokedObject;
+
 };
 
 extern bool DEBUG_3D_SELECTION;

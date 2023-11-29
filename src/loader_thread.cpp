@@ -1,5 +1,5 @@
 #include "loader_thread.h"
-#include <SDL_timer.h>
+#include <SDL2/SDL_timer.h>
 
 int loaderThreadFunction(void* data)
 {

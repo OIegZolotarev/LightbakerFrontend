@@ -9,7 +9,7 @@
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>

@@ -3,7 +3,7 @@
 #include "common.h"
 #include <functional>
 #include <queue>
-#include <SDL_thread.h>
+#include <SDL2/SDL_thread.h>
 
 #define NUM_THREADS 1
 

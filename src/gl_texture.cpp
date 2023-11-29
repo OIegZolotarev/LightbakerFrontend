@@ -11,6 +11,7 @@
 #include <locale>
 #include <boost/algorithm/string.hpp>
 
+
 void GLReloadTexture(GLTexture* r, FileData* sourceFile);
 std::vector<GLTexture*> g_vecGLTextures;
 
@@ -27,8 +28,6 @@ GLTexture* LoadGLTexture(FileData* sourceFile, bool force)
 	}
 
 	GLTexture* r = new GLTexture(sourceFile->Name().c_str(), TextureSource::CommonImage, false);
-	memset(r, 0, sizeof(GLTexture));
-
 	GLReloadTexture(r, sourceFile);
 	
 	g_vecGLTextures.push_back(r);
@@ -68,7 +67,7 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 {
 	r->SetHeight(-1);
 	r->SetWidth(-1);
-	r->SetGLTextureNum(0);
+	//r->SetGLTextureNum(0);
 	
 
 	if (!sourceFile)
@@ -87,20 +86,20 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 	if (image_data == NULL)
 		return;
 
-	// Create a OpenGL texture identifier
-	GLuint image_texture;
-	glGenTextures(1, &image_texture);
-	glBindTexture(GL_TEXTURE_2D, image_texture);
+	r->GenerateGLHandle();
+    r->Bind(0);
 
 	// Setup filtering parameters for display
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
 	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
+	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+
+	 // glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
 
 	
 
@@ -110,9 +109,10 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 #endif
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
-	stbi_image_free(image_data);
+	
 
-	r->SetGLTextureNum(image_texture);
+	stbi_image_free(image_data);
+		
 	r->SetWidth(image_width);
 	r->SetHeight(image_height);
 
@@ -135,9 +135,6 @@ void FreeGLTexture(GLTexture* t)
 	{
 		return a->GLTextureNum() == t->GLTextureNum();
 	});
-
-	
-	
 
 	if (pos != g_vecGLTextures.end())
 	{
@@ -302,7 +299,9 @@ void GLTexture::SetSpriteSheetHeight(int val)
 
 GLuint GLTexture::GLTextureNum(size_t frame) const
 {
-    return m_uiGLTexnum[frame];
+    if (m_uiGLTexnum)
+		return m_uiGLTexnum[frame];
+    return 0;
 }
 
 void GLTexture::SetGLTextureNum(GLuint val, size_t frame)
@@ -349,15 +348,23 @@ void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
 GLTexture::~GLTexture()
 {
     if (m_uiGLTexnum)
+    {
+        delete m_uiGLTexnum;
         glDeleteTextures(m_NumFrames, m_uiGLTexnum);
+    }
 }
 
 void GLTexture::GenerateGLHandle()
 {
-    assert(!m_uiGLTexnum);
+    //assert(!m_uiGLTexnum);
 
-    m_uiGLTexnum = new GLuint[m_NumFrames];
-    glGenTextures(m_NumFrames, m_uiGLTexnum);
+
+	// TODO: handle texture reloading
+	if (!m_uiGLTexnum)
+    {
+        m_uiGLTexnum = new GLuint[m_NumFrames];
+        glGenTextures(m_NumFrames, m_uiGLTexnum);
+    }
 }
 
 void GLTexture::Bind(size_t unit, size_t frame)
@@ -450,6 +457,8 @@ void TextureManager::UnregisterWAD(const char *fileName)
         {
             return true;
         }
+
+		return false;
     });
 }
 
@@ -520,6 +529,7 @@ void TextureManager::PurgeTextures()
             delete texture;
             return true;
         }
+        return false;
 		});
 
 	Con_Printf("TextureManager::PurgeTextures(): purged %d textures\n", nPurged);
