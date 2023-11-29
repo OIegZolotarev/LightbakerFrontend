@@ -134,7 +134,8 @@ void ObjectPropertiesEditor::SetupGuizmo()
 
 	if (!m_pGuizmoPropertyPosition)
 	{
-		ImGuizmo::Enable(false);
+        SelectionManager::EnableGizmo(false);
+		//ImGuizmo::Enable(false);
 		return;
 	}
 	else
@@ -145,7 +146,7 @@ void ObjectPropertiesEditor::SetupGuizmo()
 	if (m_pGuizmoPropertyRotation)	
 		m_GizmoMode |= ImGuizmo::ROTATE;
 	
-	ImGuizmo::Enable(true);
+	SelectionManager::EnableGizmo(true);
 	
 
 	glm::vec3 pos = m_pGuizmoPropertyPosition->GetPosition();

@@ -7,6 +7,19 @@
 #include "selection_3d.h"
 #include "application.h"
 
+bool SelectionManager::m_bGizmoEnabled = false;	
+ 
+void SelectionManager::EnableGizmo(bool status)
+{
+    m_bGizmoEnabled = status;
+    ImGuizmo::Enable(status);
+}
+
+bool SelectionManager::IsGizmoEnabled()
+{
+    return m_bGizmoEnabled;
+}
+
 SelectionManager* SelectionManager::Instance()
 {
 	static SelectionManager* sInstance = new SelectionManager;
@@ -27,7 +40,7 @@ void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 {
 	// Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
 
-	if (ImGuizmo::IsOver() /*&& ImGuizmo::IsEnabled()*/)
+	if (ImGuizmo::IsOver() && SelectionManager::IsGizmoEnabled())
 	{
 		m_pLastHoveredObject.reset();
 		Application::GetMainWindow()->ClearBackground();

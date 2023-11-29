@@ -43,19 +43,13 @@ class SelectionManager
 	ISelectableObjectWeakRef m_pLastSelectedObject;
     ISelectableObject *m_pSelectionInvokedObject;
 
-	static bool m_bGizmoEnabled = false;	
+	static bool m_bGizmoEnabled;	
 
 public:
 
-	static void EnableGizmo(bool status)
-    {
-        m_bGizmoEnabled = status;
-    }
+	static void EnableGizmo(bool status);
 
-	static bool IsGizmoEnabled()    
-	{
-        return m_bGizmoEnabled;
-    }
+	static bool IsGizmoEnabled();
 
 	static SelectionManager* Instance();
 
