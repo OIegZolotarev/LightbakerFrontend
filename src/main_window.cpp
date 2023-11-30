@@ -63,6 +63,9 @@ MainWindow::~MainWindow()
 {
     delete m_pBackgroundMesh;
     delete m_pBackgroundShader;
+
+    delete TextureManager::Instance();
+
     FreeGLTextures();
     FreeVector(m_vEventHandlers);
     delete m_pSceneRenderer;

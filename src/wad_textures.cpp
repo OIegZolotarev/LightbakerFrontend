@@ -49,7 +49,7 @@ WADTexturePool::~WADTexturePool()
     delete m_pHeader;
 }
 
-GLTexture* WADTexturePool::LoadTexture(const char* name)
+GLTexture* WADTexturePool::LoadRawTexture(const char* name)
 {
 	lumpinfo_t* info = FindLumpInfo(name);
 
@@ -113,11 +113,11 @@ WADPool::~WADPool()
 	ClearPointersVector(m_vecWadFiles);
 }
 
-GLTexture* WADPool::LoadTexture(char* name)
+GLTexture* WADPool::LoadRawTexture(char* name)
 {
 	for (auto wad : m_vecWadFiles)
 	{
-		GLTexture* result = wad->LoadTexture(name);
+		GLTexture* result = wad->LoadRawTexture(name);
 
 		if (result)
 			return result;

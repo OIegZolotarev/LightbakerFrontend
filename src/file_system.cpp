@@ -433,13 +433,13 @@ bool FileHandleOS::Seek(size_t position, SeekOrigin origin)
     switch (origin)
     {
     case SeekOrigin::Start:
-        r = fseek(m_pFileHandle, position, SEEK_SET);
+        r = fseek(m_pFileHandle, (long)position, SEEK_SET);
         break;
     case SeekOrigin::Relative:
-        r = fseek(m_pFileHandle, position, SEEK_CUR);
+        r = fseek(m_pFileHandle, (long)position, SEEK_CUR);
         break;
     case SeekOrigin::End:
-        r = fseek(m_pFileHandle, position, SEEK_END);
+        r = fseek(m_pFileHandle, (long)position, SEEK_END);
         break;
     default:
         break;

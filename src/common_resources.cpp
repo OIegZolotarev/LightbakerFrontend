@@ -13,7 +13,7 @@ void LoadIcon(CommonTextures id, const char *filePath)
 {
     FileData *pData = Application::GetFileSystem()->LoadFile(filePath);
 
-    std::pair<CommonTextures, GLTexture *> p(id, LoadGLTexture(pData));
+    std::pair<CommonTextures, GLTexture *> p(id, TextureManager::LoadTextureSynch(pData));
     g_CommonIcons->insert(p);
 
     delete pData;

@@ -66,7 +66,7 @@ public:
 	WADTexturePool(IFileHandle* fd, bool shared = true);
 	~WADTexturePool();
 
-	GLTexture* LoadTexture(const char* name);
+	GLTexture* LoadRawTexture(const char* name);
     const char* FileName();
 };
 
@@ -82,7 +82,7 @@ public:
 
 	static WADPool* Instance();
 	
-	GLTexture* LoadTexture(char* name);
+	GLTexture* LoadRawTexture(char* name);
 };
 
 }

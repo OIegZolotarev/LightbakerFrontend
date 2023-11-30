@@ -124,7 +124,7 @@ void BSPLevel::Mod_LoadTextures(lump_t* l)
 		if (mt->offsets[0])
 			tx->loadedTexture = LoadMiptex(mt);
 		else
-			tx->loadedTexture = WADPool::Instance()->LoadTexture(tx->name);
+			tx->loadedTexture = WADPool::Instance()->LoadRawTexture(tx->name);
 
 		tx->height = mt->height;
 		tx->width = mt->width;
