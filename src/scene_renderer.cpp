@@ -538,6 +538,13 @@ void SceneRenderer::RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_M
     shader->Unbind();
 }
 
+glm::vec3 SceneRenderer::GetRenderPos()
+{
+    return m_pCamera->GetOrigin();
+}
+
+
+
 void SceneRenderer::SetRenderMode(RenderMode newMode)
 {
 	m_RenderMode = newMode;

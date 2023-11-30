@@ -335,6 +335,8 @@ void Scene::LoadLevel(const char *levelName)
         m_SceneEntities.push_back(pLevelEntity);
 
     pLevelEntity->OnAdditionToScene();
+
+    Application::GetMainWindow()->UpdateStatusbar(FL_UPDATE_ALL_STATUS_FIELDS);
 }
 
 std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions)

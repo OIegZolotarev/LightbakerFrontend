@@ -375,6 +375,9 @@ void Camera::UpdateOrientation()
         SDL_SetRelativeMouseMode(SDL_FALSE);
         m_Mode = CameraMouseModes::None;
     }
+
+    if (recalcPosition)
+        Application::GetMainWindow()->UpdateStatusbar(1<<StatusbarField::Position);
 }
 
 bool Camera::CalcMovementSpeeds()

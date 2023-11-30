@@ -120,7 +120,7 @@ void GridRenderer::SetupShaderUniforms()
         }
         break;
         case UniformKind::GridStep:
-            it->SetInt(m_iGridResolutions);
+            it->SetInt(m_iGridResolution);
             break;
         case UniformKind::GridHighlightCustom:
             it->SetInt(m_GridCustomStep->GetInt());
@@ -149,20 +149,30 @@ void GridRenderer::SetupShaderUniforms()
 
 void GridRenderer::SetGridResolution(int steps)
 {
-    m_iGridResolutions = steps;
+    m_iGridResolution = steps;
 }
 
 void GridRenderer::StepDownGrid()
 {
     m_iGridPower       = std::max(0, --m_iGridPower);
-    m_iGridResolutions = 1 << m_iGridPower;
-    Con_Printf("Grid step: %d\n", m_iGridResolutions);
+    m_iGridResolution = 1 << m_iGridPower;
+    
+    // Con_Printf("Grid step: %d\n", m_iGridResolution);
+    Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
 }
 
 void GridRenderer::StepUpGrid()
 {
     m_iGridPower       = std::min(13, ++m_iGridPower);
-    m_iGridResolutions = 1 << m_iGridPower;
+    m_iGridResolution = 1 << m_iGridPower;
 
-    Con_Printf("Grid step: %d\n", m_iGridResolutions);
+    // Con_Printf("Grid step: %d\n", miGridResolution);
+
+
+    Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
+}
+
+int GridRenderer::GridStep()
+{
+    return m_iGridResolution;
 }

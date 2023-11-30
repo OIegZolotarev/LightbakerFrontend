@@ -295,6 +295,47 @@ void MainWindow::SetTitle(std::string &fileName)
     SDL_SetWindowTitle(m_pSDLWindow, m_strTitle.c_str());
 }
 
+void MainWindow::UpdateStatusbar(int updateFlags)
+{
+    auto sr     = GetSceneRenderer();
+    auto scene  = sr->GetScene();
+    auto bitSet = [&](int flag) { return (updateFlags & (1 << flag)) > 0; };
+
+    if (bitSet(StatusbarField::GameConfig))
+    {
+        auto conf = scene->UsedGameConfiguration();
+        auto ptr  = conf.lock();
+
+        if (ptr)
+            m_statusBarData.gameName = std::string("Conf.: ") +  ptr->Description();
+        else
+            m_statusBarData.gameName = "Conf.: <unavaible>";
+    }
+
+    if (bitSet(StatusbarField::Position))
+    {
+        glm::vec3 pos            = sr->GetRenderPos();
+        m_statusBarData.position = std::format("Cam: {0:.3f} {1:.3f} {2:.3f}", pos.x, pos.y, pos.z);
+    }
+
+    if (bitSet(StatusbarField::ObjectDescription))
+    {
+        m_statusBarData.objectDescription = "<none selected>";
+    }
+
+    if (bitSet(StatusbarField::ObjectSize))
+    {
+        m_statusBarData.objectSize = "<none selected>";
+    }
+
+    if (bitSet(StatusbarField::GridStep))
+    {
+        int gs = GridRenderer::Instance()->GridStep();
+
+        m_statusBarData.gridStep = std::format("Grid: {0}", gs);
+    }
+
+}
 void MainWindow::UpdateDocks()
 {
     ImGui::DockBuilderFinish(gIDMainDockspace);
@@ -715,10 +756,28 @@ void MainWindow::RenderGUI()
     {
         if (ImGui::BeginMenuBar())
         {
-            auto camera = GetSceneRenderer()->GetCamera();
-            std::string tip;
-            camera->FormatControlsTip(tip);
-            ImGui::Text(tip.c_str());
+            //auto camera = GetSceneRenderer()->GetCamera();
+            //std::string tip;
+            //camera->FormatControlsTip(tip);            
+            //ImGui::Text(tip.c_str());
+
+            
+            ImGui::Text("%s", m_statusBarData.gameName.c_str());
+            
+            ImGui::Separator();
+            ImGui::Text("%s", m_statusBarData.position.c_str());
+            
+            ImGui::Separator();
+            ImGui::Text("%s", m_statusBarData.objectDescription.c_str());
+            
+            ImGui::Separator();
+            ImGui::Text("%s", m_statusBarData.objectSize.c_str());
+
+            ImGui::Separator();
+            ImGui::Text("%s", m_statusBarData.gridStep.c_str());
+
+
+
             ImGui::EndMenuBar();
         }
 

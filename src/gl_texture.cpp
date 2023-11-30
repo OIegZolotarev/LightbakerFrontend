@@ -532,7 +532,7 @@ void TextureManager::PurgeTextures()
         return false;
 		});
 
-	Con_Printf("TextureManager::PurgeTextures(): purged %d textures\n", nPurged);
+	Con_Printf("TextureManager::PurgeTextures(): purged %zd textures\n", nPurged);
 }
 
 void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)

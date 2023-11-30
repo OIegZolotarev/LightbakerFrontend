@@ -12,6 +12,22 @@
 #include "scene_renderer.h"
 #include "ui_common.h"
 
+BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
+
+#define FL_UPDATE_ALL_STATUS_FIELDS                                                                                        \
+    (1 << StatusbarField::GameConfig | 1 << StatusbarField::Position | 1 << StatusbarField::ObjectDescription |        \
+     1 << StatusbarField::ObjectSize | 1 << StatusbarField::GridStep)
+
+struct statusBarData
+{
+    std::string gameName          = "Conf.: H.L.A.M. DX Edition";
+    std::string position          = "Cam.: [200 500 300]";
+    std::string objectDescription = "Sel.: Brush with 12 faces";
+    std::string objectSize        = "Dim.: [128x64x260]";
+    std::string gridStep          = "Grid: 32 units";
+    //    std::string zoom              = "Zoom: ";
+};
+
 struct timersData
 {
     double frame_delta            = 0;
@@ -43,27 +59,24 @@ public:
 
     void MainLoop();
 
-    int Width();
-    int Height();
-
-    SDL_Window *Handle();
-
-    float FrameDelta();
-
+    int           Width();
+    int           Height();
+    SDL_Window *  Handle();
+    float         FrameDelta();
     DebugConsole *Console();
 
     class SceneRenderer *GetSceneRenderer();
+    int *                Get3DGLViewport();
 
-    int *Get3DGLViewport();
-
-    void UpdateDocks();
-
+    void                UpdateDocks();
     defaultDockSides_s *GetDockSides();
 
     int  GetFPS();
     void ClearBackground();
 
     void SetTitle(std::string &fileName);
+
+    void UpdateStatusbar(int updateFlags);
 
 private:
     enum ToolbarIcons
@@ -77,8 +90,7 @@ private:
 
     GLuint m_ToolbarIcons[ToolbarIcons::MaxIcons];
 
-    bool RenderToolbarIcon(GLuint iconId);
-
+    bool  RenderToolbarIcon(GLuint iconId);
     float RenderMainMenu();
     float RenderMainToolbar(float menuHeight);
 
@@ -117,9 +129,7 @@ private:
     DebugConsole m_Console;
 
     void InitBackend();
-
     void InitBackgroundRenderer();
-
     void InitDocks();
 
     ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
@@ -139,4 +149,6 @@ private:
 
     ShaderProgram *m_pBackgroundShader;
     DrawMesh *     m_pBackgroundMesh;
+
+    statusBarData m_statusBarData;
 };

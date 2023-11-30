@@ -31,7 +31,7 @@ enum class RenderMode
 
 class SceneRenderer : public IEventHandler
 {
-  public:
+public:
     SceneRenderer(class MainWindow *pTargetWindow);
     ~SceneRenderer();
 
@@ -43,7 +43,7 @@ class SceneRenderer : public IEventHandler
     void RenderScene();
     void RenderHelperGeometry(SelectionManager *selectionManager);
 
-    int HandleEvent(bool bWasHandled, SDL_Event &e) override;
+    int   HandleEvent(bool bWasHandled, SDL_Event &e) override;
     float FrameDelta();
 
     void LoadModel(const char *dropped_filedir, int loadFlags);
@@ -58,19 +58,19 @@ class SceneRenderer : public IEventHandler
 
     glm::vec3 GetNewLightPos();
 
-    void SetRenderMode(RenderMode param1);
-    void RenderGenericEntity(SceneEntity *pEntity);
+    void       SetRenderMode(RenderMode param1);
+    void       RenderGenericEntity(SceneEntity *pEntity);
     RenderMode GetRenderMode();
 
-  private:
-    RenderMode m_RenderMode  = RenderMode::Lightshaded;
-    bool m_bWireframeOverlay = false;
+private:
+    RenderMode m_RenderMode        = RenderMode::Lightshaded;
+    bool       m_bWireframeOverlay = false;
 
     void Debug_DrawGround();
 
-    class Camera *m_pCamera;
+    class Camera *    m_pCamera;
     class MainWindow *m_pTargetWindow;
-    Scene *m_pScene;
+    Scene *           m_pScene;
 
     DrawMesh *m_pBillBoard;
 
@@ -79,15 +79,16 @@ class SceneRenderer : public IEventHandler
     DrawMesh *m_pIntensitySphere;
     DrawMesh *m_pSpotlightCone;
 
-    ShaderProgram *m_pBillBoardsShader = nullptr;
+    ShaderProgram *m_pBillBoardsShader    = nullptr;
     ShaderProgram *m_pBillBoardsShaderSel = nullptr;
 
-    void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
+    void           DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;
 
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-  public:
-    void RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, glm::vec3 m_Color);
+public:
+    void      RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, glm::vec3 m_Color);
+    glm::vec3 GetRenderPos();
 };
