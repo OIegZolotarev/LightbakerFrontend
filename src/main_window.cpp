@@ -1,6 +1,6 @@
 /*
     LightBaker3000 Frontend project,
-    (c) 2022 CrazyRussian
+    (c) 2022-2023 CrazyRussian
 */
 
 #include "main_window.h"
@@ -172,8 +172,7 @@ void MainWindow::InitBackend()
     m_Console.AddLog("GL_VERSION: %s\n", glGetString(GL_VERSION));
         
     InitBackgroundRenderer();
-
-
+    TextureManager::Instance()->OnGLInit();
 }
 
 void MainWindow::InitBackgroundRenderer()

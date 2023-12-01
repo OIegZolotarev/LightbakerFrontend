@@ -122,9 +122,9 @@ void BSPLevel::Mod_LoadTextures(lump_t* l)
 		memcpy(tx->name, mt->name, sizeof(tx->name));
 
 		if (mt->offsets[0])
-			tx->loadedTexture = LoadMiptex(mt);
+			tx->loadedTexture = TextureManager::LoadTextureSynch(mt, 0, mt->name, TextureSource::GoldSourceMipTexture);
 		else
-			tx->loadedTexture = WADPool::Instance()->LoadRawTexture(tx->name);
+            tx->loadedTexture = TextureManager::LoadWADTextureSynch(tx->name);
 
 		tx->height = mt->height;
 		tx->width = mt->width;

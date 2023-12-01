@@ -421,7 +421,7 @@ size_t FileHandleOS::Position()
 
 size_t FileHandleOS::Read(size_t elementSize, size_t elementsCount, void *destBuffer)
 {
-    size_t r = fread(m_pFileHandle, elementSize, elementsCount, m_pFileHandle);
+    size_t r = fread(destBuffer, elementSize, elementsCount, m_pFileHandle);
     m_Offset += r;
     return r;
 }

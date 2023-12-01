@@ -25,14 +25,19 @@ WADTexturePool::WADTexturePool(IFileHandle *fd, bool shared)
 	
 	m_pHeader               = new wadheader_t; 
 	
-	m_pFileHandle->Read(sizeof(wadheader_t), 1, &m_pHeader);
+	m_pFileHandle->Read(sizeof(wadheader_t), 1, m_pHeader);
 	m_pHeader->numlumps = LittleLong(m_pHeader->numlumps);
 	m_pHeader->infotableofs = LittleLong(m_pHeader->infotableofs);
 
 	m_NumEntries = m_pHeader->numlumps;	
     m_pLumpInfo = new lumpinfo_t[m_NumEntries];
 	
+	m_pFileHandle->Seek(m_pHeader->infotableofs, SeekOrigin::Start);
+	m_pFileHandle->Read(sizeof(lumpinfo_t), m_NumEntries, m_pLumpInfo);
+
 	lumpinfo_t* ptr = m_pLumpInfo;
+
+
 	for (int i = 0; i < m_pHeader->numlumps; i++, ptr++)
 	{
 		ptr->filepos = LittleLong(ptr->filepos);
@@ -49,7 +54,8 @@ WADTexturePool::~WADTexturePool()
     delete m_pHeader;
 }
 
-GLTexture* WADTexturePool::LoadRawTexture(const char* name)
+
+miptex_t *WADTexturePool::LoadMipTex(const char *name)
 {
 	lumpinfo_t* info = FindLumpInfo(name);
 
@@ -57,13 +63,11 @@ GLTexture* WADTexturePool::LoadRawTexture(const char* name)
 		return nullptr;
 	
 	miptex_t *texture = (miptex_t *)malloc(info->disksize);
-    m_pFileHandle->Read(info->disksize, 1, texture);
-
-	GLTexture * t = LoadMiptex(texture);
-
-	free(texture);
-
-	return t;
+    
+	m_pFileHandle->Seek(info->filepos, SeekOrigin::Start);
+	m_pFileHandle->Read(info->disksize, 1, texture);
+	
+	return texture;
 }
 
 lumpinfo_t* WADTexturePool::FindLumpInfo(const char* name)
@@ -115,18 +119,7 @@ WADPool::~WADPool()
 
 GLTexture* WADPool::LoadRawTexture(char* name)
 {
-	for (auto wad : m_vecWadFiles)
-	{
-		GLTexture* result = wad->LoadRawTexture(name);
-
-		if (result)
-			return result;
-	}
-
-
-
-	// emo_texture
-	return nullptr;
+    return nullptr;
 }
 
 GLTexture* GoldSource::LoadMiptex(struct miptex_s* pMipTex)

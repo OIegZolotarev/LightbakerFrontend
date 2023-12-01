@@ -10,6 +10,7 @@
 #include "wad_textures.h"
 #include <locale>
 #include <boost/algorithm/string.hpp>
+#include "goldsource_bsp_disk_structs.h"
 
 
 void GLReloadTexture(GLTexture* r, FileData* sourceFile);
@@ -81,7 +82,7 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 	int comps = 0;
 
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), sourceFile->Length(), &image_width, &image_height, &comps, 4);
+	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), (int)sourceFile->Length(), &image_width, &image_height, &comps, 4);
 
 	if (image_data == NULL)
 		return;
@@ -158,7 +159,7 @@ void* AsynchTextureLoadTask::LoadTextureFileData(GLTexture* texture)
 	int comps = 0;
 
 	stbi_set_flip_vertically_on_load(true);
-	void * pixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
+	void * pixels = stbi_load_from_memory(pData->Data(), (int)pData->Length(), &image_width, &image_height, &comps, 4);
 
 	texture->SetWidth(image_width);
 	texture->SetHeight(image_height);
@@ -441,10 +442,10 @@ TextureSource TextureManager::DetermineTextureSourceFromFileName(const char *fil
 	};
 
 	static sLookupTable lookup[] = {
+        {"spr", TextureSource::GoldSourceSprite},
 		{"tga", TextureSource::CommonImage},
 		{"png", TextureSource::CommonImage},
-		{"jpg", TextureSource::CommonImage},		
-		{"spr", TextureSource::GoldSourceSprite},
+		{"jpg", TextureSource::CommonImage},				
     };
 
 	for (auto it: lookup)
@@ -504,6 +505,9 @@ GLTexture *TextureManager::LoadTextureSynch(const char *  fileName,
     GLTexture *pResult = new GLTexture(fileName, source, false);
 	RawTexture * rawTexture = LoadRawTexture(fileName, source);
 
+    if (source == TextureSource::GuessByItself)
+        source = DetermineTextureSourceFromFileName(fileName);
+
 	if (rawTexture)
     {
         pResult->UploadRawTexture(rawTexture);
@@ -518,13 +522,14 @@ GLTexture *TextureManager::LoadTextureSynch(const char *  fileName,
 	return pResult;
 }
 
-GLTexture *TextureManager::LoadTextureSynch(FileData *fd, TextureSource source /*= TextureSource::GuessByItself*/)
+GLTexture *TextureManager::LoadTextureSynch(void *data, size_t len, const char* name,
+                                            TextureSource source /*= TextureSource::GuessByItself*/)
 {
-    GLTexture * pResult    = new GLTexture(fd->Name().c_str(), source, false);
+    GLTexture * pResult    = new GLTexture(name, source, false);
 
     Instance()->m_lstTexturesPool.push_back(pResult);
 
-    RawTexture *rawTexture = LoadRawTexture(fd->Data(),fd->Length(), source);
+    RawTexture *rawTexture = LoadRawTexture(data, len, source);
     
 	if (!rawTexture)
     {
@@ -609,6 +614,32 @@ void TextureManager::PurgeTextures()
 	Con_Printf("TextureManager::PurgeTextures(): purged %zd textures\n", nPurged);
 }
 
+GLTexture* TextureManager::LoadWADTextureSynch(char *name)
+{
+    GLTexture *pResult = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
+    bool       bFallback = true;
+
+    for (auto & wad: Instance()->m_lstWADSPool)
+    {
+        auto mip = wad->LoadMipTex(name);
+
+        if (!mip)
+            continue;
+
+        
+        RawTexture * texture = LoadRawTexture((void*)mip, 0, TextureSource::GoldSourceMipTexture);
+        pResult->UploadRawTexture(texture);
+
+        bFallback = false;
+        break;
+    }
+
+    if (bFallback)
+        Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
+
+    return pResult;
+}
+
 RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
 {
     // Load from file
@@ -631,23 +662,87 @@ RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
     return pResult;
 }
 
-RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *pixels, size_t length)
+RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t length)
 {
-    return nullptr;
+    GoldSource::miptex_t *texture = (GoldSource::miptex_t *)data;
+    RawTexture *          pResult = new RawTexture;
+
+    int pixelSize = texture->name[0] == '{' ? 4 : 3;
+    int size      = texture->width * texture->height;
+    int datasize  = size + (size / 4) + (size / 16) + (size / 64);    
+    
+    color24_t *pal = (color24_t *)(((byte*)data) + texture->offsets[0] + datasize + 2);
+    
+    for (int i = 0 ; i < 4; i++)
+    {
+        byte * pixels = (byte*)data + texture->offsets[i];
+
+        size_t mipWidth = texture->width >> i;
+        size_t mipHeight = texture->height >> i;
+
+        size_t      numPixels = mipWidth * mipHeight;
+        rawimage_t *pFrame    = new rawimage_t(mipWidth, mipHeight, pixelSize);
+
+        pFrame->mipLevel = i;
+
+        // Convert pixels from indexed to RGB(A)
+
+        if (pixelSize == 4)
+        {
+            color32_t *ptr = (color32_t*)pFrame->data;
+
+            for (size_t j = 0; j < numPixels; j++)
+            {
+                color24_t *palEntry = &pal[pixels[j]];
+
+                if (palEntry->b == 255 && palEntry->g == 0 && palEntry->r == 0)
+                {
+                    ptr->r = ptr->g = ptr->b = ptr->a = 0;   
+                }
+                else
+                {
+                    ptr->r = palEntry->r;
+                    ptr->g = palEntry->g;
+                    ptr->b = palEntry->b;
+                    ptr->a = 255;
+                }
+
+                ptr++;
+            }
+        }
+        else
+        {
+            color24_t *ptr = (color24_t *)pFrame->data;
+
+            for (size_t j = 0; j < numPixels; j++)
+            {
+                *ptr = pal[pixels[j]];
+                ptr++;
+            }
+        }
+
+        pResult->AddRawFrame(pFrame);
+    }
+
+    return pResult;
 }
 
 RawTexture *TextureManager::DecodeGoldsourceSprite(const void *pixels, size_t length)
 {
-    return nullptr;
+    return ::DecodeGoldSourceSpite((byte*)pixels, length);
 }
 
  TextureManager::TextureManager()
-{
-     m_pEmoTexture = LoadTextureSynch("res/textures/default/emo.png");
+{     
+ }
+
+void TextureManager::OnGLInit()
+ {
+     m_pEmoTexture   = LoadTextureSynch("res/textures/default/emo.png");
      m_pWhiteTexture = LoadTextureSynch("res/textures/default/white.png");
  }
 
-void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
+ void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
 {
 
 	GLTexture *pFallback = nullptr;
@@ -692,7 +787,12 @@ size_t RawTexture::NumFrames()
     return m_lstFrames.size();
 }
 
- rawimage_s::rawimage_s(size_t _width, size_t _height, size_t components)
+std::list<rawimage_t *> &RawTexture::Items()
+{
+    return m_lstFrames;
+}
+
+rawimage_s::rawimage_s(size_t _width, size_t _height, size_t components)
 {
     width  = _width;
     height = _height;

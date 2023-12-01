@@ -27,17 +27,17 @@ enum class TextureSource
 
 typedef struct rawimage_s
 {
-    size_t frameIndex = 0;
-    size_t mipLevel   = 0;
+    int    frameIndex = 0;
+    int    mipLevel   = 0;
 
-    byte* data = nullptr;
+    byte * data       = nullptr;
     size_t dataLength = 0;
 
-    int width = 0;
+    int width  = 0;
     int height = 0;
 
     GLint glInternalFormat = 0;
-    GLint glFormat = 0;
+    GLint glFormat         = 0;
 
     rawimage_s(size_t _width, size_t _height, size_t components);
     ~rawimage_s();
@@ -55,10 +55,7 @@ public:
     void   AddRawFrame(rawimage_t *frame);
     size_t NumFrames();
 
-    std::list<rawimage_t *> &Items()
-    {
-        return m_lstFrames;
-    }
+    std::list<rawimage_t *> &Items();
 };
 
 #define FL_HAS_ALPHA_CHANNEL (1 << 0)
@@ -125,6 +122,8 @@ private:
     std::string m_strFileName = "";
 };
 
+#include "img_goldsource_spr.h"
+
 // Old API
 
 GLTexture *LoadGLTexture(const char *fileName, bool force = false);
@@ -189,15 +188,18 @@ class TextureManager
     static RawTexture *LoadRawTexture(const char *fileName, TextureSource source = TextureSource::GuessByItself);
     static RawTexture *LoadRawTexture(void *pixels, size_t length, TextureSource source = TextureSource::GuessByItself);
 
-        
     static RawTexture *DecodeCommonImage(const void *data, size_t length);
     static RawTexture *DecodeGoldsourceMiptex(const void *data, size_t length);
     static RawTexture *DecodeGoldsourceSprite(const void *data, size_t length);
 
     TextureManager();
 
+    
+
 public:
     ~TextureManager();
+
+    void OnGLInit();
 
     static TextureManager *Instance()
     {
@@ -209,9 +211,10 @@ public:
     void UnregisterWAD(const char *fileName);
 
     static GLTexture *LoadTextureSynch(const char *fileName, TextureSource source = TextureSource::GuessByItself);
-    static GLTexture *LoadTextureSynch(FileData* fd, TextureSource source = TextureSource::GuessByItself);
+    static GLTexture *LoadTextureSynch(void *data, size_t len, const char *name,
+                                       TextureSource source = TextureSource::GuessByItself);
 
     void PurgeTextures();
 
-
+    static GLTexture *LoadWADTextureSynch(char *name);
 };

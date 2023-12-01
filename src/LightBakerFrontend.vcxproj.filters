@@ -338,6 +338,9 @@
     <ClCompile Include="gl_texture.cpp">
       <Filter>Исходные файлы\Textures</Filter>
     </ClCompile>
+    <ClCompile Include="img_goldsource_spr.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -607,6 +610,12 @@
     <ClInclude Include="gl_texture.h">
       <Filter>Исходные файлы\Textures</Filter>
     </ClInclude>
+    <ClInclude Include="img_goldsource_spr.h">
+      <Filter>Исходные файлы\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="spritegn.h">
+      <Filter>Исходные файлы\Textures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -656,6 +665,7 @@
     <None Include="..\bin\res\glprogs\billboard.glsl">
       <Filter>GLSL</Filter>
     </None>
+    <None Include="OnInitGL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico">
