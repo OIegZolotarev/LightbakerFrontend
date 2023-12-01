@@ -19,16 +19,21 @@ char* HammerFGDFile::Data()
 HammerFGDFile::HammerFGDFile(FileData* fd)
 {
 	m_pFileData = fd;
+
+	m_strFileName = fd->Name();
+
 	ParseFGD(this);
 	RelinkInheritedProperties();
 }
 
 HammerFGDFile::~HammerFGDFile()
 {
-	for (auto kv : m_Entities)
+	for (auto & kv : m_Entities)
 	{
 		delete kv.second;
 	}
+
+	
 }
 
 void HammerFGDFile::AddEntityClass(FGDEntityClass* entityDef)
@@ -54,18 +59,28 @@ GoldSource::FGDEntityClass* HammerFGDFile::FindEntityClass(std::string& baseClas
 	return m_Entities[baseClassStr];
 }
 
+std::string HammerFGDFile::AbsoluteResourcePath(std::string &relPath)
+{
+    auto fs = FileSystem::Instance();
+    auto baseDir = fs->BaseDirectoryFromPath(FileName());
+	
+	return baseDir + "/" + relPath;
+}
+
 FGDEntityClass::~FGDEntityClass()
 {
 
 }
 
-FGDEntityClass::FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList & props)
+FGDEntityClass::FGDEntityClass(HammerFGDFile * pOwner, FGDEntityClassType type, std::string className, std::string description,
+                               FGDPropertiesList &props)
 {
 	m_Type = type;
 	m_ClassName = className;
 	m_Description = description;
 
 	m_Properties = props;
+    m_pOwner     = pOwner;
 }
 
 void FGDEntityClass::SetColor(glm::vec3 color)
@@ -204,6 +219,20 @@ glm::vec3 FGDEntityClass::GetColor()
 void FGDEntityClass::SetBBoxOffset(glm::vec3 offset)
 {
     m_BboxOffset = offset;
+}
+
+GLTexture *FGDEntityClass::GetEditorSpite()
+{
+    if (m_EditorSprite.empty())
+        return nullptr;
+
+    if (!m_pEditorSprite)
+    {
+        std::string path = m_pOwner->AbsoluteResourcePath(m_EditorSprite);
+        m_pEditorSprite   = TextureManager::LoadTextureSynch(path.c_str());
+    }
+
+	return m_pEditorSprite;
 }
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,

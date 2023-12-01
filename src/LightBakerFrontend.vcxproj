@@ -383,7 +383,6 @@ build.bat
     <None Include="..\bin\res\glprogs\spotlight_cone.frag" />
     <None Include="..\bin\res\glprogs\spotlight_cone.vert" />
     <None Include="hammer_fgd\hammer_fgd.y" />
-    <None Include="OnInitGL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico" />

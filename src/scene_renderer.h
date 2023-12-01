@@ -50,7 +50,7 @@ public:
     void ReloadScene(int loadFlags);
 
     void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint);
-    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const int index);
+    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const int index);
 
     void FocusCameraOnObject(SceneEntityPtr it);
 
@@ -91,4 +91,5 @@ private:
 public:
     void      RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, glm::vec3 m_Color);
     glm::vec3 GetRenderPos();
+    void      DrawPointEntitySelection(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, int objectId);
 };

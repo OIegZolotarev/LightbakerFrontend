@@ -339,7 +339,7 @@
       <Filter>Исходные файлы\Textures</Filter>
     </ClCompile>
     <ClCompile Include="img_goldsource_spr.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -665,7 +665,6 @@
     <None Include="..\bin\res\glprogs\billboard.glsl">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="OnInitGL" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico">

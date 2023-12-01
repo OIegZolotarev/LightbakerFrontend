@@ -127,12 +127,15 @@ typedef std::list<FGDPropertyDescriptor *> FGDPropertiesList;
 #define FL_SET_BASE_CLASSES  (1 << 6)
 #define FL_SET_BBOX_OFFSET   (1 << 7)
 
+class HammerFGDFile;
+
 class FGDEntityClass
 {
     friend class HammerFGDFile;
 
   public:
-    FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList &props);
+    FGDEntityClass(HammerFGDFile *    pOwner, FGDEntityClassType type, std::string className, std::string description,
+                   FGDPropertiesList &props);
     ~FGDEntityClass();
 
     void SetColor(glm::vec3 color);
@@ -169,7 +172,12 @@ class FGDEntityClass
 
     glm::vec3 GetColor();
 
+    GLTexture *GetEditorSpite();
+
   private:
+
+    HammerFGDFile *m_pOwner;
+
     FGDEntityClassType m_Type;
 
     int m_CtorDefinitionFlags;
@@ -195,6 +203,8 @@ class FGDEntityClass
 
     FGDPropertyDescriptor *FindProperty(std::string &propertyName);
     void RelinkInheritedProperties(class HammerFGDFile *pFile);
+
+    GLTexture *m_pEditorSprite = nullptr;
 };
 
 class HammerFGDFile
@@ -210,15 +220,19 @@ class HammerFGDFile
 
     char *Data();
 
-    std::string FileName()
+    std::string & FileName()
     {
-        return m_pFileData->Name();
+        return m_strFileName;
     }
 
     void AddEntityClass(FGDEntityClass *entityDef);
     void RelinkInheritedProperties();
 
     FGDEntityClass *FindEntityClass(std::string &baseClassStr);
+    std::string AbsoluteResourcePath(std::string &m_EditorSprite);
+
+private:
+    std::string m_strFileName;
 };
 
 } // namespace GoldSource

@@ -61,10 +61,16 @@ RawTexture *DecodeGoldSourceSpite(byte *data, size_t length)
             size_t     numPixels    = frameDesc->width * frameDesc->height;
             color24_t *outRGBPixels = (color24_t *)pFrame->data;
 
-            for (int i = 0; i < numPixels; i++)
+            for (int j = frameDesc->height - 1; j >= 0; j--)
             {
-                const color24_t &palleteColor = pallete[data[i]];
-                outRGBPixels[i]               = palleteColor;
+                byte *row = &pixels[j * frameDesc->width];
+
+                for (int i = 0; i < frameDesc->width; i++)
+                {
+                    const color24_t &palleteColor = pallete[row[i]];
+                    *outRGBPixels                 = palleteColor;
+                    outRGBPixels++;
+                }
             }
 
             pResult->AddRawFrame(pFrame);

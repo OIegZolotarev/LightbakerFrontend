@@ -284,6 +284,27 @@ void SceneRenderer::LoadModel(const char* dropped_filedir, int loadFlags)
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture* texture, const glm::vec3 tint)
 {
 #ifdef FAST_BB
+
+	// TODO: make render-chains for transparent, billboards, etc
+	m_pBillBoardsShader->Bind();
+    m_pBillBoard->Bind();
+
+    for (auto &it : m_pBillBoardsShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color:
+        case UniformKind::TransformMatrix:
+        case UniformKind::Scale:
+        case UniformKind::Diffuse:
+            break;
+        default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
+
+
 	glm::mat4 matTransform = glm::translate(glm::mat4(1),pos);
 
 
@@ -337,7 +358,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
 #endif
 }
 
-void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture* texture, const int index)
+void SceneRenderer::DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const int index)
 {
     m_pBillBoardsShaderSel->Bind();
     m_pBillBoard->Bind();
@@ -544,6 +565,35 @@ glm::vec3 SceneRenderer::GetRenderPos()
 }
 
 
+
+void SceneRenderer::DrawPointEntitySelection(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, int objectId)
+{
+
+    auto shader = GLBackend::Instance()->HelperGeometryShader();
+
+    shader->Bind();
+    shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
+
+	byte *    pixel = (byte *)&objectId;
+    glm::vec4 col = {pixel[0] / 255.f, pixel[1] / 255.f, pixel[2] / 255.f, pixel[3] / 255.f};
+
+    shader->SetColor({col});
+
+    glm::vec3 scale = m_Maxs - m_Mins;
+
+    glm::vec3 offset = m_Mins + scale * 0.5f;
+
+    shader->SetScale(scale.xzy);
+
+    glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), m_Position - offset);
+    shader->SetTransform(mat);
+
+    m_pSolidCube->BindAndDraw();
+
+    shader->Unbind();
+
+}
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)
 {

@@ -27,6 +27,8 @@ class BSPEntity : public SceneEntity
 
     std::shared_ptr<BSPWorld> m_World;
 
+    GLTexture *m_pEditorSprite = nullptr;
+
   public:
     BSPEntity();
     ~BSPEntity();
@@ -38,12 +40,13 @@ class BSPEntity : public SceneEntity
     void Export(FILE *fp);
 
     void RenderBoundingBox() override;
-
     void RenderGroupShaded() override;
-
     void RenderLightshaded() override;
-
     void RenderUnshaded() override;
+
+    void RenderForSelection(int objectId, class SceneRenderer *) override;
+
+    void OnSelect() override;
 };
 
 } // namespace GoldSource
