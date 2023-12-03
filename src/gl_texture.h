@@ -22,6 +22,8 @@ enum class TextureSource
     GoldSourceWadFile,
     GoldSourceSprite,
     GuessByItself,
+    FrameBufferColor,
+    FrameBufferDepth,
     Unknown
 };
 

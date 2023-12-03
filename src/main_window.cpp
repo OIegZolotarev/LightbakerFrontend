@@ -17,29 +17,29 @@
 #include "ui_common.h"
 #include "ui_styles_manager.h"
 
+#include "gl_screenspace_2d_renderer.h"
 #include "goldsource_bsp_disk_structs.h"
 #include "grid_renderer.h"
 #include "hammer_fgd.h"
 #include "imgui_helpers.h"
-#include "wad_textures.h"
 #include "popup_loadfile_dialog.h"
-#include <list>
+#include "scene_renderer.h"
 #include "viewport.h"
+#include "wad_textures.h"
+#include <list>
 
 bool DEBUG_3D_SELECTION = false;
 
-const char *strDockspace = "DockSpace";
-ImGuiID gIDMainDockspace = 0;
+const char *strDockspace     = "DockSpace";
+ImGuiID     gIDMainDockspace = 0;
 
 SDL_Cursor *g_EmptyCursor;
-char g_IMGuiIniPath[1024];
+char        g_IMGuiIniPath[1024];
 
 MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
     : m_iWindowWidth(defaultSize.x), m_iWindowHeight(defaultSize.y)
 {
     m_strTitle = title;
-
-  
 
     InitBackend();
     InitCommonResources();
@@ -110,7 +110,7 @@ void MainWindow::InitBackend()
     // limit to which minimum size user can resize the window
     SDL_SetWindowMinimumSize(m_pSDLWindow, 500, 300);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-    //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+    // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
 
@@ -171,12 +171,11 @@ void MainWindow::InitBackend()
 
     m_Console.AddLog("GL_RENDERER: %s\n", glGetString(GL_RENDERER));
     m_Console.AddLog("GL_VERSION: %s\n", glGetString(GL_VERSION));
-        
+
     InitBackgroundRenderer();
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
-
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -297,38 +296,47 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 void MainWindow::InitViewports()
 {
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < NUM_VIEWPORTS; i++)
+    {
         m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
+        m_vEventHandlers.push_back(m_Viewports[i]);
+    }
 }
 
 void MainWindow::DisplayViewportContents()
 {
+    for (auto &it : m_Viewports)
+        it->DisplayRenderedFrame();
 
-    auto shader = GLBackend::Instance()->HelperGeometryShader();
+    //     auto shader = GLBackend::Instance()->HelperGeometryShader();
+    //
+    //     shader->Bind();
+    //     shader->SetDefaultCamera();
+    //     shader->SetTransformIdentity();
+    //     shader->SetColor({1, 0, 1, 1});
+    //     shader->SetScale({1, 1, 1});
+    //     shader->SetTransform(glm::mat4x4(1.f));
+    //
+    //     static DrawMesh mesh(DrawMeshFlags::Dynamic);
+    //
+    //     mesh.Begin(GL_TRIANGLE_STRIP);
+    //
+    //     mesh.Color3f(1, 0, 0);
+    //     mesh.Vertex2f(-1, -1);
+    //     mesh.Vertex2f(+1, -1);
+    //     mesh.Vertex2f(-1, +1);
+    //     mesh.Vertex2f(+1, +1);
+    //
+    //
+    //     mesh.End();
+    //     mesh.BindAndDraw();
+    //
+    //     shader->Unbind();
+}
 
-    shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetTransformIdentity();
-    shader->SetColor({1, 0, 1, 1});
-    shader->SetScale({1, 1, 1});
-    shader->SetTransform(glm::mat4x4(1.f));
-
-    static DrawMesh mesh(DrawMeshFlags::Dynamic);
-
-    mesh.Begin(GL_TRIANGLE_STRIP);
-    
-    mesh.Color3f(1, 0, 0);
-    mesh.Vertex2f(-1, -1);   
-    mesh.Vertex2f(+1, -1);   
-    mesh.Vertex2f(-1, +1);    
-    mesh.Vertex2f(+1, +1);
-    
-
-    mesh.End();
-    mesh.BindAndDraw();
-
-    shader->Unbind();
-
+Viewport *MainWindow::GetViewport(int index)
+{
+    return m_Viewports[index];
 }
 
 void MainWindow::SetTitle(std::string &fileName)
@@ -349,7 +357,7 @@ void MainWindow::UpdateStatusbar(int updateFlags)
         auto ptr  = conf.lock();
 
         if (ptr)
-            m_statusBarData.gameName = std::string("Conf.: ") +  ptr->Description();
+            m_statusBarData.gameName = std::string("Conf.: ") + ptr->Description();
         else
             m_statusBarData.gameName = "Conf.: <unavaible>";
     }
@@ -376,7 +384,6 @@ void MainWindow::UpdateStatusbar(int updateFlags)
 
         m_statusBarData.gridStep = std::format("Grid: {0}", gs);
     }
-
 }
 void MainWindow::UpdateDocks()
 {
@@ -415,25 +422,23 @@ void MainWindow::MainLoop()
         UpdateTimers();
         GL_BeginFrame();
 
-// Multiple viewports        
-//         glEnable(GL_SCISSOR_TEST);
-//         glScissor(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-//         glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-//         m_pSceneRenderer->RenderScene();
-// 
-//         
-//         glScissor(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-//         glViewport(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-//         m_pSceneRenderer->RenderScene();
-// 
-//         glDisable(GL_SCISSOR_TEST);
+        // Multiple viewports
+        //         glEnable(GL_SCISSOR_TEST);
+        //         glScissor(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+        //         glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
+        //         m_pSceneRenderer->RenderScene();
+        //
+        //
+        //         glScissor(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2,
+        //         m_i3DViewport[3] / 2); glViewport(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1],
+        //         m_i3DViewport[2] / 2, m_i3DViewport[3] / 2); m_pSceneRenderer->RenderScene();
+        //
+        //         glDisable(GL_SCISSOR_TEST);
 
         for (auto it : m_Viewports)
-            it->RenderFrame();
+            it->RenderFrame(m_TimersData.frame_delta / 1000);
 
-        DisplayViewportContents();
-
-        //m_pSceneRenderer->RenderScene();
+        // m_pSceneRenderer->RenderScene();
 
         LoaderThread::Instance()->ExecuteEndCallbacks(10);
 
@@ -480,7 +485,7 @@ bool MainWindow::PropagateControlsEvent(SDL_Event &event)
 
     for (auto &it : m_vEventHandlers)
     {
-        int result = it->HandleEvent(bWasHandled, event);
+        int result = it->HandleEvent(bWasHandled, event, m_TimersData.frame_delta / 1000);
 
         bWasHandled = bWasHandled | result & EVENT_HANDLED;
 
@@ -497,18 +502,16 @@ void MainWindow::InitCommands()
         Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
     };
 
-    Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR,
-            [&]() 
-            { 
-                auto lfd = LoadFileDialog::Instance();
+    Application::CommandsRegistry()->RegisterCommand(new CCommand(
+        GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR, [&]() {
+            auto lfd = LoadFileDialog::Instance();
 
-                lfd->SetTitle("Load map\\scene");
-                lfd->SetFilters(".obj,.bsp");
-                lfd->SetOnSelectCallback(callbackLoadModel);
+            lfd->SetTitle("Load map\\scene");
+            lfd->SetFilters(".obj,.bsp");
+            lfd->SetOnSelectCallback(callbackLoadModel);
 
-                PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);             
-            }));
+            PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+        }));
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonTextures::DirectLight),
@@ -803,27 +806,24 @@ void MainWindow::RenderGUI()
     {
         if (ImGui::BeginMenuBar())
         {
-            //auto camera = GetSceneRenderer()->GetCamera();
-            //std::string tip;
-            //camera->FormatControlsTip(tip);            
-            //ImGui::Text(tip.c_str());
+            // auto camera = GetSceneRenderer()->GetCamera();
+            // std::string tip;
+            // camera->FormatControlsTip(tip);
+            // ImGui::Text(tip.c_str());
 
-            
             ImGui::Text("%s", m_statusBarData.gameName.c_str());
-            
+
             ImGui::Separator();
             ImGui::Text("%s", m_statusBarData.position.c_str());
-            
+
             ImGui::Separator();
             ImGui::Text("%s", m_statusBarData.objectDescription.c_str());
-            
+
             ImGui::Separator();
             ImGui::Text("%s", m_statusBarData.objectSize.c_str());
 
             ImGui::Separator();
             ImGui::Text("%s", m_statusBarData.gridStep.c_str());
-
-
 
             ImGui::EndMenuBar();
         }
@@ -834,6 +834,8 @@ void MainWindow::RenderGUI()
 #ifdef _DEBUG
     ImGui::ShowDemoWindow();
 #endif
+
+    DisplayViewportContents();
 
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -1036,6 +1038,8 @@ void MainWindow::GL_BeginFrame()
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
+
+    GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
 }
 
 void MainWindow::ClearBackground()
@@ -1068,7 +1072,7 @@ void MainWindow::ClearBackground()
                 break;
             }
         }
-        
+
         m_pBackgroundMesh->Draw();
 
         glDepthMask(1);
@@ -1109,9 +1113,9 @@ void MainWindow::UpdateTimers()
 void MainWindow::LimitToTargetFPS()
 {
 #ifndef LINUX
-    int target_fps            = 60;
-    static uint64_t next_tick = 0;
-    uint64_t this_tick        = SDL_GetTicks64();
+    int             target_fps = 60;
+    static uint64_t next_tick  = 0;
+    uint64_t        this_tick  = SDL_GetTicks64();
     if (this_tick < next_tick)
     {
         SDL_Delay((uint32_t)(next_tick - this_tick));
@@ -1119,9 +1123,9 @@ void MainWindow::LimitToTargetFPS()
     // this_tick = SDL_GetTicks64(); // WTF?
     next_tick = this_tick + (1000 / target_fps);
 #else
-    int target_fps            = m_pSettings->Get(IDS_FPS_LIMIT)->GetAsInt();
-    static uint32_t next_tick = 0;
-    uint32_t this_tick        = SDL_GetTicks();
+    int             target_fps = m_pSettings->Get(IDS_FPS_LIMIT)->GetAsInt();
+    static uint32_t next_tick  = 0;
+    uint32_t        this_tick  = SDL_GetTicks();
     if (this_tick < next_tick)
     {
         SDL_Delay((uint32_t)(next_tick - this_tick));

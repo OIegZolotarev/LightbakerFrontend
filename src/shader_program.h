@@ -40,7 +40,8 @@ enum class UniformKind
     UpVector,
     ForwardVector,
     Diffuse,
-    Lightmap
+    Lightmap,
+    Viewport
 };
 
 enum class UniformDataType

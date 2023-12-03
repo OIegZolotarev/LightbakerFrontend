@@ -294,6 +294,11 @@ int Application::Q_buildnum(void)
     return b;
 }
 
+bool Application::IsMouseCursorVisible()
+{
+    return ImGui::GetIO().MouseDrawCursor;
+}
+
 float Application::GetBakingProgress()
 {
 	return m_flBakingPercentage;

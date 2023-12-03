@@ -36,14 +36,13 @@ out vec4 FragColor;
   
 #ifdef DIFFUSEMAP
 uniform sampler2D diffuse;
+in vec2 oTexCoord;
 #endif 
 
 #ifdef LIGHTMAP	
 uniform sampler2D lightmap;
-#endif
-
-in vec2 oTexCoord;
 in vec2 oLMCoord;
+#endif
 
 void main()
 {

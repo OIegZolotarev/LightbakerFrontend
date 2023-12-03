@@ -166,7 +166,11 @@ void CCommand::Execute()
 
 void CCommand::RenderImGUI(int size)
 {
+	// ImGUI quirks
+#pragma warning(disable : 4312)
 	ImGui::SameLine();
+
+	
 
 	if (m_iFlags & CMD_ONLY_ICON)
 	{
@@ -185,8 +189,7 @@ void CCommand::RenderImGUI(int size)
 			Execute();
 		}
 	}
-
-
+#pragma warning(enable : 4312)
 }
 
 GlobalCommands CCommand::GetId()

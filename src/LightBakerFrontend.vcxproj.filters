@@ -90,6 +90,9 @@
     <Filter Include="Исходные файлы\OpenGL Backend\Textures">
       <UniqueIdentifier>{ee7760aa-8d02-4886-910e-8eaf6b50b7dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Viewports">
+      <UniqueIdentifier>{5af2d74d-feeb-48ad-8ee6-45f801a6881d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -126,9 +129,6 @@
       <Filter>Исходные файлы\tiny-proccess-library</Filter>
     </ClCompile>
     <ClCompile Include="lb3k_wrapper.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="draw_utils.cpp">
@@ -350,7 +350,16 @@
     <ClCompile Include="gl_backend.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
-    <ClCompile Include="gl_debuging_graphics.cpp">
+    <ClCompile Include="selection_3d.cpp">
+      <Filter>Исходные файлы\Viewports</Filter>
+    </ClCompile>
+    <ClCompile Include="viewport.cpp">
+      <Filter>Исходные файлы\Viewports</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_framebuffer_object.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_screenspace_2d_renderer.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
   </ItemGroup>
@@ -401,9 +410,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="object_props.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="selection_3d.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="draw_utils.h">
@@ -634,8 +640,20 @@
     <ClInclude Include="gl_backend.h">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClInclude>
-    <ClInclude Include="gl_debuging_graphics.h">
+    <ClInclude Include="selection_3d.h">
+      <Filter>Исходные файлы\Viewports</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport.h">
+      <Filter>Исходные файлы\Viewports</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_framebuffer_object.h">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_screenspace_2d_renderer.h">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="viewport_rendermodes.h">
+      <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

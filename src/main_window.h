@@ -52,6 +52,8 @@ typedef struct defaultDockSides_s
     ImGuiID idDockBottomRight;
 } defaultDockSides_t;
 
+#define NUM_VIEWPORTS 2
+
 class MainWindow
 {
 public:
@@ -153,7 +155,10 @@ private:
 
     statusBarData m_statusBarData;
 
-    class Viewport* m_Viewports[4];
+    Viewport *m_Viewports[NUM_VIEWPORTS];
     void      InitViewports();
     void      DisplayViewportContents();
+
+public:
+    Viewport *GetViewport(int index);
 };

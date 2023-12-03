@@ -18,8 +18,7 @@
 #define FAST_BB
 
 SceneRenderer::SceneRenderer(MainWindow* pTargetWindow)
-{
-	m_pCamera = new Camera(this);
+{	
 	m_pTargetWindow = pTargetWindow;
 	m_pScene = nullptr;
 
@@ -69,9 +68,7 @@ void SceneRenderer::SetupBuildboardsRenderer()
 	// 012 - 132
 
     m_pBillBoard->End();
-
-	
-	
+		
     m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", {});
     
 	std::list<const char *> defs;
@@ -126,7 +123,7 @@ void SceneRenderer::RegisterRendermodesCommands()
 
 SceneRenderer::~SceneRenderer()
 {
-	delete m_pCamera;
+	//delete m_pCamera;
 	delete m_pScene;
 	delete m_pUnitBoundingBox;
 
@@ -136,61 +133,58 @@ SceneRenderer::~SceneRenderer()
     delete m_pSolidCube;
 }
 
-void SceneRenderer::RenderScene()
-{
-	auto selectionManager = SelectionManager::Instance();
-	m_pCamera->Apply();
-
-	selectionManager->NewFrame(this);
-
-	if (DEBUG_3D_SELECTION)
-	{
-		m_pScene->RenderObjectsFor3DSelection();
-		return;
-	}
-
-	// Render visible stuff
-
-	auto pers = Application::Instance()->GetPersistentStorage();
-	auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
+void SceneRenderer::RenderScene(Viewport *pViewport)
+{    
+    m_pCamera = pViewport->GetCamera();
+	m_RenderMode = pViewport->GetRenderMode();
 
 
+    auto selectionManager = SelectionManager::Instance();
+    
+    selectionManager->NewFrame(this);
 
-	if (m_pScene)
-	{
-		switch (m_RenderMode)
-		{
-		case RenderMode::Unshaded:
-			m_pScene->RenderUnshaded();
-			break;
-		case RenderMode::Lightshaded:
-			m_pScene->RenderLightShaded();
-			break;
-		case RenderMode::WireframeUnshaded:
-			break;
-		case RenderMode::WireframeShaded:
-			break;
-		case RenderMode::Groups:
-			m_pScene->RenderGroupsShaded();
-		default:
-			break;
-		}
+    if (DEBUG_3D_SELECTION)
+    {
+        m_pScene->RenderObjectsFor3DSelection();
+        return;
+    }
 
-		RenderHelperGeometry(selectionManager);
-	}
+    // Render visible stuff
 
-	if (showGround->GetAsBool())
+    auto pers       = Application::Instance()->GetPersistentStorage();
+    auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
+
+    if (m_pScene)
+    {
+        switch (m_RenderMode)
+        {
+        case RenderMode::Unshaded:
+            m_pScene->RenderUnshaded();
+            break;
+        case RenderMode::Lightshaded:
+            m_pScene->RenderLightShaded();
+            break;
+        case RenderMode::WireframeUnshaded:
+            break;
+        case RenderMode::WireframeShaded:
+            break;
+        case RenderMode::Groups:
+            m_pScene->RenderGroupsShaded();
+        default:
+            break;
+        }
+
+        RenderHelperGeometry(selectionManager);
+    }
+
+    if (showGround->GetAsBool())
     {
         GridRenderer::Instance()->Render();
     }
-
-
 }
 
 void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 {
-	SceneRenderer* sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
-
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	glDepthMask(GL_FALSE);
@@ -234,7 +228,7 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 			continue;
 		
 		
-        sceneRenderer->DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetColor());
+        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetColor());
         
 		selectionManager->PushObject(it);
 
@@ -254,9 +248,9 @@ void SceneRenderer::RenderHelperGeometry(SelectionManager* selectionManager)
 	glDisable(GL_BLEND);
 }
 
-int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event& e)
+int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event& e, float flFrameDelta)
 {
-	return m_pCamera->HandleEvent(bWasHandled, e);
+    return 0;
 }
 
 float SceneRenderer::FrameDelta()

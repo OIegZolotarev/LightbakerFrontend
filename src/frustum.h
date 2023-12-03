@@ -18,7 +18,7 @@ class Frustum
     
     void SetPlane(int i, const glm::vec3 &vecNormal, float dist);
 public:
-    void InitPerspective(Camera * pCamera);
+    void InitPerspective(class Camera * pCamera);
     
     void InitPerspective(const glm::vec3 & origin, 
                          const glm::vec3 & forward,

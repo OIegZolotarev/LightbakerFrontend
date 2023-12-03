@@ -23,34 +23,29 @@ class GLFramebufferObject
 
     GLuint m_uiFBOHandle;
 
-    GLuint m_uiColorTexture;
-    GLuint m_uiDepthTexture;
+    GLTexture *m_pColorTexture;
+    GLTexture *m_pDepthTexture;
+
     GLuint m_uiDepthRenderbuffer;
 
     int m_uiDimensions;
     int m_Width;
     int m_Height;
 
-    void SetupColorAttachment(GLuint texture);
-    void SetupDepthTextureAttachment(GLuint texture);
+    void SetupColorAttachment();
+    void SetupDepthTextureAttachment();
     void SetupDepthRenderbufferAttachment();
 
 public:
-    GLFramebufferObject(int width, int height, FBOType type, GLuint forcedColorTexture);
+    GLFramebufferObject(int width, int height, FBOType type);
     ~GLFramebufferObject();
 
     void Enable();
     void Disable();
+       
 
-    GLuint TextureHandle();
+    GLuint Width();
 
-    GLuint Width()
-    {
-        return m_Width;
-    }
-
-    GLuint Height()
-    {
-        return m_Height;
-    }
+    GLuint Height();
+    GLTexture *ColorTexture();
 };

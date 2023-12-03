@@ -9,23 +9,16 @@
 
 #define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
 
-GLFramebufferObject::GLFramebufferObject(int w, int h, FBOType type, GLuint forcedColorTexture)
-    : m_Type(type), m_Width(w), m_Height(h)
+GLFramebufferObject::GLFramebufferObject(int w, int h, FBOType type): m_Type(type), m_Width(w), m_Height(h)
 {
     glGenFramebuffers(1, &m_uiFBOHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, m_uiFBOHandle);
 
-    if (forcedColorTexture != -1)
-        m_uiColorTexture = forcedColorTexture;
-    else
-        glGenTextures(1, &m_uiColorTexture);
+    m_pColorTexture = new GLTexture("*FBOColor", TextureSource::FrameBufferColor, false);
+    m_pDepthTexture = new GLTexture("*FBODepth", TextureSource::FrameBufferDepth, false);
 
-    SetupColorAttachment(m_uiColorTexture);
 
-    m_uiDepthTexture = 0;
-    // glGenTextures(1, &m_uiDepthTexture);
-    // SetupColorAttachment(m_uiDepthTexture);
-
+    SetupColorAttachment(); 
     SetupDepthRenderbufferAttachment();
 
     assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
@@ -34,29 +27,31 @@ GLFramebufferObject::GLFramebufferObject(int w, int h, FBOType type, GLuint forc
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void GLFramebufferObject::SetupColorAttachment(GLuint texture)
+void GLFramebufferObject::SetupColorAttachment()
 {
-    glBindTexture(GL_TEXTURE_2D, texture);
+    m_pColorTexture->GenerateGLHandle();
+    m_pColorTexture->Bind(0, 0);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_Width, m_Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pColorTexture->GLTextureNum(), 0);
 }
 
-void GLFramebufferObject::SetupDepthTextureAttachment(GLuint texture)
+void GLFramebufferObject::SetupDepthTextureAttachment()
 {
-    glBindTexture(GL_TEXTURE_2D, texture);
-
+    m_pDepthTexture->GenerateGLHandle();
+    m_pDepthTexture->Bind(0, 0);
+    
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, m_Width, m_Height, 0, GL_DEPTH_STENCIL,
                  GL_UNSIGNED_INT_24_8, NULL);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, m_pDepthTexture->GLTextureNum(), 0);
 }
 
 void GLFramebufferObject::SetupDepthRenderbufferAttachment()
@@ -86,7 +81,18 @@ void GLFramebufferObject::Disable()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-GLuint GLFramebufferObject::TextureHandle()
+GLuint GLFramebufferObject::Width()
 {
-    return m_uiColorTexture;
+    return m_Width;
 }
+
+GLuint GLFramebufferObject::Height()
+{
+    return m_Height;
+}
+
+GLTexture *GLFramebufferObject::ColorTexture()
+{
+    return m_pColorTexture;
+}
+

@@ -11,7 +11,7 @@
 
 //#define OLD_GL
 
-Camera::Camera(SceneRenderer *pSceneRenderer)
+Camera::Camera(Viewport * pViewport)
 {
     auto settings = Application::Instance()->GetPersistentStorage();
 
@@ -33,8 +33,9 @@ Camera::Camera(SceneRenderer *pSceneRenderer)
     m_matProjection = glm::mat4(1.f);
 
     SetupCommonKeystrokesCallbacks();
-    SetupKeystrokes();
-    m_pSceneRenderer = pSceneRenderer;
+    SetupKeystrokes();    
+
+    m_pViewport = pViewport;
 }
 
 Camera::~Camera()
@@ -139,7 +140,7 @@ void Camera::SetupKeystrokesBlender()
 
 void Camera::SetupCommonKeystrokesCallbacks()
 {
-#define DEBUG_KEYSTROKES
+#define DEBUG_KEYSTROKES 
 
     callbackRotate = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackRotate(%d)\n", bHit);
@@ -187,12 +188,16 @@ void Camera::SetupCommonKeystrokesCallbacks()
     });
 
     callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
-        DEBUG_KEYSTROKES("callbackToggleFPSNavigation(%d)\n", bHit);
+        
+        if (bHit)
+            Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
+
+
 
         if (bHit)
         {
             auto windowHandle = Application::GetMainWindow()->Handle();
-            auto viewport     = Application::GetMainWindow()->Get3DGLViewport();
+            //auto viewport     = Application::GetMainWindow()->Get3DGLViewport();
 
             int winWidth  = Application::GetMainWindow()->Width();
             int winHeight = Application::GetMainWindow()->Height();
@@ -205,6 +210,21 @@ void Camera::SetupCommonKeystrokesCallbacks()
             SDL_ShowCursor(SDL_ENABLE);
 
             m_bFPSNavigation = !m_bFPSNavigation;
+
+            Con_Printf("FPS state %d in %s\n", m_bFPSNavigation, m_pViewport->Name());
+
+            if (m_bFPSNavigation)
+            {
+                Application::Instance()->HideMouseCursor();
+                SDL_SetRelativeMouseMode(SDL_TRUE);                           
+            }
+            else
+            {
+                 Application::Instance()->ShowMouseCursor();
+                 SDL_SetRelativeMouseMode(SDL_FALSE);
+                 m_Mode = CameraMouseModes::None;
+            }
+
         }
     });
 
@@ -254,9 +274,9 @@ glm::vec3 &Camera::GetOrigin()
     return m_Origin;
 }
 
-void Camera::Apply()
+void Camera::Apply(float flFrameDelta)
 {
-    UpdateOrientation();
+    UpdateOrientation(flFrameDelta);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -306,31 +326,30 @@ float* Camera::GetProjectionMatrixPtr() const
     return (float *)&m_matProjection[0][0];
 }
 
-int Camera::HandleEvent(bool bWasHandled, SDL_Event &event)
+int Camera::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
 {
-    switch (event.type)
+    switch (e.type)
     {
     case SDL_MOUSEMOTION:
-        return MouseMotionEvent(event);
+        return MouseMotionEvent(e, flFrameDelta);
         break;
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
     case SDL_KEYUP:
     case SDL_KEYDOWN:
-        return ButtonEvent(event);
+        return ButtonEvent(e);
         break;
     case SDL_MOUSEWHEEL:
-        return MouseWheelEvent(event);
+        return MouseWheelEvent(e, flFrameDelta);
         break;
     }
 
     return 0;
 }
 
-void Camera::UpdateOrientation()
-{
-    float flFrameDelta  = m_pSceneRenderer->FrameDelta();
-    bool recalcPosition = CalcMovementSpeeds();
+void Camera::UpdateOrientation(float flFrameDelta)
+{    
+    bool recalcPosition = CalcMovementSpeeds(flFrameDelta);
 
     if (m_bFPSNavigation)
     {
@@ -341,20 +360,6 @@ void Camera::UpdateOrientation()
         SDL_GetMouseState(&x, &y);
 
         m_Mode = CameraMouseModes::Rotate;
-
-        //         int winWidth  = Application::GetMainWindow()->Width();
-        //         int winHeight = Application::GetMainWindow()->Height();
-        //
-        //         int mx = winWidth / 2;
-        //         int my = winHeight / 2;
-        //
-        //         float xDelta = (x - mx);
-        //         float yDelta = (y - my);
-        //
-        //         m_Angles[PITCH] += yDelta * 100 * flFrameDelta;
-        // m_Angles[YAW] += xDelta * 100 * flFrameDelta;
-
-        // Con_Printf("Pitch: %f\n", m_Angles[PITCH]);
 
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
@@ -371,22 +376,20 @@ void Camera::UpdateOrientation()
                         (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
                         (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
 
-        Application::Instance()->ShowMouseCursor();
-        SDL_SetRelativeMouseMode(SDL_FALSE);
-        m_Mode = CameraMouseModes::None;
+
+        
     }
 
     if (recalcPosition)
         Application::GetMainWindow()->UpdateStatusbar(1<<StatusbarField::Position);
 }
 
-bool Camera::CalcMovementSpeeds()
+bool Camera::CalcMovementSpeeds(float flFrameDelta)
 {
     if (!m_bFPSNavigation)
         for (int i = 0; i < 3; i++)
             m_IdealMoveSpeeds[i] = 0;
 
-    float flFrameDelta = m_pSceneRenderer->FrameDelta();
     float acceleration = m_pAccelSpeed->GetFloat();
     float deceleration = m_pDeccelSpeed->GetFloat();
 
@@ -497,6 +500,16 @@ Frustum *Camera::GetFrustum()
     return &m_Frustum;
 }
 
+glm::vec3 Camera::GetMoveSpeed()
+{
+    return *(glm::vec3*)(m_IdealMoveSpeeds);
+}
+
+bool Camera::IsFPSNavigationEngaged()
+{
+    return m_bFPSNavigation;
+}
+
 glm::vec3 Camera::GetRightVector()
 {
     return m_vRight;
@@ -574,21 +587,12 @@ void Camera::SetUpSpeed(const int moveSpeed)
     m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
-int Camera::MouseMotionEvent(SDL_Event &_event)
+int Camera::MouseMotionEvent(SDL_Event & _event, float flFrameDelta)
 {
-    auto event = _event.motion;
-
-    float flFrameDelta = m_pSceneRenderer->FrameDelta();
-    // 	float flDist = std::max(glm::length(m_Origin),0.1f);
-    //
-    // 	if (isnan(flDist))
-    // 	{
-    // 		flDist = 10;
-    // 		m_Origin = glm::vec3(0, 0, 10);
-    // 		return 0;
-    // 	}
-
+    auto  event  = _event.motion;
     float flDist = m_pMoveSpeed->GetFloat();
+
+    //Con_Printf("MouseMotion: %d %d [%d]\n", event.xrel, event.yrel, m_Mode);
 
     switch (m_Mode)
     {
@@ -604,6 +608,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event)
     case CameraMouseModes::Rotate: {
         float xDelta = event.xrel;
         float yDelta = event.yrel;
+        
+        
 
         m_Angles[PITCH] += yDelta * m_pCameraSensivityRotation->GetFloat();
         m_Angles[YAW] += xDelta * m_pCameraSensivityRotation->GetFloat();
@@ -676,12 +682,9 @@ int Camera::ButtonEvent(SDL_Event &_event)
         return 0;
 }
 
-int Camera::MouseWheelEvent(SDL_Event &_event)
+int Camera::MouseWheelEvent(SDL_Event & _event, float flFrameDelta)
 {
-    auto event = _event.motion;
-
-    float flFrameDelta = m_pSceneRenderer->FrameDelta();
-
+    auto event = _event.motion;    
     float flDist = glm::length(m_Origin);
 
     if (isnan(flDist))

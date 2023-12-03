@@ -12,15 +12,8 @@
 #include "main_window.h"
 #include "model_obj.h"
 #include "scene.h"
+#include "viewport.h"
 
-enum class RenderMode
-{
-    Unshaded = 0,
-    Lightshaded,
-    Groups,
-    WireframeUnshaded,
-    WireframeShaded
-};
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -40,10 +33,12 @@ public:
 
     class Camera *GetCamera();
 
-    void RenderScene();
+    void RenderScene(Viewport * pViewport);
+
+
     void RenderHelperGeometry(SelectionManager *selectionManager);
 
-    int   HandleEvent(bool bWasHandled, SDL_Event &e) override;
+    int   HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
     float FrameDelta();
 
     void LoadModel(const char *dropped_filedir, int loadFlags);
@@ -68,7 +63,8 @@ private:
 
     void Debug_DrawGround();
 
-    class Camera *    m_pCamera;
+    Camera *    m_pCamera;
+
     class MainWindow *m_pTargetWindow;
     Scene *           m_pScene;
 

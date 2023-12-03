@@ -92,6 +92,9 @@ private:
 
 	float m_flBakingPercentage = 0;
 	bool m_bDoBakingAgain = false;
+
+public:
+    bool IsMouseCursorVisible();
 };
  
  inline int Con_Printf(const char* fmt, ...)

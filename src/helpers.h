@@ -8,7 +8,9 @@
 
 typedef unsigned char byte;
 
+#ifndef ARRAYSIZE
 #define ARRAYSIZE(a) (sizeof(a) / sizeof(a[0]))
+#endif
 
 #ifdef _MSC_VER
 // not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
