@@ -7,6 +7,7 @@
 
 #include "common.h"
 
+// Type hint, not used really (yet)
 enum class FBOType
 {
     RGBA = 0,
@@ -26,16 +27,16 @@ class GLFramebufferObject
     GLuint m_uiDepthTexture;
     GLuint m_uiDepthRenderbuffer;
 
-    size_t m_uiDimensions;
-    size_t m_Width;
-    size_t m_Height;
+    int m_uiDimensions;
+    int m_Width;
+    int m_Height;
 
     void SetupColorAttachment(GLuint texture);
     void SetupDepthTextureAttachment(GLuint texture);
     void SetupDepthRenderbufferAttachment();
 
 public:
-    GLFramebufferObject(size_t width, size_t height, FBOType type, GLuint forcedColorTexture);
+    GLFramebufferObject(int width, int height, FBOType type, GLuint forcedColorTexture);
     ~GLFramebufferObject();
 
     void Enable();

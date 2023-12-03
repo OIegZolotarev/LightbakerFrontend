@@ -3,10 +3,10 @@
 	(c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "common.h"
 #include "lights.h"
 #include "scene_renderer.h"
-#include "application.h"
 #include "object_props.h"
 #include "properties_editor.h"
 #include "common_resources.h"

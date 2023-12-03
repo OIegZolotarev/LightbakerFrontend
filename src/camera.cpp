@@ -3,10 +3,10 @@
     (c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "camera.h"
 #include "common.h"
 
-#include "application.h"
 #include <algorithm>
 
 //#define OLD_GL

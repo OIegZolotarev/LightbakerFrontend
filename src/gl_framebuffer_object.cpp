@@ -9,7 +9,7 @@
 
 #define GL_DEPTH_STENCIL_ATTACHMENT 0x821A
 
-GLFramebufferObject::GLFramebufferObject(size_t w, size_t h, FBOType type, GLuint forcedColorTexture)
+GLFramebufferObject::GLFramebufferObject(int w, int h, FBOType type, GLuint forcedColorTexture)
     : m_Type(type), m_Width(w), m_Height(h)
 {
     glGenFramebuffers(1, &m_uiFBOHandle);
@@ -28,10 +28,8 @@ GLFramebufferObject::GLFramebufferObject(size_t w, size_t h, FBOType type, GLuin
 
     SetupDepthRenderbufferAttachment();
 
-    if (!(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE))
-    {
-        Application::EPICFAIL("glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) != GL_FRAMEBUFFER_COMPLETE_EXT");
-    }
+    assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

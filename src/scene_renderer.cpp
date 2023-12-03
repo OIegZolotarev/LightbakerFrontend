@@ -3,11 +3,11 @@
 	(c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "common.h"
 #include "camera.h"
 #include "scene_renderer.h"
 #include "scene.h"
-#include "application.h"
 #include "common_resources.h"
 #include "selection_3d.h"
 #include "draw_utils.h"
