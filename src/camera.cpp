@@ -473,10 +473,10 @@ const float Camera::GetFOVY(const float aspect)
 
 const float Camera::AspectRatio()
 {
-    auto vp = Application::GetMainWindow()->Get3DGLViewport();
+    glm::vec2 vp = m_pViewport->GetClientArea();
 
-    float m_iWidth  = vp[2];
-    float m_iHeight = vp[3];
+    float m_iWidth  = vp[0];
+    float m_iHeight = vp[1];
 
     if (!m_iWidth || !m_iHeight)
         return 1;

@@ -15,10 +15,6 @@
 class ModelObjWorld: public IWorldEntity
 {
 	ModelOBJ* m_pObjWorld = nullptr;
-
-    GoldSource::BSPLevel *m_pBSPWorld       = nullptr;
-    GoldSource::BSPRenderer *m_pBSPRenderer = nullptr;
-
 public:
 
 	ModelObjWorld(const char* fileName);
