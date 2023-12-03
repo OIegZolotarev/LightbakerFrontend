@@ -24,6 +24,7 @@
 #include "wad_textures.h"
 #include "popup_loadfile_dialog.h"
 #include <list>
+#include "viewport.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -173,6 +174,9 @@ void MainWindow::InitBackend()
         
     InitBackgroundRenderer();
     TextureManager::Instance()->OnGLInit();
+
+    InitViewports();
+
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -291,6 +295,42 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
     return gIDMainDockspace;
 }
 
+void MainWindow::InitViewports()
+{
+    for (int i = 0; i < 4; i++)
+        m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
+}
+
+void MainWindow::DisplayViewportContents()
+{
+
+    auto shader = GLBackend::Instance()->HelperGeometryShader();
+
+    shader->Bind();
+    shader->SetDefaultCamera();
+    shader->SetTransformIdentity();
+    shader->SetColor({1, 0, 1, 1});
+    shader->SetScale({1, 1, 1});
+    shader->SetTransform(glm::mat4x4(1.f));
+
+    static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+    mesh.Begin(GL_TRIANGLE_STRIP);
+    
+    mesh.Color3f(1, 0, 0);
+    mesh.Vertex2f(-1, -1);   
+    mesh.Vertex2f(+1, -1);   
+    mesh.Vertex2f(-1, +1);    
+    mesh.Vertex2f(+1, +1);
+    
+
+    mesh.End();
+    mesh.BindAndDraw();
+
+    shader->Unbind();
+
+}
+
 void MainWindow::SetTitle(std::string &fileName)
 {
     m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} - {0}", fileName, Application::Q_buildnum());
@@ -388,7 +428,12 @@ void MainWindow::MainLoop()
 // 
 //         glDisable(GL_SCISSOR_TEST);
 
-        m_pSceneRenderer->RenderScene();
+        for (auto it : m_Viewports)
+            it->RenderFrame();
+
+        DisplayViewportContents();
+
+        //m_pSceneRenderer->RenderScene();
 
         LoaderThread::Instance()->ExecuteEndCallbacks(10);
 

@@ -11,6 +11,7 @@
 #include "object_props.h"
 #include "scene_renderer.h"
 #include "ui_common.h"
+#include "viewport.h"
 
 BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
 
@@ -151,4 +152,8 @@ private:
     DrawMesh *     m_pBackgroundMesh;
 
     statusBarData m_statusBarData;
+
+    class Viewport* m_Viewports[4];
+    void      InitViewports();
+    void      DisplayViewportContents();
 };
