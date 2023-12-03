@@ -6,6 +6,7 @@
 #include "application.h"
 #include "viewport.h"
 #include "gl_screenspace_2d_renderer.h"
+#include "imgui_internal.h"
 
 
  Viewport::Viewport(AnchoringCorner anchoringBits)
@@ -49,8 +50,15 @@ void Viewport::DisplayRenderedFrame()
 
     int *viewport = Application::GetMainWindow()->Get3DGLViewport();
 
-    if (ImGui::Begin(m_strName.c_str()))
-    {        
+    ImGuiWindowClass window_class;
+    window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+
+    ImGui::SetNextWindowClass(&window_class);
+
+    if (ImGui::Begin(m_strName.c_str(), 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar))
+    {   
+        
+
         if (Application::Instance()->IsMouseCursorVisible())
             m_bHovered = ImGui::IsWindowHovered();
 
@@ -72,6 +80,14 @@ void Viewport::DisplayRenderedFrame()
         float uv_y = viewportSize.y / (m_Extents.y);
 
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
+
+        auto & style = ImGui::GetStyle();
+
+        ImGui::SetCursorPos(style.FramePadding * 2.f);
+        if (ImGui::Button("3D Textured"))
+        {
+        }
+
         ImGui::End();
     }
 
@@ -103,4 +119,9 @@ void Viewport::OutputDebug()
 const char *Viewport::Name()
 {
     return m_strName.c_str();
+}
+
+glm::vec2 Viewport::GetClientArea()
+{
+    return m_ClientAreaSize;
 }

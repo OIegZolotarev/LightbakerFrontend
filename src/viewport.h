@@ -48,4 +48,5 @@ public:
 
     void OutputDebug();
     const char *Name();
+    glm::vec2   GetClientArea();
 };
