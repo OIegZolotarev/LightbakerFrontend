@@ -40,7 +40,12 @@ void BSPEntity::SetKeyValue(std::string &key, std::string &value)
         {
             int i = 0;
             for (auto it = digits.begin(); it != digits.end(); it++, i++)
+            {
                 origin[i] = std::stof(*it);
+
+                if (isnan(origin[i]))
+                    origin[i] = 0;
+            }
         }
 
         SetPosition(ConvertOriginToSceneSpace(origin));

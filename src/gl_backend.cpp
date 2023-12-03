@@ -57,24 +57,34 @@ void DrawMesh::Unbind()
 
 void DrawMesh::Begin(GLenum mode)
 {
-    if (m_vboId != 0)
-        glDeleteBuffers(1, &m_vboId);
-
-    if (m_vaoId != 0)
-        glDeleteVertexArrays(1, &m_vaoId);
+//     if (m_vboId != 0)
+//         glDeleteBuffers(1, &m_vboId);
+// 
+//     if (m_vaoId != 0)
+//         glDeleteVertexArrays(1, &m_vaoId);
 
     m_drawMode = mode;
-    glGenBuffers(1, &m_vboId);
-    glGenVertexArrays(1, &m_vaoId);
+
+
+    if (!m_vboId)
+        glGenBuffers(1, &m_vboId);
+
+    if (!m_vaoId)
+        glGenVertexArrays(1, &m_vaoId);
 }
 
 void DrawMesh::End()
 {
-    glGenVertexArrays(1, &m_vaoId);
     glBindVertexArray(m_vaoId);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), GL_STATIC_DRAW);
+    
+    GLenum use = GL_STATIC_DRAW;
+
+    if (m_iFlags & DrawMeshFlags::Dynamic)
+        use = GL_DYNAMIC_DRAW;
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), use);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
     glEnableVertexAttribArray(0);

@@ -203,7 +203,9 @@ build.bat
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
+    <ClCompile Include="frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
+    <ClCompile Include="gl_debuging_graphics.cpp" />
     <ClCompile Include="gl_texture.cpp" />
     <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
@@ -237,6 +239,7 @@ build.bat
     <ClCompile Include="imgui_popups.h" />
     <ClCompile Include="img_goldsource_spr.cpp" />
     <ClCompile Include="inputfield_ex.cpp" />
+    <ClCompile Include="mathlib.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
@@ -288,7 +291,9 @@ build.bat
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
+    <ClInclude Include="frustum.h" />
     <ClInclude Include="game_configuration.h" />
+    <ClInclude Include="gl_debuging_graphics.h" />
     <ClInclude Include="gl_texture.h" />
     <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
@@ -327,6 +332,7 @@ build.bat
     <ClInclude Include="img_goldsource_spr.h" />
     <ClInclude Include="inputfield_ex.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
+    <ClInclude Include="mathlib.h" />
     <ClInclude Include="spritegn.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />

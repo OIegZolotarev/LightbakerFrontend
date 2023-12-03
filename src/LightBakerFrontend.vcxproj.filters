@@ -24,9 +24,6 @@
     <Filter Include="Исходные файлы\ImGuizmo">
       <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\shaders">
-      <UniqueIdentifier>{b0d749ae-a0f5-4083-9653-8f3311bd93b0}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Popups">
       <UniqueIdentifier>{79dfe3a4-2732-4f60-b6c1-af22b80a52a5}</UniqueIdentifier>
     </Filter>
@@ -53,9 +50,6 @@
     </Filter>
     <Filter Include="Исходные файлы\PersistentParameters">
       <UniqueIdentifier>{fcdd47aa-f3fd-4a5a-8922-2838ebdc544d}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\shaders\Derived">
-      <UniqueIdentifier>{51ff2c1e-4afe-4cc2-bbe8-e2980f7fce6e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Исходные файлы\Scene\GoldSource">
       <UniqueIdentifier>{413183a5-2846-4863-88f0-7adb8e143a39}</UniqueIdentifier>
@@ -84,7 +78,16 @@
     <Filter Include="Исходные файлы\ImGUI\custom widgets">
       <UniqueIdentifier>{627ce8da-ba4d-4bba-9ce1-4706f5d758c1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Textures">
+    <Filter Include="Исходные файлы\OpenGL Backend">
+      <UniqueIdentifier>{cf32cad2-cb3e-4967-b480-6be293f7b68d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\OpenGL Backend\shaders">
+      <UniqueIdentifier>{b0d749ae-a0f5-4083-9653-8f3311bd93b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\OpenGL Backend\shaders\Derived">
+      <UniqueIdentifier>{51ff2c1e-4afe-4cc2-bbe8-e2980f7fce6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\OpenGL Backend\Textures">
       <UniqueIdentifier>{ee7760aa-8d02-4886-910e-8eaf6b50b7dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -105,9 +108,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="file_system.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
@@ -131,9 +131,6 @@
     <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="gl_backend.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="draw_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -150,7 +147,7 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="scene_shader.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClCompile>
     <ClCompile Include="imgui_popups.h">
       <Filter>Исходные файлы\Popups</Filter>
@@ -264,22 +261,22 @@
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="shader_program.cpp">
-      <Filter>Исходные файлы\shaders</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClCompile>
     <ClCompile Include="spotlight_cone_shader.cpp">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="lightmapped_scene_shader.cpp">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="helper_geometry_shader.cpp">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="geometry_selection_shader.cpp">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="editor_grid_shader.cpp">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="scene_entity.cpp">
       <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
@@ -333,13 +330,28 @@
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClCompile>
     <ClCompile Include="wad_textures.cpp">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
     <ClCompile Include="gl_texture.cpp">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
     <ClCompile Include="img_goldsource_spr.cpp">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="frustum.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mathlib.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_debuging_graphics.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -362,9 +374,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="file_system.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="event_handler.h">
@@ -397,9 +406,6 @@
     <ClInclude Include="selection_3d.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="gl_backend.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="draw_utils.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -422,7 +428,7 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="scene_shader.h">
-      <Filter>Исходные файлы\shaders</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClInclude>
     <ClInclude Include="popup_loadfile_dialog.h">
       <Filter>Исходные файлы\Popups</Filter>
@@ -467,7 +473,7 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="shader_program.h">
-      <Filter>Исходные файлы\shaders</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClInclude>
     <ClInclude Include="lights.h">
       <Filter>Исходные файлы\Scene\EntitiesWavefront</Filter>
@@ -539,19 +545,19 @@
       <Filter>GLSL</Filter>
     </ClInclude>
     <ClInclude Include="spotlight_cone_shader.h">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="lightmapped_scene_shader.h">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="helper_geometry_shader.h">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="geometry_selection_shader.h">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="editor_grid_shader.h">
-      <Filter>Исходные файлы\shaders\Derived</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="scene_entity.h">
       <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
@@ -605,16 +611,31 @@
       <Filter>Исходные файлы\ImGUI\custom widgets</Filter>
     </ClInclude>
     <ClInclude Include="wad_textures.h">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
     <ClInclude Include="gl_texture.h">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
     <ClInclude Include="img_goldsource_spr.h">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
     <ClInclude Include="spritegn.h">
-      <Filter>Исходные файлы\Textures</Filter>
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="mathlib.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_backend.h">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_debuging_graphics.h">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

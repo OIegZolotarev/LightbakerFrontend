@@ -25,10 +25,11 @@ typedef struct drawVert_s
 
 enum DrawMeshFlags
 {
-    None    = 0,
-    NoColor = (1 << 0),
-    NoUV    = (1 << 1),
-    HasIndices = (1<<2)
+    None       = 0,
+    NoColor    = (1 << 0),
+    NoUV       = (1 << 1),
+    HasIndices = (1 << 2),
+    Dynamic    = (1 << 3)
 };
 
 class DrawMesh

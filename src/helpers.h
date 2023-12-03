@@ -4,6 +4,7 @@
 */
 
 #pragma once
+#include <memory>
 
 typedef unsigned char byte;
 

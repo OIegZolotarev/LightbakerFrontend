@@ -11,6 +11,7 @@
 #include "model_obj_world.h"
 #include "scene.h"
 #include "goldsource_bsp_world.h"
+#include "camera.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -154,6 +155,7 @@ void Scene::RenderObjectsFor3DSelection()
 void Scene::RenderLightShaded()
 {
     auto selectionManager = SelectionManager::Instance();
+    auto frustum = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera()->GetFrustum();
 
     for (auto &it : m_SceneEntities)
     {
@@ -162,6 +164,14 @@ void Scene::RenderLightShaded()
 
         if (!it->IsDataLoaded())
             continue;
+
+
+        // TODO: precalculate when origin\mins\maxs are changed
+        glm::vec3 absMins = it->GetPosition() + it->GetMins();
+        glm::vec3 absMaxs = it->GetPosition() + it->GetMaxs();
+
+         if (frustum->CullBox(absMins, absMaxs))
+             continue;
 
         it->RenderLightshaded();
         selectionManager->PushObject(it);

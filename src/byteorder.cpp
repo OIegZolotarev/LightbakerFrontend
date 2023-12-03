@@ -13,6 +13,7 @@
 *
 ****/
 
+#include "application.h"
 #include "common.h"
 #include "byteorder.h"
 

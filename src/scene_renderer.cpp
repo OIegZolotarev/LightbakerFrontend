@@ -534,8 +534,8 @@ void SceneRenderer::DumpLightmapUV()
 	m_pScene->DumpLightmapUV();
 }
 
-void SceneRenderer::RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs,
-                                             glm::vec3 m_Color)
+void SceneRenderer::RenderPointEntityDefault(const glm::vec3 & m_Position, const glm::vec3 & m_Mins, const glm::vec3 & m_Maxs,
+                                             const glm::vec3 & m_Color)
 {
     auto shader = GLBackend::Instance()->HelperGeometryShader();
 

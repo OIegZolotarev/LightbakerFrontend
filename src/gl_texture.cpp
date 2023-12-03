@@ -640,6 +640,11 @@ GLTexture* TextureManager::LoadWADTextureSynch(char *name)
     return pResult;
 }
 
+GLTexture *TextureManager::GetWhiteTexture()
+{
+    return Instance()->m_pWhiteTexture;
+}
+
 RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
 {
     // Load from file

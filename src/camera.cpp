@@ -268,10 +268,10 @@ void Camera::Apply()
 #ifdef OLD_GL
     glMatrixMode(GL_MODELVIEW);
 #endif
-
     
-
     SetupModelViewMatrix();
+
+    m_Frustum.InitPerspective(this);
 }
 
 void Camera::Reset()
@@ -455,6 +455,46 @@ void Camera::FormatControlsTip(std::string &dst)
     default:
         break;
     }
+}
+
+const float Camera::GetZFar()
+{
+    return m_pZFar->GetFloat();
+}
+
+const float Camera::GetFOVY(const float aspect)
+{
+    double fov = glm::radians(m_pFov->GetFloat());
+    return glm::degrees(2 * atan(tan(fov / 2) / aspect)); // Ìîÿ ôîðìóëà - ïëàâàåò?
+}
+
+const float Camera::AspectRatio()
+{
+    auto vp = Application::GetMainWindow()->Get3DGLViewport();
+
+    float m_iWidth  = vp[2];
+    float m_iHeight = vp[3];
+
+    if (!m_iWidth || !m_iHeight)
+        return 1;
+
+    double aspect = m_iWidth / m_iHeight;
+    return aspect;
+}
+
+const float Camera::GetZNear()
+{
+    return m_pZNear->GetFloat();
+}
+
+const float Camera::getFOVX()
+{
+    return m_pFov->GetFloat();
+}
+
+Frustum *Camera::GetFrustum()
+{
+    return &m_Frustum;
 }
 
 glm::vec3 Camera::GetRightVector()
@@ -753,7 +793,6 @@ void Camera::SetupModelViewMatrix()
     ident = glm::mat4(1);
     ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
     m_matModelView *= ident;
-
 #endif
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);

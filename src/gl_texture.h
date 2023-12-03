@@ -217,4 +217,5 @@ public:
     void PurgeTextures();
 
     static GLTexture *LoadWADTextureSynch(char *name);
+    static GLTexture *GetWhiteTexture();
 };
