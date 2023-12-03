@@ -734,14 +734,12 @@ int Camera::MouseWheelEvent(SDL_Event & _event, float flFrameDelta)
 
 void Camera::SetupPerspectiveMatrix()
 {
-
-
     double fov = glm::radians(m_pFov->GetFloat());
 
-    auto vp = Application::GetMainWindow()->Get3DGLViewport();
+    glm::vec2 vp = m_pViewport->GetClientArea();
 
-    float m_iWidth  = vp[2];
-    float m_iHeight = vp[3];
+    float m_iWidth  = vp[0];
+    float m_iHeight = vp[1];
 
     if (!m_iWidth || !m_iHeight)
         return;
