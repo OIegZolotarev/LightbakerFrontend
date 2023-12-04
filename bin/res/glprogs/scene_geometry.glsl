@@ -32,7 +32,7 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-out vec4 FragColor;
+#include "common_fragment.h"
   
 #ifdef DIFFUSEMAP
 uniform sampler2D diffuse;
@@ -57,7 +57,9 @@ void main()
 	vec4 lmSample = texture2D(lightmap,oLMCoord);
 	FragColor *= lmSample;
 	#endif
-    
+  
+	oSelColor = u_ObjectSerialNumber;
+  
 } 
 
 #endif

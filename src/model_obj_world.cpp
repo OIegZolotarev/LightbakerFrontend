@@ -56,12 +56,6 @@ void ModelObjWorld::RenderDebug()
 	
 }
 
-void ModelObjWorld::RenderForSelection(int objectId, class SceneRenderer* sc)
-{
-	if (m_pObjWorld)
-		m_pObjWorld->RenderForSelection(objectId, sc);
-}
-
 void ModelObjWorld::RenderGroupShaded()
 {
 	if (m_pObjWorld)
@@ -94,7 +88,7 @@ void ModelObjWorld::ReloadLightmaps()
 		m_pObjWorld->ReloadLightmapTextures();
 }
 
-void ModelObjWorld::OnAdditionToScene()
+void ModelObjWorld::OnAdditionToScene(Scene * pScene)
 {	
 }
 

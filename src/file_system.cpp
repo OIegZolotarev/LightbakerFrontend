@@ -454,7 +454,7 @@ FileHandleUncompressedArchive::FileHandleUncompressedArchive(FILE *fpArchive, si
     m_DataStart    = dataStart;
     m_DataLength   = dataLength;
 
-    fseek(m_pArchiveFile, m_DataStart, SEEK_SET);
+    _fseeki64(m_pArchiveFile, m_DataStart, SEEK_SET);
 }
 
 FileHandleUncompressedArchive::~FileHandleUncompressedArchive()

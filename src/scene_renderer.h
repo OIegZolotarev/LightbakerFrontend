@@ -44,8 +44,9 @@ public:
     void LoadModel(const char *dropped_filedir, int loadFlags);
     void ReloadScene(int loadFlags);
 
-    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint);
-    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const int index);
+    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint,
+                       const uint32_t objectSerialNumber);
+    
 
     void FocusCameraOnObject(SceneEntityPtr it);
 
@@ -85,7 +86,7 @@ private:
     void DumpLightmapUV();
 
 public:
-    void RenderPointEntityDefault(const glm::vec3 & m_Position, const glm::vec3 & m_Mins, const glm::vec3 & m_Maxs, const glm::vec3 & m_Color);
+    void RenderPointEntityDefault(const glm::vec3 & m_Position, const glm::vec3 & m_Mins, const glm::vec3 & m_Maxs, const glm::vec3 & m_Color, const uint32_t objectSerialNumber);
     glm::vec3 GetRenderPos();
-    void      DrawPointEntitySelection(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, int objectId);
+    
 };

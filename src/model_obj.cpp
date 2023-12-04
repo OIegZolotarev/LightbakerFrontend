@@ -267,28 +267,6 @@ void ModelOBJ::OnUnhovered()
 {
 }
 
-void ModelOBJ::RenderForSelection(int objectId, SceneRenderer *pRenderer)
-{
-    auto sceneReneder = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene        = sceneReneder->GetScene();
-
-    auto shader = GLBackend::Instance()->GeometrySelectionShader();
-
-    shader->Bind();
-
-    shader->SetTransformIdentity();
-    shader->SetScale(scene->GetSceneScale());
-
-    shader->SetDefaultCamera();
-    shader->SetObjectId(objectId);
-
-    mesh.Bind();
-    mesh.Draw(0, m_ModelData.faces.size());
-
-    mesh.Unbind();
-    shader->Unbind();
-}
-
 void ModelOBJ::RenderBoundingBox()
 {
     // throw std::logic_error("The method or operation is not implemented.");

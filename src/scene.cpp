@@ -174,7 +174,7 @@ void Scene::RenderLightShaded()
              continue;
 
         it->RenderLightshaded();
-        selectionManager->PushObject(it);
+        // selectionManager->PushObject(it);
     }
 }
 
@@ -344,7 +344,7 @@ void Scene::LoadLevel(const char *levelName)
     else
         m_SceneEntities.push_back(pLevelEntity);
 
-    pLevelEntity->OnAdditionToScene();
+    pLevelEntity->OnAdditionToScene(this);
 
     Application::GetMainWindow()->UpdateStatusbar(FL_UPDATE_ALL_STATUS_FIELDS);
 }
@@ -421,4 +421,9 @@ void Scene::DumpLightmapUV()
 GameConfigurationWeakPtr Scene::UsedGameConfiguration()
 {
     return m_pGameConfiguration;
+}
+
+uint32_t Scene::AllocSerialNumber()
+{    
+    return m_ObjectsCounter.Allocate();
 }

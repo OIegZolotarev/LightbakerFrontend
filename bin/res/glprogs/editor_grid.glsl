@@ -63,15 +63,20 @@ vec4 calcLineColor()
     return vec4(u_GridMainColor.rgb, 0);
 }
 
+layout(location = 0) out vec4 oFragColor;
+layout(location = 1) out int oSelColor;
+
 void main()
 {    
     
-    FragColor = calcLineColor();
-    FragColor.a = 0.f;
+    oFragColor = calcLineColor();
+    oFragColor.a = 0.f;
 
 
     if (isNthLine(u_GridStep))
-        FragColor.a = 1.f;
+        oFragColor.a = 1.f;
+								
+								oSelColor = 0;
       
 } 
 

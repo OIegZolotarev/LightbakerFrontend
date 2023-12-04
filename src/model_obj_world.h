@@ -28,7 +28,6 @@ public:
 
 	void RenderBoundingBox() override;
 	void RenderDebug() override;
-	void RenderForSelection(int objectId, class SceneRenderer*) override;
 	void RenderGroupShaded() override;
 	void RenderLightshaded() override;
 	void RenderUnshaded() override;
@@ -38,7 +37,7 @@ public:
 
 	virtual void ReloadLightmaps();
 
-	void OnAdditionToScene() override;
+	void OnAdditionToScene(Scene * pScene) override;
 
 
 	EntityClasses EntityClass() override;

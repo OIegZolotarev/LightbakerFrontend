@@ -88,14 +88,31 @@ void Frustum::DrawDebug()
 {
     glm::vec3 bbox[8];
 
-    auto shader = GLBackend::Instance()->HelperGeometryShader();
-
+    auto shader = GLBackend::Instance()->SolidColorGeometryShader();
     shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetTransformIdentity();
-    shader->SetColor({1,1,1,1});
-    shader->SetScale({1,1,1});
-    shader->SetTransform(glm::mat4x4(1.f));
+
+    for (auto & it: shader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color:
+            it->SetFloat4({1, 1, 1, 1});
+            break;
+        case UniformKind::TransformMatrix:
+            it->SetMat4(glm::mat4x4(1.f));
+            break;
+        default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
+
+    
+//     shader->SetDefaultCamera();
+//     shader->SetTransformIdentity();
+//     shader->SetColor({1,1,1,1});
+//     shader->SetScale({1,1,1});
+//     shader->SetTransform(glm::mat4x4(1.f));
 
     ComputeFrustumCorners(bbox);
 

@@ -55,7 +55,7 @@ class DrawMesh
     ~DrawMesh();
 
     void Bind();
-    void Draw(size_t first = 0, size_t num = 0);
+    void Draw(uint32_t first = 0, uint32_t num = 0);
     void Unbind();
 
     void Begin(GLenum mode);
@@ -107,8 +107,6 @@ class GLBackend
 {
     GLBackend();
 
-    HelperGeometryShaderProgram *m_pHelperGeometryShader = nullptr;
-
     // Scene render modes
     LightMappedSceneShaderProgram *m_pLightmappedSceneShader   = nullptr;
     DiffuseSceneShaderProgram *m_pDiffuseSceneShader           = nullptr;
@@ -127,6 +125,8 @@ class GLBackend
 
     std::list<ShaderProgram *> m_LoadedShaders;
 
+
+    ShaderProgram *m_pSolidGeometryShader;
   public:
 
     static GLBackend *Instance();
@@ -136,12 +136,13 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    const HelperGeometryShaderProgram *HelperGeometryShader() const;    
     const GeometrySelectionShaderProgram *GeometrySelectionShader() const;
     const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
     const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
     const GroupShadedSceneShaderProgram *GroupShadedSceneShader() const;
     const SpotlightConeShaderProgram *SpotlightConeShader() const;
+    
+    ShaderProgram *                 SolidColorGeometryShader() const;
 
     void ReloadAllShaders();
 
@@ -151,4 +152,6 @@ class GLBackend
     static void BindTexture(size_t unit, const GLTexture *texture);
     static void BindTexture(size_t unit, GLuint texture);
     static void SetUniformValue(ShaderUniform *it);
+
+
 };

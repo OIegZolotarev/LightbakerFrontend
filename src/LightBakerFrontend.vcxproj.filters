@@ -658,6 +658,9 @@
     <ClInclude Include="viewport_rendermodes.h">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
+    <ClInclude Include="..\bin\res\glprogs\common_fragment.h">
+      <Filter>GLSL</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -665,12 +668,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\bin\res\glprogs\helper_geometry.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\helper_geometry.vert">
-      <Filter>GLSL</Filter>
-    </None>
     <None Include="..\bin\res\glprogs\object_selection.frag">
       <Filter>GLSL</Filter>
     </None>
@@ -705,6 +702,15 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\billboard.glsl">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\background.glsl">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\screenspace_2d.glsl">
+      <Filter>GLSL</Filter>
+    </None>
+    <None Include="..\bin\res\glprogs\solidcolor_geom.glsl">
       <Filter>GLSL</Filter>
     </None>
   </ItemGroup>

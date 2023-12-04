@@ -70,7 +70,7 @@ public:
 
 class CCommandsRegistry
 {
-	std::vector<int>				 m_vecMainToolbarCommands;
+	std::vector<size_t>				 m_vecMainToolbarCommands;
 	std::vector<CCommand*>			 m_vecCommandDescriptor;
 public:
 	CCommandsRegistry();
@@ -78,7 +78,7 @@ public:
 
 	void				RegisterCommand(CCommand * pCommand);
 
-	std::vector<int>&	GetMainToolbarCommands();
+	std::vector<size_t> &GetMainToolbarCommands();
 	CCommand*			GetCommandByInternalIndex(int index);
 	CCommand*			FindCommandByGlobalId(GlobalCommands id);
 

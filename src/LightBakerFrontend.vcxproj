@@ -279,6 +279,7 @@ build.bat
     <ClCompile Include="model_obj_world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\bin\res\glprogs\common_fragment.h" />
     <ClInclude Include="..\bin\res\glprogs\common_vertex.h" />
     <ClInclude Include="..\include\better-enums\enum.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h" />
@@ -381,10 +382,9 @@ build.bat
     <ResourceCompile Include="LightBakerFrontend.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\res\glprogs\background.glsl" />
     <None Include="..\bin\res\glprogs\billboard.glsl" />
     <None Include="..\bin\res\glprogs\editor_grid.glsl" />
-    <None Include="..\bin\res\glprogs\helper_geometry.frag" />
-    <None Include="..\bin\res\glprogs\helper_geometry.vert" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />
     <None Include="..\bin\res\glprogs\object_selection.vert" />
     <None Include="..\bin\res\glprogs\scene_diffuse.frag" />
@@ -392,6 +392,8 @@ build.bat
     <None Include="..\bin\res\glprogs\scene_groupshaded.frag" />
     <None Include="..\bin\res\glprogs\scene_ligtmapped.frag" />
     <None Include="..\bin\res\glprogs\scene.vert" />
+    <None Include="..\bin\res\glprogs\screenspace_2d.glsl" />
+    <None Include="..\bin\res\glprogs\solidcolor_geom.glsl" />
     <None Include="..\bin\res\glprogs\spotlight_cone.frag" />
     <None Include="..\bin\res\glprogs\spotlight_cone.vert" />
     <None Include="hammer_fgd\hammer_fgd.y" />

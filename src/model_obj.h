@@ -53,7 +53,6 @@ public:
 	void OnSelect() override;
 	void OnUnSelect() override;
 	void OnUnhovered() override;
-	void RenderForSelection(int objectId, class SceneRenderer*) override;
 	
 	// Scene entity
 	void RenderBoundingBox() override;

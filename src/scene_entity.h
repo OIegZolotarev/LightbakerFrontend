@@ -36,22 +36,20 @@ class SceneEntity : public ISelectableObject
 {
     bool m_bDataLoaded = true;
 
-    size_t m_nSerialNumber = 0;
-
     std::size_t m_ClassNameHash;
     std::string m_ClassName;
-
-    // TODO: copy-constructor
-    // Обобщенные пары ключ-значение
-    typedef std::pair<std::string, std::string> kvData;
-    std::unordered_map<std::string, std::string> m_vProperties;
 
     EntityClasses m_EntityClass;
 
   protected:
     void SetClassName(const char *name);
-
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
+
+    
+    // TODO: copy-constructor
+    // Обобщенные пары ключ-значение
+    typedef std::pair<std::string, std::string>  kvData;
+    std::unordered_map<std::string, std::string> m_vProperties;
 
   public:
     SceneEntity();
@@ -65,7 +63,7 @@ class SceneEntity : public ISelectableObject
 
     virtual bool IsDataLoaded();
 
-    DECLARE_PROPERTY(size_t, SerialNumber);
+    DECLARE_PROPERTY(uint32_t, SerialNumber);
     DECLARE_PROPERTY(glm::vec3, Position);
 
     DECLARE_PROPERTY(glm::vec3, Mins);
@@ -79,12 +77,10 @@ class SceneEntity : public ISelectableObject
     void OnSelect() override;
     void OnUnSelect() override;
     void OnUnhovered() override;
-    
-    void RenderForSelection(int objectId, class SceneRenderer *) override;
 
     virtual const char *Description();
     virtual bool IsLightEntity();
-    virtual void OnAdditionToScene(){};
+    virtual void OnAdditionToScene(class Scene * pScene){};
 
     void CopyProperties(std::unordered_map<std::string, std::string> propsmap);
     std::unordered_map<std::string, std::string> GetProperties() const;

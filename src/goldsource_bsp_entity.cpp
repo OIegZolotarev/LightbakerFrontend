@@ -253,23 +253,14 @@ void BSPEntity::OnSelect()
     Con_Printf("BSPEntity::OnSelect(): %s\n", classname.c_str());
 }
 
-void BSPEntity::RenderForSelection(int objectId, SceneRenderer * sr)
-{
-
-    if (m_pEditorSprite)
-        sr->DrawBillboardSelection(m_Position, (m_Maxs - m_Mins).xy, objectId);
-    else
-        sr->DrawPointEntitySelection(m_Position, m_Mins, m_Maxs, objectId);
-}
-
 void BSPEntity::RenderUnshaded()
 {
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
 
     if (m_pEditorSprite)
-        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, {1.f, 1.f, 1.f});
+        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, {1.f, 1.f, 1.f}, GetSerialNumber());
     else
-        sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color);
+        sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color, GetSerialNumber());
 }
 
 void BSPEntity::RenderLightshaded()

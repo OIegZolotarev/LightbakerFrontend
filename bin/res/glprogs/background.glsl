@@ -27,7 +27,8 @@ in vec4 oVertexColor;
 void main()
 {
 		oFragColor = oVertexColor;	     	
-		oSelColor = 0x00000000;
+		//oSelColor = 0xFFFFFFFF;
+		oSelColor = 0;
 } 
 
 

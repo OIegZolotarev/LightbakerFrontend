@@ -17,10 +17,7 @@ namespace GoldSource
 class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
-
-    typedef std::pair<std::string, std::string> kvData;
-    std::unordered_map<std::string, std::string> m_vProperties;
-        
+            
     glm::vec3 ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin);
     static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
@@ -43,8 +40,6 @@ class BSPEntity : public SceneEntity
     void RenderGroupShaded() override;
     void RenderLightshaded() override;
     void RenderUnshaded() override;
-
-    void RenderForSelection(int objectId, class SceneRenderer *) override;
 
     void OnSelect() override;
 };

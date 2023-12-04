@@ -295,11 +295,6 @@ void Lb3kLightEntity::OnUnhovered()
 	
 }
 
-void Lb3kLightEntity::RenderForSelection(int objectId,SceneRenderer * pRenderer)
-{	
-	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(8, 8), objectId);
-}
-
 void Lb3kLightEntity::OnSelect()
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();

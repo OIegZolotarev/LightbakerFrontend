@@ -1115,12 +1115,18 @@ std::vector<GoldSource::msurface_t> & BSPLevel::GetFaces()
     return m_vFaces;
 }
 
-void BSPLevel::PopulateScene()
+void GoldSource::BSPLevel::PopulateScene(Scene * pScene)
 {
 	// TODO: design a proper way to link worldspawn and BSPWorld 
 	//
-	for (auto it : m_vEntities)
-		it->PopulateScene();
+
+	
+
+    for (auto it : m_vEntities)
+    {
+        it->SetSerialNumber(pScene->AllocSerialNumber());
+        it->PopulateScene();
+    }
 
 	
 	// Entities now owned by scene

@@ -44,7 +44,7 @@ SceneEntity::SceneEntity()
   
 SceneEntity::SceneEntity(SceneEntity& other)
 {
-	m_SerialNumber = other.m_nSerialNumber;
+	//m_SerialNumber = other.m_nSerialNumber;
 	m_Position = other.m_Position;
 
 	m_Mins = other.m_Mins;
@@ -115,11 +115,6 @@ void SceneEntity::OnUnSelect()
 }
 
 void SceneEntity::OnUnhovered()
-{
-	
-}
-
-void SceneEntity::RenderForSelection(int objectId, class SceneRenderer*)
 {
 	
 }

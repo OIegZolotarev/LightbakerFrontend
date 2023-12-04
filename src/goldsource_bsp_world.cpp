@@ -16,9 +16,9 @@ void BSPWorld::ReloadLightmaps()
     m_pLevel->ReloadLightmaps();
 }
 
-void BSPWorld::OnAdditionToScene()
+void GoldSource::BSPWorld::OnAdditionToScene(Scene * pScene)
 {
-    m_pLevel->PopulateScene();
+    m_pLevel->PopulateScene(pScene);
 }
 
 BSPWorld::BSPWorld(const char *levelName) 

@@ -33,7 +33,8 @@ static uniformDecl_t g_UniformDecl[]{
     {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3 , 0} ,
     {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT0},
     {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT1},
-    {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4   , 0}
+    {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4   , 0},
+    {"u_ObjectSerialNumber"  , UniformKind::ObjectSerialNumber  , UniformDataType::Int       , 0}
     // clang-format on
 };
 

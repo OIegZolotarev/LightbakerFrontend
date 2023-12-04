@@ -1,5 +1,8 @@
 #version 330
-out vec4 FragColor;
+
+
+layout(location = 0) out vec4 oFragColor;
+layout(location = 1) out int oSelColor;
   
 uniform sampler2D diffuse;
 uniform sampler2D lightmap;
@@ -12,5 +15,6 @@ void main()
 	vec4 lmSample = texture2D(lightmap,oLMCoord);
 	vec4 diffuseSample = texture2D(diffuse,oTexCoord);
 
-    FragColor = lmSample * diffuseSample;	
+    oFragColor = lmSample * diffuseSample;	
+				oSelColor = 0;
 } 

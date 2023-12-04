@@ -34,7 +34,7 @@ void CCommandsRegistry::RegisterCommand(CCommand* pCommand)
 		m_vecMainToolbarCommands.push_back(m_vecCommandDescriptor.size() - 1);
 }
 
-std::vector<int>& CCommandsRegistry::GetMainToolbarCommands()
+std::vector<size_t>& CCommandsRegistry::GetMainToolbarCommands()
 {
 	return m_vecMainToolbarCommands;
 }

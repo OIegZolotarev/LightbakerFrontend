@@ -20,7 +20,7 @@ class BSPWorld: public IWorldEntity
     ~BSPWorld();
 
     void ReloadLightmaps() override;
-    void OnAdditionToScene() override;
+    void OnAdditionToScene(Scene * pScene) override;
 
     void RenderLightshaded() override;
 
