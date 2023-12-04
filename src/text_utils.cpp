@@ -330,7 +330,21 @@ char CSVSettings::StringEscapeChar()
 	return m_cEscapeChar;
 }
 
-}
+} // namespace TextUtils
 
+// Cheers to G-Cont!
+const char *VA(const char *format, ...)
+{
+    va_list     argptr;
+    static char string[16][128], *s;
+    static int  stringindex = 0;
+
+    s           = string[stringindex];
+    stringindex = (stringindex + 1) & 15;
+    va_start(argptr, format);
+    vsnprintf(s, 128, format, argptr);
+    va_end(argptr);
+    return s;
+}
 
 

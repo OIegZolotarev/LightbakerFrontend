@@ -16,7 +16,9 @@
      // TODO: fix later
      static int counter = 0;
 
-     m_pFBO    = new GLFramebufferObject(m_Extents.x, m_Extents.y, FBOType::RGBA);
+     AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
+
+     m_pFBO    = new GLFramebufferObject(m_Extents.x, m_Extents.y, 2, fboTypes);
      m_strName = std::format("Viewport: {0}", (int)counter++);
 
      m_pCamera = new Camera(this);
@@ -70,7 +72,7 @@ void Viewport::DisplayRenderedFrame()
 
         //r->DrawQuad({10, 10}, {600, 600}, m_pFBO->ColorTexture());
 
-        auto textureId = m_pFBO->ColorTexture()->GLTextureNum();
+        auto textureId = m_pFBO->ColorTexture()->GLTextureNum(0);
 
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 

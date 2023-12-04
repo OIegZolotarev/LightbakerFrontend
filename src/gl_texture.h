@@ -29,8 +29,8 @@ enum class TextureSource
 
 typedef struct rawimage_s
 {
-    int    frameIndex = 0;
-    int    mipLevel   = 0;
+    int frameIndex = 0;
+    int mipLevel   = 0;
 
     byte * data       = nullptr;
     size_t dataLength = 0;
@@ -115,7 +115,7 @@ private:
 
     RawTexture *m_pRawTextureData;
 
-    size_t  m_NumFrames  = 0;
+    int     m_NumFrames  = 0;
     GLuint *m_uiGLTexnum = nullptr;
 
     size_t m_NumReferences = 0;
@@ -195,8 +195,6 @@ class TextureManager
     static RawTexture *DecodeGoldsourceSprite(const void *data, size_t length);
 
     TextureManager();
-
-    
 
 public:
     ~TextureManager();

@@ -362,6 +362,9 @@
     <ClCompile Include="gl_screenspace_2d_renderer.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
+    <ClCompile Include="mod_obj_data.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">

@@ -30,7 +30,7 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-out vec4 oFragColor;
+#include "common_fragment.h"
 
 #ifndef SELECTION
 uniform sampler2D u_Diffuse;
@@ -46,6 +46,10 @@ void main()
 #else
 	oFragColor = oVertexColor;	     
 #endif
+
+
+	oSelColor = u_ObjectSerialNumber;
+
 } 
 
 

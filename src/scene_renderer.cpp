@@ -139,15 +139,8 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 	m_RenderMode = pViewport->GetRenderMode();
 
 
-    auto selectionManager = SelectionManager::Instance();
-    
-    selectionManager->NewFrame(this);
 
-    if (DEBUG_3D_SELECTION)
-    {
-        m_pScene->RenderObjectsFor3DSelection();
-        return;
-    }
+	Application::GetMainWindow()->ClearBackground();
 
     // Render visible stuff
 
@@ -174,7 +167,7 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
             break;
         }
 
-        RenderHelperGeometry(selectionManager);
+        //RenderHelperGeometry(selectionManager);
     }
 
     if (showGround->GetAsBool())

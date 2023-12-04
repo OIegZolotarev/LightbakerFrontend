@@ -79,6 +79,7 @@ class SceneEntity : public ISelectableObject
     void OnSelect() override;
     void OnUnSelect() override;
     void OnUnhovered() override;
+    
     void RenderForSelection(int objectId, class SceneRenderer *) override;
 
     virtual const char *Description();

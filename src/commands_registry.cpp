@@ -189,7 +189,7 @@ void CCommand::RenderImGUI(int size)
 			Execute();
 		}
 	}
-#pragma warning(enable : 4312)
+#pragma warning(restore : 4312)
 }
 
 GlobalCommands CCommand::GetId()

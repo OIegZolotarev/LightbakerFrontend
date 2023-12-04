@@ -15,6 +15,7 @@ protected:
 public:
 
 	virtual void RenderForSelection(int objectId, class SceneRenderer*) = 0;
+
 	virtual	void OnHovered() = 0;
 	virtual void OnUnhovered() = 0;
 	virtual	void OnMouseMove(glm::vec2 delta) = 0;

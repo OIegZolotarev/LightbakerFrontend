@@ -241,6 +241,7 @@ build.bat
     <ClCompile Include="img_goldsource_spr.cpp" />
     <ClCompile Include="inputfield_ex.cpp" />
     <ClCompile Include="mathlib.cpp" />
+    <ClCompile Include="mod_obj_data.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />

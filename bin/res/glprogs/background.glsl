@@ -17,12 +17,17 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-out vec4 oFragColor;
+uniform int u_SelectionIndex;
+
+layout(location = 0) out vec4 oFragColor;
+layout(location = 1) out int oSelColor;
+
 in vec4 oVertexColor;
 
 void main()
 {
-	oFragColor = oVertexColor;	     	
+		oFragColor = oVertexColor;	     	
+		oSelColor = 0x00000000;
 } 
 
 

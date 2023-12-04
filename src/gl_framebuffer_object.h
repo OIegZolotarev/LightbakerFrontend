@@ -7,20 +7,16 @@
 
 #include "common.h"
 
-// Type hint, not used really (yet)
-enum class FBOType
+
+enum class AttachmentTypes
 {
     RGBA = 0,
-    Depth,
-    CubemapRGBA,
-    CubemapRGBA32,
-    CubemapR32F
+    R32UI,
+    ListEnd
 };
 
 class GLFramebufferObject
 {
-    FBOType m_Type;
-
     GLuint m_uiFBOHandle;
 
     GLTexture *m_pColorTexture;
@@ -32,12 +28,12 @@ class GLFramebufferObject
     int m_Width;
     int m_Height;
 
-    void SetupColorAttachment();
+    void SetupColorAttachment(int n, AttachmentTypes typeHint);
     void SetupDepthTextureAttachment();
     void SetupDepthRenderbufferAttachment();
 
 public:
-    GLFramebufferObject(int width, int height, FBOType type);
+    GLFramebufferObject(int width, int height, int nTargets = 1, AttachmentTypes * attachmentHints = 0);
     ~GLFramebufferObject();
 
     void Enable();
