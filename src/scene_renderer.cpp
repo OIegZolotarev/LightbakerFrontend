@@ -513,6 +513,9 @@ void SceneRenderer::RenderGenericEntity(SceneEntity *pEntity)
             it->SetFloat3({16.f, 16.f, 16.f});
         }
         break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(pEntity->GetSerialNumber());
+            break;
         default:
             GLBackend::SetUniformValue(it);
             break;

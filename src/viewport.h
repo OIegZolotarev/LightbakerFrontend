@@ -19,8 +19,8 @@ class Viewport: public IEventHandler
 
     std::string m_strName;
 
-    glm::vec2 m_Position;
-    glm::vec2 m_Extents;
+    glm::vec2 m_DisplayWidgetPosition;
+    glm::vec2 m_FrameBufferSize;
     glm::vec2 m_ClientAreaSize;
 
     Camera* m_pCamera;
@@ -30,12 +30,22 @@ class Viewport: public IEventHandler
 
     bool m_bHovered = false;
 
+    glm::vec2 CalcRelativeMousePos();
+    bool      PointInClientRect(glm::vec2 pt);
+
+    int ReadPixel(unsigned int x, unsigned int y); 
+
 public:
     Viewport(AnchoringCorner anchoringBits);
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
     void DisplayRenderedFrame();
+
+    void DisplayViewportUI();
+
+    void UpdateDisplayWidgetPos();
+
     
     int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
 

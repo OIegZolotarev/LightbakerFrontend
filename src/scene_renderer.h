@@ -34,9 +34,7 @@ public:
     class Camera *GetCamera();
 
     void RenderScene(Viewport * pViewport);
-
-
-    void RenderHelperGeometry(SelectionManager *selectionManager);
+    void RenderHelperGeometry();
 
     int   HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
     float FrameDelta();
