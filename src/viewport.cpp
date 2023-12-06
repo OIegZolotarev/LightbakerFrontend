@@ -214,7 +214,8 @@ void Viewport::UpdateDisplayWidgetPos()
 }
 
 int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
-{
+{    
+    // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
         m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
 
