@@ -44,6 +44,7 @@ Viewport::Viewport(AnchoringCorner anchoringBits)
 
      AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
 
+     // TODO: FBO pool for reusing by viewports
      m_pFBO    = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
      m_strName = std::format("Viewport: {0}", (int)counter++);
 
@@ -77,7 +78,9 @@ void Viewport::RenderFrame(float flFrameDelta)
 void Viewport::DisplayRenderedFrame()
 {
     if (!m_bVisible)
+    {
         return;
+    }
 
     ImGui::PushID(this);
 

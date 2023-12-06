@@ -37,7 +37,7 @@ class Viewport: public IEventHandler
     void DoCloneViewport();
 
     // Rendering
-    Camera* m_pCamera;
+    Camera* m_pCamera;    
     GLFramebufferObject *m_pFBO;
     RenderMode m_RenderMode = RenderMode::Lightshaded;
     int                  ReadPixel(unsigned int x, unsigned int y); 

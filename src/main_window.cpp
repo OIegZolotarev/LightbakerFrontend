@@ -328,33 +328,10 @@ void MainWindow::CloneViewport(Viewport *pViewport)
 
 void MainWindow::DisplayViewportContents()
 {
+    // TODO: destroy closed viewports
+
     for (auto &it : m_lstViewports)
         it->DisplayRenderedFrame();
-
-    //     auto shader = GLBackend::Instance()->HelperGeometryShader();
-    //
-    //     shader->Bind();
-    //     shader->SetDefaultCamera();
-    //     shader->SetTransformIdentity();
-    //     shader->SetColor({1, 0, 1, 1});
-    //     shader->SetScale({1, 1, 1});
-    //     shader->SetTransform(glm::mat4x4(1.f));
-    //
-    //     static DrawMesh mesh(DrawMeshFlags::Dynamic);
-    //
-    //     mesh.Begin(GL_TRIANGLE_STRIP);
-    //
-    //     mesh.Color3f(1, 0, 0);
-    //     mesh.Vertex2f(-1, -1);
-    //     mesh.Vertex2f(+1, -1);
-    //     mesh.Vertex2f(-1, +1);
-    //     mesh.Vertex2f(+1, +1);
-    //
-    //
-    //     mesh.End();
-    //     mesh.BindAndDraw();
-    //
-    //     shader->Unbind();
 }
 
 Viewport *MainWindow::GetViewport(int index)
@@ -447,29 +424,13 @@ void MainWindow::MainLoop()
         UpdateTimers();
         GL_BeginFrame();
 
-        // Multiple viewports
-        //         glEnable(GL_SCISSOR_TEST);
-        //         glScissor(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-        //         glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2] / 2, m_i3DViewport[3] / 2);
-        //         m_pSceneRenderer->RenderScene();
-        //
-        //
-        //         glScissor(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1], m_i3DViewport[2] / 2,
-        //         m_i3DViewport[3] / 2); glViewport(m_i3DViewport[0] + m_i3DViewport[2] / 2, m_i3DViewport[1],
-        //         m_i3DViewport[2] / 2, m_i3DViewport[3] / 2); m_pSceneRenderer->RenderScene();
-        //
-        //         glDisable(GL_SCISSOR_TEST);
-
         for (auto it : m_lstViewports)
             it->RenderFrame(m_TimersData.frame_delta / 1000);
-
-        // m_pSceneRenderer->RenderScene();
 
         LoaderThread::Instance()->ExecuteEndCallbacks(10);
 
         RenderGUI();
 
-        // LimitToTargetFPS();
         SDL_GL_SwapWindow(m_pSDLWindow);
     }
 }
@@ -831,10 +792,6 @@ void MainWindow::RenderGUI()
     {
         if (ImGui::BeginMenuBar())
         {
-            // auto camera = GetSceneRenderer()->GetCamera();
-            // std::string tip;
-            // camera->FormatControlsTip(tip);
-            // ImGui::Text(tip.c_str());
 
             ImGui::Text("%s", m_statusBarData.gameName.c_str());
 
@@ -874,8 +831,6 @@ void MainWindow::RenderGUI()
 
 
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    
 
 }
 
@@ -1030,7 +985,7 @@ bool MainWindow::HandleEvents(bool loop)
                     }
                 }
             }
-
+            
         case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEWHEEL:
         case SDL_KEYUP:
