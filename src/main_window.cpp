@@ -3,9 +3,9 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "main_window.h"
-#include "Camera.h"
 #include "application.h"
+#include "main_window.h"
+
 #include "common_resources.h"
 #include "console_output_panel.h"
 #include "debug_panel.h"
@@ -17,8 +17,6 @@
 #include "ui_common.h"
 #include "ui_styles_manager.h"
 
-#include "gl_screenspace_2d_renderer.h"
-#include "goldsource_bsp_disk_structs.h"
 #include "grid_renderer.h"
 #include "hammer_fgd.h"
 #include "imgui_helpers.h"
@@ -27,6 +25,7 @@
 #include "viewport.h"
 #include "wad_textures.h"
 #include <list>
+#include "gl_screenspace_2d_renderer.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -138,6 +137,11 @@ void MainWindow::InitBackend()
 
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
     io.MouseDrawCursor = true;
+
+
+    // ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+
+
 
     // char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
     char *p = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
@@ -296,16 +300,35 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 void MainWindow::InitViewports()
 {
-    for (int i = 0; i < NUM_VIEWPORTS; i++)
-    {
-        m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
-        m_vEventHandlers.push_back(m_Viewports[i]);
-    }
+//     for (int i = 0; i < NUM_VIEWPORTS; i++)
+//     {
+//         m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
+//         m_vEventHandlers.push_back(m_Viewports[i]);
+//     }
+
+
+    auto vp = new Viewport(AnchoringCorner::BottomLeft);
+    m_lstViewports.push_back(vp);
+    m_vEventHandlers.push_back(vp);
+
+    vp = new Viewport(AnchoringCorner::BottomLeft);
+    m_lstViewports.push_back(vp);
+    m_vEventHandlers.push_back(vp);
+
+    
+
+}
+
+void MainWindow::CloneViewport(Viewport *pViewport)
+{
+    auto vp = new Viewport(AnchoringCorner::BottomLeft);
+    m_lstViewports.push_back(vp);
+    m_vEventHandlers.push_back(vp);
 }
 
 void MainWindow::DisplayViewportContents()
 {
-    for (auto &it : m_Viewports)
+    for (auto &it : m_lstViewports)
         it->DisplayRenderedFrame();
 
     //     auto shader = GLBackend::Instance()->HelperGeometryShader();
@@ -336,7 +359,9 @@ void MainWindow::DisplayViewportContents()
 
 Viewport *MainWindow::GetViewport(int index)
 {
-    return m_Viewports[index];
+    auto it = m_lstViewports.begin();
+    std::advance(it, index);
+    return *it;
 }
 
 void MainWindow::SetTitle(std::string &fileName)
@@ -435,7 +460,7 @@ void MainWindow::MainLoop()
         //
         //         glDisable(GL_SCISSOR_TEST);
 
-        for (auto it : m_Viewports)
+        for (auto it : m_lstViewports)
             it->RenderFrame(m_TimersData.frame_delta / 1000);
 
         // m_pSceneRenderer->RenderScene();
@@ -838,7 +863,20 @@ void MainWindow::RenderGUI()
     DisplayViewportContents();
 
     ImGui::Render();
+
+    
+    // Update and Render additional Platform Windows
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+
+
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+    
+
 }
 
 void MainWindow::DrawLoadingBanner()
@@ -1033,7 +1071,7 @@ void MainWindow::GL_BeginFrame()
 
     // glClearColor(0.25, .25, .25, 1);
 
-    // ClearBackground();
+    ClearBackground();
 
     glClear(GL_DEPTH_BUFFER_BIT);
 

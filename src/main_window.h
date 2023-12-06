@@ -15,7 +15,7 @@
 
 BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
 
-#define FL_UPDATE_ALL_STATUS_FIELDS                                                                                        \
+#define FL_UPDATE_ALL_STATUS_FIELDS                                                                                    \
     (1 << StatusbarField::GameConfig | 1 << StatusbarField::Position | 1 << StatusbarField::ObjectDescription |        \
      1 << StatusbarField::ObjectSize | 1 << StatusbarField::GridStep)
 
@@ -52,7 +52,7 @@ typedef struct defaultDockSides_s
     ImGuiID idDockBottomRight;
 } defaultDockSides_t;
 
-#define NUM_VIEWPORTS 2
+#define NUM_VIEWPORTS 4
 
 class MainWindow
 {
@@ -80,7 +80,9 @@ public:
     void SetTitle(std::string &fileName);
 
     void UpdateStatusbar(int updateFlags);
-
+    
+    Viewport *GetViewport(int index);
+    void      CloneViewport(Viewport *pViewport);
 private:
     enum ToolbarIcons
     {
@@ -155,10 +157,12 @@ private:
 
     statusBarData m_statusBarData;
 
-    Viewport *m_Viewports[NUM_VIEWPORTS];
-    void      InitViewports();
-    void      DisplayViewportContents();
+    std::list<Viewport *> m_lstViewports;
 
-public:
-    Viewport *GetViewport(int index);
+    void InitViewports();
+    
+
+    void DisplayViewportContents();
+
+
 };

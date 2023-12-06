@@ -18,6 +18,7 @@ class Viewport: public IEventHandler
 {   
 
     std::string m_strName;
+    std::string m_strNamePopupKey;
 
     glm::vec2 m_DisplayWidgetPosition;
     glm::vec2 m_FrameBufferSize;
@@ -29,11 +30,14 @@ class Viewport: public IEventHandler
     RenderMode m_RenderMode = RenderMode::Lightshaded;
 
     bool m_bHovered = false;
+    bool m_bForceUndock = false;
 
     glm::vec2 CalcRelativeMousePos();
     bool      PointInClientRect(glm::vec2 pt);
 
     int ReadPixel(unsigned int x, unsigned int y); 
+
+    bool m_bDocked;
 
 public:
     Viewport(AnchoringCorner anchoringBits);
@@ -42,7 +46,7 @@ public:
     void RenderFrame(float flFrameDelta);
     void DisplayRenderedFrame();
 
-    void DisplayViewportUI();
+    void DisplayViewportUI(ImVec2 pos);
 
     void UpdateDisplayWidgetPos();
 
@@ -59,4 +63,7 @@ public:
     void OutputDebug();
     const char *Name();
     glm::vec2   GetClientArea();
+
+private:
+    void DoCloneViewport();
 };

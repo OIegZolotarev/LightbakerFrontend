@@ -47,6 +47,8 @@ Viewport::Viewport(AnchoringCorner anchoringBits)
      m_pFBO    = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
      m_strName = std::format("Viewport: {0}", (int)counter++);
 
+     m_strNamePopupKey = m_strName + "_popup";
+
      m_pCamera = new Camera(this);
  }
 
@@ -78,13 +80,26 @@ void Viewport::DisplayRenderedFrame()
 
     int *viewport = Application::GetMainWindow()->Get3DGLViewport();
 
-    ImGuiWindowClass window_class;
-    window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+    if (m_bDocked)
+    {
+        ImGuiWindowClass window_class;
+        window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
 
-    ImGui::SetNextWindowClass(&window_class);
+        ImGui::SetNextWindowClass(&window_class);
+    }
 
-    if (ImGui::Begin(m_strName.c_str(), 0, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar))
+    int flags = m_bDocked ? ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar : 0;
+
+    if (m_bForceUndock)
+    {
+        flags |= ImGuiWindowFlags_NoDocking;
+        m_bForceUndock = false;
+    }
+
+    if (ImGui::Begin(m_strName.c_str(), 0, flags))
     {        
+        m_bDocked = ImGui::IsWindowDocked();
+
         if (Application::Instance()->IsMouseCursorVisible())
             m_bHovered = ImGui::IsWindowHovered();
         
@@ -103,10 +118,12 @@ void Viewport::DisplayRenderedFrame()
         float uv_x = viewportSize.x / (m_FrameBufferSize.x);
         float uv_y = viewportSize.y / (m_FrameBufferSize.y);
 
+        auto pos = ImGui::GetCursorPos();
+
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
 
         UpdateDisplayWidgetPos();
-        DisplayViewportUI();
+        DisplayViewportUI(pos);
 
         ImGui::End();
     }
@@ -114,13 +131,58 @@ void Viewport::DisplayRenderedFrame()
     ImGui::PopID();
 }
 
-void Viewport::DisplayViewportUI()
+void Viewport::DisplayViewportUI(ImVec2 pos)
 {
-    auto &style = ImGui::GetStyle();
+//     auto &style = ImGui::GetStyle();
+// 
+//     if (m_bDocked)
+//     {
+//         ImGui::SetCursorPos(style.FramePadding * 2.f);
+//     }
+//     else
+//     {
+//         ImVec2 offset = style.FramePadding * 2.f;
+//         offset.y += style.WindowPadding.y;
+//         ImGui::SetCursorPos(offset);
+//     }
 
-    ImGui::SetCursorPos(style.FramePadding * 2.f);
+    ImGui::SetCursorPos(pos);
+
     if (ImGui::Button("3D Textured"))
     {
+        ImGui::OpenPopup(m_strNamePopupKey.c_str());
+    }
+
+    if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
+    {
+        ImGui::SeparatorText("3D View");
+        ImGui::MenuItem("3D Textured");
+        ImGui::MenuItem("3D Flatshaded");
+        ImGui::MenuItem("3D Wireframe");
+        ImGui::SeparatorText("2D View");
+        ImGui::MenuItem("Top");
+        ImGui::MenuItem("Side");
+        ImGui::MenuItem("Front");    
+
+        ImGui::Separator();
+
+        if (ImGui::MenuItem("Clone"))
+        {
+            DoCloneViewport();
+        }
+
+        if (m_bDocked)
+        {
+            
+            if (ImGui::MenuItem("Undock"))
+            {
+                m_bForceUndock = true;
+                m_bDocked      = false;
+            }
+        }
+
+
+        ImGui::EndPopup();
     }
 }
 
@@ -154,9 +216,12 @@ void Viewport::OutputDebug()
     auto pos = m_pCamera->GetOrigin();
     glm::vec3 spd = m_pCamera->GetAngles();
 
-    bool b = m_pCamera->IsFPSNavigationEngaged();
+    bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps: %d, hov: %d", m_strName.c_str(), pos.x, pos.y, pos.z, spd.x,spd.y,spd.z, b, m_bHovered);
+    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps_nav: %d, hov: %d, docked: %d", m_strName.c_str(),
+        pos.x, pos.y, pos.z, 
+        spd.x, spd.y, spd.z, 
+        bFPSNav, m_bHovered, m_bDocked);
     
     auto ratPos = CalcRelativeMousePos();
 
@@ -176,4 +241,9 @@ const char *Viewport::Name()
 glm::vec2 Viewport::GetClientArea()
 {
     return m_ClientAreaSize;
+}
+
+void Viewport::DoCloneViewport()
+{
+    Application::GetMainWindow()->CloneViewport(this);
 }
