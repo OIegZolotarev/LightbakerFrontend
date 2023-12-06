@@ -5,18 +5,17 @@
 
 #pragma once
 
+#include "camera.h"
+#include "event_handler.h"
+#include "gl_framebuffer_object.h"
 #include "mathlib.h"
 #include "scene_renderer.h"
-#include "camera.h"
-#include "gl_framebuffer_object.h"
 #include "viewport_rendermodes.h"
-#include "event_handler.h"
 
 BETTER_ENUM(AnchoringCorner, int, TopLeft, TopRight, BottomRight, BottomLeft);
 
-class Viewport: public IEventHandler
-{   
-
+class Viewport : public IEventHandler
+{
     // Window title and keys
     std::string m_strName;
     std::string m_strNamePopupKey;
@@ -29,46 +28,49 @@ class Viewport: public IEventHandler
     // State
     bool m_bHovered     = false;
     bool m_bForceUndock = false;
-    bool m_bDocked = false;
-    bool m_bVisible = true;
+    bool m_bDocked      = false;
+    bool m_bVisible     = true;
 
     bool m_bNeedUpdate = true;
-    
+
     void DoCloneViewport();
 
     // Rendering
-    Camera* m_pCamera;    
+    Camera *             m_pCamera;
     GLFramebufferObject *m_pFBO;
-    RenderMode m_RenderMode = RenderMode::Lightshaded;
-    int                  ReadPixel(unsigned int x, unsigned int y); 
+    RenderMode           m_RenderMode = RenderMode::Lightshaded;
+    int                  ReadPixel(unsigned int x, unsigned int y);
 
-    // Mouse utils    
+    // Mouse utils
     glm::vec2 CalcRelativeMousePos();
-    bool PointInClientRect(glm::vec2 pt);
+    bool      PointInClientRect(glm::vec2 pt);
 
     // Displaying
     void DisplayViewportUI(ImVec2 pos);
-    void UpdateDisplayWidgetPos();       
+    void UpdateDisplayWidgetPos();
 
-
+    // Object picking
+    void HanlePicker();
 
 public:
     Viewport(AnchoringCorner anchoringBits);
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
-    
+
     // Displaying
-    void DisplayRenderedFrame();    
+    void DisplayRenderedFrame();
+
     int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
 
     // Getters
-    Camera *GetCamera();
+    Camera *   GetCamera();
     RenderMode GetRenderMode();
 
-    void OutputDebug();
+    void        OutputDebug();
     const char *Name();
     glm::vec2   GetClientArea();
 
-
+private:
+    size_t m_hoveredObjectId;
 };

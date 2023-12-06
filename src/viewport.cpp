@@ -8,7 +8,6 @@
 #include "gl_screenspace_2d_renderer.h"
 #include "imgui_internal.h"
 
-
 glm::vec2 Viewport::CalcRelativeMousePos()
 {
     ImVec2 s = ImGui::GetMousePos();
@@ -37,21 +36,21 @@ int Viewport::ReadPixel(unsigned int x, unsigned int y)
 
 Viewport::Viewport(AnchoringCorner anchoringBits)
 {
-     m_FrameBufferSize = {2048, 2048};
+    m_FrameBufferSize = {2048, 2048};
 
-     // TODO: fix later
-     static int counter = 0;
+    // TODO: fix later
+    static int counter = 0;
 
-     AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
+    AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
 
-     // TODO: FBO pool for reusing by viewports
-     m_pFBO    = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
-     m_strName = std::format("Viewport: {0}", (int)counter++);
+    // TODO: FBO pool for reusing by viewports
+    m_pFBO    = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
+    m_strName = std::format("Viewport: {0}", (int)counter++);
 
-     m_strNamePopupKey = m_strName + "_popup";
+    m_strNamePopupKey = m_strName + "_popup";
 
-     m_pCamera = new Camera(this);
- }
+    m_pCamera = new Camera(this);
+}
 
 Viewport::~Viewport()
 {
@@ -61,7 +60,7 @@ Viewport::~Viewport()
 
 void Viewport::RenderFrame(float flFrameDelta)
 {
-    m_pFBO->Enable();   
+    m_pFBO->Enable();
     m_pCamera->Apply(flFrameDelta);
 
     glClear(GL_COLOR_BUFFER_BIT);
@@ -69,7 +68,6 @@ void Viewport::RenderFrame(float flFrameDelta)
 
     glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
 
-    
     sr->RenderScene(this);
 
     m_pFBO->Disable();
@@ -103,12 +101,12 @@ void Viewport::DisplayRenderedFrame()
     }
 
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
-    {        
+    {
         m_bDocked = ImGui::IsWindowDocked();
 
         if (Application::Instance()->IsMouseCursorVisible())
             m_bHovered = ImGui::IsWindowHovered();
-        
+
         auto r = GLScreenSpace2DRenderer::Instance();
 
         glDisable(GL_DEPTH_TEST);
@@ -119,7 +117,7 @@ void Viewport::DisplayRenderedFrame()
 
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 
-        m_ClientAreaSize = {viewportSize.x,viewportSize.y};
+        m_ClientAreaSize = {viewportSize.x, viewportSize.y};
 
         float uv_x = viewportSize.x / (m_FrameBufferSize.x);
         float uv_y = viewportSize.y / (m_FrameBufferSize.y);
@@ -134,24 +132,36 @@ void Viewport::DisplayRenderedFrame()
         ImGui::End();
     }
 
+    HanlePicker();
+    
     ImGui::PopID();
+}
+
+void Viewport::HanlePicker()
+{
+    auto ratPos = CalcRelativeMousePos();
+
+    if (PointInClientRect(ratPos))
+    {
+        m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
+
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        {
+            auto sr    = Application::GetMainWindow()->GetSceneRenderer();
+            auto scene = sr->GetScene();
+
+            auto obj = scene->GetEntityBySerialNumber(m_hoveredObjectId);
+            auto ptr = obj.lock();
+            if (ptr)
+            {
+                ptr->OnSelect();
+            }
+        }
+    }
 }
 
 void Viewport::DisplayViewportUI(ImVec2 pos)
 {
-//     auto &style = ImGui::GetStyle();
-// 
-//     if (m_bDocked)
-//     {
-//         ImGui::SetCursorPos(style.FramePadding * 2.f);
-//     }
-//     else
-//     {
-//         ImVec2 offset = style.FramePadding * 2.f;
-//         offset.y += style.WindowPadding.y;
-//         ImGui::SetCursorPos(offset);
-//     }
-
     ImGui::SetCursorPos(pos);
 
     if (ImGui::Button("3D Textured"))
@@ -168,7 +178,7 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
         ImGui::SeparatorText("2D View");
         ImGui::MenuItem("Top");
         ImGui::MenuItem("Side");
-        ImGui::MenuItem("Front");    
+        ImGui::MenuItem("Front");
 
         ImGui::Separator();
 
@@ -179,14 +189,12 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
         if (m_bDocked)
         {
-            
             if (ImGui::MenuItem("Undock"))
             {
                 m_bForceUndock = true;
                 m_bDocked      = false;
             }
         }
-
 
         ImGui::EndPopup();
     }
@@ -195,20 +203,21 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 void Viewport::UpdateDisplayWidgetPos()
 {
     ImVec2 vMin = ImGui::GetWindowContentRegionMin();
-//  ImVec2 vMax = ImGui::GetWindowContentRegionMax();
+    //  ImVec2 vMax = ImGui::GetWindowContentRegionMax();
 
     vMin.x += ImGui::GetWindowPos().x;
     vMin.y += ImGui::GetWindowPos().y;
-//     vMax.x += ImGui::GetWindowPos().x;
-//     vMax.y += ImGui::GetWindowPos().y;
+    //     vMax.x += ImGui::GetWindowPos().x;
+    //     vMax.y += ImGui::GetWindowPos().y;
 
     m_DisplayWidgetPosition = {vMin.x, vMin.y};
 }
 
 int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
 {
-    if (m_bHovered)        m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
-    
+    if (m_bHovered)
+        m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
+
     return 0;
 }
 
@@ -224,16 +233,14 @@ RenderMode Viewport::GetRenderMode()
 
 void Viewport::OutputDebug()
 {
-    auto pos = m_pCamera->GetOrigin();
+    auto      pos = m_pCamera->GetOrigin();
     glm::vec3 spd = m_pCamera->GetAngles();
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps_nav: %d, hov: %d, docked: %d", m_strName.c_str(),
-        pos.x, pos.y, pos.z, 
-        spd.x, spd.y, spd.z, 
-        bFPSNav, m_bHovered, m_bDocked);
-    
+    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps_nav: %d, hov: %d, docked: %d", m_strName.c_str(), pos.x,
+                pos.y, pos.z, spd.x, spd.y, spd.z, bFPSNav, m_bHovered, m_bDocked);
+
     auto ratPos = CalcRelativeMousePos();
 
     if (PointInClientRect(ratPos))
@@ -241,7 +248,6 @@ void Viewport::OutputDebug()
         int id = ReadPixel(ratPos.x, ratPos.y);
         ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, id);
     }
-
 }
 
 const char *Viewport::Name()
