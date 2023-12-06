@@ -21,8 +21,8 @@ BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, Object
 
 struct statusBarData
 {
-    std::string gameName          = "Conf.: H.L.A.M. DX Edition";
-    std::string position          = "Cam.: [200 500 300]";
+    std::string gameName          = "Conf.: <Conf. Name>";
+    std::string position          = "Cam.: [512 500 300]";
     std::string objectDescription = "Sel.: Brush with 12 faces";
     std::string objectSize        = "Dim.: [128x64x260]";
     std::string gridStep          = "Grid: 32 units";
@@ -83,6 +83,7 @@ public:
     
     Viewport *GetViewport(int index);
     void      CloneViewport(Viewport *pViewport);
+
 private:
     enum ToolbarIcons
     {
@@ -128,26 +129,29 @@ private:
     std::vector<IEventHandler *> m_vEventHandlers;
 
     bool PropagateControlsEvent(SDL_Event &e);
-    void InitCommands();
+    
 
     bool         m_bShowConsole = true;
     DebugConsole m_Console;
 
+    // Initialization
     void InitBackend();
+    void InitCommands();
     void InitBackgroundRenderer();
-    void InitDocks();
+    
 
+    // Docking
+    defaultDockSides_s       m_defaultDockSides;
+    std::vector<IGUIPanel *> m_vPanels;
+
+    void InitDocks();
     ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
                                   const ImGuiWindowClass *window_class);
 
-    int m_i3DViewport[4];
-
-    defaultDockSides_s m_defaultDockSides;
-
-    std::vector<IGUIPanel *> m_vPanels;
-
+    int m_i3DViewport[4];    
     float m_flBakingProgress = 0;
 
+    // Fancy backgound
     VariantValue *m_pBackgroudColorSetting1;
     VariantValue *m_pBackgroudColorSetting2;
     VariantValue *m_pUseGradientBackground;
@@ -157,11 +161,9 @@ private:
 
     statusBarData m_statusBarData;
 
+    // Viewports
     std::list<Viewport *> m_lstViewports;
-
-    void InitViewports();
-    
-
+    void InitViewports();  
     void DisplayViewportContents();
 
 

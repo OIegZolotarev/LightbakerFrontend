@@ -76,6 +76,9 @@ void Viewport::RenderFrame(float flFrameDelta)
 
 void Viewport::DisplayRenderedFrame()
 {
+    if (!m_bVisible)
+        return;
+
     ImGui::PushID(this);
 
     int *viewport = Application::GetMainWindow()->Get3DGLViewport();
@@ -96,7 +99,7 @@ void Viewport::DisplayRenderedFrame()
         m_bForceUndock = false;
     }
 
-    if (ImGui::Begin(m_strName.c_str(), 0, flags))
+    if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {        
         m_bDocked = ImGui::IsWindowDocked();
 
@@ -204,6 +207,11 @@ int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
     if (m_bHovered)        m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
     
     return 0;
+}
+
+Camera *Viewport::GetCamera()
+{
+    return m_pCamera;
 }
 
 RenderMode Viewport::GetRenderMode()

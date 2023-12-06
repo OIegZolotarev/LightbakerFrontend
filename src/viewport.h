@@ -17,53 +17,58 @@ BETTER_ENUM(AnchoringCorner, int, TopLeft, TopRight, BottomRight, BottomLeft);
 class Viewport: public IEventHandler
 {   
 
+    // Window title and keys
     std::string m_strName;
     std::string m_strNamePopupKey;
 
+    // Positioning
     glm::vec2 m_DisplayWidgetPosition;
     glm::vec2 m_FrameBufferSize;
     glm::vec2 m_ClientAreaSize;
 
+    // State
+    bool m_bHovered     = false;
+    bool m_bForceUndock = false;
+    bool m_bDocked = false;
+    bool m_bVisible = true;
+
+    bool m_bNeedUpdate = true;
+    
+    void DoCloneViewport();
+
+    // Rendering
     Camera* m_pCamera;
     GLFramebufferObject *m_pFBO;
-
     RenderMode m_RenderMode = RenderMode::Lightshaded;
+    int                  ReadPixel(unsigned int x, unsigned int y); 
 
-    bool m_bHovered = false;
-    bool m_bForceUndock = false;
-
+    // Mouse utils    
     glm::vec2 CalcRelativeMousePos();
-    bool      PointInClientRect(glm::vec2 pt);
+    bool PointInClientRect(glm::vec2 pt);
 
-    int ReadPixel(unsigned int x, unsigned int y); 
+    // Displaying
+    void DisplayViewportUI(ImVec2 pos);
+    void UpdateDisplayWidgetPos();       
 
-    bool m_bDocked;
+
 
 public:
     Viewport(AnchoringCorner anchoringBits);
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
-    void DisplayRenderedFrame();
-
-    void DisplayViewportUI(ImVec2 pos);
-
-    void UpdateDisplayWidgetPos();
-
     
+    // Displaying
+    void DisplayRenderedFrame();    
     int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
 
-    Camera *GetCamera()
-    {
-    return m_pCamera;
-    }
+    // Getters
+    Camera *GetCamera();
     RenderMode GetRenderMode();
-
 
     void OutputDebug();
     const char *Name();
     glm::vec2   GetClientArea();
 
-private:
-    void DoCloneViewport();
+
 };
