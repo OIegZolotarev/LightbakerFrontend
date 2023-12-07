@@ -12,10 +12,13 @@ enum class PropertiesTypes;
 
 namespace GoldSource
 {
-
 class FGDPropertyDescriptor;
 class BSPEntity;
 
+
+
+// BSPProperty - Incapsulates BSP property and it's metada in form of FGDProperty,
+// Also handles converting data from various types to another
 class BSPProperty
 {
     FGDPropertyDescriptor *m_pDescr;
@@ -24,16 +27,24 @@ class BSPProperty
 
     VariantValue *m_pValueWrapper;
 
-    BSPEntity *m_pOwner;
-
-
+    BSPEntity *     m_pOwner;
     PropertiesTypes AdaptPropertyType();
 
+    size_t m_Hash;
+
 public:
-    BSPProperty(BSPEntity * pOwner,std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
+    BSPProperty(BSPProperty * pOther);
+
+
+    BSPProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
     ~BSPProperty();
 
+    std::string &Name();
+    std::string &Value();
 
+    size_t Hash();
+
+    static size_t CalcHash(std::string & val);
 };
 
 } // namespace GoldSource

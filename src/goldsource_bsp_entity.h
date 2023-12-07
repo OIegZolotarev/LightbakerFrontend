@@ -49,6 +49,9 @@ class BSPEntity : public SceneEntity
     void RenderUnshaded() override;
 
     void OnSelect() override;
+
+    bool HasProperty(size_t hash);
+    std::list<BSPProperty *> &GetBSPProperties();
 };
 
 } // namespace GoldSource

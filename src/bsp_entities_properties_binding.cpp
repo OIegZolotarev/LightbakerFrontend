@@ -8,6 +8,9 @@
 
 #include "bsp_entities_properties_binding.h"
 #include "goldsource_bsp_entity.h"
+#include "bsp_property.h"
+
+using namespace GoldSource;
 
 void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
 {
@@ -47,6 +50,73 @@ void BSPEntitiesPropertiesBinder::UpdateObjectProperties(VariantValue *props, si
 }
 
 void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
+{   
+    CleanupPropertiesList();
+    CleanupDeadObjects();
+    
+    if (m_lstSelectedObjects.size() == 0)
+        return;
+
+    auto ptr = m_lstSelectedObjects.begin();
+    auto smart_ptr = ptr->lock();
+    GoldSource::BSPEntity *rawPtr    = (GoldSource::BSPEntity *)smart_ptr.get();
+
+
+    for (auto &it : rawPtr->GetBSPProperties())
+    {
+        bool addProperty = true;
+
+        if (m_lstSelectedObjects.size() > 1)
+        {
+
+            for (auto & otherEntWeak : m_lstSelectedObjects)
+            {
+                // Fine to check against self
+                auto otherEnt = otherEntWeak.lock();
+
+                // Should not triggered
+                // 
+                assert(otherEnt);
+                GoldSource::BSPEntity *rawPtrOther = (GoldSource::BSPEntity *)otherEnt.get();
+                
+                if (!rawPtrOther->HasProperty(it->Hash()))
+                {
+                    addProperty = false;
+                    break;
+                }
+
+            }
+        }
+
+        if (addProperty)
+        {
+            m_lstCommonProperties.push_back(new GoldSource::BSPProperty(it));
+        }
+    }
+}
+
+void BSPEntitiesPropertiesBinder::CleanupDeadObjects()
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    for (auto it = m_lstSelectedObjects.begin(); it != m_lstSelectedObjects.end(); it++)
+    {
+        auto ptr = (*it).lock();
+
+        if (!ptr)
+        {
+            m_lstSelectedObjects.erase(it++);
+
+            if (it == m_lstSelectedObjects.end())
+                break;
+        }
+    }
+}
+
+void BSPEntitiesPropertiesBinder::CleanupPropertiesList()
+{
+    for (auto & it: m_lstCommonProperties)
+    {
+        delete it;
+    }
+
+    m_lstCommonProperties.clear();
 }

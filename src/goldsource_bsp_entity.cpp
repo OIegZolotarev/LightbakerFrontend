@@ -9,6 +9,7 @@
 #include "goldsource_game_configuration.h"
 #include "text_utils.h"
 #include "wad_textures.h"
+#include "bsp_property.h"
 
 using namespace GoldSource;
 
@@ -249,6 +250,22 @@ glm::vec3 GoldSource::BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOri
     newOrigin.z = -bspSpaceOrigin.x;
 
     return newOrigin;
+}
+
+std::list<BSPProperty *> &BSPEntity::GetBSPProperties()
+{
+    return m_lstProperties;
+}
+
+bool BSPEntity::HasProperty(size_t hash)
+{
+    for (auto & it: m_lstProperties)
+    {
+        if (it->Hash() == hash)
+            return true;
+    }
+
+    return false;
 }
 
 void BSPEntity::OnSelect()

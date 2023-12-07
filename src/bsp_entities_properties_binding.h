@@ -7,13 +7,16 @@
 #include "object_props.h"
 #include "scene_entity.h"
 
+namespace GoldSource
+{
+
+class BSPProperty;
 
 class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
 {
-    std::list<SceneEntityWeakPtr> m_lstSelectedObjects;
+    std::list<SceneEntityWeakPtr> m_lstSelectedObjects;    
+    std::list<GoldSource::BSPProperty*> m_lstCommonProperties;
 
-
-    
 public:
 
     void        SelectEntity(SceneEntityWeakPtr ptr);
@@ -25,4 +28,8 @@ public:
 
 private:
     void RebuildPropertiesList();
+    void CleanupDeadObjects();
+    void CleanupPropertiesList();
 };
+
+} // namespace GoldSource
