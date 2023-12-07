@@ -51,15 +51,6 @@
     <Filter Include="Исходные файлы\PersistentParameters">
       <UniqueIdentifier>{fcdd47aa-f3fd-4a5a-8922-2838ebdc544d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Scene\GoldSource">
-      <UniqueIdentifier>{413183a5-2846-4863-88f0-7adb8e143a39}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Scene\GoldSource\FGD">
-      <UniqueIdentifier>{4471a94a-3365-4eb0-9c59-43477b1f5414}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Scene\GoldSource\BSP">
-      <UniqueIdentifier>{9823dc40-24f5-4ea0-9318-ab0c8ff65846}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Scene\EntitiesShared">
       <UniqueIdentifier>{2bcdf519-9a06-4b80-a70d-60e2628742f5}</UniqueIdentifier>
     </Filter>
@@ -92,6 +83,15 @@
     </Filter>
     <Filter Include="Исходные файлы\Viewports">
       <UniqueIdentifier>{5af2d74d-feeb-48ad-8ee6-45f801a6881d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\GoldSource">
+      <UniqueIdentifier>{413183a5-2846-4863-88f0-7adb8e143a39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\GoldSource\FGD">
+      <UniqueIdentifier>{4471a94a-3365-4eb0-9c59-43477b1f5414}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\GoldSource\BSP">
+      <UniqueIdentifier>{9823dc40-24f5-4ea0-9318-ab0c8ff65846}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -213,28 +213,25 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_lightmap_atlas.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
     <ClCompile Include="hammer_fgd.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\FGD</Filter>
+      <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClCompile>
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\FGD</Filter>
+      <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClCompile>
     <ClCompile Include="game_configuration.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="goldsource_bsp_entity.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
-    </ClCompile>
     <ClCompile Include="goldsource_bsp_renderer.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_bsp_level.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_game_configuration.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
     <ClCompile Include="popup_edit_gameconfiguration.cpp">
       <Filter>Исходные файлы\Popups</Filter>
@@ -285,7 +282,7 @@
       <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_bsp_world.cpp">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
     <ClCompile Include="igui_panel.cpp">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
@@ -373,6 +370,15 @@
     </ClCompile>
     <ClCompile Include="viewports_orchestrator.cpp">
       <Filter>Исходные файлы\Viewports</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entities_properties_binding.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_bsp_entity.cpp">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_property.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -506,31 +512,28 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_lightmap_atlas.h">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
     <ClInclude Include="hammer_fgd.h">
-      <Filter>Исходные файлы\Scene\GoldSource\FGD</Filter>
+      <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClInclude>
     <ClInclude Include="game_configuration.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_disk_structs.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
-    </ClInclude>
-    <ClInclude Include="goldsource_bsp_entity.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_mem_structs.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_renderer.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_level.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_game_configuration.h">
-      <Filter>Исходные файлы\Scene\GoldSource</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
     <ClInclude Include="popup_edit_gameconfiguration.h">
       <Filter>Исходные файлы\Popups</Filter>
@@ -584,7 +587,7 @@
       <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
-      <Filter>Исходные файлы\Scene\GoldSource\BSP</Filter>
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
     <ClInclude Include="igui_panel.h">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
@@ -679,6 +682,15 @@
     <ClInclude Include="viewports_orchestrator.h">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
+    <ClInclude Include="bsp_entities_properties_binding.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_entity.h">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_property.h">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -711,7 +723,7 @@
       <Filter>GLSL</Filter>
     </None>
     <None Include="hammer_fgd\hammer_fgd.y">
-      <Filter>Исходные файлы\Scene\GoldSource\FGD</Filter>
+      <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </None>
     <None Include="..\bin\res\glprogs\scene_geometry.glsl">
       <Filter>GLSL</Filter>

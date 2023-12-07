@@ -50,7 +50,7 @@ int SecondaryWindow::ThreadProc()
         glClear(GL_COLOR_BUFFER_BIT);
         
         SDL_GL_SwapWindow(m_pSDLWindow);
-        f += 0.01;
+        f += 0.01f;
     }
 
     return 0;

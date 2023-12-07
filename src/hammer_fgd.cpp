@@ -237,7 +237,7 @@ GLTexture *FGDEntityClass::GetEditorSpite()
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,
                                            OptionalDefaultValAndHelp_t defValueAndHelp)
-    : FGDPropertyDescriptor(name, "", desc, defValueAndHelp)
+    : FGDPropertyDescriptor(name, "flags", desc, defValueAndHelp)
 {
 	m_Values = values;
 }
@@ -256,4 +256,38 @@ bool FGDFlagsEnumProperty::IsSpawnflagsProperty()
 std::string& FGDPropertyDescriptor::GetName()
 {
 	return m_Name;
+}
+
+FGDPropertyDescriptor::~FGDPropertyDescriptor()
+{
+}
+
+FGDPropertyDescriptor::FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr,
+                                             OptionalDefaultValAndHelp_s defaultValueAndHelp)
+{
+    m_Name  = name;
+    m_Descr = descr;
+
+	try
+	{
+        m_Type = FGDPropertyTypes::_from_string_nocase(typeId.c_str());
+	}
+    catch (std::exception & e)
+    {
+        Con_Printf("Error while parsing type: %s, exception: %s", typeId.c_str() , e.what());
+	}
+    
+
+    if (defaultValueAndHelp.useFloat)
+        m_DefaultValueFloat = defaultValueAndHelp.defaultValueFloat;
+    else
+        m_DefaultValue = defaultValueAndHelp.defaultValue;
+
+    m_PropertyHelp = defaultValueAndHelp.propertyHelp;
+}
+
+FGDPropertyDescriptor::FGDPropertyDescriptor(FGDPropertyDescriptor *pOther)
+{
+    m_Name  = pOther->m_Name;
+    m_Descr = pOther->m_Descr;
 }

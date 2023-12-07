@@ -201,6 +201,8 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="bsp_entities_properties_binding.cpp" />
+    <ClCompile Include="bsp_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
     <ClCompile Include="frustum.cpp" />
@@ -208,7 +210,6 @@ build.bat
     <ClCompile Include="gl_framebuffer_object.cpp" />
     <ClCompile Include="gl_screenspace_2d_renderer.cpp" />
     <ClCompile Include="gl_texture.cpp" />
-    <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
     <ClCompile Include="edit_history.cpp" />
     <ClCompile Include="application.cpp" />
@@ -223,6 +224,7 @@ build.bat
     <ClCompile Include="geometry_selection_shader.cpp" />
     <ClCompile Include="gl_backend.cpp" />
     <ClCompile Include="file_system.cpp" />
+    <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="goldsource_bsp_renderer.cpp" />
     <ClCompile Include="goldsource_bsp_level.cpp" />
     <ClCompile Include="goldsource_bsp_world.cpp" />
@@ -296,6 +298,8 @@ build.bat
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="bsp_entities_properties_binding.h" />
+    <ClInclude Include="bsp_property.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
     <ClInclude Include="frustum.h" />
@@ -303,7 +307,6 @@ build.bat
     <ClInclude Include="gl_framebuffer_object.h" />
     <ClInclude Include="gl_screenspace_2d_renderer.h" />
     <ClInclude Include="gl_texture.h" />
-    <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
     <ClInclude Include="goldsource_bsp_disk_structs.h" />
     <ClInclude Include="edit_history.h" />
@@ -322,6 +325,7 @@ build.bat
     <ClInclude Include="gl_backend.h" />
     <ClInclude Include="file_system.h" />
     <ClInclude Include="event_handler.h" />
+    <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="goldsource_bsp_mem_structs.h" />
     <ClInclude Include="goldsource_bsp_renderer.h" />
     <ClInclude Include="goldsource_bsp_level.h" />
