@@ -34,7 +34,7 @@ int Viewport::ReadPixel(unsigned int x, unsigned int y)
     return r[0];
 }
 
-Viewport::Viewport(AnchoringCorner anchoringBits)
+Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom) : m_pPlatformWindow(pHostWindow)
 {
     m_FrameBufferSize = {2048, 2048};
 
@@ -44,8 +44,12 @@ Viewport::Viewport(AnchoringCorner anchoringBits)
     AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
 
     // TODO: FBO pool for reusing by viewports
-    m_pFBO    = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
-    m_strName = std::format("Viewport: {0}", (int)counter++);
+    m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
+
+    if (!title)
+        m_strName = std::format("Viewport: {0}", (int)counter++);
+    else
+        m_strName = title;
 
     m_strNamePopupKey = m_strName + "_popup";
 
@@ -133,7 +137,7 @@ void Viewport::DisplayRenderedFrame()
     }
 
     HanlePicker();
-    
+
     ImGui::PopID();
 }
 
@@ -214,7 +218,7 @@ void Viewport::UpdateDisplayWidgetPos()
 }
 
 int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
-{    
+{
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
         m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
@@ -259,6 +263,42 @@ const char *Viewport::Name()
 glm::vec2 Viewport::GetClientArea()
 {
     return m_ClientAreaSize;
+}
+
+void Viewport::SaveState(nlohmann::json &persistentData)
+{
+    persistentData["Name"]       = m_strName;
+    persistentData["Visible"]    = m_bVisible;
+    persistentData["Docked"]     = m_bDocked;
+    persistentData["HostWindow"] = m_pPlatformWindow->GetId();
+}
+
+Viewport *Viewport::LoadState(nlohmann::json &persistentData)
+{
+    std::string name    = persistentData["Name"];
+    bool        visible = persistentData["Visible"];
+    bool        docked  = persistentData["Docked"];
+    size_t      id      = persistentData["HostWindow"];
+
+    IPlatformWindow *pWindow = Application::FindPlatformWindow(id);
+
+    Viewport *pResult = new Viewport(name.c_str(), pWindow, nullptr);
+
+    pResult->m_bVisible = visible;
+    pResult->m_bDocked = docked;
+
+    return pResult;
+}
+
+void Viewport::RegisterEventHandlerAtHost()
+{
+    assert(m_pPlatformWindow);
+    m_pPlatformWindow->AddEventHandler(this);
+}
+
+IPlatformWindow *Viewport::GetPlatformWindow()
+{
+    return m_pPlatformWindow;
 }
 
 void Viewport::DoCloneViewport()

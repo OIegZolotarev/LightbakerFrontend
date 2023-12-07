@@ -368,6 +368,12 @@
     <ClCompile Include="secondary_window.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="platform_window.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="viewports_orchestrator.cpp">
+      <Filter>Исходные файлы\Viewports</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -666,6 +672,12 @@
     </ClInclude>
     <ClInclude Include="secondary_window.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="platform_window.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="viewports_orchestrator.h">
+      <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

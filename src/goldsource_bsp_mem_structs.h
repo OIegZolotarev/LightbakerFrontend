@@ -112,7 +112,8 @@ typedef struct
 
 typedef struct msurface_s
 {
-    int         visframe;       // should be drawn when node is crossed
+    // CrazyRussian
+    size_t visframe;       // should be drawn when node is crossed
     mplane_t* plane;
     int         flags;
 

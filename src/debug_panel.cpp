@@ -34,8 +34,8 @@ void DebugPanel::Render()
 	ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
 	ImGui::Text("Triangles: %d\n", stats->nTriangles);
 	
-	pViewport1->OutputDebug();
-    pViewport2->OutputDebug();
+	if (pViewport1) pViewport1->OutputDebug();
+    if (pViewport2) pViewport2->OutputDebug();
 
 	ImGui::End();
 }

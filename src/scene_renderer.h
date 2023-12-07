@@ -13,6 +13,7 @@
 #include "model_obj.h"
 #include "scene.h"
 #include "viewport.h"
+#include "viewport_rendermodes.h"
 
 
 // Load-Reload flags

@@ -9,8 +9,10 @@
 #include "event_handler.h"
 #include "gl_framebuffer_object.h"
 #include "mathlib.h"
+#include "platform_window.h"
 #include "scene_renderer.h"
 #include "viewport_rendermodes.h"
+#include <nlohmann/json.hpp>
 
 BETTER_ENUM(AnchoringCorner, int, TopLeft, TopRight, BottomRight, BottomLeft);
 
@@ -19,6 +21,8 @@ class Viewport : public IEventHandler
     // Window title and keys
     std::string m_strName;
     std::string m_strNamePopupKey;
+
+    IPlatformWindow *m_pPlatformWindow;
 
     // Positioning
     glm::vec2 m_DisplayWidgetPosition;
@@ -50,11 +54,11 @@ class Viewport : public IEventHandler
     void UpdateDisplayWidgetPos();
 
     // Object picking
-    void HanlePicker();
+    void   HanlePicker();
     size_t m_hoveredObjectId;
 
 public:
-    Viewport(AnchoringCorner anchoringBits);
+    Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom);
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
@@ -65,11 +69,16 @@ public:
     int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
 
     // Getters
-    Camera *   GetCamera();
-    RenderMode GetRenderMode();
+    Camera *         GetCamera();
+    RenderMode       GetRenderMode();
+    IPlatformWindow *GetPlatformWindow();
 
     void        OutputDebug();
     const char *Name();
     glm::vec2   GetClientArea();
 
+    void             SaveState(nlohmann::json &persistentData);
+    static Viewport *LoadState(nlohmann::json &persistentData);
+
+    void RegisterEventHandlerAtHost();
 };

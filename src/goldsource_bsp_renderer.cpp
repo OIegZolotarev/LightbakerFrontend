@@ -48,14 +48,14 @@ using namespace GoldSource;
 
 void BSPRenderer::RecursiveWorldNode(mnode_t *node)
 {
-    int i, c, side, *pindex;
-    glm::vec3 acceptpt, rejectpt;
+    int c, side, *pindex;
+//    glm::vec3 acceptpt, rejectpt;
     mplane_t *plane;
     msurface_t *surf, **mark;
     mleaf_t *pleaf;
-    double d, dot;
+    double dot;
 
-    glm::vec3 mins, maxs;
+  //  glm::vec3 mins, maxs;
 
     if (!node)
         return;

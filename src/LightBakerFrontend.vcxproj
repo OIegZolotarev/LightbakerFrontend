@@ -242,8 +242,10 @@ build.bat
     <ClCompile Include="inputfield_ex.cpp" />
     <ClCompile Include="mathlib.cpp" />
     <ClCompile Include="mod_obj_data.cpp" />
+    <ClCompile Include="platform_window.cpp" />
     <ClCompile Include="secondary_window.cpp" />
     <ClCompile Include="viewport.cpp" />
+    <ClCompile Include="viewports_orchestrator.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
@@ -337,11 +339,13 @@ build.bat
     <ClInclude Include="imgui_listview_ex.h" />
     <ClInclude Include="img_goldsource_spr.h" />
     <ClInclude Include="inputfield_ex.h" />
+    <ClInclude Include="platform_window.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="secondary_window.h" />
     <ClInclude Include="spritegn.h" />
     <ClInclude Include="viewport.h" />
+    <ClInclude Include="viewports_orchestrator.h" />
     <ClInclude Include="viewport_rendermodes.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />

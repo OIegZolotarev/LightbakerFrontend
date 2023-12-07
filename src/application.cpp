@@ -53,6 +53,7 @@ void Application::InitMainWindow()
 {
 	m_pPersistentStorage = PersistentStorage::Instance();
 	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
+    m_pMainWindow->InitStuff();
 }
 
 void Application::Init(std::string cmdLine)
@@ -89,6 +90,11 @@ void Application::EPICFAIL(const char* format, ...)
 }
 
 
+
+DebugConsole *Application::Console()
+{
+    return Instance()->GetMainWindow()->Console();
+}
 
 void Application::ExecuteBaking()
 {
@@ -294,6 +300,12 @@ int Application::Q_buildnum(void)
     return b;
 }
 
+IPlatformWindow *Application::FindPlatformWindow(size_t id)
+{
+	// TODO: implement
+    return Instance()->m_pMainWindow;
+}
+
 bool Application::IsMouseCursorVisible()
 {
     return ImGui::GetIO().MouseDrawCursor;
@@ -302,6 +314,11 @@ bool Application::IsMouseCursorVisible()
 float Application::GetBakingProgress()
 {
 	return m_flBakingPercentage;
+}
+
+std::string &Application::BakingStatusMessage()
+{
+    return m_strBakingStatus;
 }
 
 Application* Application::Instance()

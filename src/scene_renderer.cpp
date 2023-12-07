@@ -482,7 +482,10 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
 
 glm::vec3 SceneRenderer::GetRenderPos()
 {
-    return m_pCamera->GetOrigin();
+    if (m_pCamera)
+        return m_pCamera->GetOrigin();
+    else
+        return {0, 0, 0};
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)

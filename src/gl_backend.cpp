@@ -378,7 +378,7 @@ renderStats_t *GLBackend::RenderStats()
     return &m_RenderStats;
 }
 
-void GLBackend::BindTexture(size_t unit, const GLTexture *texture)
+void GLBackend::BindTexture(int unit, const GLTexture *texture)
 {
     auto state = &m_TexturesUnitStates[unit];
 
@@ -403,7 +403,7 @@ void GLBackend::BindTexture(size_t unit, const GLTexture *texture)
     BindTexture(unit, texture->GLTextureNum());
 }
 
-void GLBackend::BindTexture(size_t unit, GLuint texture)
+void GLBackend::BindTexture(int unit, GLuint texture)
 {
     auto state = &m_TexturesUnitStates[unit];
 

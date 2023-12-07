@@ -3,8 +3,8 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "main_window.h"
 #include "application.h"
+#include "main_window.h"
 
 #include "common_resources.h"
 #include "console_output_panel.h"
@@ -28,6 +28,7 @@
 #include "viewport.h"
 #include "wad_textures.h"
 #include <list>
+#include "viewports_orchestrator.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -42,13 +43,8 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 {
     m_strTitle = title;
 
-    InitBackend();
-    InitCommonResources();
-
-    m_pSceneRenderer = new SceneRenderer(this);
-    m_vEventHandlers.push_back(m_pSceneRenderer);
-
-    InitCommands();
+    //InitStuff();
+       
 
     m_vPanels.push_back(ObjectPropertiesEditor::Instance());
     m_vPanels.push_back(new SceneObjectPanel);
@@ -57,10 +53,20 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =
-        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+    m_pUseGradientBackground =  Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
-    SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
+    //SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
+}
+
+void MainWindow::InitStuff()
+{
+    InitBackend();
+    
+    m_pSceneRenderer = new SceneRenderer(this);
+    AddEventHandler(m_pSceneRenderer);
+
+    InitCommonResources();
+    InitCommands();
 }
 
 MainWindow::~MainWindow()
@@ -71,7 +77,8 @@ MainWindow::~MainWindow()
     delete TextureManager::Instance();
 
     FreeGLTextures();
-    FreeVector(m_vEventHandlers);
+    
+    
     delete m_pSceneRenderer;
 
     ClearPointersVector(m_vPanels);
@@ -178,6 +185,7 @@ void MainWindow::InitBackend()
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
+
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -298,41 +306,31 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 void MainWindow::InitViewports()
 {
-    //     for (int i = 0; i < NUM_VIEWPORTS; i++)
-    //     {
-    //         m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
-    //         m_vEventHandlers.push_back(m_Viewports[i]);
-    //     }
+    auto vo = ViewportsOrchestrator::Instance();
 
-    auto vp = new Viewport(AnchoringCorner::BottomLeft);
-    m_lstViewports.push_back(vp);
-    m_vEventHandlers.push_back(vp);
-
-    vp = new Viewport(AnchoringCorner::BottomLeft);
-    m_lstViewports.push_back(vp);
-    m_vEventHandlers.push_back(vp);
+    if (!vo->LoadViewports())
+    {
+        vo->AddNewViewport("Main", this, nullptr);
+    }   
 }
 
 void MainWindow::CloneViewport(Viewport *pViewport)
-{
-    auto vp = new Viewport(AnchoringCorner::BottomLeft);
-    m_lstViewports.push_back(vp);
-    m_vEventHandlers.push_back(vp);
-}
+{    
+    auto       vo      = ViewportsOrchestrator::Instance();
+    static int counter = 1;
 
-void MainWindow::DisplayViewportContents()
-{
-    // TODO: destroy closed viewports
+    std::string name = std::format("Viewport {0}", counter++);
 
-    for (auto &it : m_lstViewports)
-        it->DisplayRenderedFrame();
+    vo->AddNewViewport(name.c_str(), this, nullptr);
 }
 
 Viewport *MainWindow::GetViewport(int index)
 {
-    auto it = m_lstViewports.begin();
-    std::advance(it, index);
-    return *it;
+    return nullptr;
+// 
+//     auto it = m_lstViewports.begin();
+//     std::advance(it, index);
+//     return *it;
 }
 
 void MainWindow::SetTitle(std::string &fileName)
@@ -418,8 +416,7 @@ void MainWindow::MainLoop()
         UpdateTimers();
         GL_BeginFrame();
 
-        for (auto it : m_lstViewports)
-            it->RenderFrame(m_TimersData.frame_delta / 1000);
+        ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
 
         LoaderThread::Instance()->ExecuteEndCallbacks(10);
 
@@ -463,7 +460,7 @@ bool MainWindow::PropagateControlsEvent(SDL_Event &event)
 {
     bool bWasHandled = false;
 
-    for (auto &it : m_vEventHandlers)
+    for (auto &it : EventHandlers())
     {
         int result = it->HandleEvent(bWasHandled, event, m_TimersData.frame_delta / 1000);
 
@@ -810,7 +807,7 @@ void MainWindow::RenderGUI()
     ImGui::ShowDemoWindow();
 #endif
 
-    DisplayViewportContents();
+    ViewportsOrchestrator::Instance()->DisplayViewports(this);
 
     ImGui::Render();
 

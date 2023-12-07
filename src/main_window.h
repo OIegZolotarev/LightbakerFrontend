@@ -12,6 +12,7 @@
 #include "scene_renderer.h"
 #include "ui_common.h"
 #include "viewport.h"
+#include "platform_window.h"
 
 BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
 
@@ -54,10 +55,13 @@ typedef struct defaultDockSides_s
 
 #define NUM_VIEWPORTS 4
 
-class MainWindow
+class MainWindow : public IPlatformWindow
 {
 public:
     MainWindow(const char *title, glm::vec2 defaultSize);
+
+    void InitStuff();
+
     ~MainWindow();
 
     void MainLoop();
@@ -125,9 +129,7 @@ private:
     void LimitToTargetFPS();
 
     class SceneRenderer *m_pSceneRenderer;
-
-    std::vector<IEventHandler *> m_vEventHandlers;
-
+    
     bool PropagateControlsEvent(SDL_Event &e);
     
 
@@ -161,10 +163,9 @@ private:
 
     statusBarData m_statusBarData;
 
-    // Viewports
-    std::list<Viewport *> m_lstViewports;
+    // Viewports    
     void InitViewports();  
-    void DisplayViewportContents();
+    
 
 
 };

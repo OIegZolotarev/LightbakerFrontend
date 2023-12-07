@@ -10,6 +10,7 @@
 #include "ui_options_pages.h"
 #include <nlohmann/json.hpp>
 #include <string>
+#include "viewports_orchestrator.h"
 
 PersistentStorage::PersistentStorage(Application *appInstance)
 {
@@ -39,8 +40,7 @@ PersistentStorage::PersistentStorage(Application *appInstance)
 
     SetDefaultValues();
     LoadFromFile(appInstance);
-
-    
+       
     // To make default game configuration avaible
     GameConfigurationsManager::Instance()->Init(this);
 }
@@ -139,25 +139,6 @@ void PersistentStorage::LoadFromFile(Application *appInstance)
         {
             appInstance->GetLightBakerApplication()->Settings()->FromJSON(j["BakerSettings"]);
         }
-        //
-        // 		std::list<nlohmann::json> panels_state;
-        //
-        // 		for (auto& it : PanelsId::_values())
-        // 		{
-        // 			if (it._value == PanelsId::None)
-        // 				continue;
-        //
-        // 			if (it._value == PanelsId::MaxPanels)
-        // 				continue;
-        //
-        // 			nlohmann::json panel_desc;
-        // 			panel_desc["Valid"] = m_bPanelsValid[it._value];
-        // 			panel_desc["Id"] = it._to_string();
-        //
-        // 			panels_state.push_back(panel_desc);
-        // 		}
-        //
-        // 		j["PanelsState"] = panels_state;
 
         if (j.contains("PanelsState"))
         {
@@ -171,6 +152,13 @@ void PersistentStorage::LoadFromFile(Application *appInstance)
                 m_bPanelsValid[id._value] = isValid;
             }
         }
+
+        if (j.contains("Viewports"))
+        {
+            nlohmann::json block = j["Viewports"];
+            ViewportsOrchestrator::Instance()->Init(std::move(block));
+        }
+
     }
     catch (std::exception &e)
     {
@@ -460,12 +448,7 @@ void PersistentStorage::SaveToFile()
         nlohmann::json j;
         j["MRU"] = m_lstMRUFiles;
 
-        FILE *fp = 0;
 
-        fopen_s(&fp, persistent_file, "wb");
-
-        if (!fp)
-            return;
 
         std::list<nlohmann::json> props;
 
@@ -494,10 +477,19 @@ void PersistentStorage::SaveToFile()
         }
 
         j["PanelsState"] = panels_state;
-
         j["BakerSettings"] = Application::Instance()->GetLightBakerApplication()->Settings()->ToJSON();
 
+        ViewportsOrchestrator::Instance()->SaveViewports(j);
+
         std::string data = j.dump(4);
+
+        FILE *fp = 0;
+
+        fopen_s(&fp, persistent_file, "wb");
+
+        if (!fp)
+            return;
+
         fprintf(fp, "%s", data.c_str());
         fclose(fp);
     }
