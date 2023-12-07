@@ -26,6 +26,10 @@ BSPEntity::BSPEntity()
 
 BSPEntity::~BSPEntity()
 {
+    for (auto &it : m_lstProperties)
+        delete it;
+
+    m_lstProperties.clear();
 }
 
 void BSPEntity::SetKeyValue(std::string &key, std::string &value)

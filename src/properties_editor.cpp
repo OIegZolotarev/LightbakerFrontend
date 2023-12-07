@@ -356,6 +356,8 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
 		// Here we can save undo (to undo stack or something). Triggered once just after user stops editing. 
 		// RecordUndo(oldValue, value);
 
+		// TODO: refactor for multiple objects edits
+
 		auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
 		history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, it));
 

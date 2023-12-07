@@ -17,20 +17,23 @@ enum class EntityClasses
 };
 
 #define DECLARE_PROPERTY(Type, Name)                                                                                   \
-  protected:                                                                                                           \
+protected:                                                                                                             \
     Type m_##Name;                                                                                                     \
-    bool m_bIsSet##Name = false;                                                                                            \
+    bool m_bIsSet##Name = false;                                                                                       \
                                                                                                                        \
-  public:                                                                                                              \
+public:                                                                                                                \
     void Set##Name(Type val)                                                                                           \
     {                                                                                                                  \
-        m_##Name  = val;                                                                                               \
-        m_bIsSet##Name = true;                                                                                              \
+        m_##Name       = val;                                                                                          \
+        m_bIsSet##Name = true;                                                                                         \
     }                                                                                                                  \
     const Type Get##Name()                                                                                             \
     {                                                                                                                  \
         return m_##Name;                                                                                               \
     }
+
+typedef std::pair<std::string, std::string>          kvData;
+typedef std::unordered_map<std::string, std::string> TPropertiesMap;
 
 class SceneEntity : public ISelectableObject
 {
@@ -41,17 +44,15 @@ class SceneEntity : public ISelectableObject
 
     EntityClasses m_EntityClass;
 
-  protected:
+protected:
     void SetClassName(const char *name);
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
 
-    
     // TODO: copy-constructor
     // Обобщенные пары ключ-значение
-    typedef std::pair<std::string, std::string>  kvData;
-    std::unordered_map<std::string, std::string> m_vProperties;
+    TPropertiesMap m_vProperties;
 
-  public:
+public:
     SceneEntity();
     SceneEntity(SceneEntity &other);
 
@@ -79,15 +80,16 @@ class SceneEntity : public ISelectableObject
     void OnUnhovered() override;
 
     virtual const char *Description();
-    virtual bool IsLightEntity();
-    virtual void OnAdditionToScene(class Scene * pScene){};
+    virtual bool        IsLightEntity();
+    virtual void        OnAdditionToScene(class Scene *pScene){};
 
-    void CopyProperties(std::unordered_map<std::string, std::string> propsmap);
-    std::unordered_map<std::string, std::string> GetProperties() const;
+    void           CopyProperties(TPropertiesMap propsmap);
+    TPropertiesMap & GetProperties();
 
     virtual EntityClasses EntityClass();
-    void FlagDataLoaded();
+    void                  FlagDataLoaded();
+
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
-typedef std::weak_ptr<SceneEntity> SceneEntityWeakPtr;
+typedef std::weak_ptr<SceneEntity>   SceneEntityWeakPtr;

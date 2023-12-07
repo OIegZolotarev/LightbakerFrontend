@@ -140,7 +140,7 @@ void SceneEntity::CopyProperties(std::unordered_map<std::string, std::string> pr
 
 }
 
-std::unordered_map<std::string, std::string> SceneEntity::GetProperties() const
+TPropertiesMap & SceneEntity::GetProperties()
 {
 	return m_vProperties;
 }

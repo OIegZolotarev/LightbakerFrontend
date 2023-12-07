@@ -12,8 +12,13 @@
 #include <unordered_map>
 #include <utility>
 
+
+
 namespace GoldSource
 {
+
+class BSPProperty;
+
 class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
@@ -23,6 +28,8 @@ class BSPEntity : public SceneEntity
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
+
+    std::list<BSPProperty *> m_lstProperties;
 
     GLTexture *m_pEditorSprite = nullptr;
 

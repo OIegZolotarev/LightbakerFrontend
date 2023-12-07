@@ -57,3 +57,8 @@ template <typename T, typename D = T> class Singleton
     Singleton(const Singleton &) = delete;
     Singleton &operator=(const Singleton &) = delete;
 };
+
+template <typename Base, typename T> inline bool instanceof (const T *ptr)
+{
+    return dynamic_cast<const Base *>(ptr) != nullptr;
+}
