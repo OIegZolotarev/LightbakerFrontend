@@ -365,6 +365,9 @@
     <ClCompile Include="mod_obj_data.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="secondary_window.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -660,6 +663,9 @@
     </ClInclude>
     <ClInclude Include="..\bin\res\glprogs\common_fragment.h">
       <Filter>GLSL</Filter>
+    </ClInclude>
+    <ClInclude Include="secondary_window.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

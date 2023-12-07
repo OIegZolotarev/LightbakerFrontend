@@ -51,6 +51,7 @@ class Viewport : public IEventHandler
 
     // Object picking
     void HanlePicker();
+    size_t m_hoveredObjectId;
 
 public:
     Viewport(AnchoringCorner anchoringBits);
@@ -71,6 +72,4 @@ public:
     const char *Name();
     glm::vec2   GetClientArea();
 
-private:
-    size_t m_hoveredObjectId;
 };

@@ -242,6 +242,7 @@ build.bat
     <ClCompile Include="inputfield_ex.cpp" />
     <ClCompile Include="mathlib.cpp" />
     <ClCompile Include="mod_obj_data.cpp" />
+    <ClCompile Include="secondary_window.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
@@ -338,6 +339,7 @@ build.bat
     <ClInclude Include="inputfield_ex.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
     <ClInclude Include="mathlib.h" />
+    <ClInclude Include="secondary_window.h" />
     <ClInclude Include="spritegn.h" />
     <ClInclude Include="viewport.h" />
     <ClInclude Include="viewport_rendermodes.h" />

@@ -186,37 +186,6 @@ std::string& ITaskStepResult::Description()
 	return m_strElementDescription;
 }
 
-//
-//LoaderTask::LoaderTask(const char* description, const char* elementDescription, const pfnTaskRoutine taskRoutine, const pfnTaskCompletedCallback endRoutine)
-//{
-//	m_fTaskRoutine = taskRoutine;
-//	m_fEndRoutine = endRoutine;
-//	m_strDescription = description;
-//	m_strElementDescription = elementDescription;
-//}
-//
-//bool LoaderTask::ExecuteStep(LoaderThread* loaderThread)
-//{
-//	TaskStepResultType r = TaskStepResultType::None;
-//
-//	if (m_fTaskRoutine)
-//		r = m_fTaskRoutine();
-//
-//	if (m_fEndRoutine)
-//	{
-//		//loaderThread->ScheduleEndCallback(this, r, m_fEndRoutine);
-//		return false;
-//	}
-//
-//	return true;
-//}
-//
-//void LoaderTask::OnCompletion()
-//{
-//	if (m_fEndRoutine)
-//		m_fEndRoutine(this, m_TaskResult);
-//}
-
 void ITask::Schedule()
 {
 	LoaderThread::Instance()->ScheduleTask(this);

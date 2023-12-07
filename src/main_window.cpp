@@ -3,12 +3,13 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "application.h"
 #include "main_window.h"
+#include "application.h"
 
 #include "common_resources.h"
 #include "console_output_panel.h"
 #include "debug_panel.h"
+#include "imgui_helpers.h"
 #include "imgui_internal.h"
 #include "imgui_popups.h"
 #include "loader_thread.h"
@@ -19,13 +20,14 @@
 
 #include "grid_renderer.h"
 #include "hammer_fgd.h"
-#include "imgui_helpers.h"
+
+#include "gl_screenspace_2d_renderer.h"
 #include "popup_loadfile_dialog.h"
 #include "scene_renderer.h"
+#include "secondary_window.h"
 #include "viewport.h"
 #include "wad_textures.h"
 #include <list>
-#include "gl_screenspace_2d_renderer.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -57,6 +59,8 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
     m_pUseGradientBackground =
         Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+
+    SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
 }
 
 MainWindow::~MainWindow()
@@ -91,9 +95,6 @@ void MainWindow::InitBackend()
         //	EPICFAIL("[ERROR] %s\n", SDL_GetError());
         // return -1;
     }
-
-    std::string glsl_version = "";
-    glsl_version             = "#version 330";
 
 #ifdef NICE_LINES
     int r = 2;
@@ -138,10 +139,7 @@ void MainWindow::InitBackend()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
     io.MouseDrawCursor = true;
 
-
     // ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-
 
     // char *p = SDL_GetPrefPath("QuiteOldOrange", "LightBaker3000Frontend");
     char *p = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
@@ -162,7 +160,7 @@ void MainWindow::InitBackend()
 
     // setup platform/renderer bindings
     ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
-    ImGui_ImplOpenGL3_Init(glsl_version.c_str());
+    ImGui_ImplOpenGL3_Init("#version 330");
 
     ImGuiHelpers::Init();
 
@@ -300,12 +298,11 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
 void MainWindow::InitViewports()
 {
-//     for (int i = 0; i < NUM_VIEWPORTS; i++)
-//     {
-//         m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
-//         m_vEventHandlers.push_back(m_Viewports[i]);
-//     }
-
+    //     for (int i = 0; i < NUM_VIEWPORTS; i++)
+    //     {
+    //         m_Viewports[i] = new Viewport(AnchoringCorner::BottomLeft);
+    //         m_vEventHandlers.push_back(m_Viewports[i]);
+    //     }
 
     auto vp = new Viewport(AnchoringCorner::BottomLeft);
     m_lstViewports.push_back(vp);
@@ -314,9 +311,6 @@ void MainWindow::InitViewports()
     vp = new Viewport(AnchoringCorner::BottomLeft);
     m_lstViewports.push_back(vp);
     m_vEventHandlers.push_back(vp);
-
-    
-
 }
 
 void MainWindow::CloneViewport(Viewport *pViewport)
@@ -792,7 +786,6 @@ void MainWindow::RenderGUI()
     {
         if (ImGui::BeginMenuBar())
         {
-
             ImGui::Text("%s", m_statusBarData.gameName.c_str());
 
             ImGui::Separator();
@@ -821,7 +814,6 @@ void MainWindow::RenderGUI()
 
     ImGui::Render();
 
-    
     // Update and Render additional Platform Windows
     if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
     {
@@ -829,9 +821,7 @@ void MainWindow::RenderGUI()
         ImGui::RenderPlatformWindowsDefault();
     }
 
-
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 }
 
 void MainWindow::DrawLoadingBanner()
@@ -946,6 +936,9 @@ bool MainWindow::HandleEvents(bool loop)
         case SDL_WINDOWEVENT:
             switch (event.window.event)
             {
+            case SDL_WINDOWEVENT_CLOSE:
+                loop = false;
+                break;
             case SDL_WINDOWEVENT_RESIZED:
             case SDL_WINDOWEVENT_SIZE_CHANGED:
             case SDL_WINDOWEVENT_MINIMIZED:
@@ -985,7 +978,7 @@ bool MainWindow::HandleEvents(bool loop)
                     }
                 }
             }
-            
+
         case SDL_MOUSEBUTTONUP:
         case SDL_MOUSEWHEEL:
         case SDL_KEYUP:
