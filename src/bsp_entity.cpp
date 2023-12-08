@@ -65,57 +65,14 @@ void BSPEntity::PopulateScene()
     m_pScene->AddNewSceneEntity(ptr);
 }
 
-bool BSPEntity::UpdateProperties()
-{
-    //     //auto ptr = m_SceneEntity.lock();
-    //
-    //     if (!ptr)
-    //         return false;
-    //
-    //     m_vProperties = ptr->GetProperties();
-    //
-    // 	// јбсолютно ниху€ не пон€тно
-    // 	//newOrigin.x = -origin.y;
-    // 	//newOrigin.y = origin.z;
-    // 	//newOrigin.z = -origin.x;
-    //
-    //     auto origin = ptr->GetPosition();
-    //
-    //     std::string newOrigin = std::format("{0} {1} {2}", -origin.z, -origin.x, origin.y);
-    //
-    //     m_vProperties["origin"] = newOrigin;
-    //
-    //     if (ptr->IsLightEntity())
-    //     {
-    //         Lb3kLightEntity* pLight = (Lb3kLightEntity*)ptr.get();
-    //         auto _light = ConvertLightColorAndIntensity(pLight);
-    //
-    //
-    //         m_vProperties["_light"] = std::format("{0} {1} {2} {3}", _light.r, _light.g, _light.b, _light.a);
-    //
-    //     }
-    //
-    //     return true;
-
-    return true;
-}
-
 void BSPEntity::Export(FILE *fp)
 {
     fprintf(fp, "{\n");
-
-//     for (auto kv : m_vProperties)
-//     {
-//         auto &key  = kv.first;
-//         auto value = kv.second;
-// 
-//         // TODO: проверить необходимость
-//         // TextUtils::ReplaceAll(value, "\"", "\\"");
-// 
-//         fprintf(fp, "\"%s\" \"%s\"\n", key.c_str(), value.c_str());
-//     }
-
-    fprintf(fp, "}\n");
+   
+    for (auto &it : m_lstProperties)
+        it->SerializeAsKeyValue(fp);
+   
+   fprintf(fp, "}\n");
 }
 
 std::list<BSPEntityProperty *> &BSPEntity::GetBSPProperties()
@@ -175,4 +132,19 @@ glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
 void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
 {
     m_pFGDClass = pClass;
+
+    if (!m_pFGDClass)
+        return;
+
+    for (auto & it: m_lstProperties)        
+    {
+        if (it->PropertyDescriptor())
+            continue;
+
+        auto descr = m_pFGDClass->FindProperty(it->Name());
+
+        it->SetDescriptor(descr);
+
+    }
+
 }

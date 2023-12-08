@@ -23,7 +23,7 @@ BSPEntityProperty::BSPEntityProperty(BSPEntity * pOwner, std::string &name, std:
     m_Name   = name;
     m_Hash   = CalcHash(name);
 
-    m_pDescr = pDescr;
+    m_pDescriptor = pDescr;
         
     PropertiesTypes ptType = AdaptPropertyType();
     m_pValueWrapper        = new VariantValue(0, ptType, m_Name);
@@ -77,7 +77,7 @@ size_t BSPEntityProperty::Hash()
 
  BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther)
 {
-    m_pDescr = pOther->m_pDescr;
+    m_pDescriptor = pOther->m_pDescriptor;
     m_Name   = pOther->m_Name;
 
     PropertiesTypes ptType = AdaptPropertyType();
@@ -137,6 +137,7 @@ void BSPEntityProperty::ParseOrigin(std::string &value)
         }
                 
         m_pValueWrapper->SetPosition(ConvertOriginToSceneSpace(origin));
+        m_pOwner->SetPosition(m_pValueWrapper->GetPosition());
     }
 
     //SetPosition();
@@ -159,6 +160,16 @@ glm::vec3 BSPEntityProperty::ConvertOriginFromSceneSpace(glm::vec3 &pos)
     return glm::vec3{-pos.z, -pos.x, pos.y};
 }
 
+GoldSource::FGDPropertyDescriptor *BSPEntityProperty::PropertyDescriptor()
+{
+    return m_pDescriptor;
+}
+
+void BSPEntityProperty::SetDescriptor(FGDPropertyDescriptor *descr)
+{
+    m_pDescriptor = descr;
+}
+
 void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
@@ -178,6 +189,11 @@ void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
         // TODO: Fixme
         m_pValueWrapper->SetColorRGBA(color);
     }
+}
+
+void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }
 
 void BSPEntityProperty::ParseClassname(std::string &value)

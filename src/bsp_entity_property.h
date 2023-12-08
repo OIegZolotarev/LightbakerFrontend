@@ -43,7 +43,7 @@ enum class PropertyMetatype
 // Also handles converting data from various types to another
 class BSPEntityProperty
 {
-    FGDPropertyDescriptor *m_pDescr;
+    FGDPropertyDescriptor *m_pDescriptor;
     std::string            m_Name;
     
 
@@ -61,8 +61,6 @@ class BSPEntityProperty
 
 public:
     BSPEntityProperty(BSPEntityProperty * pOther);
-
-
     BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
     ~BSPEntityProperty();
 
@@ -72,6 +70,11 @@ public:
     size_t Hash();
 
     static size_t CalcHash(std::string &val);
+    void SerializeAsKeyValue(FILE *fp);
+
+    FGDPropertyDescriptor *PropertyDescriptor();
+
+    void SetDescriptor(FGDPropertyDescriptor *descr);
 
 private:
     void ParseValue(std::string &value);
@@ -79,6 +82,8 @@ private:
     void ParseAngles(std::string& value);
     void ParseWad(std::string &value);
     void ParseClassname(std::string &value);
+
+
 };
 
 } // namespace GoldSource

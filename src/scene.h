@@ -48,6 +48,7 @@ public:
     void LoadLevel(const char *levelName, int loadFlags);
 
     void           DoDeleteSelection();
+
     SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
     SceneEntityPtr AddNewGenericEntity();
 
