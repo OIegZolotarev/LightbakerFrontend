@@ -380,7 +380,7 @@ void ModelOBJ::RenderGroupShaded()
 
         shader->SetObjectColor(glm::vec4(rgb, 1));
 
-        mesh.Draw(it.first_face, it.num_faces);
+        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
         index++;
     }
 
