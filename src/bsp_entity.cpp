@@ -4,7 +4,7 @@
 */
 
 #include "application.h"
-#include "goldsource_bsp_entity.h"
+#include "bsp_entity.h"
 #include "common.h"
 #include "goldsource_game_configuration.h"
 #include "text_utils.h"
@@ -12,14 +12,6 @@
 #include "bsp_property.h"
 
 using namespace GoldSource;
-
-// TODO: proper FGD settings ~wip
-//       loading game configs done
-//       "default" flag for game config
-//       proper gameconfig reflection
-//       fix texture loading issue
-//       fix wad loading hack
-//       make possible to add new light into bsp
 
 BSPEntity::BSPEntity()
 {

@@ -6,7 +6,7 @@
 #include "game_configuration.h"
 #include "application.h"
 #include "common.h"
-#include "goldsource_bsp_entity.h"
+#include "bsp_entity.h"
 #include "goldsource_game_configuration.h"
 #include <regex>
 #include "text_utils.h"
