@@ -9,7 +9,7 @@
 #include "imgui_internal.h"
 #include "ui_common.h"
 
-#include "Camera.h"
+#include "r_camera.h"
 #include "helpers.h"
 #include "imgui_popups.h"
 #include "popup_edit_gameconfiguration.h"

@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "camera.h"
+#include "r_camera.h"
 #include "event_handler.h"
 #include "gl_framebuffer_object.h"
 #include "mathlib.h"

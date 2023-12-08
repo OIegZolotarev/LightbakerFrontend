@@ -4,7 +4,7 @@
 */
 
 #include "application.h"
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "gl_backend.h"
 #include "text_utils.h"
 #include <type_traits>

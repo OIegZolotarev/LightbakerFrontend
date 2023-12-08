@@ -4,7 +4,7 @@
 */
 
 #include "application.h"
-#include "camera.h"
+#include "r_camera.h"
 #include "common.h"
 
 #include <algorithm>

@@ -6,7 +6,7 @@
 #pragma once
 #include "common.h"
 #include "scene_shader.h"
-#include "shader_program.h"
+#include "gl_shader.h"
 
 class EditorGridShaderProgram : public ISceneShader
 {

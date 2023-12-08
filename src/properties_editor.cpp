@@ -8,7 +8,7 @@
 #include "properties_editor.h"
 #include "lights.h"
 #include "application.h"
-#include "camera.h"
+#include "r_camera.h"
 
 ObjectPropertiesEditor::ObjectPropertiesEditor(): IGUIPanel(PanelsId::ObjectProperties,(char*)"Object properties")
 {

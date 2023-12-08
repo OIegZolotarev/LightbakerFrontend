@@ -7,7 +7,7 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "goldsource_bsp_level.h"
-#include "camera.h"
+#include "r_camera.h"
 
 ModelObjWorld::ModelObjWorld(const char* fileName)
 {

@@ -18,7 +18,7 @@
 #include <corecrt_malloc.h>
 #endif
 #include "hammer_fgd.h"
-#include "grid_renderer.h"
+#include "r_editor_grid.h"
 
 
 Application::Application()

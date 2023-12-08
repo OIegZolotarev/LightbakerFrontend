@@ -11,7 +11,7 @@
 #include "model_obj_world.h"
 #include "scene.h"
 #include "goldsource_bsp_world.h"
-#include "camera.h"
+#include "r_camera.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {

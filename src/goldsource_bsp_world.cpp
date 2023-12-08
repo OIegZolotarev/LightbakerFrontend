@@ -7,7 +7,7 @@
 #include "common.h"
 #include "goldsource_bsp_world.h"
 #include "scene_renderer.h"
-#include "camera.h"
+#include "r_camera.h"
 
 using namespace GoldSource;
 

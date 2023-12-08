@@ -18,7 +18,7 @@
 #include "ui_common.h"
 #include "ui_styles_manager.h"
 
-#include "grid_renderer.h"
+#include "r_editor_grid.h"
 #include "hammer_fgd.h"
 
 #include "gl_screenspace_2d_renderer.h"

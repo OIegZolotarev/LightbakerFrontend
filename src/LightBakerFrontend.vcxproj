@@ -205,7 +205,7 @@ build.bat
     <ClCompile Include="bsp_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
-    <ClCompile Include="frustum.cpp" />
+    <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="gl_framebuffer_object.cpp" />
     <ClCompile Include="gl_screenspace_2d_renderer.cpp" />
@@ -213,7 +213,7 @@ build.bat
     <ClCompile Include="byteorder.cpp" />
     <ClCompile Include="edit_history.cpp" />
     <ClCompile Include="application.cpp" />
-    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="r_camera.cpp" />
     <ClCompile Include="commands_registry.cpp" />
     <ClCompile Include="common_resources.cpp" />
     <ClCompile Include="console.cpp" />
@@ -230,7 +230,7 @@ build.bat
     <ClCompile Include="goldsource_bsp_world.cpp" />
     <ClCompile Include="goldsource_game_configuration.cpp" />
     <ClCompile Include="goldsource_lightmap_atlas.cpp" />
-    <ClCompile Include="grid_renderer.cpp" />
+    <ClCompile Include="r_editor_grid.cpp" />
     <ClCompile Include="hammer_fgd.cpp" />
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp" />
     <ClCompile Include="helper_geometry_shader.cpp" />
@@ -273,7 +273,7 @@ build.bat
     <ClCompile Include="scene_objects_panel.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
     <ClCompile Include="selection_3d.cpp" />
-    <ClCompile Include="shader_program.cpp" />
+    <ClCompile Include="gl_shader.cpp" />
     <ClCompile Include="spotlight_cone_shader.cpp" />
     <ClCompile Include="stblibs_impl.cpp" />
     <ClCompile Include="text_utils.cpp" />
@@ -302,7 +302,7 @@ build.bat
     <ClInclude Include="bsp_property.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
-    <ClInclude Include="frustum.h" />
+    <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />
     <ClInclude Include="gl_framebuffer_object.h" />
     <ClInclude Include="gl_screenspace_2d_renderer.h" />
@@ -311,7 +311,7 @@ build.bat
     <ClInclude Include="goldsource_bsp_disk_structs.h" />
     <ClInclude Include="edit_history.h" />
     <ClInclude Include="application.h" />
-    <ClInclude Include="camera.h" />
+    <ClInclude Include="r_camera.h" />
     <ClInclude Include="commands_registry.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="common_resources.h" />
@@ -332,7 +332,7 @@ build.bat
     <ClInclude Include="goldsource_bsp_world.h" />
     <ClInclude Include="goldsource_game_configuration.h" />
     <ClInclude Include="goldsource_lightmap_atlas.h" />
-    <ClInclude Include="grid_renderer.h" />
+    <ClInclude Include="r_editor_grid.h" />
     <ClInclude Include="hammer_fgd.h" />
     <ClInclude Include="helpers.h" />
     <ClInclude Include="helper_geometry_shader.h" />
@@ -379,7 +379,7 @@ build.bat
     <ClInclude Include="scene_renderer.h" />
     <ClInclude Include="selection_3d.h" />
     <ClInclude Include="serial_counter.h" />
-    <ClInclude Include="shader_program.h" />
+    <ClInclude Include="gl_shader.h" />
     <ClInclude Include="spotlight_cone_shader.h" />
     <ClInclude Include="text_utils.h" />
     <ClInclude Include="ui_styles_manager.h" />

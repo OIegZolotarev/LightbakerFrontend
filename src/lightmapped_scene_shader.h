@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "scene_shader.h"
 
 

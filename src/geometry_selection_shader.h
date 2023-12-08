@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "scene_shader.h"
 
 class GeometrySelectionShaderProgram : public ISceneShader

@@ -10,7 +10,7 @@
 #include "geometry_selection_shader.h"
 #include "helper_geometry_shader.h"
 #include "lightmapped_scene_shader.h"
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "spotlight_cone_shader.h"
 #include "gl_texture.h"
 

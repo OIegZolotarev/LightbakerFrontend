@@ -7,7 +7,7 @@
 
 #include "application.h"
 #include "model_obj.h"
-#include "camera.h"
+#include "r_camera.h"
 #include "common_resources.h"
 #include "gl_backend.h"
 #include "mod_obj_asynch_exporter.h"

@@ -5,7 +5,7 @@
 
 #include "scene_shader.h"
 #include "application.h"
-#include "camera.h"
+#include "r_camera.h"
 
 void ISceneShader::InitCommonSceneUniforms()
 {
