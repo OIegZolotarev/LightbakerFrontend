@@ -9,6 +9,8 @@
 #include "goldsource_bsp_mem_structs.h"
 #include "goldsource_lightmap_atlas.h"
 
+class Scene;
+
 namespace GoldSource
 {
 class BSPLevel
@@ -66,11 +68,14 @@ class BSPLevel
     void BuildSurfaceDisplayList(msurface_t *fa);
     void GL_CreateSurfaceLightmap(msurface_t *surf);
 
+    Scene *m_pScene;
+
   public:
 
 
-    BSPLevel(FileData *fd);
+    BSPLevel(FileData *fd, Scene* pScene);
     ~BSPLevel();
+
     std::string GetBaseName();
 
     msurface_t *Faces(size_t firstSurface);

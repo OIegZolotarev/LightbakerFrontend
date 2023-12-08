@@ -164,6 +164,8 @@ public:
 
     GLTexture *GetEditorSpite();
 
+    FGDPropertyDescriptor *FindProperty(std::string &propertyName);
+
 private:
     HammerFGDFile *m_pOwner;
 
@@ -190,7 +192,7 @@ private:
 
     std::list<std::string> m_BaseClasses;
 
-    FGDPropertyDescriptor *FindProperty(std::string &propertyName);
+    
     void                   RelinkInheritedProperties(class HammerFGDFile *pFile);
 
     GLTexture *m_pEditorSprite = nullptr;

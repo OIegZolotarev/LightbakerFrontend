@@ -16,7 +16,7 @@
 class ModelOBJ: public SceneEntity
 {
 public:
-	ModelOBJ(const char* fileName);
+	ModelOBJ(const char* fileName, Scene * pScene);
 	~ModelOBJ();
 
 

@@ -35,6 +35,8 @@ public:                                                                         
 typedef std::pair<std::string, std::string>          kvData;
 typedef std::unordered_map<std::string, std::string> TPropertiesMap;
 
+class Scene;
+
 class SceneEntity : public ISelectableObject
 {
     bool m_bDataLoaded = true;
@@ -45,6 +47,7 @@ class SceneEntity : public ISelectableObject
     EntityClasses m_EntityClass;
 
 protected:
+    
     void SetClassName(const char *name);
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
 
@@ -52,8 +55,10 @@ protected:
     // Обобщенные пары ключ-значение
     TPropertiesMap m_vProperties;
 
+    Scene *m_pScene;
+
 public:
-    SceneEntity();
+    SceneEntity(Scene * pScene);
     SceneEntity(SceneEntity &other);
 
     virtual void RenderLightshaded(); // С лайтмапой

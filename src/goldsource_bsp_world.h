@@ -16,7 +16,7 @@ class BSPWorld: public IWorldEntity
     BSPRenderer *m_pRenderer;
 
   public:
-    BSPWorld(const char* levelName);    
+    BSPWorld(const char* levelName, Scene* pScene);    
     ~BSPWorld();
 
     void ReloadLightmaps() override;

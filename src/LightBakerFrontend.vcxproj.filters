@@ -356,17 +356,8 @@
     <ClCompile Include="viewports_orchestrator.cpp">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClCompile>
-    <ClCompile Include="bsp_entities_properties_binding.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="goldsource_bsp_entity.cpp">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClCompile>
     <ClCompile Include="scene_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
-    <ClCompile Include="bsp_property.cpp">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
     <ClCompile Include="popup_options_window.cpp">
       <Filter>Исходные файлы\Popups</Filter>
@@ -379,6 +370,15 @@
     </ClCompile>
     <ClCompile Include="ui_options_pages.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entities_properties_binding.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_property.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entity.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -673,15 +673,6 @@
     <ClInclude Include="viewports_orchestrator.h">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
-    <ClInclude Include="bsp_entities_properties_binding.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="goldsource_bsp_entity.h">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClInclude>
-    <ClInclude Include="bsp_property.h">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClInclude>
     <ClInclude Include="popup_options_window.h">
       <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
@@ -690,6 +681,15 @@
     </ClInclude>
     <ClInclude Include="ui_options_pages.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_entities_properties_binding.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_property.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_entity.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

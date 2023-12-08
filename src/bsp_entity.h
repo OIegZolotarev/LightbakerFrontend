@@ -34,7 +34,7 @@ class BSPEntity : public SceneEntity
     GLTexture *m_pEditorSprite = nullptr;
 
   public:
-    BSPEntity();
+    BSPEntity(Scene * pScene);
     ~BSPEntity();
 
     void SetKeyValue(std::string &key, std::string &value);

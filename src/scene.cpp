@@ -80,7 +80,7 @@ void Scene::DoDeleteSelection()
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
-    auto newLight = std::make_shared<Lb3kLightEntity>();
+    auto newLight = std::make_shared<Lb3kLightEntity>(this);
 
     // newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
     newLight->SetPosition(pos);
@@ -117,7 +117,7 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 
 SceneEntityPtr Scene::AddNewGenericEntity()
 {
-    auto newEntity = std::make_shared<SceneEntity>();
+    auto newEntity = std::make_shared<SceneEntity>(this);
     m_SceneEntities.push_back(newEntity);
     return newEntity;
 }
@@ -204,7 +204,7 @@ std::string Scene::GetModelTextureName()
     return "";
 }
 
-void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn)
+void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn)
 {
     it->SetSerialNumber(sn);
     m_SceneEntities.push_back(it);
@@ -326,10 +326,10 @@ void Scene::LoadLevel(const char *levelName)
     case LevelFormat::Unknown:
         break;
     case LevelFormat::WavefrontOBJ:
-        pLevelEntity = std::make_shared<ModelObjWorld>(levelName);
+        pLevelEntity = std::make_shared<ModelObjWorld>(levelName, this);
         break;
     case LevelFormat::BSP:
-        pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName);
+        pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName, this);
         break;
     default:
         break;

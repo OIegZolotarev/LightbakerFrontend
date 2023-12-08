@@ -18,6 +18,9 @@
 #pragma once
 #include "goldsource_bsp_disk_structs.h"
 
+class GLTexture;
+class IFileHandle;
+
 
 namespace GoldSource
 {

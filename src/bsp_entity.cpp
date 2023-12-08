@@ -13,7 +13,7 @@
 
 using namespace GoldSource;
 
-BSPEntity::BSPEntity()
+BSPEntity::BSPEntity(Scene *pScene): SceneEntity(pScene)
 {
 }
 
@@ -26,67 +26,15 @@ BSPEntity::~BSPEntity()
 }
 
 void BSPEntity::SetKeyValue(std::string &key, std::string &value)
-{
-    if (key == "origin")
+{   
+    FGDPropertyDescriptor *propDescr = nullptr;
+
+    if (m_pFGDClass)
     {
-        auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
-
-        glm::vec3 origin = {0, 0, 0};
-
-        if (digits.size() == 3)
-        {
-            int i = 0;
-            for (auto it = digits.begin(); it != digits.end(); it++, i++)
-            {
-                origin[i] = std::stof(*it);
-
-                if (isnan(origin[i]))
-                    origin[i] = 0;
-            }
-        }
-
-        SetPosition(ConvertOriginToSceneSpace(origin));
-    }
-    else if (key == "_light")
-    {
-        auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
-
-        glm::vec4 color;
-
-        if (digits.size() == 4)
-        {
-            int i   = 0;            
-            auto it = digits.begin();
-
-            for (;i < 3; it++, i++)
-                color[i] = std::stof(*it) / 255.f;
-
-            color[3] = std::stof(*it);
-
-            SetColor(color.xyz);
-        }
-    }
-    else if (key == "_wad" || key == "wad")
-    {
-        // E:\Games\Half-Life\valve\halflife.wad;
-        // E:\Games\Half-Life\valve\liquids.wad;
-        // E:\Games\Half-Life\valve\xeno.wad;
-        // E:\Games\Half-Life\valve\decals.wad;
-        // E:\Games\Hammer\ZHLT\zhlt.wad;
-
-        auto wadFiles = TextUtils::SplitTextSimple(value.c_str(), value.length(), ';');
-
-        for (auto &it : wadFiles)
-        {
-            auto baseName = FileSystem::Instance()->ExtractFileBase(it.c_str());
-
-            // Дебильный хак, надо сделать авто монтаж игропапки
-            std::string fullPath = "D:/Games/Steam/steamapps/common/Half-Life/valve/" + baseName + ".wad";
-
-            WADPool::Instance()->LoadWad(fullPath.c_str());
-        }
+        propDescr = m_pFGDClass->FindProperty(key);
     }
 
+    BSPProperty *pProperty = new BSPProperty(this, key, value, propDescr);
     m_vProperties.insert(kvData(key, value));
 }
 
@@ -131,52 +79,6 @@ void BSPEntity::PopulateScene()
 
     std::shared_ptr<SceneEntity> ptr(this);
     scene->AddNewSceneEntity(ptr);
-
-    //     if (classname == "light")
-    //     {
-    //         m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Omni, false);
-    //
-    //         auto ptr = m_SceneEntity.lock();
-    //
-    //         if (ptr)
-    //         {
-    //             ptr->SetColor(color.xyz);
-    //         }
-    //
-    //         ptr->CopyProperties(std::move(m_vProperties));
-    //     }
-    //     else if (classname == "light_environment")
-    //     {
-    // 		m_SceneEntity = scene->AddNewLight(ConvertOriginToSceneSpace(), LightTypes::Direct, false);
-    //
-    // 		auto ptr = m_SceneEntity.lock();
-    //
-    // 		if (ptr)
-    // 		{
-    // 			ptr->SetColor(color.xyz);
-    // 		}
-    //
-    // 		ptr->CopyProperties(std::move(m_vProperties));
-    //     }
-    //
-    //     else
-    //     {
-    // 		m_SceneEntity = scene->AddNewGenericEntity();
-    //
-    // 		auto ptr = m_SceneEntity.lock();
-    //
-    // 		if (ptr)
-    // 		{
-    // 			ptr->SetColor(color.xyz);
-    // 		}
-    //
-    // 		ptr->CopyProperties(std::move(m_vProperties));
-    //         ptr->SetPosition(ConvertOriginToSceneSpace());
-    //         ptr->FlagDataLoaded();
-    //
-    //         ptr->SetMins(glm::vec3(-4, -4, -4));
-    //         ptr->SetMaxs(glm::vec3(4, 4, 4));
-    //     }
 }
 
 bool BSPEntity::UpdateProperties()
@@ -232,7 +134,7 @@ void BSPEntity::Export(FILE *fp)
     fprintf(fp, "}\n");
 }
 
-glm::vec3 GoldSource::BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin)
+glm::vec3 BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin)
 {
     auto newOrigin = bspSpaceOrigin;
 

@@ -239,7 +239,7 @@ const char* LightPropertiesBinding::ObjectClassname()
 	return "Light source (LB3k)";
 }
 
-Lb3kLightEntity::Lb3kLightEntity()
+Lb3kLightEntity::Lb3kLightEntity(Scene *pScene) : SceneEntity(pScene)
 {
 	SetClassName("light");
 }

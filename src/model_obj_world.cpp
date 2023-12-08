@@ -9,7 +9,7 @@
 #include "goldsource_bsp_level.h"
 #include "r_camera.h"
 
-ModelObjWorld::ModelObjWorld(const char* fileName)
+ModelObjWorld::ModelObjWorld(const char *fileName, Scene *pScene) : IWorldEntity(pScene)
 {
 	SetClassName("worldspawn");
 	m_EnvColor = glm::vec3(1, 1, 1);
@@ -17,7 +17,7 @@ ModelObjWorld::ModelObjWorld(const char* fileName)
 	auto fs = Application::GetFileSystem();
 	auto ext = fs->ExtensionFromPath(fileName);
 
-	m_pObjWorld = new ModelOBJ(fileName);
+	m_pObjWorld = new ModelOBJ(fileName, pScene);
 
 }
 

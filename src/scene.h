@@ -73,7 +73,7 @@ public:
     std::string GetModelTextureName();
 
     // Entity manipulation
-    void               AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn);
+    void               AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);
     SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
     void               DeleteEntityWithSerialNumber(size_t serialNumber);
     void               DeleteEntity(SceneEntityWeakPtr l);

@@ -16,18 +16,18 @@ void BSPWorld::ReloadLightmaps()
     m_pLevel->ReloadLightmaps();
 }
 
-void GoldSource::BSPWorld::OnAdditionToScene(Scene * pScene)
+void BSPWorld::OnAdditionToScene(Scene * pScene)
 {
     m_pLevel->PopulateScene(pScene);
 }
 
-BSPWorld::BSPWorld(const char *levelName) 
+BSPWorld::BSPWorld(const char *levelName, Scene *pScene) : IWorldEntity(pScene)
 {
     FileData *fd = FileSystem::Instance()->LoadFile(levelName);
 
     if (fd)
     {
-        m_pLevel = new GoldSource::BSPLevel(fd);
+        m_pLevel = new GoldSource::BSPLevel(fd, pScene);
         fd->UnRef();
     }
     

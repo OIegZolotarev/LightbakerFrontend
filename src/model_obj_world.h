@@ -17,7 +17,7 @@ class ModelObjWorld: public IWorldEntity
 	ModelOBJ* m_pObjWorld = nullptr;
 public:
 
-	ModelObjWorld(const char* fileName);
+	ModelObjWorld(const char* fileName, Scene * pScene);
 	~ModelObjWorld();
 
 	DECLARE_PROPERTY(glm::vec3, EnvColor);

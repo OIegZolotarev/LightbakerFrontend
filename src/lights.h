@@ -29,7 +29,7 @@ enum class LightTypes
 class Lb3kLightEntity : public SceneEntity
 {
   public:
-    Lb3kLightEntity();
+    Lb3kLightEntity(Scene * pScene);
     Lb3kLightEntity(Lb3kLightEntity &other);
 
     void SetType(LightTypes type);

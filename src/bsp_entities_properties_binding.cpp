@@ -7,7 +7,7 @@
 #include "common.h"
 
 #include "bsp_entities_properties_binding.h"
-#include "goldsource_bsp_entity.h"
+#include "bsp_entity.h"
 #include "bsp_property.h"
 
 using namespace GoldSource;

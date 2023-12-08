@@ -12,7 +12,7 @@
 #include "byteorder.h"
 #include "wad_textures.h"
 #include "goldsource_lightmap_atlas.h"
-#include "goldsource_bsp_entity.h"
+#include "bsp_entity.h"
 
 using namespace GoldSource;
 
@@ -601,8 +601,10 @@ void BSPLevel::Mod_LoadSubmodels(lump_t* l)
 	}
 }
 
-BSPLevel::BSPLevel(FileData * fd)
+BSPLevel::BSPLevel(FileData * fd, Scene * pScene)
 {
+    m_pScene = pScene;
+
 	m_pFileData = fd;
 	m_Header = (dheader_t*)fd->Data();
 
@@ -926,7 +928,12 @@ void BSPLevel::Mod_LoadEntities(lump_t* l)
 
 		if (token[0] == '{')
 		{
-			BSPEntity* pEntity = new BSPEntity;
+            auto  scene     = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+            GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
+            auto                     pConfigPtr     = pConfigWeakPtr.lock();
+            GameConfiguration *      pConfig        = pConfigPtr.get();
+
+			BSPEntity* pEntity = new BSPEntity(m_pScene);
 
 			while (offset < (size_t)l->filelen)
 			{

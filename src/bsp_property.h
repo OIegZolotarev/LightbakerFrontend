@@ -16,6 +16,26 @@ class FGDPropertyDescriptor;
 class BSPEntity;
 
 
+class SpecialKeys
+{
+public:
+    static size_t KeyOrigin();
+    static size_t Key_Light();
+    static size_t Key_Wad();
+    static size_t KeyWad();
+    static size_t KeyAngles();
+    static size_t KeyFlags();
+};
+
+enum class PropertyMetatype
+{
+    Origin,
+    Angles,
+    Flags,
+    Light,
+    Wad,
+    None
+};
 
 // BSPProperty - Incapsulates BSP property and it's metada in form of FGDProperty,
 // Also handles converting data from various types to another
@@ -23,7 +43,7 @@ class BSPProperty
 {
     FGDPropertyDescriptor *m_pDescr;
     std::string            m_Name;
-    std::string            m_Value;
+    
 
     VariantValue *m_pValueWrapper;
 
@@ -31,6 +51,11 @@ class BSPProperty
     PropertiesTypes AdaptPropertyType();
 
     size_t m_Hash;
+    PropertyMetatype m_iSpecialId;
+
+    static glm::vec3 ConvertOriginToSceneSpace(glm::vec3  &bspSpaceOrigin);
+    static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 & pos);
+    
 
 public:
     BSPProperty(BSPProperty * pOther);
@@ -39,12 +64,18 @@ public:
     BSPProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
     ~BSPProperty();
 
-    std::string &Name();
-    std::string &Value();
+    std::string &   Name();
+    VariantValue*   Value();
 
     size_t Hash();
 
-    static size_t CalcHash(std::string & val);
+    static size_t CalcHash(std::string &val);
+
+private:
+    void ParseValue(std::string &value);
+    void ParseOrigin(std::string &value);
+    void ParseAngles(std::string& value);
+    void ParseWad(std::string &value);
 };
 
 } // namespace GoldSource

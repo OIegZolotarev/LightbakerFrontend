@@ -30,8 +30,10 @@ void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding* binder)
 	ObjectPropertiesEditor::Instance()->LoadObject(binder);
 }
 
-SceneEntity::SceneEntity()
+SceneEntity::SceneEntity(Scene * pScene)
 {
+    m_pScene = pScene;
+
 	m_SerialNumber = 0;
 	m_Position = { 0,0,0 };
 
@@ -44,6 +46,7 @@ SceneEntity::SceneEntity()
   
 SceneEntity::SceneEntity(SceneEntity& other)
 {
+    m_pScene = other.m_pScene;
 	//m_SerialNumber = other.m_nSerialNumber;
 	m_Position = other.m_Position;
 
