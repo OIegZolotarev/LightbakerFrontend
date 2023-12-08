@@ -24,7 +24,7 @@ class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
 public:
 
     void        SelectEntity(SceneEntityWeakPtr ptr);
-    void        FillProperties(std::vector<VariantValue> &collection) override;
+    void FillProperties(std::list<VariantValue*>& collection) override;
     const char *ObjectClassname() override;
     void        OnPropertyChangeSavedToHistory() override;
     void        UpdateObjectProperties(VariantValue *props, size_t num) override;

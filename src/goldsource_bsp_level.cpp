@@ -1221,7 +1221,7 @@ std::string GoldSource::BSPLevel::Export(const char *newPath, lightBakerSettings
 		
 		if (pBSPEntity)
 		{
-            pBSPEntity->UpdateProperties();
+            //pBSPEntity->UpdateProperties();
             pBSPEntity->Export(fpOut);
 		}
 	}

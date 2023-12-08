@@ -61,7 +61,7 @@ public:
 		m_ptr = ptr;
 	}
 
-	void FillProperties(std::vector<VariantValue>& collection) override;
+	void FillProperties(std::list<VariantValue*>& collection) override;
 	bool IsObjectValid() override;
 	void OnPropertyChangeSavedToHistory() override;
 	void UpdateObjectProperties(VariantValue* props, size_t num) override;

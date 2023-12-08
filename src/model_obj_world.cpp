@@ -97,7 +97,7 @@ EntityClasses ModelObjWorld::EntityClass()
 	return EntityClasses::World;
 }
 
-void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)
+void WorldspawnPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
 {
 	auto ptr = m_ptr.lock();
 
@@ -106,11 +106,13 @@ void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& colle
 
 	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
 
-	VariantValue p;
 
-	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
-	p.SetColorRGB(world->GetEnvColor());
-	collection.push_back(p);
+	// TODO: redo
+// 	VariantValue p;
+// 
+// 	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
+// 	p.SetColorRGB(world->GetEnvColor());
+// 	collection.push_back(p);
 
 }
 

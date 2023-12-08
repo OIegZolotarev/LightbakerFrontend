@@ -17,44 +17,45 @@ LightPropertiesBinding::LightPropertiesBinding(lightDefWPtr_t ref)
 	m_pwLightDef = ref;
 }
 
-void LightPropertiesBinding::FillProperties(std::vector<VariantValue>& collection)
+void LightPropertiesBinding::FillProperties(std::list<VariantValue*>& collection)
 {
 	auto ptr = m_pwLightDef.lock();
 
 	if (!ptr)
 		return;
 
-	VariantValue p;
-	
-	MakeLightTypeProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightFlagsProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightPosProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightAnglesProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightColorProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightIntensityProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeConeAProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeConeBProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeSizeProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightStyleProperty(p, ptr);
-	collection.push_back(p);
+	// TODO: rework this
+// 	VariantValue p;
+// 	
+// 	MakeLightTypeProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightFlagsProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightPosProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightAnglesProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightColorProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightIntensityProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeConeAProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeConeBProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeSizeProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightStyleProperty(p, ptr);
+// 	collection.push_back(p);
 
 }
 

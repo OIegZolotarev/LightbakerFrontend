@@ -25,7 +25,7 @@ class CPropertyChangeAction : public IEditAction
 	VariantValue m_NewValue;
 
 public:
-    CPropertyChangeAction(size_t serialNumber, VariantValue oldValue, VariantValue newValue);
+    CPropertyChangeAction(size_t serialNumber, VariantValue oldValue, VariantValue* newValue);
 	
 	void Redo() override;
 	void Undo() override;

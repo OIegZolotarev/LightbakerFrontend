@@ -102,7 +102,7 @@ class LightPropertiesBinding : public IObjectPropertiesBinding
   public:
     LightPropertiesBinding(lightDefWPtr_t ref);
 
-    void FillProperties(std::vector<VariantValue> &collection) override;
+    void FillProperties(std::list<VariantValue*>& collection) override;
     void UpdateObjectProperties(VariantValue *data, size_t num) override;
     bool IsObjectValid() override;
 

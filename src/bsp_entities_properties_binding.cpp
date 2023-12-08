@@ -29,7 +29,7 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
     RebuildPropertiesList();
 }
 
-void BSPEntitiesPropertiesBinder::FillProperties(std::vector<VariantValue> &collection)
+void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
 {
     
 }

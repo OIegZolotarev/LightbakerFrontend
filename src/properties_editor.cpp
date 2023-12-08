@@ -48,9 +48,9 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding* pBindings)
 		m_pPropertiesBinding = 0;
 	}
 
-	m_vPropsData.clear();
+	m_lstProperties.clear();
 	m_pPropertiesBinding = pBindings;
-	m_pPropertiesBinding->FillProperties(m_vPropsData);
+	m_pPropertiesBinding->FillProperties(m_lstProperties);
 
 	SetupGuizmo();
 }
@@ -78,7 +78,7 @@ void ObjectPropertiesEditor::UnloadObject()
 	{
 		delete m_pPropertiesBinding;
 		m_pPropertiesBinding = nullptr;
-		m_vPropsData.clear();
+		m_lstProperties.clear();
 	}
 
 	SetupGuizmo();
@@ -104,8 +104,8 @@ int ObjectPropertiesEditor::CurrentSerialNumber()
 
 void ObjectPropertiesEditor::ReloadPropertyValue(int id)
 {
-	m_vPropsData.clear();	
-	m_pPropertiesBinding->FillProperties(m_vPropsData);
+	m_lstProperties.clear();	
+	m_pPropertiesBinding->FillProperties(m_lstProperties);
 
 	SetupGuizmo();
 }
@@ -117,7 +117,7 @@ bool ObjectPropertiesEditor::CheckObjectValidity()
 
 	if (!m_pPropertiesBinding->IsObjectValid())
 	{
-		m_vPropsData.clear();
+		m_lstProperties.clear();
 		delete m_pPropertiesBinding;
 		m_pPropertiesBinding = nullptr;
 		return false;
@@ -159,10 +159,10 @@ void ObjectPropertiesEditor::SetupGuizmo()
 
 VariantValue* ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
 {
-	for (auto& it : m_vPropsData)
+	for (auto& it : m_lstProperties)
 	{
-		if (it.GetType() == type)
-			return &it;
+		if (it->GetType() == type)
+			return it;
 	}
 
 	return nullptr;
@@ -197,7 +197,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 	{
 		CheckObjectValidity();
 
-		if (m_vPropsData.size() > 0)
+		if (m_lstProperties.size() > 0)
 		{		
 			if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
 			{
@@ -207,7 +207,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 				ImGui::TableSetColumnIndex(0);
 				ImGui::SeparatorText(m_pPropertiesBinding->ObjectClassname());
 
-				for (auto& it : m_vPropsData)
+				for (auto& it : m_lstProperties)
 				{
 					ImGui::PushID(i++); // Use field index as identifier.
 
@@ -216,7 +216,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 					ImGui::TableSetColumnIndex(0);
 					ImGui::AlignTextToFramePadding();
 					ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-					ImGui::TreeNodeEx("Field", flags, "%s", it.DisplayName());
+					ImGui::TreeNodeEx("Field", flags, "%s", it->DisplayName());
 
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SetNextItemWidth(-FLT_MIN);
@@ -242,32 +242,32 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 	ImGui::End();
 }
 
-void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
+void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 {
-	VariantValue oldValue = it;
+	VariantValue oldValue = *it;
 
-	switch (it.GetType())
+	switch (it->GetType())
 	{
 	case PropertiesTypes::Enum:
 
 		
 
-		if (it.GetEnumValues().size() > 0)
+		if (it->GetEnumValues().size() > 0)
 		{
-			int selectionIndex = it.GetInt();
-			it.SetTempLabel((char*)it.GetEnumValues()[selectionIndex].first.c_str());
+			int selectionIndex = it->GetInt();
+			it->SetTempLabel((char*)it->GetEnumValues()[selectionIndex].first.c_str());
 
-			if (ImGui::BeginCombo(it.DisplayName(), it.TempLabel()))
+			if (ImGui::BeginCombo(it->DisplayName(), it->TempLabel()))
 			{
 				int i = 0;
 
-				for (auto& enumValue : it.GetEnumValues())
+				for (auto& enumValue : it->GetEnumValues())
 				{
 					if (ImGui::Selectable(enumValue.first.c_str(), i == selectionIndex))
 					{
-						it.SetInt(i);
-						it.SetTempLabel((char*)enumValue.first.c_str());
-						UpdateProperty(&it);
+						it->SetInt(i);
+						it->SetTempLabel((char*)enumValue.first.c_str());
+						UpdateProperty(it);
 					}
 
 					i++;
@@ -287,16 +287,16 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
 		if (ImGui::Button("..."))
 		{
 			ImGui::OpenPopup(m_FlagsEditorID);
-			m_pCurrentFlagProp = &it;
+			m_pCurrentFlagProp = it;
 		}
 
 		ImGui::SameLine();
 
 		std::string flagDescription = "[";
 
-		for (auto flagValue : it.GetEnumValues())
+		for (auto flagValue : it->GetEnumValues())
 		{ 
-			if (it.GetFlags() & flagValue.second)
+			if (it->GetFlags() & flagValue.second)
 				flagDescription += flagValue.first + ",";
 		}
 
@@ -310,35 +310,35 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue& it)
 	}
 		break;
 	case PropertiesTypes::Position:		
-		if (ImGui::DragFloat3("Vector", (float*)it.Data()))
+		if (ImGui::DragFloat3("Vector", (float*)it->Data()))
 		{
 			SetupGuizmo();
-			UpdateProperty(&it);
+			UpdateProperty(it);
 		}
 		break;
 	case PropertiesTypes::ColorRGB:
-		if (ImGui::ColorEdit3("##value", (float*)it.Data()))
-			UpdateProperty(&it);
+		if (ImGui::ColorEdit3("##value", (float*)it->Data()))
+			UpdateProperty(it);
 		break;
 	case PropertiesTypes::ColorRGBA:
-		if (ImGui::ColorEdit4("##value", (float*)it.Data()))
-			UpdateProperty(&it);
+		if (ImGui::ColorEdit4("##value", (float*)it->Data()))
+			UpdateProperty(it);
 		break;
 	case PropertiesTypes::Float:
-		if (ImGui::DragFloat("##value", (float*)it.Data(), 0.01f))
-			UpdateProperty(&it);
+		if (ImGui::DragFloat("##value", (float*)it->Data(), 0.01f))
+			UpdateProperty(it);
 		break;
 	case PropertiesTypes::Angles:
-		if (ImGui::DragFloat3("Vector", (float*)it.Data()))
-			UpdateProperty(&it);
+		if (ImGui::DragFloat3("Vector", (float*)it->Data()))
+			UpdateProperty(it);
 		break;
 	case PropertiesTypes::Int:
-		if (ImGui::DragInt("##value", (int*)it.Data()))
-			UpdateProperty(&it);
+		if (ImGui::DragInt("##value", (int*)it->Data()))
+			UpdateProperty(it);
 		break;
 	case PropertiesTypes::SizeX:
-		if (ImGui::DragFloat("Vector", (float*)it.Data()))
-			UpdateProperty(&it);
+		if (ImGui::DragFloat("Vector", (float*)it->Data()))
+			UpdateProperty(it);
 		break;
 	default:
 		break;
@@ -442,11 +442,11 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 	float viewManipulateRight = io.DisplaySize.x;
 	float viewManipulateTop = 0;
 
+
+	// TODO: fix this
 	auto win = Application::GetMainWindow()->Get3DGLViewport();
 	auto h = Application::GetMainWindow()->Height();
-
-
-	//ImGuizmo::SetGizmoSizeClipSpace(0.5f);
+	
 	ImGuizmo::AllowAxisFlip(false);
 
 	ImGuizmo::SetRect(win[0], h - win[1] - win[3], win[2], win[3]);	
@@ -454,10 +454,6 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 	if (bChanged)
 	{
-		
-
-		
-
 		float matrixTranslation[3], matrixRotation[3], matrixScale[3];
 		ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
 
@@ -505,11 +501,11 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 
 		if (m_pGuizmoPropertyPosition)
 		transaction->AddAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue,
-                                                         *m_pGuizmoPropertyPosition));
+                                                         m_pGuizmoPropertyPosition));
 				
 		if (m_pGuizmoPropertyRotation)
 		transaction->AddAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue2,
-                                                          *m_pGuizmoPropertyRotation));
+                                                          m_pGuizmoPropertyRotation));
 		
 
 		if (!transaction->Empty())
@@ -518,8 +514,6 @@ void ObjectPropertiesEditor::EditTransform(float* cameraView, float* cameraProje
 			history->PushAction(transaction);
 
 		m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
-
-
 
 	}
 	

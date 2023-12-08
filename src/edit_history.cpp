@@ -10,11 +10,11 @@
 
 
 
-CPropertyChangeAction::CPropertyChangeAction(size_t serialNumber, VariantValue oldValue, VariantValue newValue)
+CPropertyChangeAction::CPropertyChangeAction(size_t serialNumber, VariantValue oldValue, VariantValue* newValue)
 {
 	m_SerialNumber = serialNumber;
 	m_OldValue = oldValue;
-	m_NewValue = newValue;
+	m_NewValue = *newValue;
 }
 
 

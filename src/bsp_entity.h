@@ -42,7 +42,6 @@ class BSPEntity : public SceneEntity
     void SetKeyValue(std::string &key, std::string &value);
     void PopulateScene();
 
-    bool UpdateProperties();
     void Export(FILE *fp);
 
     void RenderBoundingBox() override;

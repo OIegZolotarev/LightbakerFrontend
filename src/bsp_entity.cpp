@@ -60,7 +60,6 @@ void BSPEntity::PopulateScene()
             SetColor({1, 0, 1});
     }
       
-
     std::shared_ptr<SceneEntity> ptr(this);
     m_pScene->AddNewSceneEntity(ptr);
 }

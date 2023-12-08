@@ -1,61 +1,62 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
-#include "object_props.h"
 #include "igui_panel.h"
+#include "object_props.h"
 
 class ObjectPropertiesEditor : public IGUIPanel
 {
-	ObjectPropertiesEditor();
+    ImGuiID m_FlagsEditorID = 0;
 
-	IObjectPropertiesBinding* m_pPropertiesBinding = nullptr;
-	ImGuiID m_FlagsEditorID = 0;
+    ObjectPropertiesEditor();
 
-	std::vector<VariantValue> m_vPropsData;
+    IObjectPropertiesBinding *m_pPropertiesBinding = nullptr;
 
-	VariantValue* m_pCurrentFlagProp = nullptr;
+    // Properties
+    std::list<VariantValue *> m_lstProperties;
+    void                      UpdateProperty(VariantValue *it);
 
-	void RenderFlagsEditor();
-	void RenderPropetiesPane();
+    VariantValue *m_pCurrentFlagProp = nullptr;
 
-	void RenderPropertyControl(VariantValue& it);
+    // Properties UI
+    void RenderFlagsEditor();
+    void RenderPropetiesPane();
+    void RenderPropertyControl(VariantValue *it);
 
-	void EditTransform(float* cameraView, float* cameraProjection, float* matrix, bool editTransformDecomposition);
-	void UpdateProperty(VariantValue* it);
+    // Gizmo
+    int           m_GizmoMode;
+    bool          m_bGuizmoEdited           = false;
+    glm::mat4     m_matGuizmo               = glm::mat4(1);
+    VariantValue *m_pGuizmoPropertyPosition = nullptr;
+    VariantValue *m_pGuizmoPropertyRotation = nullptr;
+    void          SetupGuizmo();
+    void EditTransform(float *cameraView, float *cameraProjection, float *matrix, bool editTransformDecomposition);
 
-	glm::mat4 m_matGuizmo = glm::mat4(1);
-	VariantValue* m_pGuizmoPropertyPosition = nullptr;
-	VariantValue* m_pGuizmoPropertyRotation = nullptr;
+    bool CheckObjectValidity();
 
-	bool m_bGuizmoEdited = false;
+    VariantValue *FindFirstPropertyByType(PropertiesTypes type);
 
-	bool CheckObjectValidity();
-	void SetupGuizmo();
-	VariantValue* FindFirstPropertyByType(PropertiesTypes type);
+    VariantValue m_OldPropertyValue;
+    VariantValue m_OldPropertyValue2;
 
-	void RenderEditor();
-
-	VariantValue m_OldPropertyValue;
-	VariantValue m_OldPropertyValue2;
+    void RenderEditor();
 
 public:
+    static ObjectPropertiesEditor *Instance();
+    ~ObjectPropertiesEditor();
 
-	static ObjectPropertiesEditor* Instance();
-	~ObjectPropertiesEditor();;
-		
-	void LoadObject(IObjectPropertiesBinding* pBindings);
-	void UnloadObject();
-	
-	void RenderGuizmo();
-	
-	DockPanels GetDockSide() override;
-	void Render() override;
+    // Object manipulation
+    void LoadObject(IObjectPropertiesBinding *pBindings);
+    void UnloadObject();
 
-	int CurrentSerialNumber();
-	void ReloadPropertyValue(int id);
-private:
-	int m_GizmoMode;
+    int  CurrentSerialNumber(); // TODO: refactor this
+    void ReloadPropertyValue(int id);
+
+    DockPanels GetDockSide() override;
+
+    void RenderGuizmo();
+    void Render() override;
 };
