@@ -202,7 +202,7 @@ build.bat
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="bsp_entities_properties_binding.cpp" />
-    <ClCompile Include="bsp_property.cpp" />
+    <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
     <ClCompile Include="r_frustum.cpp" />
@@ -299,7 +299,7 @@ build.bat
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="bsp_entities_properties_binding.h" />
-    <ClInclude Include="bsp_property.h" />
+    <ClInclude Include="bsp_entity_property.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
     <ClInclude Include="r_frustum.h" />

@@ -3,16 +3,20 @@
     (c) 2023 CrazyRussian
 */
 
-#include "bsp_property.h"
+#include "bsp_entity.h"
+#include "bsp_entity_property.h"
 #include "object_props.h"
-#include <type_traits>
 #include "text_utils.h"
 #include "wad_textures.h"
 #include "file_system.h"
+#include "game_configuration.h"
+#include "goldsource_game_configuration.h"
+#include "Scene.h"
+
 
 using namespace GoldSource;
 
-BSPProperty::BSPProperty(BSPEntity * pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr)
+BSPEntityProperty::BSPEntityProperty(BSPEntity * pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr)
 {
     m_Name   = name;
     m_Hash   = CalcHash(name);
@@ -27,12 +31,12 @@ BSPProperty::BSPProperty(BSPEntity * pOwner, std::string &name, std::string &val
     ParseValue(value);
 }
 
-BSPProperty::~BSPProperty()
+BSPEntityProperty::~BSPEntityProperty()
 {
     delete m_pValueWrapper;
 }
 
-PropertiesTypes BSPProperty::AdaptPropertyType()
+PropertiesTypes BSPEntityProperty::AdaptPropertyType()
 {
     if (m_Hash == SpecialKeys::KeyOrigin())
     {
@@ -49,22 +53,27 @@ PropertiesTypes BSPProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Flags;        
         return PropertiesTypes::Flags;
     }
+    else if (m_Hash == SpecialKeys::KeyClassname())
+    {
+        m_iSpecialId = PropertyMetatype::Classname;
+        return PropertiesTypes::String;
+    }
 
     return PropertiesTypes::String;
 }
 
 
-std::string &BSPProperty::Name()
+std::string &BSPEntityProperty::Name()
 {
     return m_Name;
 }
 
-size_t BSPProperty::Hash()
+size_t BSPEntityProperty::Hash()
 {
     return m_Hash;
 }
 
- BSPProperty::BSPProperty(BSPProperty *pOther)
+ BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther)
 {
     m_pDescr = pOther->m_pDescr;
     m_Name   = pOther->m_Name;
@@ -76,13 +85,13 @@ size_t BSPProperty::Hash()
     m_Hash          = pOther->m_Hash;
 }
 
-size_t BSPProperty::CalcHash(std::string &val)
+size_t BSPEntityProperty::CalcHash(std::string &val)
 {
    
     return std::hash<std::string>{}(val);
 }
 
-void BSPProperty::ParseValue(std::string &value)
+void BSPEntityProperty::ParseValue(std::string &value)
 {
     switch (m_iSpecialId)
     {
@@ -97,16 +106,18 @@ void BSPProperty::ParseValue(std::string &value)
         break;
     case PropertyMetatype::Flags:
         break;
-    case PropertyMetatype::None:
-        break;
     case PropertyMetatype::Light:
         break;    
+    case PropertyMetatype::Classname:
+        ParseClassname(value);
+        break;
     default:
         break;
+    
     }
 }
 
-void BSPProperty::ParseOrigin(std::string &value)
+void BSPEntityProperty::ParseOrigin(std::string &value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
 
@@ -129,7 +140,7 @@ void BSPProperty::ParseOrigin(std::string &value)
     //SetPosition();
 }
 
-glm::vec3 BSPProperty::ConvertOriginToSceneSpace(glm::vec3 &bspSpaceOrigin)
+glm::vec3 BSPEntityProperty::ConvertOriginToSceneSpace(glm::vec3 &bspSpaceOrigin)
 {
     glm::vec3 newOrigin = bspSpaceOrigin;
 
@@ -141,12 +152,12 @@ glm::vec3 BSPProperty::ConvertOriginToSceneSpace(glm::vec3 &bspSpaceOrigin)
     return newOrigin;
 }
 
-glm::vec3 BSPProperty::ConvertOriginFromSceneSpace(glm::vec3 &pos)
+glm::vec3 BSPEntityProperty::ConvertOriginFromSceneSpace(glm::vec3 &pos)
 {
     return glm::vec3{-pos.z, -pos.x, pos.y};
 }
 
-void GoldSource::BSPProperty::ParseAngles(std::string& value)
+void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
     
@@ -167,7 +178,26 @@ void GoldSource::BSPProperty::ParseAngles(std::string& value)
     }
 }
 
-void BSPProperty::ParseWad(std::string &value)
+void BSPEntityProperty::ParseClassname(std::string &value)
+{
+    auto                     scene          = m_pOwner->m_pScene;
+    GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
+    auto                     pConfigPtr     = pConfigWeakPtr.lock();
+    GameConfiguration *      pConfig        = pConfigPtr.get();
+
+    if (! instanceof <GoldSource::HammerGameConfiguration>(pConfig))
+    {
+        return;
+    }
+
+    GoldSource::HammerGameConfiguration *hammerConfig = (GoldSource::HammerGameConfiguration *)pConfig;
+
+    auto pFGDClass = hammerConfig->LookupFGDClass(value);
+    m_pOwner->SetFGDClass(pFGDClass);
+
+}
+
+void BSPEntityProperty::ParseWad(std::string &value)
 {
     // E:\Games\Half-Life\valve\halflife.wad;
     // E:\Games\Half-Life\valve\liquids.wad;
@@ -221,5 +251,11 @@ size_t SpecialKeys::KeyAngles()
 size_t SpecialKeys::KeyFlags()
 {
     static auto sKey = std::hash<std::string>{}("flags");
+    return sKey;
+}
+
+size_t SpecialKeys::KeyClassname()
+{
+    static auto sKey = std::hash<std::string>{}("classname");
     return sKey;
 }

@@ -8,7 +8,7 @@
 
 #include "bsp_entities_properties_binding.h"
 #include "bsp_entity.h"
-#include "bsp_property.h"
+#include "bsp_entity_property.h"
 
 using namespace GoldSource;
 
@@ -90,7 +90,7 @@ void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
 
         if (addProperty)
         {
-            m_lstCommonProperties.push_back(new GoldSource::BSPProperty(it));
+            m_lstCommonProperties.push_back(new GoldSource::BSPEntityProperty(it));
         }
     }
 }

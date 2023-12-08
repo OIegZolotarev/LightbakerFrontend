@@ -928,10 +928,7 @@ void BSPLevel::Mod_LoadEntities(lump_t* l)
 
 		if (token[0] == '{')
 		{
-            auto  scene     = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-            GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
-            auto                     pConfigPtr     = pConfigWeakPtr.lock();
-            GameConfiguration *      pConfig        = pConfigPtr.get();
+
 
 			BSPEntity* pEntity = new BSPEntity(m_pScene);
 

@@ -25,10 +25,12 @@ public:
     static size_t KeyWad();
     static size_t KeyAngles();
     static size_t KeyFlags();
+    static size_t KeyClassname();
 };
 
 enum class PropertyMetatype
 {
+    Classname,
     Origin,
     Angles,
     Flags,
@@ -39,7 +41,7 @@ enum class PropertyMetatype
 
 // BSPProperty - Incapsulates BSP property and it's metada in form of FGDProperty,
 // Also handles converting data from various types to another
-class BSPProperty
+class BSPEntityProperty
 {
     FGDPropertyDescriptor *m_pDescr;
     std::string            m_Name;
@@ -58,11 +60,11 @@ class BSPProperty
     
 
 public:
-    BSPProperty(BSPProperty * pOther);
+    BSPEntityProperty(BSPEntityProperty * pOther);
 
 
-    BSPProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
-    ~BSPProperty();
+    BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
+    ~BSPEntityProperty();
 
     std::string &   Name();
     VariantValue*   Value();
@@ -76,6 +78,7 @@ private:
     void ParseOrigin(std::string &value);
     void ParseAngles(std::string& value);
     void ParseWad(std::string &value);
+    void ParseClassname(std::string &value);
 };
 
 } // namespace GoldSource

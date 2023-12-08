@@ -374,7 +374,7 @@
     <ClCompile Include="bsp_entities_properties_binding.cpp">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
-    <ClCompile Include="bsp_property.cpp">
+    <ClCompile Include="bsp_entity_property.cpp">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
     <ClCompile Include="bsp_entity.cpp">
@@ -685,7 +685,7 @@
     <ClInclude Include="bsp_entities_properties_binding.h">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
-    <ClInclude Include="bsp_property.h">
+    <ClInclude Include="bsp_entity_property.h">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
     <ClInclude Include="bsp_entity.h">

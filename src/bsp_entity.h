@@ -17,7 +17,7 @@
 namespace GoldSource
 {
 
-class BSPProperty;
+class BSPEntityProperty;
 
 class BSPEntity : public SceneEntity
 {
@@ -29,9 +29,11 @@ class BSPEntity : public SceneEntity
 
     std::shared_ptr<BSPWorld> m_World;
 
-    std::list<BSPProperty *> m_lstProperties;
+    std::list<BSPEntityProperty *> m_lstProperties;
 
     GLTexture *m_pEditorSprite = nullptr;
+
+    friend class BSPEntityProperty;
 
   public:
     BSPEntity(Scene * pScene);
@@ -51,7 +53,9 @@ class BSPEntity : public SceneEntity
     void OnSelect() override;
 
     bool HasProperty(size_t hash);
-    std::list<BSPProperty *> &GetBSPProperties();
+    std::list<BSPEntityProperty *> &GetBSPProperties();
+
+    void SetFGDClass(FGDEntityClass *pClass);
 };
 
 } // namespace GoldSource

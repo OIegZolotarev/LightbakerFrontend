@@ -10,12 +10,12 @@
 namespace GoldSource
 {
 
-class BSPProperty;
+class BSPEntityProperty;
 
 class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
 {
     std::list<SceneEntityWeakPtr> m_lstSelectedObjects;    
-    std::list<GoldSource::BSPProperty*> m_lstCommonProperties;
+    std::list<GoldSource::BSPEntityProperty*> m_lstCommonProperties;
 
     void RebuildPropertiesList();
     void CleanupDeadObjects();

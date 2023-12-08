@@ -9,7 +9,7 @@
 #include "goldsource_game_configuration.h"
 #include "text_utils.h"
 #include "wad_textures.h"
-#include "bsp_property.h"
+#include "bsp_entity_property.h"
 
 using namespace GoldSource;
 
@@ -34,7 +34,10 @@ void BSPEntity::SetKeyValue(std::string &key, std::string &value)
         propDescr = m_pFGDClass->FindProperty(key);
     }
 
-    BSPProperty *pProperty = new BSPProperty(this, key, value, propDescr);
+    BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
+
+    m_lstProperties.push_back(pProperty);
+
     m_vProperties.insert(kvData(key, value));
 }
 
@@ -146,7 +149,7 @@ glm::vec3 BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin)
     return newOrigin;
 }
 
-std::list<BSPProperty *> &BSPEntity::GetBSPProperties()
+std::list<BSPEntityProperty *> &BSPEntity::GetBSPProperties()
 {
     return m_lstProperties;
 }
@@ -203,4 +206,9 @@ glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
     auto intensity = pEntity->GetIntensity();
 
     return glm::vec4(color.r, color.g, color.b, intensity);
+}
+
+void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
+{
+    m_pFGDClass = pClass;
 }
