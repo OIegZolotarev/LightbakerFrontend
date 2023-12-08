@@ -63,6 +63,9 @@ class HammerGameConfiguration : public GameConfiguration
     void RenderFGDUI();
 
     GameConfiguration *Clone() override;
+
+    static HammerGameConfiguration *Get(GameConfigurationWeakPtr pConfigWeakPtr);
+
 };
 
 } // namespace GoldSource

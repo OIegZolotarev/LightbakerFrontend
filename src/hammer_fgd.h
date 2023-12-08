@@ -7,6 +7,8 @@
 
 #include "file_system.h"
 
+class GLTexture;
+
 namespace GoldSource
 {
 enum class FGDEntityClassType

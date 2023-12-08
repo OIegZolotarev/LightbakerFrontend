@@ -22,9 +22,7 @@ class BSPEntityProperty;
 class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
-            
-    glm::vec3 ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin);
-    static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
+    
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
@@ -36,6 +34,8 @@ class BSPEntity : public SceneEntity
     friend class BSPEntityProperty;
 
   public:
+    // Delete for now, implement later
+    BSPEntity(BSPEntity *pOther) = delete;
     BSPEntity(Scene * pScene);
     ~BSPEntity();
 

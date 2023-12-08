@@ -47,7 +47,6 @@ SceneEntity::SceneEntity(Scene * pScene)
 SceneEntity::SceneEntity(SceneEntity& other)
 {
     m_pScene = other.m_pScene;
-	//m_SerialNumber = other.m_nSerialNumber;
 	m_Position = other.m_Position;
 
 	m_Mins = other.m_Mins;
@@ -55,15 +54,6 @@ SceneEntity::SceneEntity(SceneEntity& other)
 
 	m_Color = other.m_Color;
 	m_EditorIcon = other.m_EditorIcon;
-
-	if (m_vProperties.size())
-	{
-		for (auto& kv : other.m_vProperties)
-		{
-			m_vProperties.insert(kv);
-
-		}
-	}
 }
 
 void SceneEntity::RenderLightshaded()
@@ -130,22 +120,6 @@ const char* SceneEntity::Description()
 bool SceneEntity::IsLightEntity()
 {
 	return false;
-}
-
-void SceneEntity::CopyProperties(std::unordered_map<std::string, std::string> propsmap)
-{
-	m_vProperties = std::move(propsmap);
-	
-	if (m_vProperties.contains("classname"))
-	{
-		m_ClassName = m_vProperties["classname"];
-	}
-
-}
-
-TPropertiesMap & SceneEntity::GetProperties()
-{
-	return m_vProperties;
 }
 
 EntityClasses SceneEntity::EntityClass()

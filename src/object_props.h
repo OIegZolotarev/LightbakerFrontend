@@ -121,7 +121,7 @@ public:
 		return true;
 	}
 
-	virtual size_t GetSerialNumber()
+	virtual uint32_t GetSerialNumber()
 	{
 		return 0;
 	}

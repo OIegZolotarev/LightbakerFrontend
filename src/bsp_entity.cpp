@@ -36,29 +36,11 @@ void BSPEntity::SetKeyValue(std::string &key, std::string &value)
 
     BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
 
-    m_lstProperties.push_back(pProperty);
-
-    m_vProperties.insert(kvData(key, value));
+    m_lstProperties.push_back(pProperty);    
 }
 
 void BSPEntity::PopulateScene()
 {
-    auto scene      = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-    auto &classname = m_vProperties["classname"];
-
-    GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
-    auto pConfigPtr                         = pConfigWeakPtr.lock();
-    GameConfiguration *pConfig              = pConfigPtr.get();
-
-    // TODO: do proper type reflection
-    {
-        GoldSource::HammerGameConfiguration *hammerConfig = (HammerGameConfiguration *)pConfig;
-
-        assert(hammerConfig);
-
-        m_pFGDClass = hammerConfig->LookupFGDClass(classname);
-    }
-
     if (m_pFGDClass)
     {
         SetMins(m_pFGDClass->GetMins());
@@ -77,11 +59,10 @@ void BSPEntity::PopulateScene()
         if (!m_bIsSetColor) 
             SetColor({1, 0, 1});
     }
-
-    SetClassName(classname.c_str());
+      
 
     std::shared_ptr<SceneEntity> ptr(this);
-    scene->AddNewSceneEntity(ptr);
+    m_pScene->AddNewSceneEntity(ptr);
 }
 
 bool BSPEntity::UpdateProperties()
@@ -123,30 +104,18 @@ void BSPEntity::Export(FILE *fp)
 {
     fprintf(fp, "{\n");
 
-    for (auto kv : m_vProperties)
-    {
-        auto &key  = kv.first;
-        auto value = kv.second;
-
-        // TODO: проверить необходимость
-        // TextUtils::ReplaceAll(value, "\"", "\\"");
-
-        fprintf(fp, "\"%s\" \"%s\"\n", key.c_str(), value.c_str());
-    }
+//     for (auto kv : m_vProperties)
+//     {
+//         auto &key  = kv.first;
+//         auto value = kv.second;
+// 
+//         // TODO: проверить необходимость
+//         // TextUtils::ReplaceAll(value, "\"", "\\"");
+// 
+//         fprintf(fp, "\"%s\" \"%s\"\n", key.c_str(), value.c_str());
+//     }
 
     fprintf(fp, "}\n");
-}
-
-glm::vec3 BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin)
-{
-    auto newOrigin = bspSpaceOrigin;
-
-    // јбсолютно ниху€ не пон€тно
-    newOrigin.x = -bspSpaceOrigin.y;
-    newOrigin.y = bspSpaceOrigin.z;
-    newOrigin.z = -bspSpaceOrigin.x;
-
-    return newOrigin;
 }
 
 std::list<BSPEntityProperty *> &BSPEntity::GetBSPProperties()
@@ -167,8 +136,8 @@ bool BSPEntity::HasProperty(size_t hash)
 
 void BSPEntity::OnSelect()
 {
-    auto &classname = m_vProperties["classname"];
-    Con_Printf("BSPEntity::OnSelect(): %s\n", classname.c_str());
+    // auto &classname = m_vProperties["classname"];
+    //Con_Printf("BSPEntity::OnSelect(): %s\n", classname.c_str());
 }
 
 void BSPEntity::RenderUnshaded()
@@ -193,11 +162,6 @@ void BSPEntity::RenderGroupShaded()
 
 void BSPEntity::RenderBoundingBox()
 {
-}
-
-glm::vec3 BSPEntity::ConvertOriginFromSceneSpace(glm::vec3 origin)
-{
-    return glm::vec3{-origin.z, -origin.x, origin.y};
 }
 
 glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)

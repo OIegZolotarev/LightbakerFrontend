@@ -194,7 +194,7 @@ bool LightPropertiesBinding::IsObjectValid()
 	return m_pwLightDef.lock() != nullptr;
 }
 
-size_t LightPropertiesBinding::GetSerialNumber()
+uint32_t LightPropertiesBinding::GetSerialNumber()
 {
 	auto ptr = m_pwLightDef.lock();
 

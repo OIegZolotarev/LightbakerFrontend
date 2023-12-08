@@ -156,6 +156,7 @@ void Viewport::HanlePicker()
 
             auto obj = scene->GetEntityBySerialNumber(m_hoveredObjectId);
             auto ptr = obj.lock();
+            
             if (ptr)
             {
                 ptr->OnSelect();

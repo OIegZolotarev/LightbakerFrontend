@@ -32,8 +32,9 @@ public:                                                                         
         return m_##Name;                                                                                               \
     }
 
-typedef std::pair<std::string, std::string>          kvData;
-typedef std::unordered_map<std::string, std::string> TPropertiesMap;
+// Not used 
+// typedef std::pair<std::string, std::string>          kvData;
+// typedef std::unordered_map<std::string, std::string> TPropertiesMap;
 
 class Scene;
 
@@ -53,7 +54,7 @@ protected:
 
     // TODO: copy-constructor
     // Обобщенные пары ключ-значение
-    TPropertiesMap m_vProperties;
+    // TPropertiesMap m_vProperties;
 
     Scene *m_pScene;
 
@@ -87,9 +88,6 @@ public:
     virtual const char *Description();
     virtual bool        IsLightEntity();
     virtual void        OnAdditionToScene(class Scene *pScene){};
-
-    void           CopyProperties(TPropertiesMap propsmap);
-    TPropertiesMap & GetProperties();
 
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();

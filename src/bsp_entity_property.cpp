@@ -3,6 +3,8 @@
     (c) 2023 CrazyRussian
 */
 
+#include "application.h"
+
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
 #include "object_props.h"
@@ -180,41 +182,31 @@ void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
 
 void BSPEntityProperty::ParseClassname(std::string &value)
 {
+    m_pOwner->SetClassName(value.c_str());
+
     auto                     scene          = m_pOwner->m_pScene;
     GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
-    auto                     pConfigPtr     = pConfigWeakPtr.lock();
-    GameConfiguration *      pConfig        = pConfigPtr.get();
-
-    if (! instanceof <GoldSource::HammerGameConfiguration>(pConfig))
+    
+    GoldSource::HammerGameConfiguration *hammerConfig = GoldSource::HammerGameConfiguration::Get(pConfigWeakPtr);
+        
+    if (!hammerConfig)
     {
         return;
     }
-
-    GoldSource::HammerGameConfiguration *hammerConfig = (GoldSource::HammerGameConfiguration *)pConfig;
-
+    
     auto pFGDClass = hammerConfig->LookupFGDClass(value);
     m_pOwner->SetFGDClass(pFGDClass);
-
 }
 
 void BSPEntityProperty::ParseWad(std::string &value)
 {
-    // E:\Games\Half-Life\valve\halflife.wad;
-    // E:\Games\Half-Life\valve\liquids.wad;
-    // E:\Games\Half-Life\valve\xeno.wad;
-    // E:\Games\Half-Life\valve\decals.wad;
-    // E:\Games\Hammer\ZHLT\zhlt.wad;
-
     auto wadFiles = TextUtils::SplitTextSimple(value.c_str(), value.length(), ';');
 
     for (auto &it : wadFiles)
     {
-        auto baseName = FileSystem::Instance()->ExtractFileBase(it.c_str());
-
-        // Дебильный хак, надо сделать авто монтаж игропапки
-        std::string fullPath = "D:/Games/Steam/steamapps/common/Half-Life/valve/" + baseName + ".wad";
-
-        WADPool::Instance()->LoadWad(fullPath.c_str());
+        // FileSystem will handle (eventually) path resolving, so actually we can not bother with paths
+        auto baseName = FileSystem::Instance()->ExtractFileBase(it.c_str()) + ".wad ";
+        TextureManager::Instance()->RegisterWAD(baseName.c_str(), false);
     }
 }
 

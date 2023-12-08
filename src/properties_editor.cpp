@@ -99,7 +99,7 @@ int ObjectPropertiesEditor::CurrentSerialNumber()
 	if (!m_pPropertiesBinding)
 		return -1;
 
-	return m_pPropertiesBinding->GetSerialNumber();
+	return (uint32_t)m_pPropertiesBinding->GetSerialNumber();
 }
 
 void ObjectPropertiesEditor::ReloadPropertyValue(int id)

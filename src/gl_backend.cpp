@@ -41,12 +41,12 @@ void DrawMesh::Draw(uint32_t first /*= 0*/, uint32_t num /*= 0*/)
         assert(first == 0);
 
         size_t nElements = num > 0 ? num : m_NumIndices;
-        glDrawElements(m_drawMode, nElements, m_IndiciesType, 0);
+        glDrawElements(m_drawMode, (uint32_t)nElements, m_IndiciesType, 0);
     }
     else
     {
         size_t nElements = num > 0 ? num : m_NumElements;
-        glDrawArrays(m_drawMode, first, nElements);
+        glDrawArrays(m_drawMode, (uint32_t)first, (uint32_t)nElements);
     }
 }
 
@@ -247,7 +247,7 @@ void DrawMesh::TexCoord2fv(float *v)
 
 void DrawMesh::Element1i(size_t idx)
 {
-    m_Indices.push_back(idx);
+    m_Indices.push_back((uint32_t)idx);
 }
 
 size_t DrawMesh::CurrentElement()

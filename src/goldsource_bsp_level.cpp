@@ -1209,7 +1209,7 @@ std::string GoldSource::BSPLevel::Export(const char *newPath, lightBakerSettings
 
 	size_t pos = ftell(fpOut);
 
-	m_Header->lumps[LUMP_ENTITIES].fileofs = pos;
+	m_Header->lumps[LUMP_ENTITIES].fileofs = (uint32_t)pos;
 
 	auto scene = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetScene();
 
@@ -1226,7 +1226,7 @@ std::string GoldSource::BSPLevel::Export(const char *newPath, lightBakerSettings
 		}
 	}
 
-	m_Header->lumps[LUMP_ENTITIES].filelen = ftell(fpOut) - pos;
+	m_Header->lumps[LUMP_ENTITIES].filelen = ftell(fpOut) - (uint32_t)pos;
 
 	fseek(fpOut, 0, SEEK_SET);
 	fwrite(m_Header, sizeof(dheader_t), 1, fpOut);

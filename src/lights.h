@@ -106,7 +106,7 @@ class LightPropertiesBinding : public IObjectPropertiesBinding
     void UpdateObjectProperties(VariantValue *data, size_t num) override;
     bool IsObjectValid() override;
 
-    size_t GetSerialNumber() override;
+    uint32_t GetSerialNumber() override;
     void OnPropertyChangeSavedToHistory() override;
 
     ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
