@@ -17,19 +17,17 @@ class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
     std::list<SceneEntityWeakPtr> m_lstSelectedObjects;    
     std::list<GoldSource::BSPProperty*> m_lstCommonProperties;
 
+    void RebuildPropertiesList();
+    void CleanupDeadObjects();
+    void CleanupPropertiesList();
+
 public:
 
     void        SelectEntity(SceneEntityWeakPtr ptr);
-
     void        FillProperties(std::vector<VariantValue> &collection) override;
     const char *ObjectClassname() override;
     void        OnPropertyChangeSavedToHistory() override;
     void        UpdateObjectProperties(VariantValue *props, size_t num) override;
-
-private:
-    void RebuildPropertiesList();
-    void CleanupDeadObjects();
-    void CleanupPropertiesList();
 };
 
 } // namespace GoldSource
