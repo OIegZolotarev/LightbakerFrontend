@@ -174,7 +174,7 @@ bool SelectionManager::SelectHoveredObject()
 		if (ptr->IsHovered())
 		{
 			ptr->SetSelected(true);
-			ptr->OnSelect();
+            ptr->OnSelect(m_pLastHoveredObject);
 
 			m_pLastSelectedObject = m_pLastHoveredObject;
 
@@ -235,13 +235,7 @@ bool ISelectableObject::IsHovered()
 	return m_bHovered;
 }
 
-void ISelectableObject::InvokeSelect()
-{
-	m_bSelected = true;
-	OnSelect();
 
-	SelectionManager::Instance()->UnSelectEverythingBut(this);
-}
 
 void ISelectableObject::SetSelected(bool state)
 {

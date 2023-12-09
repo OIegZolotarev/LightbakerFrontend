@@ -91,7 +91,9 @@ public:
                           OptionalDefaultValAndHelp_s defaultValueAndHelp);
 
     ~FGDPropertyDescriptor();
-    std::string &GetName();
+    const std::string &GetName() const;
+    const std::string &GetDescription() const;
+    const std::string &GetHelp() const;
 };
 
 class FGDFlagsEnumProperty : public FGDPropertyDescriptor
@@ -140,24 +142,15 @@ public:
     void SetDecalEntity(bool flag);
     void SetEditorSprite(std::string sprite);
     void SetPropertyExtra(std::string p, float value);
-    ;
+    
+    void AddProperty(FGDPropertyDescriptor *p);
 
-    void AddProperty(FGDPropertyDescriptor *p)
-    {
-        m_Properties.push_back(p);
-    }
+    void SetCtorFlags(int flags);
 
-    void SetCtorFlags(int flags)
-    {
-        m_CtorDefinitionFlags = flags;
-    }
-
-    void SetBaseClasses(std::list<std::string> classes)
-    {
-        m_BaseClasses = classes;
-    }
+    void SetBaseClasses(std::list<std::string> classes);
 
     const std::string &ClassName() const;
+    const std::string &Description() const;
 
     glm::vec3 GetMins();
     glm::vec3 GetMaxs();
@@ -166,7 +159,7 @@ public:
 
     GLTexture *GetEditorSpite();
 
-    FGDPropertyDescriptor *FindProperty(std::string &propertyName);
+    FGDPropertyDescriptor *FindProperty(const std::string &propertyName) const;
 
 private:
     HammerFGDFile *m_pOwner;

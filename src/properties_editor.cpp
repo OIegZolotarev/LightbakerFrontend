@@ -150,7 +150,12 @@ void ObjectPropertiesEditor::SetupGuizmo()
 	
 
 	glm::vec3 pos = m_pGuizmoPropertyPosition->GetPosition();
-	glm::vec3 ang = m_pGuizmoPropertyRotation->GetAngles();
+
+	glm::vec3 ang = {0, 0, 0};
+
+	if (m_pGuizmoPropertyRotation)
+		ang = m_pGuizmoPropertyRotation->GetAngles();
+
 	glm::vec3 scale = glm::vec3(1.f);
 
 	ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang.x, &scale.x, &m_matGuizmo[0][0]);
@@ -216,7 +221,17 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 					ImGui::TableSetColumnIndex(0);
 					ImGui::AlignTextToFramePadding();
 					ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+
+
 					ImGui::TreeNodeEx("Field", flags, "%s", it->DisplayName());
+
+					auto & help = it->Help();
+
+					if (!help.empty())
+					{
+                        ImGui::SetItemTooltip("Description:\n%s", help.c_str());
+					}
+                    
 
 					ImGui::TableSetColumnIndex(1);
 					ImGui::SetNextItemWidth(-FLT_MIN);
@@ -237,7 +252,9 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 				ImGui::Text("Object has no properties");
 		}
 
-		
+		if (m_pPropertiesBinding)
+			m_pPropertiesBinding->RenderFooter();
+
 	}
 	ImGui::End();
 }
@@ -245,6 +262,8 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 {
 	VariantValue oldValue = *it;
+
+	ImGui::PushID(it);
 
 	switch (it->GetType())
 	{
@@ -340,10 +359,16 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 		if (ImGui::DragFloat("Vector", (float*)it->Data()))
 			UpdateProperty(it);
 		break;
+    case PropertiesTypes::String:
+        if (ImGui::InputText("##Value", it->GetStdStringPtr()))
+            UpdateProperty(it);
+        break;
 	default:
 		break;
 
 	}
+
+	ImGui::PopID();
 
 	if (ImGui::IsItemActivated())
 	{

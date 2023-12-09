@@ -5,37 +5,34 @@
 
 #include "application.h"
 
+#include "Scene.h"
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
-#include "object_props.h"
-#include "text_utils.h"
-#include "wad_textures.h"
 #include "file_system.h"
 #include "game_configuration.h"
 #include "goldsource_game_configuration.h"
-#include "Scene.h"
-
+#include "object_props.h"
+#include "text_utils.h"
+#include "wad_textures.h"
 
 using namespace GoldSource;
 
-BSPEntityProperty::BSPEntityProperty(BSPEntity * pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr)
+BSPEntityProperty::BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::string &value,
+                                     FGDPropertyDescriptor *pDescr)
 {
-    m_Name   = name;
-    m_Hash   = CalcHash(name);
+    m_Name = name;
+    m_Hash = CalcHash(name);
 
-    m_pDescriptor = pDescr;
-        
-    PropertiesTypes ptType = AdaptPropertyType();
-    m_pValueWrapper        = new VariantValue(0, ptType, m_Name);
-   
+    SetDescriptor(pDescr);
+
+    type     = AdaptPropertyType();
     m_pOwner = pOwner;
-    
+
     ParseValue(value);
 }
 
 BSPEntityProperty::~BSPEntityProperty()
 {
-    delete m_pValueWrapper;
 }
 
 PropertiesTypes BSPEntityProperty::AdaptPropertyType()
@@ -52,7 +49,7 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
     }
     else if (m_Hash == SpecialKeys::KeyFlags())
     {
-        m_iSpecialId = PropertyMetatype::Flags;        
+        m_iSpecialId = PropertyMetatype::Flags;
         return PropertiesTypes::Flags;
     }
     else if (m_Hash == SpecialKeys::KeyClassname())
@@ -60,10 +57,11 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Classname;
         return PropertiesTypes::String;
     }
+    else 
+        m_iSpecialId = PropertyMetatype::None;
 
     return PropertiesTypes::String;
 }
-
 
 std::string &BSPEntityProperty::Name()
 {
@@ -75,21 +73,17 @@ size_t BSPEntityProperty::Hash()
     return m_Hash;
 }
 
- BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther)
+BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther) : VariantValue(*pOther)
 {
-    m_pDescriptor = pOther->m_pDescriptor;
     m_Name   = pOther->m_Name;
+    m_pOwner = nullptr;
+    m_Hash   = pOther->m_Hash;
 
-    PropertiesTypes ptType = AdaptPropertyType();
-    m_pValueWrapper        = new VariantValue(0, ptType, m_Name);
-
-    m_pOwner        = nullptr;
-    m_Hash          = pOther->m_Hash;
+    SetDescriptor(pOther->m_pDescriptor);
 }
 
 size_t BSPEntityProperty::CalcHash(std::string &val)
 {
-   
     return std::hash<std::string>{}(val);
 }
 
@@ -109,13 +103,12 @@ void BSPEntityProperty::ParseValue(std::string &value)
     case PropertyMetatype::Flags:
         break;
     case PropertyMetatype::Light:
-        break;    
+        break;
     case PropertyMetatype::Classname:
         ParseClassname(value);
         break;
     default:
         break;
-    
     }
 }
 
@@ -135,12 +128,14 @@ void BSPEntityProperty::ParseOrigin(std::string &value)
             if (isnan(origin[i]))
                 origin[i] = 0;
         }
-                
-        m_pValueWrapper->SetPosition(ConvertOriginToSceneSpace(origin));
-        m_pOwner->SetPosition(m_pValueWrapper->GetPosition());
+
+        SetPosition(ConvertOriginToSceneSpace(origin));
+        m_pOwner->SetPosition(GetPosition());
+
+        display_name = "Origin";
     }
 
-    //SetPosition();
+    // SetPosition();
 }
 
 glm::vec3 BSPEntityProperty::ConvertOriginToSceneSpace(glm::vec3 &bspSpaceOrigin)
@@ -168,12 +163,24 @@ GoldSource::FGDPropertyDescriptor *BSPEntityProperty::PropertyDescriptor()
 void BSPEntityProperty::SetDescriptor(FGDPropertyDescriptor *descr)
 {
     m_pDescriptor = descr;
+
+    if (m_pDescriptor)
+    {
+        display_name = m_pDescriptor->GetDescription();
+        SetHelp(m_pDescriptor->GetHelp());
+
+    }
+    else
+        display_name = m_Name;
+
+    if (display_name.empty())
+        display_name = m_Name;
 }
 
-void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
+void GoldSource::BSPEntityProperty::ParseAngles(std::string &value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
-    
+
     if (digits.size() == 4)
     {
         glm::vec4 color = {0, 0, 0, 0};
@@ -187,7 +194,7 @@ void GoldSource::BSPEntityProperty::ParseAngles(std::string& value)
         color[3] = std::stof(*it);
 
         // TODO: Fixme
-        m_pValueWrapper->SetColorRGBA(color);
+        SetColorRGBA(color);
     }
 }
 
@@ -202,14 +209,16 @@ void BSPEntityProperty::ParseClassname(std::string &value)
 
     auto                     scene          = m_pOwner->m_pScene;
     GameConfigurationWeakPtr pConfigWeakPtr = scene->UsedGameConfiguration();
-    
+
     GoldSource::HammerGameConfiguration *hammerConfig = GoldSource::HammerGameConfiguration::Get(pConfigWeakPtr);
-        
+
     if (!hammerConfig)
     {
         return;
     }
-    
+
+    SetString(value);
+
     auto pFGDClass = hammerConfig->LookupFGDClass(value);
     m_pOwner->SetFGDClass(pFGDClass);
 }

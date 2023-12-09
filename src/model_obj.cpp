@@ -254,7 +254,7 @@ void ModelOBJ::OnMouseMove(glm::vec2 delta)
 {
 }
 
-void ModelOBJ::OnSelect()
+void ModelOBJ::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
     // Con_Printf("ModelOBJ::OnSelect()\n");
 }

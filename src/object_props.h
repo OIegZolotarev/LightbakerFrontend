@@ -27,10 +27,15 @@ typedef std::pair<std::string, int> enumValuePair_t;
 
 class VariantValue
 {
+private:
+    std::string m_strHelp = "";
+protected:
 	int id;
 	PropertiesTypes type;
 	
 	std::string display_name;	
+	
+
 	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
 	bool initialized = false;
@@ -55,6 +60,25 @@ class VariantValue
 
 public:
 	VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
+
+	VariantValue(VariantValue & pOther)
+    {
+        id = pOther.id;
+        type = pOther.type;
+        display_name = pOther.display_name;
+        m_EnumOrFlagsValues = pOther.m_EnumOrFlagsValues;
+        initialized         = pOther.initialized;
+        
+		m_Limits[0]         = pOther.m_Limits[0];
+		m_Limits[1]         = pOther.m_Limits[1];
+
+		m_StringValue = pOther.m_StringValue;
+
+		value = pOther.value;
+
+		SetHelp(pOther.m_strHelp);
+	}
+
 	VariantValue();
 	~VariantValue();
 
@@ -108,6 +132,17 @@ public:
 	void SetNumericalLimits(float min, float max);
 	void ValidateValue();
 	float* GetNumericalLimits();
+    std::string *GetStdStringPtr();
+
+	const std::string & Help() const
+    {
+        return m_strHelp;
+	}
+
+	void SetHelp(const std::string & str)
+    {
+        m_strHelp = str;
+	}
 };
 
 
@@ -137,4 +172,6 @@ public:
 	{
 		return "<no classname>";
 	}
+    
+	virtual void RenderFooter();
 };

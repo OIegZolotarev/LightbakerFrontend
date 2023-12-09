@@ -19,6 +19,20 @@ void SceneEntity::FlagDataLoaded()
 	m_bDataLoaded = true;
 }
 
+void SceneEntity::InvokeSelect()
+{
+    auto weakRef = m_pScene->GetEntityWeakRef(this);
+	m_bSelected = true;
+
+    OnSelect(weakRef);
+    SelectionManager::Instance()->UnSelectEverythingBut(this);    
+}
+
+std::string &SceneEntity::GetClassName()
+{
+    return m_ClassName;
+}
+
 void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding* binder)
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
@@ -97,7 +111,7 @@ void SceneEntity::OnMouseMove(glm::vec2 delta)
 	
 }
 
-void SceneEntity::OnSelect()
+void SceneEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
 	
 }

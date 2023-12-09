@@ -41,14 +41,11 @@ enum class PropertyMetatype
 
 // BSPProperty - Incapsulates BSP property and it's metada in form of FGDProperty,
 // Also handles converting data from various types to another
-class BSPEntityProperty
+class BSPEntityProperty: public VariantValue
 {
     FGDPropertyDescriptor *m_pDescriptor;
     std::string            m_Name;
     
-
-    VariantValue *m_pValueWrapper;
-
     BSPEntity *     m_pOwner;
     PropertiesTypes AdaptPropertyType();
 

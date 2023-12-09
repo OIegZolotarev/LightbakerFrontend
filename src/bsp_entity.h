@@ -49,12 +49,13 @@ class BSPEntity : public SceneEntity
     void RenderLightshaded() override;
     void RenderUnshaded() override;
 
-    void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
     bool HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
     void SetFGDClass(FGDEntityClass *pClass);
+    FGDEntityClass *GetFGDClass();
 };
 
 } // namespace GoldSource

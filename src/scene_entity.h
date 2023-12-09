@@ -81,7 +81,7 @@ public:
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
-    void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
     void OnUnSelect() override;
     void OnUnhovered() override;
 
@@ -91,6 +91,9 @@ public:
 
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
+
+    void InvokeSelect();
+    std::string &GetClassName();
 
 };
 

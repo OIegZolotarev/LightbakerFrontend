@@ -26,14 +26,10 @@ ModelObjWorld::~ModelObjWorld()
 	if (m_pObjWorld) delete m_pObjWorld;
 }
 
-void ModelObjWorld::OnSelect()
+void ModelObjWorld::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
-	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRenderer->GetScene();
-
-	auto weakRef = scene->GetEntityWeakRef(this);
-
-	WorldspawnPropertiesBinder* binder = new WorldspawnPropertiesBinder(weakRef);
+	SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
+	WorldspawnPropertiesBinder *binder = new WorldspawnPropertiesBinder(weakRef);
 	LoadPropertiesToPropsEditor(binder);
 }
 

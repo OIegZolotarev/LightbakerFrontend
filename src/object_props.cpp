@@ -252,3 +252,13 @@ float* VariantValue::GetNumericalLimits()
 {
 	return m_Limits;
 }
+
+std::string *VariantValue::GetStdStringPtr()
+{
+    return &m_StringValue;
+}
+
+void IObjectPropertiesBinding::RenderFooter()
+{
+    return;
+}

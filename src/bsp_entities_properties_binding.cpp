@@ -15,7 +15,7 @@ using namespace GoldSource;
 void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
 {
     auto lck = ptr.lock();
-    
+
     if (!lck)
         return;
 
@@ -23,44 +23,90 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
 
     if (! instanceof <GoldSource::BSPEntity>(raw))
         return;
-        
+
     m_lstSelectedObjects.push_back(ptr);
 
     RebuildPropertiesList();
+
+    // Build selection representation
+
+    bool  multipleClasses = false;
+    auto &firstClass      = raw->GetClassName();
+
+    for (auto &it : m_lstSelectedObjects)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        if (ptr->GetClassName() != firstClass)
+        {
+            multipleClasses = true;
+            break;
+        }
+    }
+
+    if (multipleClasses)
+    {
+        m_strObjectsClassname = std::format("{0} objects", m_lstSelectedObjects.size());
+        m_pSelectedClass      = nullptr;
+    }
+    else
+    {
+        GoldSource::BSPEntity *rawBSP = (GoldSource::BSPEntity *)raw;
+        m_pSelectedClass              = rawBSP->GetFGDClass();
+
+        if (m_lstSelectedObjects.size() == 1)
+            m_strObjectsClassname = std::format("{0}", firstClass);
+        else
+            m_strObjectsClassname = std::format("{1} {0}'s", firstClass, m_lstSelectedObjects.size());
+    }
 }
 
-void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
+void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantValue *> &collection)
 {
-    
+    for (auto &it : m_lstCommonProperties)
+    {
+        collection.push_back(it);
+    }
+}
+
+void BSPEntitiesPropertiesBinder::RenderFooter()
+{
+    if (!m_pSelectedClass)
+        return;
+
+    auto descr = m_pSelectedClass->Description();
+
+    if (!descr.empty())
+        ImGui::TextWrapped("%s - %s", m_pSelectedClass->ClassName().c_str(), descr.c_str());
 }
 
 const char *BSPEntitiesPropertiesBinder::ObjectClassname()
 {
-    return "";
+    return m_strObjectsClassname.c_str();
 }
 
 void BSPEntitiesPropertiesBinder::OnPropertyChangeSavedToHistory()
 {
-    
 }
 
 void BSPEntitiesPropertiesBinder::UpdateObjectProperties(VariantValue *props, size_t num)
 {
-    
 }
 
 void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
-{   
+{
     CleanupPropertiesList();
     CleanupDeadObjects();
-    
+
     if (m_lstSelectedObjects.size() == 0)
         return;
 
-    auto ptr = m_lstSelectedObjects.begin();
-    auto smart_ptr = ptr->lock();
+    auto                   ptr       = m_lstSelectedObjects.begin();
+    auto                   smart_ptr = ptr->lock();
     GoldSource::BSPEntity *rawPtr    = (GoldSource::BSPEntity *)smart_ptr.get();
-
 
     for (auto &it : rawPtr->GetBSPProperties())
     {
@@ -68,23 +114,22 @@ void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
 
         if (m_lstSelectedObjects.size() > 1)
         {
-
-            for (auto & otherEntWeak : m_lstSelectedObjects)
+            for (auto &otherEntWeak : m_lstSelectedObjects)
             {
                 // Fine to check against self
                 auto otherEnt = otherEntWeak.lock();
 
                 // Should not triggered
-                // 
+                //
                 assert(otherEnt);
+
                 GoldSource::BSPEntity *rawPtrOther = (GoldSource::BSPEntity *)otherEnt.get();
-                
+
                 if (!rawPtrOther->HasProperty(it->Hash()))
                 {
                     addProperty = false;
                     break;
                 }
-
             }
         }
 
@@ -113,7 +158,7 @@ void BSPEntitiesPropertiesBinder::CleanupDeadObjects()
 
 void BSPEntitiesPropertiesBinder::CleanupPropertiesList()
 {
-    for (auto & it: m_lstCommonProperties)
+    for (auto &it : m_lstCommonProperties)
     {
         delete it;
     }

@@ -10,6 +10,8 @@
 #include "text_utils.h"
 #include "wad_textures.h"
 #include "bsp_entity_property.h"
+#include "bsp_entities_properties_binding.h"
+#include "properties_editor.h"
 
 using namespace GoldSource;
 
@@ -90,10 +92,21 @@ bool BSPEntity::HasProperty(size_t hash)
     return false;
 }
 
-void BSPEntity::OnSelect()
-{
-    // auto &classname = m_vProperties["classname"];
-    //Con_Printf("BSPEntity::OnSelect(): %s\n", classname.c_str());
+void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
+{    
+    auto ptr = myWeakRef.lock();
+    
+    if (ptr)
+    {
+        SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
+        m_pScene->HintSelected(weakRef);
+
+        // TODO: make binder singletons?
+        BSPEntitiesPropertiesBinder *pBinder  = new BSPEntitiesPropertiesBinder();
+        pBinder->SelectEntity(weakRef);        
+        ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+    }
+    
 }
 
 void BSPEntity::RenderUnshaded()
@@ -143,7 +156,13 @@ void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
         auto descr = m_pFGDClass->FindProperty(it->Name());
 
         it->SetDescriptor(descr);
+        
 
     }
 
+}
+
+GoldSource::FGDEntityClass *BSPEntity::GetFGDClass()
+{
+    return m_pFGDClass;
 }

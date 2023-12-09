@@ -296,7 +296,7 @@ void Lb3kLightEntity::OnUnhovered()
 	
 }
 
-void Lb3kLightEntity::OnSelect()
+void Lb3kLightEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();

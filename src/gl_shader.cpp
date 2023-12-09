@@ -86,7 +86,7 @@ void ShaderProgram::ParseProgramUniforms()
 
     m_vecUniforms.reserve(count);
 
-    for (size_t i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         int size;
         GLuint fmt;
@@ -186,7 +186,7 @@ GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
 
 GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines)
 {
-    size_t num_blocks = defines.size() + 3; // Shader type and shader source
+    int num_blocks = (int)(defines.size() + 3); // Shader type and shader source
 
     std::string *definesText = new std::string[defines.size()];
 

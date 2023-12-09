@@ -7,6 +7,10 @@
 
 #include "common.h"
 
+class ISelectableObject;
+
+typedef std::weak_ptr<ISelectableObject> ISelectableObjectWeakRef;
+
 class ISelectableObject
 {
 protected:
@@ -17,18 +21,17 @@ public:
 	virtual	void OnHovered() = 0;
 	virtual void OnUnhovered() = 0;
 	virtual	void OnMouseMove(glm::vec2 delta) = 0;
-	virtual void OnSelect() = 0;
+    virtual void OnSelect(ISelectableObjectWeakRef myWeakRef) = 0;
 	virtual	void OnUnSelect() = 0;
 
 	bool IsSelected();
 	bool IsHovered();
-
-	void InvokeSelect();
+		
 	void SetSelected(bool state);
 	void SetHovered(bool state);
 };
 
-typedef std::weak_ptr<ISelectableObject> ISelectableObjectWeakRef;
+
 
 class SelectionManager
 {

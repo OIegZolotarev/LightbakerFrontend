@@ -159,7 +159,7 @@ void Viewport::HanlePicker()
             
             if (ptr)
             {
-                ptr->OnSelect();
+                ptr->OnSelect(obj);
             }
         }
     }

@@ -50,7 +50,7 @@ public:
 	// Selectable object
 	void OnHovered() override;
 	void OnMouseMove(glm::vec2 delta) override;
-	void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	void OnUnSelect() override;
 	void OnUnhovered() override;
 	
