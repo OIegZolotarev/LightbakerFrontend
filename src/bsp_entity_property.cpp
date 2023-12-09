@@ -17,8 +17,8 @@
 
 using namespace GoldSource;
 
-BSPEntityProperty::BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::string &value,
-                                     FGDPropertyDescriptor *pDescr)
+BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const std::string &name, const std::string &value,
+                                     const FGDPropertyDescriptor *pDescr)
 {
     m_Name = name;
     m_Hash = CalcHash(name);
@@ -26,7 +26,7 @@ BSPEntityProperty::BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::
     SetDescriptor(pDescr);
 
     type     = AdaptPropertyType();
-    m_pOwner = pOwner;
+    m_pOwner = (BSPEntity*)pOwner;
 
     ParseValue(value);
 }
@@ -73,7 +73,7 @@ size_t BSPEntityProperty::Hash()
     return m_Hash;
 }
 
-BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther) : VariantValue(*pOther)
+BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantValue(*pOther)
 {
     m_Name   = pOther->m_Name;
     m_pOwner = nullptr;
@@ -82,12 +82,25 @@ BSPEntityProperty::BSPEntityProperty(BSPEntityProperty *pOther) : VariantValue(*
     SetDescriptor(pOther->m_pDescriptor);
 }
 
-size_t BSPEntityProperty::CalcHash(std::string &val)
+ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr)
+{
+     m_pOwner = (BSPEntity *)pOwner;
+
+     m_Name   = pDescr->GetName();
+     m_Hash   = CalcHash(m_Name);
+
+     initialized = false;
+     SetDescriptor(pDescr);
+     
+     type = AdaptPropertyType();
+ }
+
+size_t GoldSource::BSPEntityProperty::CalcHash(const std::string &val)
 {
     return std::hash<std::string>{}(val);
 }
 
-void BSPEntityProperty::ParseValue(std::string &value)
+void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
 {
     switch (m_iSpecialId)
     {
@@ -112,7 +125,7 @@ void BSPEntityProperty::ParseValue(std::string &value)
     }
 }
 
-void BSPEntityProperty::ParseOrigin(std::string &value)
+void BSPEntityProperty::ParseOrigin(const std::string &value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
 
@@ -160,9 +173,9 @@ GoldSource::FGDPropertyDescriptor *BSPEntityProperty::PropertyDescriptor()
     return m_pDescriptor;
 }
 
-void BSPEntityProperty::SetDescriptor(FGDPropertyDescriptor *descr)
+void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
 {
-    m_pDescriptor = descr;
+    m_pDescriptor = (FGDPropertyDescriptor*)descr;
 
     if (m_pDescriptor)
     {
@@ -177,7 +190,7 @@ void BSPEntityProperty::SetDescriptor(FGDPropertyDescriptor *descr)
         display_name = m_Name;
 }
 
-void GoldSource::BSPEntityProperty::ParseAngles(std::string &value)
+void BSPEntityProperty::ParseAngles(const std::string &value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
 
@@ -203,7 +216,7 @@ void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
     throw std::logic_error("The method or operation is not implemented.");
 }
 
-void BSPEntityProperty::ParseClassname(std::string &value)
+void BSPEntityProperty::ParseClassname(const std::string &value)
 {
     m_pOwner->SetClassName(value.c_str());
 
@@ -223,7 +236,7 @@ void BSPEntityProperty::ParseClassname(std::string &value)
     m_pOwner->SetFGDClass(pFGDClass);
 }
 
-void BSPEntityProperty::ParseWad(std::string &value)
+void BSPEntityProperty::ParseWad(const std::string &value)
 {
     auto wadFiles = TextUtils::SplitTextSimple(value.c_str(), value.length(), ';');
 

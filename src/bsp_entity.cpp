@@ -27,7 +27,7 @@ BSPEntity::~BSPEntity()
     m_lstProperties.clear();
 }
 
-void BSPEntity::SetKeyValue(std::string &key, std::string &value)
+void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
 {   
     FGDPropertyDescriptor *propDescr = nullptr;
 
@@ -36,10 +36,32 @@ void BSPEntity::SetKeyValue(std::string &key, std::string &value)
         propDescr = m_pFGDClass->FindProperty(key);
     }
 
-    BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
+    size_t prophash = BSPEntityProperty::CalcHash(key);
 
-    m_lstProperties.push_back(pProperty);    
+    BSPEntityProperty *existingProp = FindProperty(prophash);
+
+    if (existingProp)
+    {
+        existingProp->ParseValue(value);
+    }
+    else
+    {
+        BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
+        m_lstProperties.push_back(pProperty);
+    }
 }
+
+BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
+{
+    for(auto & it: m_lstProperties)
+    {
+        if (it->Hash() == prophash)
+            return it;
+    }
+
+    return nullptr;
+}
+
 
 void BSPEntity::PopulateScene()
 {
@@ -71,7 +93,10 @@ void BSPEntity::Export(FILE *fp)
     fprintf(fp, "{\n");
    
     for (auto &it : m_lstProperties)
-        it->SerializeAsKeyValue(fp);
+    {
+        if (it->IsInitialized())
+            it->SerializeAsKeyValue(fp);
+    }
    
    fprintf(fp, "}\n");
 }
@@ -154,9 +179,18 @@ void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
             continue;
 
         auto descr = m_pFGDClass->FindProperty(it->Name());
+        it->SetDescriptor(descr);       
+    }
 
-        it->SetDescriptor(descr);
-        
+    for (auto &fgdProp : pClass->GetProperties())
+    {
+        auto hash = BSPEntityProperty::CalcHash(fgdProp->GetName());
+
+        if (HasProperty(hash))
+            continue;
+
+        BSPEntityProperty *pProperty = new BSPEntityProperty(this, fgdProp);
+        m_lstProperties.push_back(pProperty);
 
     }
 

@@ -107,7 +107,7 @@ void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
     auto                   ptr       = m_lstSelectedObjects.begin();
     auto                   smart_ptr = ptr->lock();
     GoldSource::BSPEntity *rawPtr    = (GoldSource::BSPEntity *)smart_ptr.get();
-
+    
     for (auto &it : rawPtr->GetBSPProperties())
     {
         bool addProperty = true;

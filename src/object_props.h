@@ -61,7 +61,7 @@ protected:
 public:
 	VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
 
-	VariantValue(VariantValue & pOther)
+	VariantValue(const VariantValue &pOther)
     {
         id = pOther.id;
         type = pOther.type;

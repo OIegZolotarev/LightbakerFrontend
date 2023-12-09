@@ -57,28 +57,32 @@ class BSPEntityProperty: public VariantValue
     
 
 public:
-    BSPEntityProperty(BSPEntityProperty * pOther);
-    BSPEntityProperty(BSPEntity *pOwner, std::string &name, std::string &value, FGDPropertyDescriptor *pDescr);
+    BSPEntityProperty(const BSPEntityProperty * pOther);
+    
+    BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr);
+
+
+    BSPEntityProperty(const BSPEntity *pOwner, const std::string &name, const std::string &value, const FGDPropertyDescriptor *pDescr);
     ~BSPEntityProperty();
 
     std::string &   Name();
-    VariantValue*   Value();
-
     size_t Hash();
 
-    static size_t CalcHash(std::string &val);
+    static size_t CalcHash(const std::string &val);
     void SerializeAsKeyValue(FILE *fp);
 
     FGDPropertyDescriptor *PropertyDescriptor();
 
-    void SetDescriptor(FGDPropertyDescriptor *descr);
+    void SetDescriptor(const FGDPropertyDescriptor *descr);
+
+    void ParseValue(const std::string &value);
 
 private:
-    void ParseValue(std::string &value);
-    void ParseOrigin(std::string &value);
-    void ParseAngles(std::string& value);
-    void ParseWad(std::string &value);
-    void ParseClassname(std::string &value);
+    
+    void ParseOrigin(const std::string &value);
+    void ParseAngles(const std::string &value);
+    void ParseWad(const std::string &value);
+    void ParseClassname(const std::string &value);
 
 
 };

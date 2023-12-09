@@ -160,6 +160,7 @@ public:
     GLTexture *GetEditorSpite();
 
     FGDPropertyDescriptor *FindProperty(const std::string &propertyName) const;
+    const FGDPropertiesList &GetProperties() const;
 
 private:
     HammerFGDFile *m_pOwner;
@@ -214,7 +215,7 @@ public:
     void AddEntityClass(FGDEntityClass *entityDef);
     void RelinkInheritedProperties();
 
-    FGDEntityClass *FindEntityClass(std::string &baseClassStr);
+    FGDEntityClass *FindEntityClass(const std::string &baseClassStr);
     std::string     AbsoluteResourcePath(std::string &m_EditorSprite);
 
 private:

@@ -48,7 +48,7 @@ void HammerFGDFile::RelinkInheritedProperties()
     }
 }
 
-GoldSource::FGDEntityClass *HammerFGDFile::FindEntityClass(std::string &baseClassStr)
+GoldSource::FGDEntityClass * GoldSource::HammerFGDFile::FindEntityClass(const std::string &baseClassStr)
 {
     if (!m_Entities.contains(baseClassStr))
         return nullptr;
@@ -253,6 +253,11 @@ void FGDEntityClass::AddProperty(FGDPropertyDescriptor *p)
 const std::string &FGDEntityClass::Description() const
 {
     return m_Description;
+}
+
+const GoldSource::FGDPropertiesList &FGDEntityClass::GetProperties() const
+{
+    return m_Properties;
 }
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,

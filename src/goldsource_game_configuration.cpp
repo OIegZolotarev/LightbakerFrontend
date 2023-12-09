@@ -72,6 +72,7 @@ HammerGameConfiguration::HammerGameConfiguration(HammerGameConfiguration &other)
 
 void HammerGameConfiguration::InitListViewBindings()
 {
+    // TODO: m_lstFGDData keeps freed fgd data
     FilesListViewBindings *bindings = new FilesListViewBindings(m_FGDFiles);
     bindings->SetDialogTitle("Select FGD file");
     bindings->SetFileFilter(".fgd");
@@ -299,7 +300,7 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     fd->UnRef();
 }
 
-FGDEntityClass *HammerGameConfiguration::LookupFGDClass(std::string &classname)
+GoldSource::FGDEntityClass * GoldSource::HammerGameConfiguration::LookupFGDClass(const std::string &classname)
 {
     for (auto &it : m_lstFGDData)
     {

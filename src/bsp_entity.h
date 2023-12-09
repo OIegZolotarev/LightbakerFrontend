@@ -39,7 +39,7 @@ class BSPEntity : public SceneEntity
     BSPEntity(Scene * pScene);
     ~BSPEntity();
 
-    void SetKeyValue(std::string &key, std::string &value);
+    void SetKeyValue(const std::string &key, const std::string &value);
     void PopulateScene();
 
     void Export(FILE *fp);
@@ -56,6 +56,9 @@ class BSPEntity : public SceneEntity
 
     void SetFGDClass(FGDEntityClass *pClass);
     FGDEntityClass *GetFGDClass();
+
+private:
+    BSPEntityProperty *FindProperty(size_t prophash);
 };
 
 } // namespace GoldSource
