@@ -57,6 +57,11 @@ public:
     void       RenderGenericEntity(SceneEntity *pEntity);
     RenderMode GetRenderMode();
 
+    
+    void      RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins, const glm::vec3 &m_Maxs,
+                                       const glm::vec3 &m_Color, const uint32_t objectSerialNumber);
+    glm::vec3 GetRenderPos();
+
 private:
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
     bool       m_bWireframeOverlay = false;
@@ -84,8 +89,6 @@ private:
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-public:
-    void RenderPointEntityDefault(const glm::vec3 & m_Position, const glm::vec3 & m_Mins, const glm::vec3 & m_Maxs, const glm::vec3 & m_Color, const uint32_t objectSerialNumber);
-    glm::vec3 GetRenderPos();
+
     
 };

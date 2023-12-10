@@ -234,10 +234,25 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
-        ImGui::SeparatorText("3D View");
-        ImGui::MenuItem("3D Textured");
-        ImGui::MenuItem("3D Flatshaded");
-        ImGui::MenuItem("3D Wireframe");
+        ImGui::SeparatorText("Shading");
+        
+        std::pair<RenderMode, const char *> menuItems[] = 
+        {
+            {RenderMode::Lightshaded, "Lightshaded"},
+            {RenderMode::Unshaded, "Unshaded"},
+            {RenderMode::Groups, "Groups shaded"},
+            {RenderMode::WireframeShaded, "Wireframe shaded"},
+            {RenderMode::WireframeUnshaded, "Wireframe unshaded"}
+        };
+
+        for (auto & it: menuItems)
+        {
+            if (ImGui::MenuItem(it.second,0, m_RenderMode == it.first))
+            {
+                m_RenderMode = it.first;
+            }
+        }
+                
         ImGui::SeparatorText("2D View");
         ImGui::MenuItem("Top");
         ImGui::MenuItem("Side");

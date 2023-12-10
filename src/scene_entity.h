@@ -58,6 +58,9 @@ protected:
 
     Scene *m_pScene;
 
+    SceneEntity *m_pTransparentNext = nullptr;
+    
+
 public:
     SceneEntity(Scene * pScene);
     SceneEntity(SceneEntity &other);
