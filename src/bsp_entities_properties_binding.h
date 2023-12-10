@@ -36,6 +36,8 @@ public:
     void        UpdateObjectProperties(VariantValue *props, size_t num) override;
 
     void RenderFooter() override;
+
+    ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
 };
 
 } // namespace GoldSource

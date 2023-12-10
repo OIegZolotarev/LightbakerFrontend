@@ -17,4 +17,5 @@ public:
 
     void AddEventHandler(IEventHandler *pHandler);
     const std::list<IEventHandler *> &EventHandlers();
+    virtual void                      InitImGUISDL2Platform(){};
 };

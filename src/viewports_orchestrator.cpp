@@ -33,8 +33,13 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 {
     for (auto &it : m_lstViewports)
     {
+        if (!it->IsVisible())
+            continue;
+
         if (it->GetPlatformWindow() != pWindow)
             continue;
+
+        
 
         it->RenderFrame(flFrameDelta);
     }

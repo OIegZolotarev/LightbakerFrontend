@@ -72,6 +72,11 @@ void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantVa
     }
 }
 
+ImGuizmo::OPERATION BSPEntitiesPropertiesBinder::GetMeaningfulGizmoOperationMode()
+{
+    return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE;
+}
+
 void BSPEntitiesPropertiesBinder::RenderFooter()
 {
     if (!m_pSelectedClass)

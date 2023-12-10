@@ -7,6 +7,8 @@
 #include "igui_panel.h"
 #include "object_props.h"
 
+class Viewport;
+
 class ObjectPropertiesEditor : public IGUIPanel
 {
     ImGuiID m_FlagsEditorID = 0;
@@ -33,7 +35,9 @@ class ObjectPropertiesEditor : public IGUIPanel
     VariantValue *m_pGuizmoPropertyPosition = nullptr;
     VariantValue *m_pGuizmoPropertyRotation = nullptr;
     void          SetupGuizmo();
-    void EditTransform(float *cameraView, float *cameraProjection, float *matrix, bool editTransformDecomposition);
+    void EditTransform(Viewport * pViewport, float *matrix, bool editTransformDecomposition);
+
+    void HandleGizmoChange(float *matrix);
 
     bool CheckObjectValidity();
 
@@ -57,6 +61,6 @@ public:
 
     DockPanels GetDockSide() override;
 
-    void RenderGuizmo();
+    void RenderGuizmo(Viewport * pViewport);
     void Render() override;
 };

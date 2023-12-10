@@ -11,8 +11,9 @@
 #include "object_props.h"
 #include "scene_renderer.h"
 #include "ui_common.h"
-#include "viewport.h"
 #include "platform_window.h"
+
+class Viewport;
 
 BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
 
@@ -73,7 +74,7 @@ public:
     DebugConsole *Console();
 
     class SceneRenderer *GetSceneRenderer();
-    int *                Get3DGLViewport();
+    // int *                Get3DGLViewport();
 
     void                UpdateDocks();
     defaultDockSides_s *GetDockSides();
@@ -87,6 +88,8 @@ public:
     
     Viewport *GetViewport(int index);
     void      CloneViewport(Viewport *pViewport);
+
+    void InitImGUISDL2Platform() override;
 
 private:
     enum ToolbarIcons
@@ -138,6 +141,9 @@ private:
 
     // Initialization
     void InitBackend();
+
+    
+
     void InitCommands();
     void InitBackgroundRenderer();
     

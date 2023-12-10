@@ -166,7 +166,8 @@ void MainWindow::InitBackend()
     style->WindowRounding  = 4;
 
     // setup platform/renderer bindings
-    ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
+    InitImGUISDL2Platform();
+    
     ImGui_ImplOpenGL3_Init("#version 330");
 
     ImGuiHelpers::Init();
@@ -186,6 +187,11 @@ void MainWindow::InitBackend()
 
     InitViewports();
 
+}
+
+void MainWindow::InitImGUISDL2Platform()
+{
+    ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -394,10 +400,7 @@ int MainWindow::GetFPS()
     return m_TimersData.actual_fps;
 }
 
-int *MainWindow::Get3DGLViewport()
-{
-    return m_i3DViewport;
-}
+
 
 void MainWindow::MainLoop()
 {
@@ -409,8 +412,11 @@ void MainWindow::MainLoop()
 
     while (!m_bTerminated)
     {
+        ImGui::SetCurrentContext(m_pImGUIContext);
+
         GLBackend::Instance()->NewFrame();
         Application::Instance()->CheckIfBakngFinished();
+                
         m_bTerminated = !HandleEvents(!m_bTerminated);
 
         UpdateTimers();
@@ -734,11 +740,14 @@ void MainWindow::RenderGUI()
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
     // start the Dear ImGui frame
+    ImGui::SetCurrentContext(m_pImGUIContext);
+    
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
+    ImGui_ImplSDL2_NewFrame();
 
     static int delayInit = 2;
 
+    
     ImGui::NewFrame();
 
     if (delayInit > 0)
@@ -759,7 +768,7 @@ void MainWindow::RenderGUI()
 
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
 
-    ObjectPropertiesEditor::Instance()->RenderGuizmo();
+    
 
     for (auto &it : m_vPanels)
         it->InvokeRender();
