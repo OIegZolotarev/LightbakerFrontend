@@ -51,6 +51,16 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     }
 }
 
+void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
+{
+    auto myProperty = FindProperty(pNewProperty->Hash());
+
+    // Shouldn't be nullptr
+    assert(myProperty);
+
+    myProperty->Update(pNewProperty);
+}
+
 BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
 {
     for(auto & it: m_lstProperties)

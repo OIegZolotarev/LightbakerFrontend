@@ -151,3 +151,8 @@ const char* WorldspawnPropertiesBinder::ObjectClassname()
 	return "World (Wavefront Obj)";
 }
 
+void WorldspawnPropertiesBinder::UpdateProperty(VariantValue *prop)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+

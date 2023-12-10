@@ -112,4 +112,6 @@ class LightPropertiesBinding : public IObjectPropertiesBinding
     ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
 
     const char *ObjectClassname() override;
+
+    void UpdateProperty(VariantValue *prop) override;
 };

@@ -70,4 +70,6 @@ public:
 
 	const char* ObjectClassname() override;
 
+
+ void UpdateProperty(VariantValue *prop) override;
 };

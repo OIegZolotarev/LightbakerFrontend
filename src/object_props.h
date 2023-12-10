@@ -31,16 +31,7 @@ protected:
     bool m_bInitialized = false;
     std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
-private:
-    std::string m_strHelp = "";
-    std::string m_strDisplayName;
-
-    int             m_Id;
-    
-    
-    float m_Limits[2]    = {-FLT_MAX, FLT_MAX};
-
-    union data {
+        union data {
         int       asEnum;
         int       asFlags;
         glm::vec3 asPosition;
@@ -52,17 +43,34 @@ private:
         bool      asBool;
     } m_Value;
 
+private:
+    std::string m_strHelp = "";
+    std::string m_strDisplayName;
+
+    int             m_Id;
+    
+    
+    float m_Limits[2]    = {-FLT_MAX, FLT_MAX};
+
+
+
     std::string m_StringValue;
 
     char *m_TempLabel = 0;
 
+    virtual int classId()
+    {
+        return 0;
+    }
+
 public:
-    VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
-
-    VariantValue(const VariantValue &pOther);
-
     VariantValue();
     ~VariantValue();
+
+    VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
+    VariantValue(const VariantValue &pOther);
+
+    
 
     int  FindEnumValueIndex(int enumValue);
     void SetEnumIndexFromValue(int value);
@@ -123,7 +131,11 @@ class IObjectPropertiesBinding
 {
 public:
     virtual void FillProperties(std::list<VariantValue *> &collection)   = 0;
-    virtual void UpdateObjectProperties(VariantValue *props, size_t num) = 0;
+
+    // Legacy
+    virtual void UpdateObjectProperties(VariantValue *props, size_t num){};
+
+    virtual void UpdateProperty(VariantValue *prop) = 0;
 
     virtual bool IsObjectValid()
     {

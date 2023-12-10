@@ -57,7 +57,8 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding *pBindings)
 
 void ObjectPropertiesEditor::UpdateProperty(VariantValue *it)
 {
-    m_pPropertiesBinding->UpdateObjectProperties(it, 1);
+    //m_pPropertiesBinding->UpdateObjectProperties(it, 1);
+    m_pPropertiesBinding->UpdateProperty(it);
 }
 
 void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)

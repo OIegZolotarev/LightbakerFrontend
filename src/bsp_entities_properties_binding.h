@@ -33,11 +33,14 @@ public:
     void FillProperties(std::list<VariantValue*>& collection) override;
     const char *ObjectClassname() override;
     void        OnPropertyChangeSavedToHistory() override;
-    void        UpdateObjectProperties(VariantValue *props, size_t num) override;
+    
+    
 
     void RenderFooter() override;
 
     ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
+
+    void UpdateProperty(VariantValue *prop) override;
 };
 
 } // namespace GoldSource

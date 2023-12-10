@@ -95,6 +95,22 @@ public:
     void InvokeSelect();
     std::string &GetClassName();
 
+    template<class T> 
+    static T* GetRawSafest(std::weak_ptr<SceneEntity> & weakRef)
+    {
+        auto ptr = weakRef.lock();
+
+        if (!ptr)
+            return nullptr;
+
+        SceneEntity * rawPtr = ptr.get();
+
+        if (! instanceof <T>(rawPtr))
+            return nullptr;
+
+        return static_cast<T*>(rawPtr);
+    }
+
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

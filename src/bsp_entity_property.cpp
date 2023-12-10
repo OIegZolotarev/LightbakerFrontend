@@ -129,6 +129,34 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
     }
 }
 
+void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
+{
+    m_Value = pNewProperty->m_Value;
+
+    switch (m_iSpecialId)
+    {
+    case PropertyMetatype::Classname:
+        break;
+    case PropertyMetatype::Origin:
+        m_pOwner->SetPosition(GetPosition());
+        break;
+    case PropertyMetatype::Angles:
+        break;
+    case PropertyMetatype::Flags:
+        break;
+    case PropertyMetatype::Light:
+        break;
+    case PropertyMetatype::Wad:
+        break;
+    case PropertyMetatype::None:
+        break;
+    default:
+        break;
+    
+    }
+
+}
+
 void BSPEntityProperty::RebuildFlagsList()
 {
     if (!m_pDescriptor)

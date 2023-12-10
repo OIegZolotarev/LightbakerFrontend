@@ -33,8 +33,10 @@ class BSPEntity : public SceneEntity
 
     friend class BSPEntityProperty;
 
+    BSPEntityProperty *FindProperty(size_t prophash);
+
   public:
-    // Delete for now, implement later
+    // Delete for now, implement later if necceseary 
     BSPEntity(BSPEntity *pOther) = delete;
     BSPEntity(Scene * pScene);
     ~BSPEntity();
@@ -57,8 +59,9 @@ class BSPEntity : public SceneEntity
     void SetFGDClass(FGDEntityClass *pClass);
     FGDEntityClass *GetFGDClass();
 
-private:
-    BSPEntityProperty *FindProperty(size_t prophash);
+    void UpdateProperty(BSPEntityProperty *pNewProperty);
+
+
 };
 
 } // namespace GoldSource

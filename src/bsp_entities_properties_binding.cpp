@@ -14,14 +14,10 @@ using namespace GoldSource;
 
 void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
 {
-    auto lck = ptr.lock();
 
-    if (!lck)
-        return;
+    auto rawBSP = SceneEntity::GetRawSafest<BSPEntity>(ptr);
 
-    auto raw = lck.get();
-
-    if (! instanceof <GoldSource::BSPEntity>(raw))
+    if (!rawBSP)
         return;
 
     m_lstSelectedObjects.push_back(ptr);
@@ -31,7 +27,7 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
     // Build selection representation
 
     bool  multipleClasses = false;
-    auto &firstClass      = raw->GetClassName();
+    auto &firstClass      = rawBSP->GetClassName();
 
     for (auto &it : m_lstSelectedObjects)
     {
@@ -54,7 +50,6 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
     }
     else
     {
-        GoldSource::BSPEntity *rawBSP = (GoldSource::BSPEntity *)raw;
         m_pSelectedClass              = rawBSP->GetFGDClass();
 
         if (m_lstSelectedObjects.size() == 1)
@@ -70,6 +65,26 @@ void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantVa
     {
         collection.push_back(it);
     }
+}
+
+void BSPEntitiesPropertiesBinder::UpdateProperty(VariantValue *prop)
+{
+    if (! instanceof <BSPEntityProperty>(prop))
+        return;
+
+    BSPEntityProperty *p = (BSPEntityProperty *)prop;
+
+    for (auto & it : m_lstSelectedObjects)
+    {
+        auto rawBsp = SceneEntity::GetRawSafest<BSPEntity>(it);
+
+        if (!rawBsp)
+            continue;
+
+        rawBsp->UpdateProperty(p);
+    
+    }        
+
 }
 
 ImGuizmo::OPERATION BSPEntitiesPropertiesBinder::GetMeaningfulGizmoOperationMode()
@@ -97,9 +112,6 @@ void BSPEntitiesPropertiesBinder::OnPropertyChangeSavedToHistory()
 {
 }
 
-void BSPEntitiesPropertiesBinder::UpdateObjectProperties(VariantValue *props, size_t num)
-{
-}
 
 void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
 {

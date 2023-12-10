@@ -87,6 +87,9 @@ private:
 
 void ParseFlags(const std::string &value);
     void RebuildFlagsList();
+
+public:
+void Update(BSPEntityProperty *pNewProperty);
 };
 
 } // namespace GoldSource
