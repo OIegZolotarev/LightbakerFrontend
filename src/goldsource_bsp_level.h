@@ -15,6 +15,9 @@ namespace GoldSource
 {
 class BSPLevel
 {
+    friend class BSPAsynchLoader;
+    friend class BSPRenderer;
+
     bool m_bIsDataLoaded = false;
     int m_Version;
 
@@ -95,7 +98,7 @@ class BSPLevel
     const std::vector<medge_t> &GetEdges() const;
     const std::vector<mvertex_t> &GetVertices() const;
     const std::vector<int> &GetSurfEdges() const;
-    const LightmapAtlas *GetLightmapState() const;
+    LightmapAtlas *GetLightmapState() const;
 };
 
 class FunnyLumpSizeException : public std::exception

@@ -1,251 +1,242 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
-#include "application.h"
-#include <stb/stb_image.h>
-#include "loader_thread.h"
 #include "gl_texture.h"
-#include "wad_textures.h"
-#include <locale>
-#include <boost/algorithm/string.hpp>
+#include "application.h"
 #include "goldsource_bsp_disk_structs.h"
+#include "loader_thread.h"
+#include "wad_textures.h"
+#include <boost/algorithm/string.hpp>
+#include <locale>
+#include <stb/stb_image.h>
 
+void                     GLReloadTexture(GLTexture *r, FileData *sourceFile);
+std::vector<GLTexture *> g_vecGLTextures;
 
-void GLReloadTexture(GLTexture* r, FileData* sourceFile);
-std::vector<GLTexture*> g_vecGLTextures;
-
-GLTexture* LoadGLTexture(FileData* sourceFile, bool force)
+GLTexture *LoadGLTexture(FileData *sourceFile, bool force)
 {
-	if (!force && sourceFile)
-	{
-		for (auto& it : g_vecGLTextures)
-		{
-			if (it->Name() == sourceFile->Name() 
-					&& it->GLTextureNum() != 0)
-				return it;
-		}
-	}
+    if (!force && sourceFile)
+    {
+        for (auto &it : g_vecGLTextures)
+        {
+            if (it->Name() == sourceFile->Name() && it->GLTextureNum() != 0)
+                return it;
+        }
+    }
 
-	GLTexture* r = new GLTexture(sourceFile->Name().c_str(), TextureSource::CommonImage, false);
-	GLReloadTexture(r, sourceFile);
-	
-	g_vecGLTextures.push_back(r);
+    GLTexture *r = new GLTexture(sourceFile->Name().c_str(), TextureSource::CommonImage, false);
+    GLReloadTexture(r, sourceFile);
 
-	return r;
+    g_vecGLTextures.push_back(r);
+
+    return r;
 }
 
-GLTexture* LoadGLTexture(const char* fileName, bool force)
+GLTexture *LoadGLTexture(const char *fileName, bool force)
 {
-	if (!force)
-	{
-		for (auto& it : g_vecGLTextures)
-		{
-			if (!_stricmp(it->Name().c_str(),fileName)
-				&& it->GLTextureNum() != 0)
-				return it;
-		}
-	}
+    if (!force)
+    {
+        for (auto &it : g_vecGLTextures)
+        {
+            if (!_stricmp(it->Name().c_str(), fileName) && it->GLTextureNum() != 0)
+                return it;
+        }
+    }
 
-	FileData* pData = Application::GetFileSystem()->LoadFile(fileName);
-	auto r = LoadGLTexture(pData, force);
+    FileData *pData = Application::GetFileSystem()->LoadFile(fileName);
+    auto      r     = LoadGLTexture(pData, force);
 
-	if (pData)
-		delete pData;
+    if (pData)
+        delete pData;
 
-	return r;
+    return r;
 }
 
-void GLReloadTexture(GLTexture* t)
+void GLReloadTexture(GLTexture *t)
 {
-	FileData* pData = Application::GetFileSystem()->LoadFile(t->Name().c_str());
-	GLReloadTexture(t, pData);
-	delete pData;
+    FileData *pData = Application::GetFileSystem()->LoadFile(t->Name().c_str());
+    GLReloadTexture(t, pData);
+    delete pData;
 }
 
-void GLReloadTexture(GLTexture* r,FileData * sourceFile)
+void GLReloadTexture(GLTexture *r, FileData *sourceFile)
 {
-	r->SetHeight(-1);
-	r->SetWidth(-1);
-	//r->SetGLTextureNum(0);
-	
+    r->SetHeight(-1);
+    r->SetWidth(-1);
+    // r->SetGLTextureNum(0);
 
-	if (!sourceFile)
-		return;
+    if (!sourceFile)
+        return;
 
-	//	->file_name = sourceFile->Name();
+    //	->file_name = sourceFile->Name();
 
-	// Load from file
-	int image_width = 0;
-	int image_height = 0;
-	int comps = 0;
+    // Load from file
+    int image_width  = 0;
+    int image_height = 0;
+    int comps        = 0;
 
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), (int)sourceFile->Length(), &image_width, &image_height, &comps, 4);
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char *image_data =
+        stbi_load_from_memory(sourceFile->Data(), (int)sourceFile->Length(), &image_width, &image_height, &comps, 4);
 
-	if (image_data == NULL)
-		return;
+    if (image_data == NULL)
+        return;
 
-	r->GenerateGLHandle();
+    r->GenerateGLHandle();
     r->Bind(0);
 
-	// Setup filtering parameters for display
+    // Setup filtering parameters for display
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non power-of-two textures
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
 
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two textures
-	// glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // This is required on WebGL for non
+    // power-of-two textures glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // Same
 
-	 // glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); 
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); // This is required on WebGL for non power-of-two
+    // textures glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT); // Same
 
-	
+    // glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
-	// Upload pixels into texture
+    // Upload pixels into texture
 #if defined(GL_UNPACK_ROW_LENGTH) && !defined(__EMSCRIPTEN__)
-	glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
 #endif
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
 
-	
+    stbi_image_free(image_data);
 
-	stbi_image_free(image_data);
-		
-	r->SetWidth(image_width);
-	r->SetHeight(image_height);
+    r->SetWidth(image_width);
+    r->SetHeight(image_height);
 
-	r->SetLoaded(true);
+    r->SetLoaded(true);
 
-	return;
+    return;
 }
 
 void FreeGLTextures()
 {
-	ClearPointersVector(g_vecGLTextures);
+    ClearPointersVector(g_vecGLTextures);
 }
 
-void FreeGLTexture(GLTexture* t)
+void FreeGLTexture(GLTexture *t)
 {
-	if (!t)
-		return;
+    if (!t)
+        return;
 
-	auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(), [&](GLTexture*a) -> bool
-	{
-		return a->GLTextureNum() == t->GLTextureNum();
-	});
+    auto pos = std::remove_if(g_vecGLTextures.begin(), g_vecGLTextures.end(),
+                              [&](GLTexture *a) -> bool { return a->GLTextureNum() == t->GLTextureNum(); });
 
-	if (pos != g_vecGLTextures.end())
-	{
-		delete* pos;
-		g_vecGLTextures.erase(pos);
-	}
+    if (pos != g_vecGLTextures.end())
+    {
+        delete *pos;
+        g_vecGLTextures.erase(pos);
+    }
 }
 
-
-void* AsynchTextureLoadTask::LoadTextureFileData(GLTexture* texture)
+void *AsynchTextureLoadTask::LoadTextureFileData(GLTexture *texture)
 {
-	FileData* pData = Application::GetFileSystem()->LoadFile(texture->Name());
+    FileData *pData = Application::GetFileSystem()->LoadFile(texture->Name());
 
-	// TODO: emo textures
-	if (!pData)
-		return nullptr;
+    // TODO: emo textures
+    if (!pData)
+        return nullptr;
 
-	// Load from file
-	int image_width = 0;
-	int image_height = 0;
-	int comps = 0;
+    // Load from file
+    int image_width  = 0;
+    int image_height = 0;
+    int comps        = 0;
 
-	stbi_set_flip_vertically_on_load(true);
-	void * pixels = stbi_load_from_memory(pData->Data(), (int)pData->Length(), &image_width, &image_height, &comps, 4);
+    stbi_set_flip_vertically_on_load(true);
+    void *pixels = stbi_load_from_memory(pData->Data(), (int)pData->Length(), &image_width, &image_height, &comps, 4);
 
-	texture->SetWidth(image_width);
-	texture->SetHeight(image_height);
+    texture->SetWidth(image_width);
+    texture->SetHeight(image_height);
 
-	pData->UnRef();
+    pData->UnRef();
 
-	//SDL_Delay(100);
+    // SDL_Delay(100);
 
-	return pixels;
+    return pixels;
 }
 
-AsynchTextureLoadTask::AsynchTextureLoadTask(const char* setDescription)
+AsynchTextureLoadTask::AsynchTextureLoadTask(const char *setDescription)
 {
-	if (setDescription != nullptr)
-		m_strDescription = setDescription;
-	else
-		m_strDescription = "Loading textures...";
+    if (setDescription != nullptr)
+        m_strDescription = setDescription;
+    else
+        m_strDescription = "Loading textures...";
 }
 
 AsynchTextureLoadTask::~AsynchTextureLoadTask()
 {
-	assert(m_qScheduledTextures.empty());
+    assert(m_qScheduledTextures.empty());
 }
 
-GLTexture* AsynchTextureLoadTask::ScheduleTexture(const char* fileName)
+GLTexture *AsynchTextureLoadTask::ScheduleTexture(const char *fileName)
 {
-	GLTexture* texture = new GLTexture(fileName, TextureSource::CommonImage,0);
-	//memset(texture, 0, sizeof(GLTexture));
+    GLTexture *texture = new GLTexture(fileName, TextureSource::CommonImage, 0);
+    // memset(texture, 0, sizeof(GLTexture));
 
-	//texture->file_name = fileName;
+    // texture->file_name = fileName;
 
-	m_qScheduledTextures.push(texture);
+    m_qScheduledTextures.push(texture);
 
-	m_nTotalSteps = m_qScheduledTextures.size();
+    m_nTotalSteps = m_qScheduledTextures.size();
 
-	return texture;
+    return texture;
 }
 
-ITaskStepResult* AsynchTextureLoadTask::ExecuteStep(LoaderThread* loaderThread)
+ITaskStepResult *AsynchTextureLoadTask::ExecuteStep(LoaderThread *loaderThread)
 {
-	if (m_qScheduledTextures.empty())
-		return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
+    if (m_qScheduledTextures.empty())
+        return new ITaskStepResult(TaskStepResultType::FinishedSuccesfully);
 
-	GLTexture* texture = m_qScheduledTextures.front();
-	m_qScheduledTextures.pop();
+    GLTexture *texture = m_qScheduledTextures.front();
+    m_qScheduledTextures.pop();
 
-	m_nPerformedSteps++;
+    m_nPerformedSteps++;
 
-	void* pixels = LoadTextureFileData(texture);
+    void *pixels = LoadTextureFileData(texture);
 
-	return new AsynchTextureLoadResult(texture, pixels);
+    return new AsynchTextureLoadResult(texture, pixels);
 }
 
 void AsynchTextureLoadTask::OnCompletion()
 {
-	(void)0;
+    (void)0;
 }
 
-AsynchTextureLoadResult::AsynchTextureLoadResult(GLTexture* texture, void* pixels): ITaskStepResult(TaskStepResultType::StepPerformed)
+AsynchTextureLoadResult::AsynchTextureLoadResult(GLTexture *texture, void *pixels)
+    : ITaskStepResult(TaskStepResultType::StepPerformed)
 {
-	m_pPixels = pixels;
-	m_pTexture = texture;
+    m_pPixels  = pixels;
+    m_pTexture = texture;
 
-	m_strElementDescription = texture->Name();
+    m_strElementDescription = texture->Name();
 }
 
 AsynchTextureLoadResult::~AsynchTextureLoadResult()
 {
-	if (m_pPixels)
-		stbi_image_free(m_pPixels);
+    if (m_pPixels)
+        stbi_image_free(m_pPixels);
 }
 
 void AsynchTextureLoadResult::ExecuteOnCompletion()
 {
-	// TODO: emo textures
-	if (!m_pPixels)
-	{
-		return;
-	}
+    // TODO: emo textures
+    if (!m_pPixels)
+    {
+        return;
+    }
 
-	m_pTexture->UploadPixels(m_pPixels, GL_RGBA, GL_RGBA);
+    m_pTexture->UploadPixels(m_pPixels, GL_RGBA, GL_RGBA);
 }
 
 bool AsynchTextureLoadResult::NeedEndCallback()
 {
-	return true;
+    return true;
 }
 
 bool GLTexture::IsLoaded() const
@@ -301,7 +292,7 @@ void GLTexture::SetSpriteSheetHeight(int val)
 GLuint GLTexture::GLTextureNum(size_t frame) const
 {
     if (m_uiGLTexnum)
-		return m_uiGLTexnum[frame];
+        return m_uiGLTexnum[frame];
     return 0;
 }
 
@@ -315,34 +306,33 @@ void GLTexture::UploadRawTexture(RawTexture *pTexture)
     GenerateGLHandle();
     int currentFrame = -1;
 
-    for (auto & rawImage: pTexture->Items())
+    for (auto &rawImage : pTexture->Items())
     {
         if (rawImage->frameIndex != currentFrame)
         {
             currentFrame = (int)rawImage->frameIndex;
             Bind(currentFrame);
 
-			// TODO: adjust this
+            // TODO: adjust this
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		}
+        }
 
-		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        glTexImage2D(GL_TEXTURE_2D, rawImage->mipLevel, rawImage->glInternalFormat, rawImage->width,
-                     rawImage->height, 0, rawImage->glFormat, GL_UNSIGNED_BYTE,
-                     rawImage->data);
+        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glTexImage2D(GL_TEXTURE_2D, rawImage->mipLevel, rawImage->glInternalFormat, rawImage->width, rawImage->height,
+                     0, rawImage->glFormat, GL_UNSIGNED_BYTE, rawImage->data);
 
-        m_iWidth = rawImage->width;
+        m_iWidth  = rawImage->width;
         m_iHeight = rawImage->height;
         m_bLoaded = true;
-	}
+    }
 }
 
 void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
-{   
+{
     GenerateGLHandle();
     Bind(0);
 
@@ -369,12 +359,15 @@ void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
     // stbi_image_free(m_pPixels);
 }
 
- GLTexture::GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames /*= 1*/)
+GLTexture::GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames /*= 1*/)
 {
     m_strFileName = fileName;
     m_Source      = source;
     m_Fallback    = fallback;
     m_NumFrames   = nFrames;
+
+    static size_t nIndex = 0;
+    m_nIndex             = ++nIndex;
 }
 
 GLTexture::~GLTexture()
@@ -388,11 +381,10 @@ GLTexture::~GLTexture()
 
 void GLTexture::GenerateGLHandle()
 {
-    //assert(!m_uiGLTexnum);
+    // assert(!m_uiGLTexnum);
 
-
-	// TODO: handle texture reloading
-	if (!m_uiGLTexnum)
+    // TODO: handle texture reloading
+    if (!m_uiGLTexnum)
     {
         m_uiGLTexnum = new GLuint[m_NumFrames];
         glGenTextures(m_NumFrames, m_uiGLTexnum);
@@ -435,44 +427,42 @@ TextureSource TextureManager::DetermineTextureSourceFromFileName(const char *fil
     auto ext = fs->ExtractFileExtension(fileName);
     boost::algorithm::to_lower(ext);
 
-	struct sLookupTable
-	{
-        const char *ext;
+    struct sLookupTable
+    {
+        const char *  ext;
         TextureSource fmt;
-	};
-
-	static sLookupTable lookup[] = {
-        {"spr", TextureSource::GoldSourceSprite},
-		{"tga", TextureSource::CommonImage},
-		{"png", TextureSource::CommonImage},
-		{"jpg", TextureSource::CommonImage},				
     };
 
-	for (auto it: lookup)
+    static sLookupTable lookup[] = {
+        {"spr", TextureSource::GoldSourceSprite},
+        {"tga", TextureSource::CommonImage},
+        {"png", TextureSource::CommonImage},
+        {"jpg", TextureSource::CommonImage},
+    };
+
+    for (auto it : lookup)
     {
         if (!strcmp(it.ext, ext.c_str()))
             return it.fmt;
-	}
-    
+    }
 
-	// Can't determine format by extension, will try with file header
-	//
-	return TextureSource::GuessByItself;
+    // Can't determine format by extension, will try with file header
+    //
+    return TextureSource::GuessByItself;
 }
 
-TextureSource TextureManager::DetermineTextureSourceFileFileSignature(void *pixels, size_t length)
+TextureSource TextureManager::DetermineTextureSourceFileSignature(void *pixels, size_t length)
 {
     if (length < 8)
         return TextureSource::Unknown;
 
     // Fallback to common image - in hopes stbi will do the job
-	return TextureSource::CommonImage;
+    return TextureSource::CommonImage;
 }
-
 
 TextureManager::~TextureManager()
 {
-    for (auto & it: m_lstTexturesPool)
+    for (auto &it : m_lstTexturesPool)
     {
         delete it;
     }
@@ -488,27 +478,27 @@ void TextureManager::RegisterWAD(const char *fileName, bool shared)
 
 void TextureManager::UnregisterWAD(const char *fileName)
 {
-    m_lstWADSPool.remove_if([&](GoldSource::WADTexturePool * wt) {
-		
-		if (strcmp(fileName, wt->FileName()))
+    m_lstWADSPool.remove_if([&](GoldSource::WADTexturePool *wt) {
+        if (strcmp(fileName, wt->FileName()))
         {
             return true;
         }
 
-		return false;
+        return false;
     });
 }
 
 GLTexture *TextureManager::LoadTextureSynch(const char *  fileName,
-                                             TextureSource source /*= TextureSource::GuessByItself*/)
+                                            TextureSource source /*= TextureSource::GuessByItself*/)
 {
     GLTexture *pResult = new GLTexture(fileName, source, false);
-	RawTexture * rawTexture = LoadRawTexture(fileName, source);
 
     if (source == TextureSource::GuessByItself)
         source = DetermineTextureSourceFromFileName(fileName);
 
-	if (rawTexture)
+    RawTexture *rawTexture = LoadRawTexture(fileName, source);
+
+    if (rawTexture)
     {
         pResult->UploadRawTexture(rawTexture);
         delete rawTexture;
@@ -519,57 +509,59 @@ GLTexture *TextureManager::LoadTextureSynch(const char *  fileName,
         return pResult;
     }
 
-	return pResult;
+    return pResult;
 }
 
-GLTexture *TextureManager::LoadTextureSynch(void *data, size_t len, const char* name,
+GLTexture *TextureManager::LoadTextureSynch(void *data, size_t len, const char *name,
                                             TextureSource source /*= TextureSource::GuessByItself*/)
 {
-    GLTexture * pResult    = new GLTexture(name, source, false);
+    GLTexture *pResult = new GLTexture(name, source, false);
 
     Instance()->m_lstTexturesPool.push_back(pResult);
 
     RawTexture *rawTexture = LoadRawTexture(data, len, source);
-    
-	if (!rawTexture)
+
+    if (!rawTexture)
     {
         Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
         return pResult;
-	}
+    }
     else
     {
         pResult->UploadRawTexture(rawTexture);
         delete rawTexture;
     }
-	
+
     return pResult;
 }
 
-RawTexture* TextureManager::LoadRawTexture(const char* fileName, TextureSource source /*= TextureSource::GuessByItself*/)
+RawTexture *TextureManager::LoadRawTexture(const char *  fileName,
+                                           TextureSource source /*= TextureSource::GuessByItself*/)
 {
     auto fs = FileSystem::Instance();
     auto fd = fs->LoadFile(fileName);
 
-	if (!fd)
+    if (!fd)
     {
         return nullptr;
     }
 
-	if (source == TextureSource::GuessByItself)
+    if (source == TextureSource::GuessByItself)
         source = DetermineTextureSourceFromFileName(fileName);
 
-	RawTexture * pResult = LoadRawTexture(fd->Data(), fd->Length(), source);
-	fd->UnRef();
+    RawTexture *pResult = LoadRawTexture(fd->Data(), fd->Length(), source);
+    fd->UnRef();
 
-	return pResult;
+    return pResult;
 }
 
-RawTexture* TextureManager::LoadRawTexture(void *data, size_t length, TextureSource source /*= TextureSource::GuessByItself*/)
+RawTexture *TextureManager::LoadRawTexture(void *data, size_t length,
+                                           TextureSource source /*= TextureSource::GuessByItself*/)
 {
-    RawTexture *pResult = nullptr;	
+    RawTexture *pResult = nullptr;
 
     if (source == TextureSource::GuessByItself)
-        source = DetermineTextureSourceFileFileSignature(data, length);
+        source = DetermineTextureSourceFileSignature(data, length);
 
     switch (source)
     {
@@ -579,7 +571,7 @@ RawTexture* TextureManager::LoadRawTexture(void *data, size_t length, TextureSou
     case TextureSource::GoldSourceMipTexture:
         pResult = DecodeGoldsourceMiptex(data, length);
         break;
-    case TextureSource::GoldSourceWadFile:		
+    case TextureSource::GoldSourceWadFile:
         __debugbreak();
         break;
     case TextureSource::GoldSourceSprite:
@@ -591,43 +583,63 @@ RawTexture* TextureManager::LoadRawTexture(void *data, size_t length, TextureSou
         break;
     default:
         break;
-    
-	}	
+    }
 
+    return pResult;
+}
 
-	return pResult;
+GLTexture *TextureManager::LoadTextureAsynch(const char *fileName, TextureSource source /*= TextureSource::GuessByItself*/)
+{
+    GLTexture *destTexture = new GLTexture(fileName, source, false);
+    Instance()->m_lstTexturesPool.push_back(destTexture);
+
+    AsynchLoadTextureTask *pNewItem = new AsynchLoadTextureTask(fileName, nullptr, 0, source, destTexture);
+    pNewItem->Schedule();
+
+    return destTexture;
+}
+
+GLTexture *TextureManager::LoadTextureAsynch(void *data, size_t len, const char *name,
+                                      TextureSource source /*= TextureSource::GuessByItself*/)
+{
+    GLTexture *destTexture = new GLTexture(name, source, false);
+    Instance()->m_lstTexturesPool.push_back(destTexture);
+
+    AsynchLoadTextureTask *pNewItem = new AsynchLoadTextureTask(name, data, len, source, destTexture);
+    pNewItem->Schedule();
+
+    return destTexture;
 }
 
 void TextureManager::PurgeTextures()
 {
     size_t nPurged = 0;
-    m_lstTexturesPool.remove_if([&](GLTexture *texture) 
-		{ if (!texture->NumRef())
+    m_lstTexturesPool.remove_if([&](GLTexture *texture) {
+        if (!texture->NumRef())
         {
             nPurged++;
             delete texture;
             return true;
         }
         return false;
-		});
+    });
 
-	Con_Printf("TextureManager::PurgeTextures(): purged %zd textures\n", nPurged);
+    Con_Printf("TextureManager::PurgeTextures(): purged %zd textures\n", nPurged);
 }
 
-GLTexture* TextureManager::LoadWADTextureSynch(char *name)
+GLTexture *TextureManager::LoadWADTextureSynch(char *name)
 {
-    GLTexture *pResult = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
+    GLTexture *pResult   = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
     bool       bFallback = true;
 
-    for (auto & wad: Instance()->m_lstWADSPool)
+    for (auto &wad : Instance()->m_lstWADSPool)
     {
         auto mip = wad->LoadMipTex(name);
 
         if (!mip)
             continue;
 
-        
-        RawTexture * texture = LoadRawTexture((void*)mip, 0, TextureSource::GoldSourceMipTexture);
+        RawTexture *texture = LoadRawTexture((void *)mip, 0, TextureSource::GoldSourceMipTexture);
         pResult->UploadRawTexture(texture);
 
         bFallback = false;
@@ -640,9 +652,38 @@ GLTexture* TextureManager::LoadWADTextureSynch(char *name)
     return pResult;
 }
 
+GLTexture *TextureManager::LoadWADTextureAsynch(char *name)
+{
+    GLTexture *pResult   = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
+    
+
+    for (auto &wad : Instance()->m_lstWADSPool)
+    {
+        auto mip = wad->LoadMipTex(name);
+
+        if (!mip)
+            continue;
+
+        AsynchLoadTextureTask *pTask =
+            new AsynchLoadTextureTask(name, (void *)mip, 0, TextureSource::GoldSourceMipTexture, pResult);
+
+        pTask->Schedule();
+
+        return pResult;
+    }
+        
+    Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
+    return pResult;
+}
+
 GLTexture *TextureManager::GetWhiteTexture()
 {
     return Instance()->m_pWhiteTexture;
+}
+
+GLTexture *TextureManager::GetFallbackTexture()
+{
+    return Instance()->m_pEmoTexture;
 }
 
 RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
@@ -653,16 +694,16 @@ RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
     int comps        = 0;
 
     stbi_set_flip_vertically_on_load(true);
-    void *pixels = stbi_load_from_memory((byte*)data, length, &image_width, &image_height, &comps, 4);
+    void *pixels = stbi_load_from_memory((byte *)data, length, &image_width, &image_height, &comps, 4);
 
-	RawTexture *pResult = new RawTexture;
+    RawTexture *pResult = new RawTexture;
 
-	rawimage_t *pFrame = new rawimage_t(image_width, image_height, 4);
+    rawimage_t *pFrame = new rawimage_t(image_width, image_height, 4);
 
-    memcpy(pFrame->data, pixels, pFrame->dataLength); 
+    memcpy(pFrame->data, pixels, pFrame->dataLength);
 
     stbi_image_free(pixels);
-	pResult->AddRawFrame(pFrame);
+    pResult->AddRawFrame(pFrame);
 
     return pResult;
 }
@@ -674,15 +715,15 @@ RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t leng
 
     int pixelSize = texture->name[0] == '{' ? 4 : 3;
     int size      = texture->width * texture->height;
-    int datasize  = size + (size / 4) + (size / 16) + (size / 64);    
-    
-    color24_t *pal = (color24_t *)(((byte*)data) + texture->offsets[0] + datasize + 2);
-    
-    for (int i = 0 ; i < 4; i++)
-    {
-        byte * pixels = (byte*)data + texture->offsets[i];
+    int datasize  = size + (size / 4) + (size / 16) + (size / 64);
 
-        size_t mipWidth = texture->width >> i;
+    color24_t *pal = (color24_t *)(((byte *)data) + texture->offsets[0] + datasize + 2);
+
+    for (int i = 0; i < 4; i++)
+    {
+        byte *pixels = (byte *)data + texture->offsets[i];
+
+        size_t mipWidth  = texture->width >> i;
         size_t mipHeight = texture->height >> i;
 
         size_t      numPixels = mipWidth * mipHeight;
@@ -694,7 +735,7 @@ RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t leng
 
         if (pixelSize == 4)
         {
-            color32_t *ptr = (color32_t*)pFrame->data;
+            color32_t *ptr = (color32_t *)pFrame->data;
 
             for (size_t j = 0; j < numPixels; j++)
             {
@@ -702,7 +743,7 @@ RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t leng
 
                 if (palEntry->b == 255 && palEntry->g == 0 && palEntry->r == 0)
                 {
-                    ptr->r = ptr->g = ptr->b = ptr->a = 0;   
+                    ptr->r = ptr->g = ptr->b = ptr->a = 0;
                 }
                 else
                 {
@@ -734,23 +775,22 @@ RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t leng
 
 RawTexture *TextureManager::DecodeGoldsourceSprite(const void *pixels, size_t length)
 {
-    return ::DecodeGoldSourceSpite((byte*)pixels, length);
+    return ::DecodeGoldSourceSpite((byte *)pixels, length);
 }
 
- TextureManager::TextureManager()
-{     
- }
+TextureManager::TextureManager()
+{
+}
 
 void TextureManager::OnGLInit()
- {
-     m_pEmoTexture   = LoadTextureSynch("res/textures/default/emo.png");
-     m_pWhiteTexture = LoadTextureSynch("res/textures/default/white.png");
- }
-
- void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
 {
+    m_pEmoTexture   = LoadTextureSynch("res/textures/default/emo.png");
+    m_pWhiteTexture = LoadTextureSynch("res/textures/default/white.png");
+}
 
-	GLTexture *pFallback = nullptr;
+void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
+{
+    GLTexture *pFallback = nullptr;
 
     switch (fallbackTexture)
     {
@@ -762,16 +802,16 @@ void TextureManager::OnGLInit()
         break;
     default:
         pFallback = m_pEmoTexture;
-        break;    
-	}
+        break;
+    }
 
-	pResult->m_uiGLTexnum = pFallback->m_uiGLTexnum;
+    pResult->m_uiGLTexnum = pFallback->m_uiGLTexnum;
     pResult->m_iWidth     = pFallback->m_iWidth;
     pResult->m_iHeight    = pFallback->m_iHeight;
 }
 
- RawTexture::RawTexture()
-{	 
+RawTexture::RawTexture()
+{
 }
 
 RawTexture::~RawTexture()
@@ -779,7 +819,7 @@ RawTexture::~RawTexture()
     for (auto &it : m_lstFrames)
         delete it;
 
-	m_lstFrames.clear();
+    m_lstFrames.clear();
 }
 
 void RawTexture::AddRawFrame(rawimage_t *frame)
@@ -803,7 +843,7 @@ rawimage_s::rawimage_s(size_t _width, size_t _height, size_t components)
     height = _height;
 
     dataLength = width * height * components;
-    data = new byte[dataLength];
+    data       = new byte[dataLength];
 
     switch (components)
     {
@@ -821,4 +861,84 @@ rawimage_s::rawimage_s(size_t _width, size_t _height, size_t components)
 rawimage_s::~rawimage_s()
 {
     delete data;
+}
+
+AsynchLoadTextureTask::AsynchLoadTextureTask(const char *fileName, void *data, size_t length, TextureSource source,
+                                             GLTexture *destTexture)
+{
+    m_strFileName  = fileName;
+    m_Source       = source;
+    m_DataLength   = length;
+    m_pData        = data;
+    m_pDestTexture = destTexture;
+}
+
+AsynchLoadTextureTask::~AsynchLoadTextureTask()
+{
+}
+
+RawTexture *AsynchLoadTextureTask::GetRawTexture()
+{
+    return m_pRawTexture;
+}
+
+ITaskStepResult *AsynchLoadTextureTask::ExecuteStep(LoaderThread *loaderThread)
+{
+    if (m_Source == TextureSource::GuessByItself)
+    {
+        if (m_pData)
+            m_Source = TextureManager::DetermineTextureSourceFileSignature(m_pData, m_DataLength);
+        else
+            m_Source = TextureManager::DetermineTextureSourceFromFileName(m_strFileName.c_str());
+    }
+
+    if (m_pData)
+        m_pRawTexture = TextureManager::LoadRawTexture(m_pData, m_DataLength, m_Source);
+    else
+        m_pRawTexture = TextureManager::LoadRawTexture(m_strFileName.c_str(), m_Source);
+
+    ITaskStepResult *taskResult = nullptr;
+
+    if (m_pRawTexture)
+    {
+        taskResult = new LoadSuccesedResult(this);
+    }
+    else
+    {
+        TextureManager::Instance()->MakeFallbackTexture(m_pDestTexture, FallbackTexture::EmoCheckerboard);
+        taskResult = new LoadFailedResult();      
+    }
+
+    return taskResult;
+}
+
+void AsynchLoadTextureTask::OnCompletion()
+{
+}
+
+ AsynchLoadTextureTask::LoadSuccesedResult::LoadSuccesedResult(AsynchLoadTextureTask *task)
+    : ITaskStepResult(TaskStepResultType::FinishedSuccesfully)
+{
+    m_pPixels      = task->m_pRawTexture;
+    m_pDestTexture = task->m_pDestTexture;
+}
+
+bool AsynchLoadTextureTask::LoadSuccesedResult::NeedEndCallback()
+{
+    return true;
+}
+
+void AsynchLoadTextureTask::LoadSuccesedResult::ExecuteOnCompletion()
+{
+    m_pDestTexture->UploadRawTexture(m_pPixels);
+    delete m_pPixels;
+}
+
+ AsynchLoadTextureTask::LoadFailedResult::LoadFailedResult() : ITaskStepResult(TaskStepResultType::FinishedWithFailure)
+{
+}
+
+bool AsynchLoadTextureTask::LoadFailedResult::NeedEndCallback()
+{
+    return false;
 }

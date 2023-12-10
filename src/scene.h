@@ -52,10 +52,7 @@ public:
     SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
     SceneEntityPtr AddNewGenericEntity();
 
-    void AddNewSceneEntity(SceneEntityPtr entity)
-    {
-        m_SceneEntities.push_back(entity);
-    }
+    void AddNewSceneEntity(SceneEntityPtr entity);
 
     std::list<SceneEntityPtr> &GetSceneObjects();
     std::list<SceneEntityPtr> &GetLightDefs();

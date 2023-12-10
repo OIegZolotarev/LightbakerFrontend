@@ -102,6 +102,11 @@ public:
     size_t       NumRef();
     std::string &Name();
 
+    size_t Index()
+    {
+        return m_nIndex;
+    }
+
 private:
     bool m_bLoaded = false;
     int  m_iWidth  = 0;
@@ -121,7 +126,9 @@ private:
     size_t m_NumReferences = 0;
 
     int         m_iFlags      = 0;
-    std::string m_strFileName = "";
+    std::string m_strFileName = "";    
+
+    size_t m_nIndex = 0;
 };
 
 #include "img_goldsource_spr.h"
@@ -174,13 +181,59 @@ enum class FallbackTexture
     White,
 };
 
+class AsynchLoadTextureTask: public ITask
+{
+    RawTexture *m_pRawTexture = nullptr;
+
+    std::string m_strFileName;
+    void *      m_pData;
+    size_t      m_DataLength;
+    TextureSource m_Source;
+
+    GLTexture *m_pDestTexture;
+public:
+    AsynchLoadTextureTask(const char *fileName, void *data, size_t length, TextureSource source, GLTexture * destTexture);
+    ~AsynchLoadTextureTask();
+
+    RawTexture * GetRawTexture();
+
+    ITaskStepResult *ExecuteStep(LoaderThread *loaderThread) override;
+
+    void OnCompletion() override;
+
+    class LoadFailedResult: public ITaskStepResult
+    {
+    public:
+        LoadFailedResult();
+
+        virtual bool NeedEndCallback();
+    };
+
+    class LoadSuccesedResult:public ITaskStepResult
+    {
+        RawTexture *m_pPixels = nullptr;
+        GLTexture * m_pDestTexture   = nullptr;
+    public:
+        LoadSuccesedResult(AsynchLoadTextureTask *task);
+
+        bool NeedEndCallback() override;
+
+        void ExecuteOnCompletion() override;
+    };
+
+};
+
+
+
 class TextureManager
 {
+    friend class AsynchLoadTextureTask;
+
     std::list<GoldSource::WADTexturePool *> m_lstWADSPool;
     std::list<GLTexture *>                  m_lstTexturesPool;
 
     static TextureSource DetermineTextureSourceFromFileName(const char *fileName);
-    static TextureSource DetermineTextureSourceFileFileSignature(void *pixels, size_t length);
+    static TextureSource DetermineTextureSourceFileSignature(void *pixels, size_t length);
 
     GLTexture *m_pEmoTexture;
     GLTexture *m_pWhiteTexture;
@@ -211,11 +264,18 @@ public:
     void UnregisterWAD(const char *fileName);
 
     static GLTexture *LoadTextureSynch(const char *fileName, TextureSource source = TextureSource::GuessByItself);
-    static GLTexture *LoadTextureSynch(void *data, size_t len, const char *name,
-                                       TextureSource source = TextureSource::GuessByItself);
+    static GLTexture *LoadTextureSynch(void *data, size_t len, const char *name, TextureSource source = TextureSource::GuessByItself);
+
+    static GLTexture *LoadTextureAsynch(const char *fileName, TextureSource source = TextureSource::GuessByItself);
+    static GLTexture *LoadTextureAsynch(void *data, size_t len, const char *name,
+                                        TextureSource source = TextureSource::GuessByItself);
+
 
     void PurgeTextures();
 
     static GLTexture *LoadWADTextureSynch(char *name);
+    static GLTexture *LoadWADTextureAsynch(char *name);
+    
     static GLTexture *GetWhiteTexture();
+    static GLTexture *GetFallbackTexture();
 };

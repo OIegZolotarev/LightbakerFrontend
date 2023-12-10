@@ -12,8 +12,8 @@ namespace GoldSource
 {
 class BSPWorld: public IWorldEntity
 {
-    BSPLevel *m_pLevel;
-    BSPRenderer *m_pRenderer;
+    BSPLevel *m_pLevel = nullptr;
+    BSPRenderer *m_pRenderer = nullptr;
 
   public:
     BSPWorld(const char* levelName, Scene* pScene);    
@@ -27,6 +27,7 @@ class BSPWorld: public IWorldEntity
     bool IsDataLoaded() override;
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions) override;
+    void        OnLevelLoaded();
 };
 }
 

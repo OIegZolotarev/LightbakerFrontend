@@ -205,6 +205,7 @@ build.bat
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
+    <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
     <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="gl_framebuffer_object.cpp" />
@@ -302,6 +303,7 @@ build.bat
     <ClInclude Include="bsp_entity_property.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
+    <ClInclude Include="goldsource_bsp_asynch_loader.h" />
     <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />
     <ClInclude Include="gl_framebuffer_object.h" />

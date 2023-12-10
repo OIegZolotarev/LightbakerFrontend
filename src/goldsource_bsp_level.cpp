@@ -108,8 +108,7 @@ void BSPLevel::Mod_LoadTextures(lump_t* l)
 	for (int i = 0; i < m->nummiptex; i++)
 	{
 		m->dataofs[i] = LittleLong(m->dataofs[i]);
-		// 		if (m->dataofs[i] == -1)
-		// 			continue;
+
 
 		miptex_t* mt = (miptex_t*)((byte*)m + m->dataofs[i]);
 		mt->width = LittleLong(mt->width);
@@ -121,51 +120,19 @@ void BSPLevel::Mod_LoadTextures(lump_t* l)
 		m_vTextures[i] = tx;
 		memcpy(tx->name, mt->name, sizeof(tx->name));
 
+		// TODO: make asynch
+
+		
 		if (mt->offsets[0])
-			tx->loadedTexture = TextureManager::LoadTextureSynch(mt, 0, mt->name, TextureSource::GoldSourceMipTexture);
+            tx->loadedTexture = TextureManager::LoadTextureAsynch(mt, 0, mt->name, TextureSource::GoldSourceMipTexture);
 		else
-            tx->loadedTexture = TextureManager::LoadWADTextureSynch(tx->name);
+            tx->loadedTexture = TextureManager::LoadWADTextureAsynch(tx->name);
+			
+
 
 		tx->height = mt->height;
 		tx->width = mt->width;
 
-// 		if (1)
-// 		{
-// 
-// 			glGenTextures(1, (GLuint*)&tx->gl_normal_texture_num);
-// 			GL_PrepareNormalGenerator(&tx->gl_normal_texture_num, tx->name);
-// 
-// 			if (loadmodel->version == 29)
-// 			{
-// 				tx->gl_texturenum = glLoadJpg(VA("textures/world/%s.jpg", mt->name));
-// 			}
-// 			else
-// 			{
-// 				if (mt->offsets[0])
-// 					tx->gl_texturenum = LoadMiptex(mt);
-// 				else if (!LoadWadTex(tx->name, &tx->gl_texturenum))
-// 					tx->gl_texturenum = glLoadJpg(VA("textures/world/%s.jpg", mt->name));
-// 			}
-// 
-// 			ML_LoadTexture(mt->name, tx);
-// 
-// 		}
-// 		LoadAviForTexture(tx);
-// 
-// 		//	tx->gl_texturenum=glUniload("gg@!hb_display");
-// 
- 		
-// 
-// 		if (!tx->gl_texturenum || tx->height == 0xFFFFFFFF || tx->width == 0xFFFFFFFF || !tx->width || !tx->height)
-// 		{
-// 			tx->gl_texturenum = R_CachedPic("EMO_TEXTURE");
-// 			tx->height = 64;
-// 			tx->width = 64;
-// 		}
-// 
-// 
-// 
-// 		if (!stricmp(tx->name, "sky")) R_LoadSky();
 	}
 
 	SequenceTextureAnims(m, tx, anims, altanims, max, altmax, j, tx2, num);
@@ -354,11 +321,11 @@ void BSPLevel::Mod_LoadFaces(lump_t* l)
 				out->samples = m_pLightData + i * 3;
 		}
 					
-		
-		if (out->samples)	
-			GL_CreateSurfaceLightmap(out);
-
-		BuildSurfaceDisplayList(out);
+// 		Handled by BSP renderer
+// 		if (out->samples)	
+// 			GL_CreateSurfaceLightmap(out);
+// 
+// 		BuildSurfaceDisplayList(out);
 	}
 }
 
@@ -612,30 +579,29 @@ BSPLevel::BSPLevel(FileData * fd, Scene * pScene)
 
 	m_pLightmapState = new LightmapAtlas(512, 512);
 
-	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);
-
-	Mod_LoadVertexes(&m_Header->lumps[LUMP_VERTEXES]);
-	Mod_LoadEdges(&m_Header->lumps[LUMP_EDGES]);
-	Mod_LoadSurfedges(&m_Header->lumps[LUMP_SURFEDGES]);
-
-	Mod_LoadTextures(&m_Header->lumps[LUMP_TEXTURES]);
-	Mod_LoadLighting(&m_Header->lumps[LUMP_LIGHTING]);
-	Mod_LoadPlanes(&m_Header->lumps[LUMP_PLANES]);
-	Mod_LoadTexinfo(&m_Header->lumps[LUMP_TEXINFO]);
-	Mod_LoadFaces(&m_Header->lumps[LUMP_FACES]);
-	Mod_LoadMarksurfaces(&m_Header->lumps[LUMP_MARKSURFACES]);
-	Mod_LoadVisibility(&m_Header->lumps[LUMP_VISIBILITY]);
-	Mod_LoadLeafs(&m_Header->lumps[LUMP_LEAFS]);
-	Mod_LoadNodes(&m_Header->lumps[LUMP_NODES]);
-	Mod_LoadClipnodes(&m_Header->lumps[LUMP_CLIPNODES]);
-	
-	Mod_LoadSubmodels(&m_Header->lumps[LUMP_MODELS]);
+	// Handled by loader task
+// 	Mod_LoadEntities(&m_Header->lumps[LUMP_ENTITIES]);
+// 
+// 	Mod_LoadVertexes(&m_Header->lumps[LUMP_VERTEXES]);
+// 	Mod_LoadEdges(&m_Header->lumps[LUMP_EDGES]);
+// 	Mod_LoadSurfedges(&m_Header->lumps[LUMP_SURFEDGES]);
+// 
+// 	Mod_LoadTextures(&m_Header->lumps[LUMP_TEXTURES]);
+// 	Mod_LoadLighting(&m_Header->lumps[LUMP_LIGHTING]);
+// 	Mod_LoadPlanes(&m_Header->lumps[LUMP_PLANES]);
+// 	Mod_LoadTexinfo(&m_Header->lumps[LUMP_TEXINFO]);
+// 	Mod_LoadFaces(&m_Header->lumps[LUMP_FACES]);
+// 	Mod_LoadMarksurfaces(&m_Header->lumps[LUMP_MARKSURFACES]);
+// 	Mod_LoadVisibility(&m_Header->lumps[LUMP_VISIBILITY]);
+// 	Mod_LoadLeafs(&m_Header->lumps[LUMP_LEAFS]);
+// 	Mod_LoadNodes(&m_Header->lumps[LUMP_NODES]);
+// 	Mod_LoadClipnodes(&m_Header->lumps[LUMP_CLIPNODES]);
+// 	
+// 	Mod_LoadSubmodels(&m_Header->lumps[LUMP_MODELS]);
 	
 
 	m_pFileData->Ref();
 
-	// Загрузить остатки.
-	m_pLightmapState->UploadBlock(false);
 	
 }
 
@@ -863,9 +829,6 @@ void BSPLevel::GL_CreateSurfaceLightmap(msurface_t* surf)
 	surf->light_s = pos->x;
 	surf->light_t = pos->y;
 
-
-	//Con_Printf("GL_CreateSurfaceLightmap: %d %d\n", surf->light_s, surf->light_t);
-
 	surf->lightmaptexturenum = m_pLightmapState->CurrentLightmapTexture();
 
 	auto base = m_pLightmapState->LightmapBuffer();
@@ -964,6 +927,7 @@ void BSPLevel::Mod_LoadEntities(lump_t* l)
 	}
 }
 
+// TODO: delme
 void BSPLevel::BuildSurfaceDisplayList(msurface_t *fa)
 {
     int i, lindex, lnumverts;
@@ -1109,7 +1073,7 @@ const std::vector<int> &BSPLevel::GetSurfEdges() const
     return m_vSurfedges;
 }
 
-const GoldSource::LightmapAtlas *BSPLevel::GetLightmapState() const
+GoldSource::LightmapAtlas *BSPLevel::GetLightmapState() const
 {
     return m_pLightmapState;
 }
@@ -1123,8 +1087,6 @@ void GoldSource::BSPLevel::PopulateScene(Scene * pScene)
 {
 	// TODO: design a proper way to link worldspawn and BSPWorld 
 	//
-
-	
 
     for (auto it : m_vEntities)
     {

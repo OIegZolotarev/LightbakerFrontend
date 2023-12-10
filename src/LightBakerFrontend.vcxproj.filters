@@ -380,6 +380,9 @@
     <ClCompile Include="bsp_entity.cpp">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
+    <ClCompile Include="goldsource_bsp_asynch_loader.cpp">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -690,6 +693,9 @@
     </ClInclude>
     <ClInclude Include="bsp_entity.h">
       <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_asynch_loader.h">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

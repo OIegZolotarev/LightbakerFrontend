@@ -45,7 +45,7 @@ typedef struct
     size_t first;
     size_t count;
 
-    GLuint diffuse;
+    GLTexture* diffuse;
     GLuint lm;
 } displayMesh_t;
 
@@ -73,7 +73,7 @@ class BSPRenderer
 {
     glm::vec3 m_vecEyesPosition;
     size_t m_visFrameCount = 0;
-    BSPLevel *m_pWorld;
+    BSPLevel *m_pLevel;
     
     
     
