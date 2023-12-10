@@ -166,24 +166,16 @@ void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile *pOwner)
         // TODO: добавить проверку что базовый класс определен на момент упоминания?
         for (auto prop : baseClass->m_Properties)
         {
-            auto existingProperty = FindProperty(prop->GetName());
+            auto hasProperty = FindProperty(prop->GetName());
 
             // Некоторые классы друг-друга перекрывают. Надо отсеять такие поля
             // TODO: проверить что не нужно соединять флаги.
-            if (existingProperty)
+            if (hasProperty)
             {
                 continue;
             }
 
-            if (typeid(prop) == typeid((FGDPropertyDescriptor *)0))
-            {
-                m_Properties.push_front(new FGDPropertyDescriptor(prop));
-            }
-            else if (typeid(prop) == typeid((FGDFlagsEnumProperty *)0))
-            {
-                auto castedProp = static_cast<FGDFlagsEnumProperty *>(prop);
-                m_Properties.push_front(new FGDFlagsEnumProperty(castedProp));
-            }
+            m_Properties.push_front(prop->Clone());
         }
     }
 }
@@ -270,7 +262,7 @@ FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, F
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(FGDFlagsEnumProperty *pOther) : FGDPropertyDescriptor(pOther)
 {
     m_Values          = pOther->m_Values;
-    m_isFlagsProperty = (m_Name == "spawnflags");
+    m_isFlagsProperty = pOther->m_isFlagsProperty;
 }
 
 bool FGDFlagsEnumProperty::IsSpawnflagsProperty()

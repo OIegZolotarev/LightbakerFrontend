@@ -87,13 +87,17 @@ protected:
 public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther);
 
-    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr,
-                          OptionalDefaultValAndHelp_s defaultValueAndHelp);
+    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, OptionalDefaultValAndHelp_s defaultValueAndHelp);
 
     ~FGDPropertyDescriptor();
     const std::string &GetName() const;
     const std::string &GetDescription() const;
     const std::string &GetHelp() const;
+
+    virtual FGDPropertyDescriptor *Clone()
+    {
+        return new FGDPropertyDescriptor(this);
+    }
 };
 
 class FGDFlagsEnumProperty : public FGDPropertyDescriptor
@@ -104,6 +108,16 @@ public:
     FGDFlagsEnumProperty(FGDFlagsEnumProperty *pOther);
 
     bool IsSpawnflagsProperty();
+
+    const FGDFlagsList &GetValues() const
+    {
+        return m_Values;
+    }
+
+    virtual FGDPropertyDescriptor *Clone()
+    {
+        return new FGDFlagsEnumProperty(this);
+    }
 
 private:
     FGDFlagsList m_Values;
@@ -142,7 +156,7 @@ public:
     void SetDecalEntity(bool flag);
     void SetEditorSprite(std::string sprite);
     void SetPropertyExtra(std::string p, float value);
-    
+
     void AddProperty(FGDPropertyDescriptor *p);
 
     void SetCtorFlags(int flags);
@@ -159,7 +173,7 @@ public:
 
     GLTexture *GetEditorSpite();
 
-    FGDPropertyDescriptor *FindProperty(const std::string &propertyName) const;
+    FGDPropertyDescriptor *  FindProperty(const std::string &propertyName) const;
     const FGDPropertiesList &GetProperties() const;
 
 private:
@@ -188,8 +202,7 @@ private:
 
     std::list<std::string> m_BaseClasses;
 
-    
-    void                   RelinkInheritedProperties(class HammerFGDFile *pFile);
+    void RelinkInheritedProperties(class HammerFGDFile *pFile);
 
     GLTexture *m_pEditorSprite = nullptr;
 };

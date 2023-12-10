@@ -85,6 +85,8 @@ private:
     void ParseClassname(const std::string &value);
 
 
+void ParseFlags(const std::string &value);
+    void RebuildFlagsList();
 };
 
 } // namespace GoldSource

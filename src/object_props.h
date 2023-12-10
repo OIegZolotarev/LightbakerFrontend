@@ -143,6 +143,11 @@ public:
     {
         m_strHelp = str;
 	}
+
+	void SetDisplayName(const std::string dispName)
+    {
+        display_name = dispName;
+	}
 };
 
 

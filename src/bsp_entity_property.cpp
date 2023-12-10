@@ -78,6 +78,9 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantV
     m_Name   = pOther->m_Name;
     m_pOwner = nullptr;
     m_Hash   = pOther->m_Hash;
+    
+    // TODO: check if this is enough
+    m_iSpecialId = pOther->m_iSpecialId;
 
     SetDescriptor(pOther->m_pDescriptor);
 }
@@ -114,6 +117,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseWad(value);
         break;
     case PropertyMetatype::Flags:
+        ParseFlags(value);
         break;
     case PropertyMetatype::Light:
         break;
@@ -123,6 +127,35 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
     default:
         break;
     }
+}
+
+void BSPEntityProperty::RebuildFlagsList()
+{
+    if (!m_pDescriptor)
+        return;
+
+
+     if (! instanceof <FGDFlagsEnumProperty>(m_pDescriptor))
+         return;
+
+    m_EnumOrFlagsValues.clear();
+
+    // TODO: crash on info_player_start and infodecal
+    FGDFlagsEnumProperty *pDescr = (FGDFlagsEnumProperty *)m_pDescriptor;
+
+    for (auto &it : pDescr->GetValues())
+    {
+        AddEnumValue(it.description.c_str(), it.value);
+    }
+
+}
+
+void BSPEntityProperty::ParseFlags(const std::string &value)
+{
+    SetDisplayName("Spawn flags");
+
+    if (m_pDescriptor)
+        RebuildFlagsList();
 }
 
 void BSPEntityProperty::ParseOrigin(const std::string &value)
@@ -182,6 +215,8 @@ void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
         display_name = m_pDescriptor->GetDescription();
         SetHelp(m_pDescriptor->GetHelp());
 
+        if (m_iSpecialId == PropertyMetatype::Flags)
+            RebuildFlagsList();
     }
     else
         display_name = m_Name;
@@ -280,7 +315,7 @@ size_t SpecialKeys::KeyAngles()
 
 size_t SpecialKeys::KeyFlags()
 {
-    static auto sKey = std::hash<std::string>{}("flags");
+    static auto sKey = std::hash<std::string>{}("spawnflags");
     return sKey;
 }
 
