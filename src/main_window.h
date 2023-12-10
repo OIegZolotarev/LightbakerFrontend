@@ -91,6 +91,11 @@ public:
 
     void InitImGUISDL2Platform() override;
 
+    int GetState()
+    {    
+            return m_windowState;
+    }
+
 private:
     enum ToolbarIcons
     {
@@ -121,10 +126,17 @@ private:
 
     bool HandleEvents(bool loop);
 
+    // Window state
+    int  m_windowState = -1;
+    void HandleWindowStateEvent(SDL_Event & e);
+
+
     void UpdateTimers();
     void GL_BeginFrame();
 
     void RenderGUI();
+
+    void DrawStatusBar();
 
     void DrawLoadingBanner();
     void DrawBakingInProgressBanner(float yBannerOffset);

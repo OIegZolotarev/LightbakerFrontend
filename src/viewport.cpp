@@ -126,6 +126,9 @@ void Viewport::DisplayRenderedFrame()
         return;
     }
 
+    //if (Application::GetMainWindow()->GetState() == 0)
+//        __debugbreak();
+
     ImGui::PushID(this);
 
     if (m_bDocked)
@@ -183,8 +186,9 @@ void Viewport::DisplayRenderedFrame()
         
         RenderGuizmo();
 
-        ImGui::End();
+        
     }
+    ImGui::End();
 
     
 

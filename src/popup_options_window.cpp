@@ -156,9 +156,10 @@ void OptionsDialog::Render()
     {
         if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
         {
-            RenderOptionsPages(pageToRender);
-            ImGui::EndChild();
+            RenderOptionsPages(pageToRender);            
         }
+
+        ImGui::EndChild();
     }
 
     RenderFooter();

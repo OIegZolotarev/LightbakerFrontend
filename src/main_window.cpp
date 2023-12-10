@@ -3,8 +3,8 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "application.h"
 #include "main_window.h"
+#include "application.h"
 
 #include "common_resources.h"
 #include "console_output_panel.h"
@@ -18,17 +18,17 @@
 #include "ui_common.h"
 #include "ui_styles_manager.h"
 
-#include "r_editor_grid.h"
 #include "hammer_fgd.h"
+#include "r_editor_grid.h"
 
 #include "gl_screenspace_2d_renderer.h"
 #include "popup_loadfile_dialog.h"
 #include "scene_renderer.h"
 #include "secondary_window.h"
 #include "viewport.h"
+#include "viewports_orchestrator.h"
 #include "wad_textures.h"
 #include <list>
-#include "viewports_orchestrator.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -43,8 +43,7 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 {
     m_strTitle = title;
 
-    //InitStuff();
-       
+    // InitStuff();
 
     m_vPanels.push_back(ObjectPropertiesEditor::Instance());
     m_vPanels.push_back(new SceneObjectPanel);
@@ -53,15 +52,16 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =  Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+    m_pUseGradientBackground =
+        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
-    //SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
+    // SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
 }
 
 void MainWindow::InitStuff()
 {
     InitBackend();
-    
+
     m_pSceneRenderer = new SceneRenderer(this);
     AddEventHandler(m_pSceneRenderer);
 
@@ -77,8 +77,7 @@ MainWindow::~MainWindow()
     delete TextureManager::Instance();
 
     FreeGLTextures();
-    
-    
+
     delete m_pSceneRenderer;
 
     ClearPointersVector(m_vPanels);
@@ -167,7 +166,7 @@ void MainWindow::InitBackend()
 
     // setup platform/renderer bindings
     InitImGUISDL2Platform();
-    
+
     ImGui_ImplOpenGL3_Init("#version 330");
 
     ImGuiHelpers::Init();
@@ -186,7 +185,6 @@ void MainWindow::InitBackend()
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
-
 }
 
 void MainWindow::InitImGUISDL2Platform()
@@ -279,7 +277,9 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowBgAlpha(0);
+
     ImGui::Begin(label, NULL, host_window_flags);
+
     ImGui::PopStyleVar(3);
 
     gIDMainDockspace = ImGui::GetID(strDockspace);
@@ -317,11 +317,11 @@ void MainWindow::InitViewports()
     if (!vo->LoadViewports())
     {
         vo->AddNewViewport("Main", this, nullptr);
-    }   
+    }
 }
 
 void MainWindow::CloneViewport(Viewport *pViewport)
-{    
+{
     auto       vo      = ViewportsOrchestrator::Instance();
     static int counter = 1;
 
@@ -333,10 +333,10 @@ void MainWindow::CloneViewport(Viewport *pViewport)
 Viewport *MainWindow::GetViewport(int index)
 {
     return nullptr;
-// 
-//     auto it = m_lstViewports.begin();
-//     std::advance(it, index);
-//     return *it;
+    //
+    //     auto it = m_lstViewports.begin();
+    //     std::advance(it, index);
+    //     return *it;
 }
 
 void MainWindow::SetTitle(std::string &fileName)
@@ -400,8 +400,6 @@ int MainWindow::GetFPS()
     return m_TimersData.actual_fps;
 }
 
-
-
 void MainWindow::MainLoop()
 {
     m_TimersData.timestamp_now          = SDL_GetPerformanceCounter();
@@ -412,11 +410,11 @@ void MainWindow::MainLoop()
 
     while (!m_bTerminated)
     {
-        ImGui::SetCurrentContext(m_pImGUIContext);
+        // ImGui::SetCurrentContext(m_pImGUIContext);
 
         GLBackend::Instance()->NewFrame();
         Application::Instance()->CheckIfBakngFinished();
-                
+
         m_bTerminated = !HandleEvents(!m_bTerminated);
 
         UpdateTimers();
@@ -741,13 +739,15 @@ void MainWindow::RenderGUI()
 
     // start the Dear ImGui frame
     ImGui::SetCurrentContext(m_pImGUIContext);
+
     
+
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
     static int delayInit = 2;
 
-    
+//    printf("ImGui::NewFrame()\n");
     ImGui::NewFrame();
 
     if (delayInit > 0)
@@ -768,8 +768,6 @@ void MainWindow::RenderGUI()
 
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
 
-    
-
     for (auto &it : m_vPanels)
         it->InvokeRender();
 
@@ -783,6 +781,28 @@ void MainWindow::RenderGUI()
 
     DrawLoadingBanner();
 
+    DrawStatusBar();
+
+#ifdef _DEBUG
+    ImGui::ShowDemoWindow();
+#endif
+
+    ViewportsOrchestrator::Instance()->DisplayViewports(this);
+
+    ImGui::Render();
+
+    // Update and Render additional Platform Windows
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainWindow::DrawStatusBar()
+{
     auto viewport = ImGui::FindViewportByID(m_defaultDockSides.idDockLeftBottom);
 
     ImGuiWindowFlags window_flags =
@@ -811,23 +831,6 @@ void MainWindow::RenderGUI()
 
         ImGui::End();
     }
-
-#ifdef _DEBUG
-    ImGui::ShowDemoWindow();
-#endif
-
-    ViewportsOrchestrator::Instance()->DisplayViewports(this);
-
-    ImGui::Render();
-
-    // Update and Render additional Platform Windows
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-    }
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainWindow::DrawLoadingBanner()
@@ -950,8 +953,7 @@ bool MainWindow::HandleEvents(bool loop)
             case SDL_WINDOWEVENT_MINIMIZED:
             case SDL_WINDOWEVENT_MAXIMIZED:
             case SDL_WINDOWEVENT_RESTORED:
-                SDL_GetWindowSize(m_pSDLWindow, &m_iWindowWidth, &m_iWindowHeight);
-                glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
+                HandleWindowStateEvent(event);
                 break;
             }
             break;
@@ -1008,6 +1010,25 @@ bool MainWindow::HandleEvents(bool loop)
     }
 
     return loop;
+}
+
+void MainWindow::HandleWindowStateEvent(SDL_Event &e)
+{
+    switch (e.window.event)
+    {
+    case SDL_WINDOWEVENT_RESTORED:
+        m_windowState = 1;
+        break;
+    case SDL_WINDOWEVENT_MAXIMIZED:
+        m_windowState = 2;
+        break;
+    case SDL_WINDOWEVENT_MINIMIZED:        
+        m_windowState = 0;
+        break;
+    }
+
+    SDL_GetWindowSize(m_pSDLWindow, &m_iWindowWidth, &m_iWindowHeight);
+    glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 }
 
 void MainWindow::GL_BeginFrame()
@@ -1075,16 +1096,6 @@ void MainWindow::ClearBackground()
 
 void MainWindow::UpdateTimers()
 {
-    if (m_TimersData.frames_until_init > 0)
-    {
-        m_TimersData.frames_until_init--;
-
-        if (m_TimersData.frames_until_init == 0)
-        {
-            // DelayedInit()
-        }
-    }
-
     m_TimersData.timestamp_last = m_TimersData.timestamp_now;
     m_TimersData.timestamp_now  = SDL_GetPerformanceCounter();
 
