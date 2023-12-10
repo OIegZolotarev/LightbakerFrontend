@@ -264,12 +264,12 @@ void Camera::SetupCommonKeystrokesCallbacks()
     });
 }
 
-glm::vec3 &Camera::GetAngles()
+const glm::vec3 &Camera::GetAngles() const
 {
     return m_Angles;
 }
 
-glm::vec3 &Camera::GetOrigin()
+const glm::vec3 &Camera::GetOrigin() const
 {
     return m_Origin;
 }

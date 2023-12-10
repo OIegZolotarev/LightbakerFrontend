@@ -12,17 +12,14 @@
 #include <unordered_map>
 #include <utility>
 
-
-
 namespace GoldSource
 {
-
 class BSPEntityProperty;
 
 class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
-    
+
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
@@ -35,10 +32,10 @@ class BSPEntity : public SceneEntity
 
     BSPEntityProperty *FindProperty(size_t prophash);
 
-  public:
-    // Delete for now, implement later if necceseary 
+public:
+    // Delete for now, implement later if necceseary
     BSPEntity(BSPEntity *pOther) = delete;
-    BSPEntity(Scene * pScene);
+    BSPEntity(Scene *pScene);
     ~BSPEntity();
 
     void SetKeyValue(const std::string &key, const std::string &value);
@@ -53,15 +50,15 @@ class BSPEntity : public SceneEntity
 
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
-    bool HasProperty(size_t hash);
+    bool                            HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
-    void SetFGDClass(FGDEntityClass *pClass);
+    void            SetFGDClass(FGDEntityClass *pClass);
     FGDEntityClass *GetFGDClass();
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
-
+    bool IsTransparent() override;
 };
 
 } // namespace GoldSource

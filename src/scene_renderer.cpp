@@ -6,14 +6,15 @@
 #include "scene_renderer.h"
 #include "..\include\ImGuizmo\ImGuizmo.h"
 #include "application.h"
-#include "r_camera.h"
 #include "common.h"
 #include "common_resources.h"
 #include "draw_utils.h"
-#include "r_editor_grid.h"
 #include "properties_editor.h"
+#include "r_camera.h"
+#include "r_editor_grid.h"
 #include "scene.h"
 #include "selection_3d.h"
+#include <unordered_set>
 
 #define FAST_BB
 
@@ -121,8 +122,12 @@ SceneRenderer::~SceneRenderer()
 
 void SceneRenderer::RenderScene(Viewport *pViewport)
 {
+    GLBackend::SetBlending(false);
+
     m_pCamera    = pViewport->GetCamera();
     m_RenderMode = pViewport->GetRenderMode();
+
+    ResetTransparentChain();
 
     Application::GetMainWindow()->ClearBackground();
 
@@ -147,17 +152,22 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
             break;
         case RenderMode::Groups:
             m_pScene->RenderGroupsShaded();
-        default:
-            break;
         }
-
-        // RenderHelperGeometry(selectionManager);
     }
+
+    RenderTransparentChain();
 
     if (showGround->GetAsBool())
     {
         GridRenderer::Instance()->Render();
     }
+}
+
+void SceneRenderer::ResetTransparentChain()
+{
+    m_pTransparentChainStart = SceneEntityWeakPtr();
+    m_pTransparentChainEnd   = SceneEntityWeakPtr();
+    m_flClosestEntity = m_flFarthestEntity = 0;
 }
 
 void SceneRenderer::RenderHelperGeometry()
@@ -254,9 +264,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
     m_pBillBoard->Bind();
 
     // TODO: cache this and make meaningfull api
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-
+    GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     for (auto &it : m_pBillBoardsShader->Uniforms())
     {
@@ -444,6 +452,35 @@ void SceneRenderer::DumpLightmapUV()
     m_pScene->DumpLightmapUV();
 }
 
+void SceneRenderer::RenderTransparentChain()
+{
+    SceneEntityWeakPtr ptr = m_pTransparentChainStart;
+
+    size_t chainLength = 0;
+
+    while (!ptr.expired())
+    {
+        auto lockPtr = ptr.lock();
+
+        switch (m_RenderMode)
+        {
+        case RenderMode::Unshaded:
+            lockPtr->RenderUnshaded();
+            break;
+        case RenderMode::Lightshaded:
+            lockPtr->RenderLightshaded();
+            break;
+        case RenderMode::Groups:
+            m_pScene->RenderGroupsShaded();
+        }
+
+        chainLength++;
+        ptr = lockPtr->Next();
+    }
+
+    // Con_Printf("Chain length: %d\n", chainLength);
+}
+
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
                                              const glm::vec3 &m_Maxs, const glm::vec3 &m_Color,
                                              const uint32_t objectSerialNumber)
@@ -460,14 +497,13 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
         case UniformKind::Color:
             it->SetFloat4({m_Color, 1});
             break;
-        case UniformKind::TransformMatrix: 
-        {
+        case UniformKind::TransformMatrix: {
             glm::vec3 offset = m_Mins + scale * 0.5f;
 
             glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), m_Position - offset);
             it->SetMat4(mat);
         }
-            break;
+        break;
         case UniformKind::Scale:
             it->SetFloat3(scale.xzy);
             break;
@@ -491,6 +527,136 @@ glm::vec3 SceneRenderer::GetRenderPos()
         return m_pCamera->GetOrigin();
     else
         return {0, 0, 0};
+}
+
+void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
+{
+#ifdef PARANOID
+    auto printChain = [&](SceneEntityWeakPtr head) {
+        Con_Printf("\n[Chain start]->");
+
+        SceneEntityWeakPtr p = head;
+
+        while (!p.expired())
+        {
+            auto ptr = p.lock();
+
+            if (ptr)
+                Con_Printf("%d->", ptr->GetSerialNumber());
+
+            p = ptr->Next();
+        }
+        Con_Printf("[Chain end]\n");
+    };
+
+    auto dbg_loops = [&](SceneEntityWeakPtr h) -> bool {
+        std::unordered_set<SceneEntity *> s;
+
+        // Con_Printf("\n====================================\n");
+
+        while (!h.expired())
+        {
+            auto ptr = h.lock();
+            auto raw = ptr.get();
+
+            //  Con_Printf("%d->", raw->GetSerialNumber());
+
+            // If this node is already present
+            // in hashmap it means there is a cycle
+            // (Because you will be encountering the
+            // node for the second time).
+            if (s.find(raw) != s.end())
+                return true;
+
+            // If we are seeing the node for
+            // the first time, insert it in hash
+            s.insert(raw);
+
+            h = ptr->Next();
+        }
+
+        return false;
+    };
+#endif
+
+    auto ptr = pEntity.lock();
+
+    if (!ptr)
+        return;
+
+    if (!ptr->Next().expired())
+    {
+        SceneEntityWeakPtr w;
+        ptr->SetNext(w);
+    }
+
+    auto &pos = m_pCamera->GetOrigin();
+
+    if (m_pTransparentChainStart.expired())
+    {
+        m_pTransparentChainStart = pEntity;
+        m_pTransparentChainEnd   = pEntity;
+        m_flClosestEntity        = glm::distance2(pos, ptr->GetPosition());
+        m_flFarthestEntity       = m_flClosestEntity;
+
+        #ifdef PARANOID
+        printChain(m_pTransparentChainStart);
+        #endif
+        return;
+    }
+
+    float flDist = glm::distance2(pos, ptr->GetPosition());
+
+    if (flDist < m_flClosestEntity)
+    {
+        auto chainEnd = m_pTransparentChainEnd.lock();
+
+        // Bail out, chain will be rebuilt next frame
+        if (!chainEnd)
+            return;
+
+        chainEnd->SetNext(pEntity);
+
+        m_pTransparentChainEnd = pEntity.lock();
+        m_flClosestEntity      = flDist;
+
+        #ifdef PARANOID
+        if (dbg_loops(m_pTransparentChainStart))
+            __debugbreak();
+        #endif
+    }
+    else
+    {
+        auto chainStart = m_pTransparentChainStart.lock();
+
+        // Bail out, chain will be rebuilt next frame
+        if (!chainStart)
+            return;
+
+
+        auto oldSn = chainStart->GetSerialNumber();
+        auto newSn = ptr->GetSerialNumber();
+
+        ptr->SetNext(m_pTransparentChainStart);
+        m_pTransparentChainStart = pEntity;
+
+#ifdef PARANOID
+               
+        if (SceneEntity::GetRawSafest<SceneEntity>(pEntity) ==
+            SceneEntity::GetRawSafest<SceneEntity>(m_pTransparentChainStart))
+            __debugbreak();
+
+        if (pEntity.expired())
+            __debugbreak();
+
+        if (dbg_loops(m_pTransparentChainStart))
+            __debugbreak();
+#endif
+    }
+
+#ifdef PARANOID
+    printChain(m_pTransparentChainStart);
+    #endif
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)

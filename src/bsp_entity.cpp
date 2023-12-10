@@ -51,6 +51,11 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     }
 }
 
+bool BSPEntity::IsTransparent()
+{
+    return m_pEditorSprite != nullptr;
+}
+
 void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
 {
     auto myProperty = FindProperty(pNewProperty->Hash());

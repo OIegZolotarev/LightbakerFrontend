@@ -3,14 +3,13 @@
     (c) 2023 CrazyRussian
 */
 
-
+#include "scene.h"
 #include "application.h"
+#include "goldsource_bsp_world.h"
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
-#include "properties_editor.h"
 #include "model_obj_world.h"
-#include "scene.h"
-#include "goldsource_bsp_world.h"
+#include "properties_editor.h"
 #include "r_camera.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
@@ -159,8 +158,10 @@ void Scene::RenderObjectsFor3DSelection()
 
 void Scene::RenderLightShaded()
 {
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
     auto selectionManager = SelectionManager::Instance();
-    auto frustum = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera()->GetFrustum();
+    auto frustum          = sr->GetCamera()->GetFrustum();
 
     for (auto &it : m_SceneEntities)
     {
@@ -170,15 +171,20 @@ void Scene::RenderLightShaded()
         if (!it->IsDataLoaded())
             continue;
 
-
         // TODO: precalculate when origin\mins\maxs are changed
         glm::vec3 absMins = it->GetPosition() + it->GetMins();
         glm::vec3 absMaxs = it->GetPosition() + it->GetMaxs();
 
-         if (frustum->CullBox(absMins, absMaxs))
-             continue;
+        if (frustum->CullBox(absMins, absMaxs))
+            continue;
 
-        it->RenderLightshaded();
+         if (it->IsTransparent())
+         {
+             sr->AddTransparentEntity(it);
+         }
+         else
+         
+            it->RenderLightshaded();
         // selectionManager->PushObject(it);
     }
 }
@@ -292,7 +298,7 @@ void Scene::Reload(int loadFlags)
 {
     if (loadFlags & LRF_RELOAD_LIGHTMAPS)
     {
-        auto it            = m_SceneEntities.begin();
+        auto           it     = m_SceneEntities.begin();
         ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
 
         entity->ReloadLightmaps();
@@ -318,9 +324,8 @@ void Scene::LoadLevel(const char *levelName)
 {
     auto s = std::string(levelName);
 
-    auto cfg = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
+    auto cfg             = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
     m_pGameConfiguration = *cfg;
-    
 
     auto format = DetermineLevelFormatFromFileName(levelName);
 
@@ -338,7 +343,6 @@ void Scene::LoadLevel(const char *levelName)
         break;
     default:
         break;
-    
     }
 
     if (!m_SceneEntities.empty())
@@ -362,12 +366,10 @@ std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t 
     // 	auto obj = (ModelOBJ*)entity;
     // 	return obj->Export(newPath, lb3kOptions);
 
-    auto it            = m_SceneEntities.begin();
-    
+    auto it = m_SceneEntities.begin();
 
     auto entity = (*it).get();
-    
-    
+
     IWorldEntity *pWorld = dynamic_cast<IWorldEntity *>(entity);
     if (NULL != pWorld)
     {
@@ -429,6 +431,6 @@ GameConfigurationWeakPtr Scene::UsedGameConfiguration()
 }
 
 uint32_t Scene::AllocSerialNumber()
-{    
+{
     return m_ObjectsCounter.Allocate();
 }

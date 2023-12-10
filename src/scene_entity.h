@@ -56,11 +56,10 @@ protected:
     // Обобщенные пары ключ-значение
     // TPropertiesMap m_vProperties;
 
+    // For transparent sorting
+    std::weak_ptr<SceneEntity> m_pNext;
+
     Scene *m_pScene;
-
-    SceneEntity *m_pTransparentNext = nullptr;
-    
-
 public:
     SceneEntity(Scene * pScene);
     SceneEntity(SceneEntity &other);
@@ -114,6 +113,17 @@ public:
         return static_cast<T*>(rawPtr);
     }
 
+    virtual bool IsTransparent()
+    {
+        return false;
+    }
+
+    std::weak_ptr<SceneEntity> Next()
+    {
+        return m_pNext;
+    }
+
+    void SetNext(std::weak_ptr<SceneEntity> & pOther);
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

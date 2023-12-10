@@ -13,6 +13,10 @@
 size_t GLBackend::m_CurrentTextureUnit;
 textureUnitState_t GLBackend::m_TexturesUnitStates[16];
 
+bool   GLBackend :: m_bBlendingEnabled = false;
+GLenum GLBackend :: m_eBlendingSFactor = false;
+GLenum GLBackend :: m_eBlendingDFactor = false;
+
 DrawMesh::DrawMesh(int flags)
 {
     m_iFlags = flags;
@@ -446,3 +450,39 @@ void GLBackend::SetUniformValue(ShaderUniform *it)
         break;
     }
 }
+
+void GLBackend::SetBlending(bool enable, GLenum sfactor, GLenum dfactor)
+{
+    if (m_bBlendingEnabled != enable)
+    {
+        m_bBlendingEnabled = enable;
+
+        if (m_bBlendingEnabled)
+            glEnable(GL_BLEND);
+        else
+            glDisable(GL_BLEND);
+    }
+
+    if (sfactor != m_eBlendingSFactor || dfactor != m_eBlendingDFactor)
+    {
+        m_eBlendingSFactor = sfactor;
+        m_eBlendingDFactor = dfactor;
+
+        glBlendFunc(m_eBlendingSFactor, m_eBlendingDFactor);
+    }
+
+}
+
+void GLBackend::SetBlending(bool enable)
+{
+    if (m_bBlendingEnabled != enable)
+    {
+        m_bBlendingEnabled = enable;
+
+        if (m_bBlendingEnabled)
+            glEnable(GL_BLEND);
+        else
+            glDisable(GL_BLEND);
+    }
+}
+

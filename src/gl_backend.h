@@ -123,6 +123,10 @@ class GLBackend
     static textureUnitState_t m_TexturesUnitStates[16];    
     static ShaderProgram *s_BoundShaderProgram;
 
+    static bool m_bBlendingEnabled;
+    static GLenum m_eBlendingSFactor;
+    static GLenum m_eBlendingDFactor;
+
     std::list<ShaderProgram *> m_LoadedShaders;
 
 
@@ -154,4 +158,6 @@ class GLBackend
     static void SetUniformValue(ShaderUniform *it);
 
 
+    static void SetBlending(bool enable, GLenum sfactor, GLenum dfactor);
+    static void SetBlending(bool enable);
 };
