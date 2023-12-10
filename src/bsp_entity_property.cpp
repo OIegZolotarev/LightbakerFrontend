@@ -25,7 +25,7 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const std::string 
 
     SetDescriptor(pDescr);
 
-    type     = AdaptPropertyType();
+    m_Type = AdaptPropertyType();
     m_pOwner = (BSPEntity*)pOwner;
 
     ParseValue(value);
@@ -92,10 +92,10 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantV
      m_Name   = pDescr->GetName();
      m_Hash   = CalcHash(m_Name);
 
-     initialized = false;
+     m_bInitialized = false;
      SetDescriptor(pDescr);
      
-     type = AdaptPropertyType();
+     m_Type = AdaptPropertyType();
  }
 
 size_t GoldSource::BSPEntityProperty::CalcHash(const std::string &val)
@@ -140,7 +140,6 @@ void BSPEntityProperty::RebuildFlagsList()
 
     m_EnumOrFlagsValues.clear();
 
-    // TODO: crash on info_player_start and infodecal
     FGDFlagsEnumProperty *pDescr = (FGDFlagsEnumProperty *)m_pDescriptor;
 
     for (auto &it : pDescr->GetValues())
@@ -178,7 +177,7 @@ void BSPEntityProperty::ParseOrigin(const std::string &value)
         SetPosition(ConvertOriginToSceneSpace(origin));
         m_pOwner->SetPosition(GetPosition());
 
-        display_name = "Origin";
+        SetDisplayName("Origin");
     }
 
     // SetPosition();
@@ -212,17 +211,19 @@ void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
 
     if (m_pDescriptor)
     {
-        display_name = m_pDescriptor->GetDescription();
+
         SetHelp(m_pDescriptor->GetHelp());
 
         if (m_iSpecialId == PropertyMetatype::Flags)
+        {
+            SetDisplayName("Flags");
             RebuildFlagsList();
+        }
+        else
+            SetDisplayName(m_pDescriptor->GetDescription());
     }
     else
-        display_name = m_Name;
-
-    if (display_name.empty())
-        display_name = m_Name;
+        SetDisplayName(m_Name, false);
 }
 
 void BSPEntityProperty::ParseAngles(const std::string &value)
