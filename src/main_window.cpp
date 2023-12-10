@@ -132,7 +132,7 @@ void MainWindow::InitBackend()
         printf("[ERROR] Couldn't initialize glad\n");
     }
     else
-        printf("gladInitialized\n");
+        printf("[INFO] GLAD Initialized\n");
 
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 

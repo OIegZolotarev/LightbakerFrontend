@@ -253,6 +253,11 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
     m_pBillBoardsShader->Bind();
     m_pBillBoard->Bind();
 
+    // TODO: cache this and make meaningfull api
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+
+
     for (auto &it : m_pBillBoardsShader->Uniforms())
     {
         switch (it->Kind())

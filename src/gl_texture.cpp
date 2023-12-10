@@ -790,6 +790,8 @@ void TextureManager::OnGLInit()
 
 void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
 {
+    Con_Printf("TextureManager(): failed to load %s, falling back to default texture\n", pResult->Name().c_str());
+
     GLTexture *pFallback = nullptr;
 
     switch (fallbackTexture)

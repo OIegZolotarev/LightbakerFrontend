@@ -7,6 +7,7 @@
 #include "common.h"
 #include "gl_texture.h"
 
+
 // The format of the files is as follows:
 //
 // dsprite_t file header structure
@@ -19,6 +20,58 @@
 //     sprite bitmap
 // <endrepeat>
 
+
+rawimage_t* LoadNormal(dspriteframe_t *frameDesc, byte *pixels, color24_t *pallete)
+{
+    rawimage_t *pFrame = new rawimage_t(frameDesc->width, frameDesc->height, 3);
+
+    size_t     numPixels    = frameDesc->width * frameDesc->height;
+    color24_t *outRGBPixels = (color24_t *)pFrame->data;
+
+    for (int j = frameDesc->height - 1; j >= 0; j--)
+    {
+        byte *row = &pixels[j * frameDesc->width];
+
+        for (int i = 0; i < frameDesc->width; i++)
+        {
+            const color24_t &palleteColor = pallete[row[i]];
+            *outRGBPixels                 = palleteColor;
+            outRGBPixels++;
+        }
+    }
+
+    return pFrame;
+}
+
+rawimage_t *LoadIndexAlpha(dspriteframe_t *frameDesc, byte *pixels, color24_t *pallete)
+{
+    rawimage_t *pFrame = new rawimage_t(frameDesc->width, frameDesc->height, 4);
+
+    size_t     numPixels    = frameDesc->width * frameDesc->height;
+    color32_t *outRGBPixels = (color32_t *)pFrame->data;
+
+    for (int j = frameDesc->height - 1; j >= 0; j--)
+    {
+        byte *row = &pixels[j * frameDesc->width];
+
+        for (int i = 0; i < frameDesc->width; i++)
+        {
+            const color24_t &palleteColor = pallete[row[i]];
+            outRGBPixels->r                 = palleteColor.r;
+            outRGBPixels->g                 = palleteColor.g;
+            outRGBPixels->b                 = palleteColor.b;
+         
+            if (row[i] == 255)
+                outRGBPixels->a = 0;
+            else
+                outRGBPixels->a = 255;
+
+            outRGBPixels++;
+        }
+    }
+
+    return pFrame;
+}
 
 RawTexture *DecodeGoldSourceSpite(byte *data, size_t length)
 {
@@ -56,22 +109,13 @@ RawTexture *DecodeGoldSourceSpite(byte *data, size_t length)
             byte *pixels = ptr;
             ptr += frameDesc->width * frameDesc->height;
 
-            rawimage_t *pFrame = new rawimage_t(frameDesc->width, frameDesc->height, 3);
+            rawimage_t *pFrame = nullptr;
 
-            size_t     numPixels    = frameDesc->width * frameDesc->height;
-            color24_t *outRGBPixels = (color24_t *)pFrame->data;
+            if (hdr->type == SPR_INDEXALPHA) 
+                pFrame = LoadIndexAlpha(frameDesc, pixels, pallete);
+            else
+                pFrame = LoadNormal(frameDesc, pixels, pallete);
 
-            for (int j = frameDesc->height - 1; j >= 0; j--)
-            {
-                byte *row = &pixels[j * frameDesc->width];
-
-                for (int i = 0; i < frameDesc->width; i++)
-                {
-                    const color24_t &palleteColor = pallete[row[i]];
-                    *outRGBPixels                 = palleteColor;
-                    outRGBPixels++;
-                }
-            }
 
             pResult->AddRawFrame(pFrame);
         }

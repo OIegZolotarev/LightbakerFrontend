@@ -57,6 +57,11 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Classname;
         return PropertiesTypes::String;
     }
+    else if (m_Hash == SpecialKeys::Key_Light())
+    {
+        m_iSpecialId = PropertyMetatype::Light;
+        return PropertiesTypes::ColorRGBA;
+    }
     else 
         m_iSpecialId = PropertyMetatype::None;
 
@@ -111,7 +116,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseOrigin(value);
         break;
     case PropertyMetatype::Angles:
-        ParseAngles(value);
+        // ParseAngles(value);
         break;
     case PropertyMetatype::Wad:
         ParseWad(value);
@@ -120,6 +125,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseFlags(value);
         break;
     case PropertyMetatype::Light:
+        ParseLight(value);
         break;
     case PropertyMetatype::Classname:
         ParseClassname(value);
@@ -128,6 +134,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         break;
     }
 }
+
 
 void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
 {
@@ -254,7 +261,7 @@ void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
         SetDisplayName(m_Name, false);
 }
 
-void BSPEntityProperty::ParseAngles(const std::string &value)
+void BSPEntityProperty::ParseLight(const std::string &value)
 {
     auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
 
@@ -270,7 +277,6 @@ void BSPEntityProperty::ParseAngles(const std::string &value)
 
         color[3] = std::stof(*it);
 
-        // TODO: Fixme
         SetColorRGBA(color);
     }
 }

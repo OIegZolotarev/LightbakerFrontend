@@ -149,7 +149,17 @@ void BSPEntity::RenderUnshaded()
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
 
     if (m_pEditorSprite)
-        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, {1.f, 1.f, 1.f}, GetSerialNumber());
+    {
+        // TODO: cache this?
+        auto prop = FindProperty(SpecialKeys::Key_Light());
+
+        glm::vec3 tint = {1, 1, 1};
+
+        if (prop)
+            tint = prop->GetColorRGB();
+
+        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, tint, GetSerialNumber());
+    }
     else
         sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color, GetSerialNumber());
 }
