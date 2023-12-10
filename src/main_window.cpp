@@ -382,7 +382,7 @@ void MainWindow::UpdateStatusbar(int updateFlags)
     {
         int gs = GridRenderer::Instance()->GridStep();
 
-        m_statusBarData.gridStep = std::format("Grid: {0}", gs);
+        m_statusBarData.gridStep = std::format("Grid: {0} units", gs);
     }
 }
 void MainWindow::UpdateDocks()
