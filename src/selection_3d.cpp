@@ -38,109 +38,111 @@ ISelectableObjectWeakRef SelectionManager::LastHoveredObject()
 
 void SelectionManager::NewFrame(SceneRenderer* pRenderer)
 {
-	// Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
+    m_vObjects.clear();
 
-	if (ImGuizmo::IsOver() && SelectionManager::IsGizmoEnabled())
-	{
-		m_pLastHoveredObject.reset();
-		Application::GetMainWindow()->ClearBackground();
-		return;
-	}
-
-
-	glClearColor(0, 0, 0,1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	
-	glEnable(GL_DEPTH_TEST);
-	glDepthMask(GL_TRUE);
-
-	//if (m_bDoSelectionTests)
-	{
-
-		for (size_t i = 0; i < m_vObjects.size(); i++)
-		{
-			int objectId = 1 + i * 16;
-
-			#if 0
-			glColor4ubv((byte*)&objectId);
-			#endif
-
-			if (auto ptr = m_vObjects[i].lock())
-			{
-				ptr->RenderForSelection(objectId, pRenderer);
-
-				if (m_pSelectionInvokedObject)
-				{
-					if (ptr.get() != m_pSelectionInvokedObject)
-						ptr->SetSelected(false);
-				}
-
-			}
-		}
-
-		if (m_vObjects.size() > 0)
-			glFinish();
-
-		m_pSelectionInvokedObject = nullptr;
-
-		int mx, my;
-
-		SDL_GetMouseState(&mx, &my);
-		int* viewport	= Application::GetMainWindow()->Get3DGLViewport();
-		int h			= Application::GetMainWindow()->Height();
-
-		mx -= viewport[0];
-		my = h - my;
-
-		//my = viewport[2] - my;
-
-		byte pixel[4] = { 0 };
-
-		glReadPixels(mx, my, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &pixel);
-
-		int obj_id = *(int*)pixel;
-
-		if (obj_id != 0)
-		{
-			obj_id -= 1;
-			obj_id /= 16;
-
-			for (size_t i = 0; i < m_vObjects.size(); i++)
-			{
-				auto ptr = m_vObjects[i].lock();
-				if (!ptr)
-					continue;
-
-				if (i == obj_id)
-				{
-					m_pLastHoveredObject = m_vObjects[i];
-					ptr->OnHovered();
-					ptr->SetHovered(true);
-				}
-				else
-				{
-					ptr->OnUnhovered();					
-					ptr->SetHovered(false);
-				}
-			}
-		}
-
-
-
-	}
-
-	glEnable(GL_TEXTURE_2D);
-
-	m_vObjects.clear();
-	m_bDoSelectionTests = false;
-
-	if (!DEBUG_3D_SELECTION)
-	{
-		Application::GetMainWindow()->ClearBackground();
-	}
+// 	// Con_Printf("%d : %f\n", ImGuizmo::IsOver(), Application::GetMainWindow()->FrameDelta());
+// 
+// 	if (ImGuizmo::IsOver() && SelectionManager::IsGizmoEnabled())
+// 	{
+// 		m_pLastHoveredObject.reset();
+// 		Application::GetMainWindow()->ClearBackground();
+// 		return;
+// 	}
+// 
+// 
+// 	glClearColor(0, 0, 0,1);
+// 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+// 
+// 	glDisable(GL_TEXTURE_2D);
+// 	glDisable(GL_BLEND);
+// 	
+// 	glEnable(GL_DEPTH_TEST);
+// 	glDepthMask(GL_TRUE);
+// 
+// 	//if (m_bDoSelectionTests)
+// 	{
+// 
+// 		for (size_t i = 0; i < m_vObjects.size(); i++)
+// 		{
+// 			int objectId = 1 + i * 16;
+// 
+// 			#if 0
+// 			glColor4ubv((byte*)&objectId);
+// 			#endif
+// 
+// 			if (auto ptr = m_vObjects[i].lock())
+// 			{
+// 				ptr->RenderForSelection(objectId, pRenderer);
+// 
+// 				if (m_pSelectionInvokedObject)
+// 				{
+// 					if (ptr.get() != m_pSelectionInvokedObject)
+// 						ptr->SetSelected(false);
+// 				}
+// 
+// 			}
+// 		}
+// 
+// 		if (m_vObjects.size() > 0)
+// 			glFinish();
+// 
+// 		m_pSelectionInvokedObject = nullptr;
+// 
+// 		int mx, my;
+// 
+// 		SDL_GetMouseState(&mx, &my);
+// 		int* viewport	= Application::GetMainWindow()->Get3DGLViewport();
+// 		int h			= Application::GetMainWindow()->Height();
+// 
+// 		mx -= viewport[0];
+// 		my = h - my;
+// 
+// 		//my = viewport[2] - my;
+// 
+// 		byte pixel[4] = { 0 };
+// 
+// 		glReadPixels(mx, my, 1, 1, GL_RGB, GL_UNSIGNED_BYTE, &pixel);
+// 
+// 		int obj_id = *(int*)pixel;
+// 
+// 		if (obj_id != 0)
+// 		{
+// 			obj_id -= 1;
+// 			obj_id /= 16;
+// 
+// 			for (size_t i = 0; i < m_vObjects.size(); i++)
+// 			{
+// 				auto ptr = m_vObjects[i].lock();
+// 				if (!ptr)
+// 					continue;
+// 
+// 				if (i == obj_id)
+// 				{
+// 					m_pLastHoveredObject = m_vObjects[i];
+// 					ptr->OnHovered();
+// 					ptr->SetHovered(true);
+// 				}
+// 				else
+// 				{
+// 					ptr->OnUnhovered();					
+// 					ptr->SetHovered(false);
+// 				}
+// 			}
+// 		}
+// 
+// 
+// 
+// 	}
+// 
+// 	glEnable(GL_TEXTURE_2D);
+// 
+// 	m_vObjects.clear();
+// 	m_bDoSelectionTests = false;
+// 
+// 	if (!DEBUG_3D_SELECTION)
+// 	{
+// 		Application::GetMainWindow()->ClearBackground();
+// 	}
 }
 
 void SelectionManager::SetTestsFlag(bool doTests, glm::vec2 testPoint)

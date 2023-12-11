@@ -4,10 +4,13 @@
 */
 
 #pragma once
+#include <memory>
 
 typedef unsigned char byte;
 
+#ifndef ARRAYSIZE
 #define ARRAYSIZE(a) (sizeof(a) / sizeof(a[0]))
+#endif
 
 #ifdef _MSC_VER
 // not #if defined(_WIN32) || defined(_WIN64) because we have strncasecmp in mingw
@@ -54,3 +57,8 @@ template <typename T, typename D = T> class Singleton
     Singleton(const Singleton &) = delete;
     Singleton &operator=(const Singleton &) = delete;
 };
+
+template <typename Base, typename T> inline bool instanceof (const T *ptr)
+{
+    return dynamic_cast<const Base *>(ptr) != nullptr;
+}

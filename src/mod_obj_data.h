@@ -116,5 +116,7 @@ typedef struct mobjdata_s
 		//ClearPointersVector(materialLibs);
 	}
 
+	void CalcMinsMaxs(glm::vec3 & mins, glm::vec3 & maxs);
+
 
 }mobjdata_t;

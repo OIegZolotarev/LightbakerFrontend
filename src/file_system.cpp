@@ -421,7 +421,7 @@ size_t FileHandleOS::Position()
 
 size_t FileHandleOS::Read(size_t elementSize, size_t elementsCount, void *destBuffer)
 {
-    size_t r = fread(m_pFileHandle, elementSize, elementsCount, m_pFileHandle);
+    size_t r = fread(destBuffer, elementSize, elementsCount, m_pFileHandle);
     m_Offset += r;
     return r;
 }
@@ -433,13 +433,13 @@ bool FileHandleOS::Seek(size_t position, SeekOrigin origin)
     switch (origin)
     {
     case SeekOrigin::Start:
-        r = fseek(m_pFileHandle, position, SEEK_SET);
+        r = fseek(m_pFileHandle, (long)position, SEEK_SET);
         break;
     case SeekOrigin::Relative:
-        r = fseek(m_pFileHandle, position, SEEK_CUR);
+        r = fseek(m_pFileHandle, (long)position, SEEK_CUR);
         break;
     case SeekOrigin::End:
-        r = fseek(m_pFileHandle, position, SEEK_END);
+        r = fseek(m_pFileHandle, (long)position, SEEK_END);
         break;
     default:
         break;
@@ -454,7 +454,7 @@ FileHandleUncompressedArchive::FileHandleUncompressedArchive(FILE *fpArchive, si
     m_DataStart    = dataStart;
     m_DataLength   = dataLength;
 
-    fseek(m_pArchiveFile, m_DataStart, SEEK_SET);
+    _fseeki64(m_pArchiveFile, m_DataStart, SEEK_SET);
 }
 
 FileHandleUncompressedArchive::~FileHandleUncompressedArchive()

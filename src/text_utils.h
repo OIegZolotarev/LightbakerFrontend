@@ -74,3 +74,4 @@ namespace TextUtils
 
 }
 
+const char *VA(const char *format, ...);

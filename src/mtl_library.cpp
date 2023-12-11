@@ -160,13 +160,15 @@ void MaterialTemplateLibrary::ParseCommand(AsynchTextureLoadTask* textureLoader,
 
 #define ASSERT_ARGUMENTS_COUNT(count) if (tokensString.size() < count)  \
 		{  \
-			Con_Printf("Insufficient arguments (%d, expected %d) for command \"%s\" on line %d\n", tokensString.size(),count,tokensString[0].c_str(),lineNumber); \
+			Con_Printf("Insufficient arguments (%d, expected %d) for command \"%s\" on line %d\n",                         \
+                   (int)tokensString.size(), (int)count, tokensString[0].c_str(), (int)lineNumber); \
 			return; \
 		}
 
 #define ASSERT_HAS_MATERIAL() if (currentMaterial == nullptr)  \
 	{  \
-		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer.c_str(), lineNumber); \
+		Con_Printf("Bad  command \"%s\" on line %d - no material defined (so far)\n", buffer.c_str(),                  \
+                   (int)lineNumber); \
 		return; \
 	}
 

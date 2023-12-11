@@ -12,15 +12,9 @@
 #include "main_window.h"
 #include "model_obj.h"
 #include "scene.h"
+#include "viewport.h"
+#include "viewport_rendermodes.h"
 
-enum class RenderMode
-{
-    Unshaded = 0,
-    Lightshaded,
-    Groups,
-    WireframeUnshaded,
-    WireframeShaded
-};
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -31,7 +25,7 @@ enum class RenderMode
 
 class SceneRenderer : public IEventHandler
 {
-  public:
+public:
     SceneRenderer(class MainWindow *pTargetWindow);
     ~SceneRenderer();
 
@@ -40,17 +34,18 @@ class SceneRenderer : public IEventHandler
 
     class Camera *GetCamera();
 
-    void RenderScene();
-    void RenderHelperGeometry(SelectionManager *selectionManager);
+    void RenderScene(Viewport * pViewport);
+    void RenderHelperGeometry();
 
-    int HandleEvent(bool bWasHandled, SDL_Event &e) override;
+    int   HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
     float FrameDelta();
 
     void LoadModel(const char *dropped_filedir, int loadFlags);
     void ReloadScene(int loadFlags);
 
-    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint);
-    void DrawBillboardSelection(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const int index);
+    void DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture, const glm::vec3 tint,
+                       const uint32_t objectSerialNumber);
+    
 
     void FocusCameraOnObject(SceneEntityPtr it);
 
@@ -58,19 +53,20 @@ class SceneRenderer : public IEventHandler
 
     glm::vec3 GetNewLightPos();
 
-    void SetRenderMode(RenderMode param1);
-    void RenderGenericEntity(SceneEntity *pEntity);
+    void       SetRenderMode(RenderMode param1);
+    void       RenderGenericEntity(SceneEntity *pEntity);
     RenderMode GetRenderMode();
 
-  private:
-    RenderMode m_RenderMode  = RenderMode::Lightshaded;
-    bool m_bWireframeOverlay = false;
+private:
+    RenderMode m_RenderMode        = RenderMode::Lightshaded;
+    bool       m_bWireframeOverlay = false;
 
     void Debug_DrawGround();
 
-    class Camera *m_pCamera;
+    Camera *    m_pCamera;
+
     class MainWindow *m_pTargetWindow;
-    Scene *m_pScene;
+    Scene *           m_pScene;
 
     DrawMesh *m_pBillBoard;
 
@@ -79,14 +75,17 @@ class SceneRenderer : public IEventHandler
     DrawMesh *m_pIntensitySphere;
     DrawMesh *m_pSpotlightCone;
 
-    ShaderProgram *m_pBillBoardsShader = nullptr;
+    ShaderProgram *m_pBillBoardsShader    = nullptr;
+    ShaderProgram *m_pBillBoardsShaderSel = nullptr;
 
-    void DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
+    void           DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;
 
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-  public:
-    void RenderPointEntityDefault(glm::vec3 m_Position, glm::vec3 m_Mins, glm::vec3 m_Maxs, glm::vec3 m_Color);
+public:
+    void RenderPointEntityDefault(const glm::vec3 & m_Position, const glm::vec3 & m_Mins, const glm::vec3 & m_Maxs, const glm::vec3 & m_Color, const uint32_t objectSerialNumber);
+    glm::vec3 GetRenderPos();
+    
 };

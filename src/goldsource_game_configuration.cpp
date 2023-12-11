@@ -12,6 +12,7 @@
 #include "lb3k_imgui_icons.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
+#include "gl_texture.h"
 
 using namespace GoldSource;
 
@@ -270,6 +271,12 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     if (j.contains("WADFiles"))
     {
         m_WadFiles = j["WADFiles"];
+
+        for (auto & it: m_WadFiles)
+        {
+            TextureManager::Instance()->RegisterWAD(it.c_str(), true);
+        }
+
     }
     
 

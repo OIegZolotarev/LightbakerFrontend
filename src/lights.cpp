@@ -3,10 +3,10 @@
 	(c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "common.h"
 #include "lights.h"
 #include "scene_renderer.h"
-#include "application.h"
 #include "object_props.h"
 #include "properties_editor.h"
 #include "common_resources.h"
@@ -293,11 +293,6 @@ void Lb3kLightEntity::OnMouseMove(glm::vec2 delta)
 void Lb3kLightEntity::OnUnhovered()
 {
 	
-}
-
-void Lb3kLightEntity::RenderForSelection(int objectId,SceneRenderer * pRenderer)
-{	
-	pRenderer->DrawBillboardSelection(GetPosition(), glm::vec2(4, 4), GetEditorIcon(), objectId);
 }
 
 void Lb3kLightEntity::OnSelect()

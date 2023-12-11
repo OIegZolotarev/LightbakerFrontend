@@ -34,7 +34,7 @@ void CCommandsRegistry::RegisterCommand(CCommand* pCommand)
 		m_vecMainToolbarCommands.push_back(m_vecCommandDescriptor.size() - 1);
 }
 
-std::vector<int>& CCommandsRegistry::GetMainToolbarCommands()
+std::vector<size_t>& CCommandsRegistry::GetMainToolbarCommands()
 {
 	return m_vecMainToolbarCommands;
 }
@@ -166,7 +166,11 @@ void CCommand::Execute()
 
 void CCommand::RenderImGUI(int size)
 {
+	// ImGUI quirks
+#pragma warning(disable : 4312)
 	ImGui::SameLine();
+
+	
 
 	if (m_iFlags & CMD_ONLY_ICON)
 	{
@@ -185,8 +189,7 @@ void CCommand::RenderImGUI(int size)
 			Execute();
 		}
 	}
-
-
+#pragma warning(restore : 4312)
 }
 
 GlobalCommands CCommand::GetId()

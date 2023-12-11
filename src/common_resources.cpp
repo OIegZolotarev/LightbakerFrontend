@@ -11,12 +11,11 @@ std::unordered_map<CommonTextures, GLTexture *> *g_CommonIcons = nullptr;
 
 void LoadIcon(CommonTextures id, const char *filePath)
 {
-    FileData *pData = Application::GetFileSystem()->LoadFile(filePath);
+    //FileData *pData = Application::GetFileSystem()->LoadFile(filePath);
 
-    std::pair<CommonTextures, GLTexture *> p(id, LoadGLTexture(pData));
+    TextureManager::Instance();
+    std::pair<CommonTextures, GLTexture *> p(id, TextureManager::LoadTextureSynch(filePath));
     g_CommonIcons->insert(p);
-
-    delete pData;
 }
 
 void DestroyCommonResources()

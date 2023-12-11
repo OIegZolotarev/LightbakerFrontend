@@ -9,6 +9,7 @@
 #include "event_handler.h"
 #include "scene_renderer.h"
 #include <stack>
+#include "Frustum.h"
 
 enum class CameraMouseModes
 {
@@ -45,10 +46,10 @@ class CameraCommandKeyStroke
 
     int m_KeyboardKeys[9];
     int m_MouseKeys = 0;
-    int m_WheelConditions;
-    bool m_bNeedOtherKeys;
+    int m_WheelConditions = 0;
+    bool m_bNeedOtherKeys = false;
 
-    glm::vec3 m_vecModeSpeed;
+    glm::vec3 m_vecModeSpeed = {0,0,0};
 
     pfnKeyStrokeCallback m_Callback;
 
@@ -113,10 +114,6 @@ class Camera : public IEventHandler
 
     bool m_bFPSNavigation = false;
 
-    // float m_flFov = 110;
-    // float m_flZNear = 1.f;
-    // float m_flZFar = 4096.f;
-
     VariantValue *m_pFov   = nullptr;
     VariantValue *m_pZNear = nullptr;
     VariantValue *m_pZFar  = nullptr;
@@ -142,33 +139,35 @@ class Camera : public IEventHandler
     std::stack<glm::mat4> m_matModelViewStack;
     std::stack<glm::mat4> m_matProjectionStack;
 
-    void SetupPerspectiveMatrix();
-    void SetupModelViewMatrix();
-
-    int MouseMotionEvent(SDL_Event &event);
-    int ButtonEvent(SDL_Event &event);
-    int MouseWheelEvent(SDL_Event &event);
-
-    void DoZoomIn();
-    void DoZoomOut();
-
-    class SceneRenderer *m_pSceneRenderer;
+    Frustum m_Frustum;
 
     float m_IdealMoveSpeeds[3]   = {0};
     float m_CurrentMoveSpeeds[3] = {0};
 
-    void UpdateOrientation();
+    void SetupPerspectiveMatrix();
+    void SetupModelViewMatrix();
 
-    bool CalcMovementSpeeds();
+    int MouseMotionEvent(SDL_Event &event, float flFrameDelta);
+    int ButtonEvent(SDL_Event &event);
+    int MouseWheelEvent(SDL_Event &event, float flFrameDelta);
+
+    void DoZoomIn();
+    void DoZoomOut();
+
+    void UpdateOrientation(float flFrameDelta);
+    bool CalcMovementSpeeds(float flFrameDelta); 
+
+    class Viewport *m_pViewport;
 
   public:
-    Camera(SceneRenderer *pSceneRenderer);
+
+    Camera(class Viewport * pViewport);
     ~Camera();
 
     glm::vec3 &GetAngles();
     glm::vec3 &GetOrigin();
 
-    void Apply();
+    void Apply(float flFrameDelta);
     void Reset();
 
     void PopMatrices(int which, bool bApply);
@@ -180,7 +179,7 @@ class Camera : public IEventHandler
     float* GetViewMatrixPtr() const;
     float* GetProjectionMatrixPtr() const;
 
-    int HandleEvent(bool bWasHandled, SDL_Event &e) override;
+    int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
 
     glm::vec3 GetRightVector();
     glm::vec3 GetUpVector();
@@ -189,4 +188,13 @@ class Camera : public IEventHandler
     void LookAtPoint(glm::vec3 pos);
 
     void FormatControlsTip(std::string & dst);
+    const float GetZFar();
+    const float GetFOVY(const float aspect);
+    const float AspectRatio();
+    const float GetZNear();
+    const float getFOVX();
+
+    Frustum *GetFrustum();
+    glm::vec3 GetMoveSpeed();
+    bool      IsFPSNavigationEngaged();
 };

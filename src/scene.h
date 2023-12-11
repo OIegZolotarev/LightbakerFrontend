@@ -6,11 +6,11 @@
 #pragma once
 
 #include "common.h"
+#include "game_configuration.h"
 #include "lb3k_wrapper.h"
 #include "model_obj.h"
 #include "scene_entity.h"
 #include "serial_counter.h"
-#include "game_configuration.h"
 
 enum class LevelFormat
 {
@@ -21,7 +21,7 @@ enum class LevelFormat
 
 class Scene
 {
-    lightBakerSettings_s m_lightBakerParams;
+    lightBakerSettings_s        m_lightBakerParams;
     SerialCounter<unsigned int> m_ObjectsCounter;
 
     LevelFormat DetermineLevelFormatFromFileName(std::string levelName);
@@ -35,22 +35,22 @@ class Scene
     // TODO: review
     float m_flSceneScale = 1.0f;
 
-    CEditHistory *m_pEditHistory;
+    CEditHistory *     m_pEditHistory;
     SceneEntityWeakPtr m_pCurrentSelection;
 
     void ClearEntities();
     void LoadLevel(const char *levelName);
 
-  public:
+public:
     Scene();
     ~Scene();
 
     void LoadLevel(const char *levelName, int loadFlags);
 
-    void DoDeleteSelection();
+    void           DoDeleteSelection();
     SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
     SceneEntityPtr AddNewGenericEntity();
-    
+
     void AddNewSceneEntity(SceneEntityPtr entity)
     {
         m_SceneEntities.push_back(entity);
@@ -61,7 +61,7 @@ class Scene
 
     CEditHistory *GetEditHistory() const;
 
-    void HintSelected(SceneEntityWeakPtr weakRef);
+    void               HintSelected(SceneEntityWeakPtr weakRef);
     SceneEntityWeakPtr GetSelection();
 
     void RenderObjectsFor3DSelection();
@@ -73,24 +73,25 @@ class Scene
     std::string GetModelTextureName();
 
     // Entity manipulation
-    void AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn);
+    void               AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn);
     SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
-    void DeleteEntityWithSerialNumber(size_t serialNumber);
-    void DeleteEntity(SceneEntityWeakPtr l);
+    void               DeleteEntityWithSerialNumber(size_t serialNumber);
+    void               DeleteEntity(SceneEntityWeakPtr l);
 
     // Scene scaling
     float GetSceneScale();
-    void SetScale(float f);
-    void RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
+    void  SetScale(float f);
+    void  RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
 
     SceneEntityWeakPtr GetEntityWeakRef(SceneEntity *pEntity);
-    void RenderUnshaded();
-    void Reload(int loadFlags);
+    void               RenderUnshaded();
+    void               Reload(int loadFlags);
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions);
-    void RenderGroupsShaded();
-    void DumpLightmapMesh();
-    void DumpLightmapUV();
+    void        RenderGroupsShaded();
+    void        DumpLightmapMesh();
+    void        DumpLightmapUV();
 
     GameConfigurationWeakPtr UsedGameConfiguration();
+    uint32_t                 AllocSerialNumber();
 };

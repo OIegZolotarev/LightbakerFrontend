@@ -16,9 +16,9 @@ void BSPWorld::ReloadLightmaps()
     m_pLevel->ReloadLightmaps();
 }
 
-void BSPWorld::OnAdditionToScene()
+void GoldSource::BSPWorld::OnAdditionToScene(Scene * pScene)
 {
-    m_pLevel->PopulateScene();
+    m_pLevel->PopulateScene(pScene);
 }
 
 BSPWorld::BSPWorld(const char *levelName) 
@@ -36,6 +36,17 @@ BSPWorld::BSPWorld(const char *levelName)
         m_pRenderer = new BSPRenderer(m_pLevel);
     }
 
+    short *minsmaxs = m_pLevel->GetNodes(0)->minmaxs;
+
+    SetMins({
+        (float)minsmaxs[0],
+        (float)minsmaxs[1],
+        (float)minsmaxs[2]
+    });
+
+
+    SetMaxs({(float)minsmaxs[3], (float)minsmaxs[4], (float)minsmaxs[5]});
+
 }
 
 BSPWorld::~BSPWorld()
@@ -44,10 +55,11 @@ BSPWorld::~BSPWorld()
 
 void BSPWorld::RenderLightshaded()
 {
-
+    auto      sr        = Application::GetMainWindow()->GetSceneRenderer();
     glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetOrigin();
 
     m_pRenderer->RenderWorld(cameraPos);
+//    sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, {1, 0, 1});
 }
 
 bool BSPWorld::IsDataLoaded()

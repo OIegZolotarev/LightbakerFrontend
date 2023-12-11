@@ -9,6 +9,7 @@
 #include "goldsource_game_configuration.h"
 #include "text_utils.h"
 #include "wad_textures.h"
+#include "bsp_property.h"
 
 using namespace GoldSource;
 
@@ -26,6 +27,10 @@ BSPEntity::BSPEntity()
 
 BSPEntity::~BSPEntity()
 {
+    for (auto &it : m_lstProperties)
+        delete it;
+
+    m_lstProperties.clear();
 }
 
 void BSPEntity::SetKeyValue(std::string &key, std::string &value)
@@ -40,7 +45,12 @@ void BSPEntity::SetKeyValue(std::string &key, std::string &value)
         {
             int i = 0;
             for (auto it = digits.begin(); it != digits.end(); it++, i++)
+            {
                 origin[i] = std::stof(*it);
+
+                if (isnan(origin[i]))
+                    origin[i] = 0;
+            }
         }
 
         SetPosition(ConvertOriginToSceneSpace(origin));
@@ -110,14 +120,19 @@ void BSPEntity::PopulateScene()
     {
         SetMins(m_pFGDClass->GetMins());
         SetMaxs(m_pFGDClass->GetMaxs());
+        
         if (!m_bIsSetColor)
             SetColor(m_pFGDClass->GetColor());
+
+        m_pEditorSprite = m_pFGDClass->GetEditorSpite();
     }
     else
     {
         SetMins({-4, -4, -4});
         SetMaxs({4, 4, 4});
-        if (!m_bIsSetColor) SetColor({1, 0, 1});
+        
+        if (!m_bIsSetColor) 
+            SetColor({1, 0, 1});
     }
 
     SetClassName(classname.c_str());
@@ -237,18 +252,46 @@ glm::vec3 GoldSource::BSPEntity::ConvertOriginToSceneSpace(glm::vec3 bspSpaceOri
     return newOrigin;
 }
 
+std::list<BSPProperty *> &BSPEntity::GetBSPProperties()
+{
+    return m_lstProperties;
+}
+
+bool BSPEntity::HasProperty(size_t hash)
+{
+    for (auto & it: m_lstProperties)
+    {
+        if (it->Hash() == hash)
+            return true;
+    }
+
+    return false;
+}
+
+void BSPEntity::OnSelect()
+{
+    auto &classname = m_vProperties["classname"];
+    Con_Printf("BSPEntity::OnSelect(): %s\n", classname.c_str());
+}
+
 void BSPEntity::RenderUnshaded()
 {
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
+    if (m_pEditorSprite)
+        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, {1.f, 1.f, 1.f}, GetSerialNumber());
+    else
+        sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color, GetSerialNumber());
 }
 
 void BSPEntity::RenderLightshaded()
 {
-    auto sr = Application::GetMainWindow()->GetSceneRenderer();
-    sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color);
+    RenderUnshaded();
 }
 
 void BSPEntity::RenderGroupShaded()
 {
+    RenderUnshaded();
 }
 
 void BSPEntity::RenderBoundingBox()

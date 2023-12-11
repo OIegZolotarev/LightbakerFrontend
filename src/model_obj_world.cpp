@@ -17,23 +17,12 @@ ModelObjWorld::ModelObjWorld(const char* fileName)
 	auto fs = Application::GetFileSystem();
 	auto ext = fs->ExtensionFromPath(fileName);
 
-	if (ext == ".obj")
-		m_pObjWorld = new ModelOBJ(fileName);
-	else if (ext == ".bsp")
-	{		
-		auto fd = fs->LoadFile(fileName);
-		m_pBSPWorld = new GoldSource::BSPLevel(fd);
-		fd->UnRef();
+	m_pObjWorld = new ModelOBJ(fileName);
 
-		m_pBSPRenderer = new GoldSource::BSPRenderer(m_pBSPWorld);
-	}
 }
 
 ModelObjWorld::~ModelObjWorld()
 {
-
-	if (m_pBSPWorld) delete m_pBSPWorld;
-	if (m_pBSPRenderer) delete m_pBSPRenderer;
 	if (m_pObjWorld) delete m_pObjWorld;
 }
 
@@ -54,9 +43,6 @@ std::string ModelObjWorld::ExportForCompiling(const char* newPath, lightBakerSet
 	if (m_pObjWorld)
 		return m_pObjWorld->Export(newPath,lb3kOptions, m_EnvColor);
 
-	if (m_pBSPWorld)
-		return m_pBSPWorld->Export(newPath, lb3kOptions);
-
 	return "none";
 }
 
@@ -70,58 +56,28 @@ void ModelObjWorld::RenderDebug()
 	
 }
 
-void ModelObjWorld::RenderForSelection(int objectId, class SceneRenderer* sc)
-{
-	if (m_pObjWorld)
-		m_pObjWorld->RenderForSelection(objectId, sc);
-}
-
 void ModelObjWorld::RenderGroupShaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderGroupShaded();
-
-	if (m_pBSPWorld)
-	{
-		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
-		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->RenderWorld(pos);
-	}
 }
 
 void ModelObjWorld::RenderLightshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderLightshaded();
-
-	if (m_pBSPWorld)
-	{
-		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
-		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->RenderWorld(pos);
-	}
 }
 
 void ModelObjWorld::RenderUnshaded()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->RenderUnshaded();
-
-	if (m_pBSPWorld)
-	{
-		auto cam = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
-		auto pos = cam->GetOrigin();
-		m_pBSPRenderer->RenderWorld(pos);
-	}
 }
 
 bool ModelObjWorld::IsDataLoaded()
 {
 	if (m_pObjWorld)
 		return m_pObjWorld->IsDataLoaded();
-
-	if (m_pBSPWorld)
-		return true;
 
 	return false;
 }
@@ -130,15 +86,10 @@ void ModelObjWorld::ReloadLightmaps()
 {
 	if (m_pObjWorld)
 		m_pObjWorld->ReloadLightmapTextures();
-
-	if (m_pBSPWorld)
-		m_pBSPWorld->ReloadLightmaps();
 }
 
-void ModelObjWorld::OnAdditionToScene()
-{
-	if (m_pBSPWorld)
-		m_pBSPWorld->PopulateScene();
+void ModelObjWorld::OnAdditionToScene(Scene * pScene)
+{	
 }
 
 EntityClasses ModelObjWorld::EntityClass()

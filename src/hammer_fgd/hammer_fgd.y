@@ -67,7 +67,7 @@ struct FGDParsingContext
     FGDEntityClass* new_entity(FGDEntityClassType type, std::string className, std::string description,FGDPropertiesList & props)
     {
 		
-        current_entity = new FGDEntityClass(type, className, description, props);
+        current_entity = new FGDEntityClass(fgd, type, className, description, props);
         current_entity->SetCtorFlags(entityCtorData.flags);
 
         if (entityCtorData.flags & FL_SET_COLOR)            current_entity->SetColor(entityCtorData.color);

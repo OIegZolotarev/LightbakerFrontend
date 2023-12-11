@@ -12,20 +12,26 @@
 #include <unordered_map>
 #include <utility>
 
+
+
 namespace GoldSource
 {
+
+class BSPProperty;
+
 class BSPEntity : public SceneEntity
 {
     FGDEntityClass *m_pFGDClass = nullptr;
-
-    typedef std::pair<std::string, std::string> kvData;
-    std::unordered_map<std::string, std::string> m_vProperties;
-        
+            
     glm::vec3 ConvertOriginToSceneSpace(glm::vec3 bspSpaceOrigin);
     static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 pos);
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
+
+    std::list<BSPProperty *> m_lstProperties;
+
+    GLTexture *m_pEditorSprite = nullptr;
 
   public:
     BSPEntity();
@@ -38,12 +44,14 @@ class BSPEntity : public SceneEntity
     void Export(FILE *fp);
 
     void RenderBoundingBox() override;
-
     void RenderGroupShaded() override;
-
     void RenderLightshaded() override;
-
     void RenderUnshaded() override;
+
+    void OnSelect() override;
+
+    bool HasProperty(size_t hash);
+    std::list<BSPProperty *> &GetBSPProperties();
 };
 
 } // namespace GoldSource

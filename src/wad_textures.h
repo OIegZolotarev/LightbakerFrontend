@@ -16,6 +16,7 @@
 ****/
 
 #pragma once
+#include "goldsource_bsp_disk_structs.h"
 
 
 namespace GoldSource
@@ -66,7 +67,7 @@ public:
 	WADTexturePool(IFileHandle* fd, bool shared = true);
 	~WADTexturePool();
 
-	GLTexture* LoadTexture(const char* name);
+	miptex_t * LoadMipTex(const char* name);
     const char* FileName();
 };
 
@@ -82,7 +83,7 @@ public:
 
 	static WADPool* Instance();
 	
-	GLTexture* LoadTexture(char* name);
+	GLTexture* LoadRawTexture(char* name);
 };
 
 }

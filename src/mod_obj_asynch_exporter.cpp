@@ -19,7 +19,7 @@ void ModObjAsynchExporter::ExportLightDefs() const
 
 	fprintf(m_pFPOut, "#scene_scale %.3f\n\n", scene->GetSceneScale());
 
-	fprintf(m_pFPOut, "#lm_size %d %d\n", m_pData.lightmapDimensions[0], m_pData.lightmapDimensions[1]);
+	fprintf(m_pFPOut, "#lm_size %zd %zd\n", m_pData.lightmapDimensions[0], m_pData.lightmapDimensions[1]);
 	fprintf(m_pFPOut, "#env_color %.3f %.3f %.3f\n\n", m_pData.envColor[0], m_pData.envColor[1], m_pData.envColor[1]);
 
 	fprintf(m_pFPOut, "#lights_start\n");
@@ -44,7 +44,7 @@ void ModObjAsynchExporter::ExportLightDefs() const
 			lightBaseType = "#direct";
 			break;
 		default:
-			Application::EPICFAIL("Unknown light type %d !", it->type);
+			Application::EPICFAIL("Unknown light type %zd !", it->type);
 			break;
 		}
 
@@ -96,7 +96,7 @@ void ModObjAsynchExporter::ExportVerticles() const
 	size_t vertsSize = m_pData.vertSize;
 	size_t vertsElements = m_pData.verts.size();
 	
-	fprintf(m_pFPOut, "\n# %d verticles start\n", vertsElements / vertsSize);
+	fprintf(m_pFPOut, "\n# %zd verticles start\n", vertsElements / vertsSize);
 
 	size_t offset = 0;
 
@@ -117,7 +117,7 @@ void ModObjAsynchExporter::ExportVerticles() const
 		offset += vertsSize;
 	}
 
-	fprintf(m_pFPOut, "\n# %d verticles end\n", vertsElements / vertsSize);
+	fprintf(m_pFPOut, "\n# %zd verticles end\n", vertsElements / vertsSize);
 }
 
 void ModObjAsynchExporter::ExportNormals() const
@@ -128,7 +128,7 @@ void ModObjAsynchExporter::ExportNormals() const
 	if (normalsElements == 0)
 		return;
 	
-	fprintf(m_pFPOut, "\n# %d normals start\n", normalsCount);
+	fprintf(m_pFPOut, "\n# %zd normals start\n", normalsCount);
 
 	size_t offset = 0;
 
@@ -140,7 +140,7 @@ void ModObjAsynchExporter::ExportNormals() const
 		offset += 3;
 	}
 
-	fprintf(m_pFPOut, "\n# %d normals end\n", normalsCount);
+	fprintf(m_pFPOut, "\n# %zd normals end\n", normalsCount);
 }
 
 void ModObjAsynchExporter::ExportUV() const
@@ -149,7 +149,7 @@ void ModObjAsynchExporter::ExportUV() const
 	size_t uvCount = uvElements / m_pData.uvSize;
 	size_t uvSize = m_pData.uvSize;
 
-	fprintf(m_pFPOut, "\n# %d UV start\n", uvCount);
+	fprintf(m_pFPOut, "\n# %zd UV start\n", uvCount);
 
 	size_t offset = 0;
 
@@ -175,7 +175,7 @@ void ModObjAsynchExporter::ExportUV() const
 		offset += uvSize;
 	}
 
-	fprintf(m_pFPOut, "\n# %d UV end\n", uvCount);
+	fprintf(m_pFPOut, "\n# %zd UV end\n", uvCount);
 }
 
 void ModObjAsynchExporter::ExportFaces() const
@@ -183,7 +183,7 @@ void ModObjAsynchExporter::ExportFaces() const
 	size_t facesElements = m_pData.faces.size();
 	size_t facesCount = facesElements / 3;
 
-	fprintf(m_pFPOut, "\n# %d faces start\n", facesCount);
+	fprintf(m_pFPOut, "\n# %zd faces start\n", facesCount);
 
 	
 
@@ -242,7 +242,7 @@ void ModObjAsynchExporter::ExportFaces() const
 		fprintf(m_pFPOut, " \n");
 	}
 
-	fprintf(m_pFPOut, "\n# %d faces end", facesCount);
+	fprintf(m_pFPOut, "\n# %zd faces end", facesCount);
 }
 
 void ModObjAsynchExporter::ExportMtlLibs() const

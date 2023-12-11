@@ -22,34 +22,42 @@ enum class TextureSource
     GoldSourceWadFile,
     GoldSourceSprite,
     GuessByItself,
+    FrameBufferColor,
+    FrameBufferDepth,
     Unknown
 };
 
 typedef struct rawimage_s
 {
-    size_t frameIndex = 0;
-    size_t mipLevel   = 0;
+    int frameIndex = 0;
+    int mipLevel   = 0;
 
-    void * pixels;
-    size_t m_iWidth;
-    size_t m_iHeight;
+    byte * data       = nullptr;
+    size_t dataLength = 0;
 
-    GLint glInternalFormat;
-    GLint glFormat;
+    int width  = 0;
+    int height = 0;
+
+    GLint glInternalFormat = 0;
+    GLint glFormat         = 0;
+
+    rawimage_s(size_t _width, size_t _height, size_t components);
+    ~rawimage_s();
+
 } rawimage_t;
 
 class RawTexture
 {
-    std::list<rawimage_t *> m_Frames;
+    std::list<rawimage_t *> m_lstFrames;
 
 public:
-    RawTexture(size_t nFrames);
+    RawTexture();
     ~RawTexture();
 
-    void AddRawFrame(rawimage_t *frame);
+    void   AddRawFrame(rawimage_t *frame);
+    size_t NumFrames();
 
-    size_t      NumFrames();
-    rawimage_t *RawFrame(size_t index);
+    std::list<rawimage_t *> &Items();
 };
 
 #define FL_HAS_ALPHA_CHANNEL (1 << 0)
@@ -80,6 +88,7 @@ public:
     GLuint GLTextureNum(size_t frame = 0) const;
     void   SetGLTextureNum(GLuint val, size_t frame = 0);
 
+    void UploadRawTexture(RawTexture *pTexture);
     void UploadPixels(void *pixels, GLint internalFormat, GLenum format);
 
     void GenerateGLHandle();
@@ -106,8 +115,8 @@ private:
 
     RawTexture *m_pRawTextureData;
 
-    size_t m_NumFrames  = 0;
-    GLuint* m_uiGLTexnum = nullptr;
+    int     m_NumFrames  = 0;
+    GLuint *m_uiGLTexnum = nullptr;
 
     size_t m_NumReferences = 0;
 
@@ -115,12 +124,18 @@ private:
     std::string m_strFileName = "";
 };
 
+#include "img_goldsource_spr.h"
+
+// Old API
+
 GLTexture *LoadGLTexture(const char *fileName, bool force = false);
 GLTexture *LoadGLTexture(FileData *pFileData, bool force = false);
 
 void GLReloadTexture(GLTexture *);
 void FreeGLTextures();
 void FreeGLTexture(GLTexture *t);
+
+// Old api
 
 // Asynchronouse loader
 //
@@ -170,8 +185,21 @@ class TextureManager
     GLTexture *m_pEmoTexture;
     GLTexture *m_pWhiteTexture;
 
+    void MakeFallbackTexture(GLTexture *texture, FallbackTexture fallbackTexture);
+
+    static RawTexture *LoadRawTexture(const char *fileName, TextureSource source = TextureSource::GuessByItself);
+    static RawTexture *LoadRawTexture(void *pixels, size_t length, TextureSource source = TextureSource::GuessByItself);
+
+    static RawTexture *DecodeCommonImage(const void *data, size_t length);
+    static RawTexture *DecodeGoldsourceMiptex(const void *data, size_t length);
+    static RawTexture *DecodeGoldsourceSprite(const void *data, size_t length);
+
+    TextureManager();
+
 public:
     ~TextureManager();
+
+    void OnGLInit();
 
     static TextureManager *Instance()
     {
@@ -182,18 +210,12 @@ public:
     void RegisterWAD(const char *fileName, bool shared);
     void UnregisterWAD(const char *fileName);
 
-    // Shorter forms, falls back to EMO texture
-    static void LoadTexture(GLTexture *texture, TextureSource source = TextureSource::GuessByItself);
-    static void LoadTexture(GLTexture *texture, void *pixels, size_t length,
-                            TextureSource source = TextureSource::GuessByItself);
-
-    static void LoadTexture(GLTexture *texture, FallbackTexture fallbackTexture,
-                            TextureSource source = TextureSource::GuessByItself);
-    static void LoadTexture(GLTexture *texture, void *pixels, size_t length, FallbackTexture fallbackTexture,
-                            TextureSource source = TextureSource::GuessByItself);
+    static GLTexture *LoadTextureSynch(const char *fileName, TextureSource source = TextureSource::GuessByItself);
+    static GLTexture *LoadTextureSynch(void *data, size_t len, const char *name,
+                                       TextureSource source = TextureSource::GuessByItself);
 
     void PurgeTextures();
 
-private:
-    void MakeFallbackTexture(GLTexture *texture, FallbackTexture fallbackTexture);
+    static GLTexture *LoadWADTextureSynch(char *name);
+    static GLTexture *GetWhiteTexture();
 };

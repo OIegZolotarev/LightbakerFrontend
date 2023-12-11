@@ -15,5 +15,5 @@
 class IEventHandler
 {
 public:
-	virtual int HandleEvent(bool bWasHandled, SDL_Event& e) = 0;
+	virtual int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) = 0;
 };

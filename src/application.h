@@ -49,10 +49,7 @@ public:
 
 	static void EPICFAIL(const char* fmt, ...);
 
-	static DebugConsole* Console()
-	{
-		return Instance()->GetMainWindow()->Console();
-	}
+	static DebugConsole* Console();
 
 	void ExecuteBaking();
 	void CheckIfBakngFinished();
@@ -73,17 +70,13 @@ public:
 	void ParseLightBakerProgressMessage(std::string & captured);
 	float GetBakingProgress();
 
-	std::string& BakingStatusMessage()
-	{
-		return m_strBakingStatus;
-	}
+	std::string& BakingStatusMessage();
 	void ShowMouseCursor();
 	void HideMouseCursor();
-
-	
-    
+	   
     static int Q_buildnum(void);
 
+	static IPlatformWindow *FindPlatformWindow(size_t id);
 
 private:
 	std::string m_strFileToLoad = "";
@@ -92,6 +85,9 @@ private:
 
 	float m_flBakingPercentage = 0;
 	bool m_bDoBakingAgain = false;
+
+public:
+    bool IsMouseCursorVisible();
 };
  
  inline int Con_Printf(const char* fmt, ...)
@@ -104,7 +100,7 @@ private:
  	return 1;
  }
 
-//#define DEBUG_TO_CONSOLE
+#define DEBUG_TO_CONSOLE
 #ifdef DEBUG_TO_CONSOLE
 	#define Con_Printf printf
 #endif

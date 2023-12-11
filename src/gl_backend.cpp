@@ -32,7 +32,7 @@ void DrawMesh::Bind()
     glBindVertexArray(m_vaoId);
 }
 
-void DrawMesh::Draw(size_t first /*= 0*/, size_t num /*= 0*/)
+void DrawMesh::Draw(uint32_t first /*= 0*/, uint32_t num /*= 0*/)
 {
     GLBackend::Instance()->OnMeshDrawn(this, num > 0 ? num : m_NumElements);
 
@@ -57,24 +57,34 @@ void DrawMesh::Unbind()
 
 void DrawMesh::Begin(GLenum mode)
 {
-    if (m_vboId != 0)
-        glDeleteBuffers(1, &m_vboId);
-
-    if (m_vaoId != 0)
-        glDeleteVertexArrays(1, &m_vaoId);
+//     if (m_vboId != 0)
+//         glDeleteBuffers(1, &m_vboId);
+// 
+//     if (m_vaoId != 0)
+//         glDeleteVertexArrays(1, &m_vaoId);
 
     m_drawMode = mode;
-    glGenBuffers(1, &m_vboId);
-    glGenVertexArrays(1, &m_vaoId);
+
+
+    if (!m_vboId)
+        glGenBuffers(1, &m_vboId);
+
+    if (!m_vaoId)
+        glGenVertexArrays(1, &m_vaoId);
 }
 
 void DrawMesh::End()
 {
-    glGenVertexArrays(1, &m_vaoId);
     glBindVertexArray(m_vaoId);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), GL_STATIC_DRAW);
+    
+    GLenum use = GL_STATIC_DRAW;
+
+    if (m_iFlags & DrawMeshFlags::Dynamic)
+        use = GL_DYNAMIC_DRAW;
+
+    glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), use);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
     glEnableVertexAttribArray(0);
@@ -300,8 +310,6 @@ ShaderProgram *GLBackend::QueryShader(std::string fileName, std::list<const char
 
 void GLBackend::DeleteAllShaders()
 {
-    if (m_pHelperGeometryShader)
-        delete m_pHelperGeometryShader;
     if (m_pLightmappedSceneShader)
         delete m_pLightmappedSceneShader;
     if (m_pGeometrySelectionShader)
@@ -310,11 +318,6 @@ void GLBackend::DeleteAllShaders()
         delete m_pSpotlightConeShader;
     if (m_pDiffuseSceneShader)
         delete m_pDiffuseSceneShader;
-}
-
-const HelperGeometryShaderProgram *GLBackend::HelperGeometryShader() const
-{
-    return m_pHelperGeometryShader;
 }
 
 const GeometrySelectionShaderProgram *GLBackend::GeometrySelectionShader() const
@@ -342,11 +345,17 @@ const SpotlightConeShaderProgram *GLBackend::SpotlightConeShader() const
     return m_pSpotlightConeShader;
 }
 
+ShaderProgram *GLBackend::SolidColorGeometryShader() const
+{
+    return m_pSolidGeometryShader;
+}
+
 void GLBackend::ReloadAllShaders()
 {
     DeleteAllShaders();
 
-    m_pHelperGeometryShader    = new HelperGeometryShaderProgram;
+    m_pSolidGeometryShader     = QueryShader("res/glprogs/solidcolor_geom.glsl", {});
+
     m_pLightmappedSceneShader  = new LightMappedSceneShaderProgram;
     m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
     m_pSpotlightConeShader     = new SpotlightConeShaderProgram;
@@ -369,7 +378,7 @@ renderStats_t *GLBackend::RenderStats()
     return &m_RenderStats;
 }
 
-void GLBackend::BindTexture(size_t unit, const GLTexture *texture)
+void GLBackend::BindTexture(int unit, const GLTexture *texture)
 {
     auto state = &m_TexturesUnitStates[unit];
 
@@ -394,7 +403,7 @@ void GLBackend::BindTexture(size_t unit, const GLTexture *texture)
     BindTexture(unit, texture->GLTextureNum());
 }
 
-void GLBackend::BindTexture(size_t unit, GLuint texture)
+void GLBackend::BindTexture(int unit, GLuint texture)
 {
     auto state = &m_TexturesUnitStates[unit];
 

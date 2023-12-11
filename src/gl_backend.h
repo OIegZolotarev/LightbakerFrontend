@@ -25,10 +25,11 @@ typedef struct drawVert_s
 
 enum DrawMeshFlags
 {
-    None    = 0,
-    NoColor = (1 << 0),
-    NoUV    = (1 << 1),
-    HasIndices = (1<<2)
+    None       = 0,
+    NoColor    = (1 << 0),
+    NoUV       = (1 << 1),
+    HasIndices = (1 << 2),
+    Dynamic    = (1 << 3)
 };
 
 class DrawMesh
@@ -47,14 +48,14 @@ class DrawMesh
     drawVert_t m_tempVert;
     size_t m_NumElements;
 
-    int m_iFlags;
+    int m_iFlags = 0;
 
   public:
     DrawMesh(int flags = DrawMeshFlags::None);
     ~DrawMesh();
 
     void Bind();
-    void Draw(size_t first = 0, size_t num = 0);
+    void Draw(uint32_t first = 0, uint32_t num = 0);
     void Unbind();
 
     void Begin(GLenum mode);
@@ -106,8 +107,6 @@ class GLBackend
 {
     GLBackend();
 
-    HelperGeometryShaderProgram *m_pHelperGeometryShader = nullptr;
-
     // Scene render modes
     LightMappedSceneShaderProgram *m_pLightmappedSceneShader   = nullptr;
     DiffuseSceneShaderProgram *m_pDiffuseSceneShader           = nullptr;
@@ -126,6 +125,8 @@ class GLBackend
 
     std::list<ShaderProgram *> m_LoadedShaders;
 
+
+    ShaderProgram *m_pSolidGeometryShader;
   public:
 
     static GLBackend *Instance();
@@ -135,19 +136,22 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    const HelperGeometryShaderProgram *HelperGeometryShader() const;    
     const GeometrySelectionShaderProgram *GeometrySelectionShader() const;
     const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
     const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
     const GroupShadedSceneShaderProgram *GroupShadedSceneShader() const;
     const SpotlightConeShaderProgram *SpotlightConeShader() const;
+    
+    ShaderProgram *                 SolidColorGeometryShader() const;
 
     void ReloadAllShaders();
 
     void NewFrame();
     renderStats_t *RenderStats();
 
-    static void BindTexture(size_t unit, const GLTexture *texture);
-    static void BindTexture(size_t unit, GLuint texture);
+    static void BindTexture(int unit, const GLTexture *texture);
+    static void BindTexture(int unit, GLuint texture);
     static void SetUniformValue(ShaderUniform *it);
+
+
 };

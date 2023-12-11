@@ -63,7 +63,7 @@ public:
 class CEditHistory
 {
 	std::list<IEditAction*> m_lstActions;
-	int m_Position = -1;
+	ptrdiff_t m_Position = -1;
 public:
 	CEditHistory();
 	~CEditHistory();

@@ -24,7 +24,7 @@ void UIStyles::Manager::SelectNewStyle(size_t index)
 	}
 	else
 	{
-		Con_Printf("UIStyles::Manager::SelectNewStyle(): bad style index %d, falling back to style 0\n", index);
+		Con_Printf("UIStyles::Manager::SelectNewStyle(): bad style index %d, falling back to style 0\n", (int)index);
 	}
 }
 
@@ -57,7 +57,7 @@ void Manager::PopulateStylesOption(VariantValue* pOption)
 	for (size_t i = 0; i < m_Styles.size(); i++)
 	{
 		auto style = m_Styles[i];
-		pOption->AddEnumValue(style->Description(), i);
+		pOption->AddEnumValue(style->Description(), (int)i);
 	}
 }
 

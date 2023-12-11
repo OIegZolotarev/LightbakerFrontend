@@ -122,9 +122,9 @@ void BSPLevel::Mod_LoadTextures(lump_t* l)
 		memcpy(tx->name, mt->name, sizeof(tx->name));
 
 		if (mt->offsets[0])
-			tx->loadedTexture = LoadMiptex(mt);
+			tx->loadedTexture = TextureManager::LoadTextureSynch(mt, 0, mt->name, TextureSource::GoldSourceMipTexture);
 		else
-			tx->loadedTexture = WADPool::Instance()->LoadTexture(tx->name);
+            tx->loadedTexture = TextureManager::LoadWADTextureSynch(tx->name);
 
 		tx->height = mt->height;
 		tx->width = mt->width;
@@ -1115,12 +1115,18 @@ std::vector<GoldSource::msurface_t> & BSPLevel::GetFaces()
     return m_vFaces;
 }
 
-void BSPLevel::PopulateScene()
+void GoldSource::BSPLevel::PopulateScene(Scene * pScene)
 {
 	// TODO: design a proper way to link worldspawn and BSPWorld 
 	//
-	for (auto it : m_vEntities)
-		it->PopulateScene();
+
+	
+
+    for (auto it : m_vEntities)
+    {
+        it->SetSerialNumber(pScene->AllocSerialNumber());
+        it->PopulateScene();
+    }
 
 	
 	// Entities now owned by scene

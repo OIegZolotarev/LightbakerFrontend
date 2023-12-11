@@ -33,11 +33,16 @@ enum class UniformKind
     Grid1024thLineColor,
     GridCustomColor,
     Color,
+    Color2,
+    Color3,
+    Color4,
     RightVector,
     UpVector,
     ForwardVector,
     Diffuse,
-    Lightmap
+    Lightmap,
+    Viewport,
+    ObjectSerialNumber,
 };
 
 enum class UniformDataType

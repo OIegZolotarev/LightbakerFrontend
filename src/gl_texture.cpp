@@ -10,6 +10,7 @@
 #include "wad_textures.h"
 #include <locale>
 #include <boost/algorithm/string.hpp>
+#include "goldsource_bsp_disk_structs.h"
 
 
 void GLReloadTexture(GLTexture* r, FileData* sourceFile);
@@ -81,7 +82,7 @@ void GLReloadTexture(GLTexture* r,FileData * sourceFile)
 	int comps = 0;
 
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), sourceFile->Length(), &image_width, &image_height, &comps, 4);
+	unsigned char* image_data = stbi_load_from_memory(sourceFile->Data(), (int)sourceFile->Length(), &image_width, &image_height, &comps, 4);
 
 	if (image_data == NULL)
 		return;
@@ -158,7 +159,7 @@ void* AsynchTextureLoadTask::LoadTextureFileData(GLTexture* texture)
 	int comps = 0;
 
 	stbi_set_flip_vertically_on_load(true);
-	void * pixels = stbi_load_from_memory(pData->Data(), pData->Length(), &image_width, &image_height, &comps, 4);
+	void * pixels = stbi_load_from_memory(pData->Data(), (int)pData->Length(), &image_width, &image_height, &comps, 4);
 
 	texture->SetWidth(image_width);
 	texture->SetHeight(image_height);
@@ -309,6 +310,37 @@ void GLTexture::SetGLTextureNum(GLuint val, size_t frame)
     m_uiGLTexnum[frame] = val;
 }
 
+void GLTexture::UploadRawTexture(RawTexture *pTexture)
+{
+    GenerateGLHandle();
+    int currentFrame = -1;
+
+    for (auto & rawImage: pTexture->Items())
+    {
+        if (rawImage->frameIndex != currentFrame)
+        {
+            currentFrame = (int)rawImage->frameIndex;
+            Bind(currentFrame);
+
+			// TODO: adjust this
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		}
+
+		glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glTexImage2D(GL_TEXTURE_2D, rawImage->mipLevel, rawImage->glInternalFormat, rawImage->width,
+                     rawImage->height, 0, rawImage->glFormat, GL_UNSIGNED_BYTE,
+                     rawImage->data);
+
+        m_iWidth = rawImage->width;
+        m_iHeight = rawImage->height;
+        m_bLoaded = true;
+	}
+}
+
 void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
 {   
     GenerateGLHandle();
@@ -410,10 +442,10 @@ TextureSource TextureManager::DetermineTextureSourceFromFileName(const char *fil
 	};
 
 	static sLookupTable lookup[] = {
+        {"spr", TextureSource::GoldSourceSprite},
 		{"tga", TextureSource::CommonImage},
 		{"png", TextureSource::CommonImage},
-		{"jpg", TextureSource::CommonImage},		
-		{"spr", TextureSource::GoldSourceSprite},
+		{"jpg", TextureSource::CommonImage},				
     };
 
 	for (auto it: lookup)
@@ -433,12 +465,17 @@ TextureSource TextureManager::DetermineTextureSourceFileFileSignature(void *pixe
     if (length < 8)
         return TextureSource::Unknown;
 
-	return TextureSource::Unknown;
+    // Fallback to common image - in hopes stbi will do the job
+	return TextureSource::CommonImage;
 }
 
 
 TextureManager::~TextureManager()
 {
+    for (auto & it: m_lstTexturesPool)
+    {
+        delete it;
+    }
 }
 
 void TextureManager::RegisterWAD(const char *fileName, bool shared)
@@ -462,52 +499,91 @@ void TextureManager::UnregisterWAD(const char *fileName)
     });
 }
 
-void TextureManager::LoadTexture(GLTexture * texture, TextureSource source /*= TextureSource::GuessByItself*/)
+GLTexture *TextureManager::LoadTextureSynch(const char *  fileName,
+                                             TextureSource source /*= TextureSource::GuessByItself*/)
 {
-    LoadTexture(texture, FallbackTexture::EmoCheckerboard, source);
+    GLTexture *pResult = new GLTexture(fileName, source, false);
+	RawTexture * rawTexture = LoadRawTexture(fileName, source);
+
+    if (source == TextureSource::GuessByItself)
+        source = DetermineTextureSourceFromFileName(fileName);
+
+	if (rawTexture)
+    {
+        pResult->UploadRawTexture(rawTexture);
+        delete rawTexture;
+    }
+    else
+    {
+        Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
+        return pResult;
+    }
+
+	return pResult;
 }
 
-void TextureManager::LoadTexture(GLTexture *texture, void *pixels, size_t length,
-                                       TextureSource source /*= TextureSource::GuessByItself*/)
+GLTexture *TextureManager::LoadTextureSynch(void *data, size_t len, const char* name,
+                                            TextureSource source /*= TextureSource::GuessByItself*/)
 {
-    LoadTexture(texture, pixels, length, FallbackTexture::EmoCheckerboard, source);
+    GLTexture * pResult    = new GLTexture(name, source, false);
+
+    Instance()->m_lstTexturesPool.push_back(pResult);
+
+    RawTexture *rawTexture = LoadRawTexture(data, len, source);
+    
+	if (!rawTexture)
+    {
+        Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
+        return pResult;
+	}
+    else
+    {
+        pResult->UploadRawTexture(rawTexture);
+        delete rawTexture;
+    }
+	
+    return pResult;
 }
 
-void TextureManager::LoadTexture(GLTexture *texture, FallbackTexture fallbackTexture,
-                                       TextureSource source /*= TextureSource::GuessByItself*/)
+RawTexture* TextureManager::LoadRawTexture(const char* fileName, TextureSource source /*= TextureSource::GuessByItself*/)
 {
     auto fs = FileSystem::Instance();
-    auto fd = fs->LoadFile(texture->Name());
+    auto fd = fs->LoadFile(fileName);
 
 	if (!fd)
     {
-        return Instance()->MakeFallbackTexture(texture, fallbackTexture);
+        return nullptr;
     }
 
 	if (source == TextureSource::GuessByItself)
-        source = DetermineTextureSourceFromFileName(texture->Name().c_str());
+        source = DetermineTextureSourceFromFileName(fileName);
 
-	LoadTexture(texture, fd->Data(), fd->Length(), fallbackTexture, source);
+	RawTexture * pResult = LoadRawTexture(fd->Data(), fd->Length(), source);
 	fd->UnRef();
+
+	return pResult;
 }
 
-void TextureManager::LoadTexture(GLTexture * texture, void *pixels, size_t length, FallbackTexture fallbackTexture,
-                                       TextureSource source /*= TextureSource::GuessByItself*/)
+RawTexture* TextureManager::LoadRawTexture(void *data, size_t length, TextureSource source /*= TextureSource::GuessByItself*/)
 {
+    RawTexture *pResult = nullptr;	
 
-	//rawpixels_t *raw_pixels = nullptr;
+    if (source == TextureSource::GuessByItself)
+        source = DetermineTextureSourceFileFileSignature(data, length);
 
     switch (source)
     {
     case TextureSource::CommonImage:
-        //pixels = DecodeCommonImage(pixels, length);
+        pResult = DecodeCommonImage(data, length);
         break;
     case TextureSource::GoldSourceMipTexture:
-		//pixels = Decode
+        pResult = DecodeGoldsourceMiptex(data, length);
         break;
-    case TextureSource::GoldSourceWadFile:
+    case TextureSource::GoldSourceWadFile:		
+        __debugbreak();
         break;
     case TextureSource::GoldSourceSprite:
+        pResult = DecodeGoldsourceSprite(data, length);
         break;
     case TextureSource::GuessByItself:
         break;
@@ -517,6 +593,9 @@ void TextureManager::LoadTexture(GLTexture * texture, void *pixels, size_t lengt
         break;
     
 	}	
+
+
+	return pResult;
 }
 
 void TextureManager::PurgeTextures()
@@ -532,10 +611,143 @@ void TextureManager::PurgeTextures()
         return false;
 		});
 
-	Con_Printf("TextureManager::PurgeTextures(): purged %d textures\n", nPurged);
+	Con_Printf("TextureManager::PurgeTextures(): purged %zd textures\n", nPurged);
 }
 
-void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
+GLTexture* TextureManager::LoadWADTextureSynch(char *name)
+{
+    GLTexture *pResult = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
+    bool       bFallback = true;
+
+    for (auto & wad: Instance()->m_lstWADSPool)
+    {
+        auto mip = wad->LoadMipTex(name);
+
+        if (!mip)
+            continue;
+
+        
+        RawTexture * texture = LoadRawTexture((void*)mip, 0, TextureSource::GoldSourceMipTexture);
+        pResult->UploadRawTexture(texture);
+
+        bFallback = false;
+        break;
+    }
+
+    if (bFallback)
+        Instance()->MakeFallbackTexture(pResult, FallbackTexture::EmoCheckerboard);
+
+    return pResult;
+}
+
+GLTexture *TextureManager::GetWhiteTexture()
+{
+    return Instance()->m_pWhiteTexture;
+}
+
+RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)
+{
+    // Load from file
+    int image_width  = 0;
+    int image_height = 0;
+    int comps        = 0;
+
+    stbi_set_flip_vertically_on_load(true);
+    void *pixels = stbi_load_from_memory((byte*)data, length, &image_width, &image_height, &comps, 4);
+
+	RawTexture *pResult = new RawTexture;
+
+	rawimage_t *pFrame = new rawimage_t(image_width, image_height, 4);
+
+    memcpy(pFrame->data, pixels, pFrame->dataLength); 
+
+    stbi_image_free(pixels);
+	pResult->AddRawFrame(pFrame);
+
+    return pResult;
+}
+
+RawTexture *TextureManager::DecodeGoldsourceMiptex(const void *data, size_t length)
+{
+    GoldSource::miptex_t *texture = (GoldSource::miptex_t *)data;
+    RawTexture *          pResult = new RawTexture;
+
+    int pixelSize = texture->name[0] == '{' ? 4 : 3;
+    int size      = texture->width * texture->height;
+    int datasize  = size + (size / 4) + (size / 16) + (size / 64);    
+    
+    color24_t *pal = (color24_t *)(((byte*)data) + texture->offsets[0] + datasize + 2);
+    
+    for (int i = 0 ; i < 4; i++)
+    {
+        byte * pixels = (byte*)data + texture->offsets[i];
+
+        size_t mipWidth = texture->width >> i;
+        size_t mipHeight = texture->height >> i;
+
+        size_t      numPixels = mipWidth * mipHeight;
+        rawimage_t *pFrame    = new rawimage_t(mipWidth, mipHeight, pixelSize);
+
+        pFrame->mipLevel = i;
+
+        // Convert pixels from indexed to RGB(A)
+
+        if (pixelSize == 4)
+        {
+            color32_t *ptr = (color32_t*)pFrame->data;
+
+            for (size_t j = 0; j < numPixels; j++)
+            {
+                color24_t *palEntry = &pal[pixels[j]];
+
+                if (palEntry->b == 255 && palEntry->g == 0 && palEntry->r == 0)
+                {
+                    ptr->r = ptr->g = ptr->b = ptr->a = 0;   
+                }
+                else
+                {
+                    ptr->r = palEntry->r;
+                    ptr->g = palEntry->g;
+                    ptr->b = palEntry->b;
+                    ptr->a = 255;
+                }
+
+                ptr++;
+            }
+        }
+        else
+        {
+            color24_t *ptr = (color24_t *)pFrame->data;
+
+            for (size_t j = 0; j < numPixels; j++)
+            {
+                *ptr = pal[pixels[j]];
+                ptr++;
+            }
+        }
+
+        pResult->AddRawFrame(pFrame);
+    }
+
+    return pResult;
+}
+
+RawTexture *TextureManager::DecodeGoldsourceSprite(const void *pixels, size_t length)
+{
+    return ::DecodeGoldSourceSpite((byte*)pixels, length);
+}
+
+ TextureManager::TextureManager()
+{     
+ }
+
+void TextureManager::OnGLInit()
+ {
+     m_pEmoTexture   = LoadTextureSynch("res/textures/default/emo.png");
+     m_pWhiteTexture = LoadTextureSynch("res/textures/default/white.png");
+ }
+
+ void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fallbackTexture)
 {
 
 	GLTexture *pFallback = nullptr;
@@ -558,3 +770,55 @@ void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fal
     pResult->m_iHeight    = pFallback->m_iHeight;
 }
 
+ RawTexture::RawTexture()
+{	 
+}
+
+RawTexture::~RawTexture()
+{
+    for (auto &it : m_lstFrames)
+        delete it;
+
+	m_lstFrames.clear();
+}
+
+void RawTexture::AddRawFrame(rawimage_t *frame)
+{
+    m_lstFrames.push_back(frame);
+}
+
+size_t RawTexture::NumFrames()
+{
+    return m_lstFrames.size();
+}
+
+std::list<rawimage_t *> &RawTexture::Items()
+{
+    return m_lstFrames;
+}
+
+rawimage_s::rawimage_s(size_t _width, size_t _height, size_t components)
+{
+    width  = _width;
+    height = _height;
+
+    dataLength = width * height * components;
+    data = new byte[dataLength];
+
+    switch (components)
+    {
+    case 3:
+        glFormat         = GL_RGB;
+        glInternalFormat = GL_RGB;
+        break;
+    case 4:
+        glFormat         = GL_RGBA;
+        glInternalFormat = GL_RGBA;
+        break;
+    }
+}
+
+rawimage_s::~rawimage_s()
+{
+    delete data;
+}

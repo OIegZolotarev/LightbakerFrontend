@@ -11,7 +11,7 @@ class GridRenderer : public Singleton<GridRenderer>
 {
     DrawMesh *m_pGridMesh = nullptr;
     
-    int m_iGridResolutions = 32;
+    int m_iGridResolution = 32;
     int m_iGridPower       = 5;
     
     VariantValue* m_GridAxisColor;
@@ -38,4 +38,5 @@ class GridRenderer : public Singleton<GridRenderer>
 
     void StepDownGrid();    
     void StepUpGrid();
+    int  GridStep();
 };

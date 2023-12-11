@@ -19,16 +19,21 @@ char* HammerFGDFile::Data()
 HammerFGDFile::HammerFGDFile(FileData* fd)
 {
 	m_pFileData = fd;
+
+	m_strFileName = fd->Name();
+
 	ParseFGD(this);
 	RelinkInheritedProperties();
 }
 
 HammerFGDFile::~HammerFGDFile()
 {
-	for (auto kv : m_Entities)
+	for (auto & kv : m_Entities)
 	{
 		delete kv.second;
 	}
+
+	
 }
 
 void HammerFGDFile::AddEntityClass(FGDEntityClass* entityDef)
@@ -54,18 +59,28 @@ GoldSource::FGDEntityClass* HammerFGDFile::FindEntityClass(std::string& baseClas
 	return m_Entities[baseClassStr];
 }
 
+std::string HammerFGDFile::AbsoluteResourcePath(std::string &relPath)
+{
+    auto fs = FileSystem::Instance();
+    auto baseDir = fs->BaseDirectoryFromPath(FileName());
+	
+	return baseDir + "/" + relPath;
+}
+
 FGDEntityClass::~FGDEntityClass()
 {
 
 }
 
-FGDEntityClass::FGDEntityClass(FGDEntityClassType type, std::string className, std::string description, FGDPropertiesList & props)
+FGDEntityClass::FGDEntityClass(HammerFGDFile * pOwner, FGDEntityClassType type, std::string className, std::string description,
+                               FGDPropertiesList &props)
 {
 	m_Type = type;
 	m_ClassName = className;
 	m_Description = description;
 
 	m_Properties = props;
+    m_pOwner     = pOwner;
 }
 
 void FGDEntityClass::SetColor(glm::vec3 color)
@@ -206,9 +221,23 @@ void FGDEntityClass::SetBBoxOffset(glm::vec3 offset)
     m_BboxOffset = offset;
 }
 
+GLTexture *FGDEntityClass::GetEditorSpite()
+{
+    if (m_EditorSprite.empty())
+        return nullptr;
+
+    if (!m_pEditorSprite)
+    {
+        std::string path = m_pOwner->AbsoluteResourcePath(m_EditorSprite);
+        m_pEditorSprite   = TextureManager::LoadTextureSynch(path.c_str());
+    }
+
+	return m_pEditorSprite;
+}
+
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,
                                            OptionalDefaultValAndHelp_t defValueAndHelp)
-    : FGDPropertyDescriptor(name, "", desc, defValueAndHelp)
+    : FGDPropertyDescriptor(name, "flags", desc, defValueAndHelp)
 {
 	m_Values = values;
 }
@@ -227,4 +256,38 @@ bool FGDFlagsEnumProperty::IsSpawnflagsProperty()
 std::string& FGDPropertyDescriptor::GetName()
 {
 	return m_Name;
+}
+
+FGDPropertyDescriptor::~FGDPropertyDescriptor()
+{
+}
+
+FGDPropertyDescriptor::FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr,
+                                             OptionalDefaultValAndHelp_s defaultValueAndHelp)
+{
+    m_Name  = name;
+    m_Descr = descr;
+
+	try
+	{
+        m_Type = FGDPropertyTypes::_from_string_nocase(typeId.c_str());
+	}
+    catch (std::exception & e)
+    {
+        Con_Printf("Error while parsing type: %s, exception: %s", typeId.c_str() , e.what());
+	}
+    
+
+    if (defaultValueAndHelp.useFloat)
+        m_DefaultValueFloat = defaultValueAndHelp.defaultValueFloat;
+    else
+        m_DefaultValue = defaultValueAndHelp.defaultValue;
+
+    m_PropertyHelp = defaultValueAndHelp.propertyHelp;
+}
+
+FGDPropertyDescriptor::FGDPropertyDescriptor(FGDPropertyDescriptor *pOther)
+{
+    m_Name  = pOther->m_Name;
+    m_Descr = pOther->m_Descr;
 }

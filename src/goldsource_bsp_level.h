@@ -79,7 +79,7 @@ class BSPLevel
     void Mod_ReloadFacesLighting(lump_t *facesLump);
     void BuildLightMap(msurface_t *surf, byte *base, size_t stride);
 
-    void PopulateScene();
+    void PopulateScene(Scene * pScene);
 
     std::vector<msurface_t> &GetFaces();
 

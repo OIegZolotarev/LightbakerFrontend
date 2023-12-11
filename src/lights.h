@@ -48,7 +48,6 @@ class Lb3kLightEntity : public SceneEntity
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
     void OnUnhovered() override;
-    void RenderForSelection(int objectId, class SceneRenderer *) override;
     void OnSelect() override;
 
     void OnUnSelect() override;

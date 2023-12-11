@@ -201,11 +201,15 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="bsp_entities_properties_binding.cpp" />
+    <ClCompile Include="bsp_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
+    <ClCompile Include="frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
+    <ClCompile Include="gl_framebuffer_object.cpp" />
+    <ClCompile Include="gl_screenspace_2d_renderer.cpp" />
     <ClCompile Include="gl_texture.cpp" />
-    <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="byteorder.cpp" />
     <ClCompile Include="edit_history.cpp" />
     <ClCompile Include="application.cpp" />
@@ -220,6 +224,7 @@ build.bat
     <ClCompile Include="geometry_selection_shader.cpp" />
     <ClCompile Include="gl_backend.cpp" />
     <ClCompile Include="file_system.cpp" />
+    <ClCompile Include="goldsource_bsp_entity.cpp" />
     <ClCompile Include="goldsource_bsp_renderer.cpp" />
     <ClCompile Include="goldsource_bsp_level.cpp" />
     <ClCompile Include="goldsource_bsp_world.cpp" />
@@ -235,7 +240,14 @@ build.bat
     <ClCompile Include="imgui_listview_ex.cpp" />
     <ClCompile Include="imgui_popups.cpp" />
     <ClCompile Include="imgui_popups.h" />
+    <ClCompile Include="img_goldsource_spr.cpp" />
     <ClCompile Include="inputfield_ex.cpp" />
+    <ClCompile Include="mathlib.cpp" />
+    <ClCompile Include="mod_obj_data.cpp" />
+    <ClCompile Include="platform_window.cpp" />
+    <ClCompile Include="secondary_window.cpp" />
+    <ClCompile Include="viewport.cpp" />
+    <ClCompile Include="viewports_orchestrator.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
@@ -272,6 +284,7 @@ build.bat
     <ClCompile Include="model_obj_world.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\bin\res\glprogs\common_fragment.h" />
     <ClInclude Include="..\bin\res\glprogs\common_vertex.h" />
     <ClInclude Include="..\include\better-enums\enum.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h" />
@@ -285,11 +298,15 @@ build.bat
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="bsp_entities_properties_binding.h" />
+    <ClInclude Include="bsp_property.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
+    <ClInclude Include="frustum.h" />
     <ClInclude Include="game_configuration.h" />
+    <ClInclude Include="gl_framebuffer_object.h" />
+    <ClInclude Include="gl_screenspace_2d_renderer.h" />
     <ClInclude Include="gl_texture.h" />
-    <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="byteorder.h" />
     <ClInclude Include="goldsource_bsp_disk_structs.h" />
     <ClInclude Include="edit_history.h" />
@@ -308,6 +325,7 @@ build.bat
     <ClInclude Include="gl_backend.h" />
     <ClInclude Include="file_system.h" />
     <ClInclude Include="event_handler.h" />
+    <ClInclude Include="goldsource_bsp_entity.h" />
     <ClInclude Include="goldsource_bsp_mem_structs.h" />
     <ClInclude Include="goldsource_bsp_renderer.h" />
     <ClInclude Include="goldsource_bsp_level.h" />
@@ -323,8 +341,16 @@ build.bat
     <ClInclude Include="imgui_enum_combobox.h" />
     <ClInclude Include="imgui_helpers.h" />
     <ClInclude Include="imgui_listview_ex.h" />
+    <ClInclude Include="img_goldsource_spr.h" />
     <ClInclude Include="inputfield_ex.h" />
+    <ClInclude Include="platform_window.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
+    <ClInclude Include="mathlib.h" />
+    <ClInclude Include="secondary_window.h" />
+    <ClInclude Include="spritegn.h" />
+    <ClInclude Include="viewport.h" />
+    <ClInclude Include="viewports_orchestrator.h" />
+    <ClInclude Include="viewport_rendermodes.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />
     <ClInclude Include="mod_obj_asynch_exporter.h" />
@@ -366,10 +392,9 @@ build.bat
     <ResourceCompile Include="LightBakerFrontend.rc" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\bin\res\glprogs\background.glsl" />
     <None Include="..\bin\res\glprogs\billboard.glsl" />
     <None Include="..\bin\res\glprogs\editor_grid.glsl" />
-    <None Include="..\bin\res\glprogs\helper_geometry.frag" />
-    <None Include="..\bin\res\glprogs\helper_geometry.vert" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />
     <None Include="..\bin\res\glprogs\object_selection.vert" />
     <None Include="..\bin\res\glprogs\scene_diffuse.frag" />
@@ -377,6 +402,8 @@ build.bat
     <None Include="..\bin\res\glprogs\scene_groupshaded.frag" />
     <None Include="..\bin\res\glprogs\scene_ligtmapped.frag" />
     <None Include="..\bin\res\glprogs\scene.vert" />
+    <None Include="..\bin\res\glprogs\screenspace_2d.glsl" />
+    <None Include="..\bin\res\glprogs\solidcolor_geom.glsl" />
     <None Include="..\bin\res\glprogs\spotlight_cone.frag" />
     <None Include="..\bin\res\glprogs\spotlight_cone.vert" />
     <None Include="hammer_fgd\hammer_fgd.y" />

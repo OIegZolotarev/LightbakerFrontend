@@ -44,7 +44,7 @@ SceneEntity::SceneEntity()
   
 SceneEntity::SceneEntity(SceneEntity& other)
 {
-	m_SerialNumber = other.m_nSerialNumber;
+	//m_SerialNumber = other.m_nSerialNumber;
 	m_Position = other.m_Position;
 
 	m_Mins = other.m_Mins;
@@ -119,11 +119,6 @@ void SceneEntity::OnUnhovered()
 	
 }
 
-void SceneEntity::RenderForSelection(int objectId, class SceneRenderer*)
-{
-	
-}
-
 const char* SceneEntity::Description()
 {
 	return m_ClassName.c_str();
@@ -145,7 +140,7 @@ void SceneEntity::CopyProperties(std::unordered_map<std::string, std::string> pr
 
 }
 
-std::unordered_map<std::string, std::string> SceneEntity::GetProperties() const
+TPropertiesMap & SceneEntity::GetProperties()
 {
 	return m_vProperties;
 }

@@ -18,6 +18,8 @@ DockPanels DebugPanel::GetDockSide()
 
 void DebugPanel::Render()
 {
+    Viewport *pViewport1 = Application::GetMainWindow()->GetViewport(0);
+    Viewport *pViewport2 = Application::GetMainWindow()->GetViewport(1);
 
 	int fps = Application::GetMainWindow()->GetFPS();
 
@@ -31,6 +33,9 @@ void DebugPanel::Render()
 
 	ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
 	ImGui::Text("Triangles: %d\n", stats->nTriangles);
+	
+	if (pViewport1) pViewport1->OutputDebug();
+    if (pViewport2) pViewport2->OutputDebug();
 
 	ImGui::End();
 }

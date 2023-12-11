@@ -4,13 +4,18 @@
 
 uniform vec4 u_Color;
 
+#ifndef SELECTION
 out vec2 oTexCoord;
+#endif
 out vec4 oVertexColor;
 
 void main()
 {
 	oVertexColor = u_Color;
+	
+	#ifndef SELECTION
 	oTexCoord  = uv.xy;
+	#endif
 
 	mat4 invMV = inverse(u_ModelViewMatrix);
 
@@ -25,18 +30,26 @@ void main()
 
 #ifdef FRAGMENT_SHADER
 
-out vec4 oFragColor;
+#include "common_fragment.h"
 
+#ifndef SELECTION
 uniform sampler2D u_Diffuse;
-
 in vec2 oTexCoord;
+#endif
 in vec4 oVertexColor;
 
 void main()
 {
-	vec4 diffuseSample = texture2D(u_Diffuse,oTexCoord);
-	//oFragColor = diffuseSample * oVertexColor;	     
+#ifndef SELECTION
+	vec4 diffuseSample = texture2D(u_Diffuse,oTexCoord);	 
 	oFragColor = diffuseSample * oVertexColor;	     
+#else
+	oFragColor = oVertexColor;	     
+#endif
+
+
+	oSelColor = u_ObjectSerialNumber;
+
 } 
 
 
