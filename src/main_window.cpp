@@ -67,6 +67,7 @@ void MainWindow::InitStuff()
 
     InitCommonResources();
     InitCommands();
+    InitTimers();
 }
 
 MainWindow::~MainWindow()
@@ -118,12 +119,11 @@ void MainWindow::InitBackend()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
-
-#ifdef WIN32
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
-#endif
-
+    
     // enable VSync
     SDL_GL_SetSwapInterval(1);
 
@@ -172,8 +172,8 @@ void MainWindow::InitBackend()
     ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
-    g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
-    SDL_SetCursor(g_EmptyCursor);
+    // g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
+    // SDL_SetCursor(g_EmptyCursor);
 
     // Force backend to initialize
     GLBackend::Instance();
@@ -190,6 +190,60 @@ void MainWindow::InitBackend()
 void MainWindow::InitImGUISDL2Platform()
 {
     ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
+}
+
+int MainWindow::GetState()
+{
+    return m_windowState;
+}
+
+bool MainWindow::HandleEvent(SDL_Event &event)
+{
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
+    if (CheckImGuiEvent(event))
+        return true;
+
+    switch (event.type)
+    {
+    case SDL_QUIT:
+        return false;
+
+    case SDL_WINDOWEVENT:
+        return HandleWindowStateEvent(event);
+
+    case SDL_KEYDOWN:
+        HandleKeyDown(event);
+        return true;
+
+    case SDL_MOUSEMOTION:
+    case SDL_MOUSEBUTTONDOWN:
+
+        if (event.button.button & SDL_BUTTON_LEFT)
+        {
+            if (!ImGui::GetHoveredID())
+            {
+                if (SelectionManager::Instance()->SelectHoveredObject())
+                {
+                    break;
+                }
+            }
+        }
+
+    case SDL_MOUSEBUTTONUP:
+    case SDL_MOUSEWHEEL:
+    case SDL_KEYUP:
+        // TODO: implement
+
+        PropagateControlsEvent(event);
+        return true;
+
+    case SDL_DROPFILE:
+        HandleDropfileEvent(event);
+        return true;
+    }
+
+    return true;
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -400,34 +454,32 @@ int MainWindow::GetFPS()
     return m_TimersData.actual_fps;
 }
 
-void MainWindow::MainLoop()
+void MainWindow::IterateUpdate()
+{
+    SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
+
+    GLBackend::Instance()->NewFrame();
+    Application::Instance()->CheckIfBakngFinished();
+
+    UpdateTimers();
+    GL_BeginFrame();
+
+    ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
+
+    LoaderThread::Instance()->ExecuteEndCallbacks(10);
+
+    RenderGUI();
+
+    SDL_GL_SwapWindow(m_pSDLWindow);    
+}
+
+void MainWindow::InitTimers()
 {
     m_TimersData.timestamp_now          = SDL_GetPerformanceCounter();
     m_TimersData.timestamp_last         = SDL_GetPerformanceCounter();
     m_TimersData.frames_until_init      = 3;
     m_TimersData.fps_accum              = 0;
     m_TimersData.num_frames_this_second = 0;
-
-    while (!m_bTerminated)
-    {
-        // ImGui::SetCurrentContext(m_pImGUIContext);
-
-        GLBackend::Instance()->NewFrame();
-        Application::Instance()->CheckIfBakngFinished();
-
-        m_bTerminated = !HandleEvents(!m_bTerminated);
-
-        UpdateTimers();
-        GL_BeginFrame();
-
-        ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
-
-        LoaderThread::Instance()->ExecuteEndCallbacks(10);
-
-        RenderGUI();
-
-        SDL_GL_SwapWindow(m_pSDLWindow);
-    }
 }
 
 int MainWindow::Width()
@@ -610,7 +662,7 @@ float MainWindow::RenderMainMenu()
 
             if (ImGui::MenuItem("Exit"))
             {
-                m_bTerminated = true;
+                Application::Instance()->Terminate();
             }
 
             ImGui::EndMenu();
@@ -660,6 +712,7 @@ float MainWindow::RenderMainMenu()
         if (ImGui::BeginMenu("Windows"))
         {
             COMMAND_ITEM(GlobalCommands::ResetLayout);
+            COMMAND_ITEM(GlobalCommands::OpenNewWindow);
 
             ImGui::EndMenu();
         }
@@ -721,14 +774,12 @@ void MainWindow::RenderGUI()
     // start the Dear ImGui frame
     ImGui::SetCurrentContext(m_pImGUIContext);
 
-    
-
     ImGui_ImplOpenGL3_NewFrame();
     ImGui_ImplSDL2_NewFrame();
 
     static int delayInit = 2;
 
-//    printf("ImGui::NewFrame()\n");
+    //    printf("ImGui::NewFrame()\n");
     ImGui::NewFrame();
 
     if (delayInit > 0)
@@ -894,122 +945,97 @@ bool MainWindow::RenderToolbarIcon(GLuint iconId)
     return ImGui::ImageButton((ImTextureID)iconId, ImVec2(16, 16));
 }
 
-bool MainWindow::HandleEvents(bool loop)
+bool MainWindow::CheckImGuiEvent(SDL_Event &event)
 {
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
+    switch (event.type)
     {
-        ImGui_ImplSDL2_ProcessEvent(&event);
-
-        bool bIgnorableEvent = true;
-
-        switch (event.type)
-        {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-            if (ImGui::GetIO().WantCaptureKeyboard && bIgnorableEvent)
-                continue;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            if (ImGui::GetIO().WantCaptureMouse && bIgnorableEvent)
-                continue;
-            break;
-        }
-
-        switch (event.type)
-        {
-        case SDL_QUIT:
-            loop = false;
-            break;
-
-        case SDL_WINDOWEVENT:
-            switch (event.window.event)
-            {
-            case SDL_WINDOWEVENT_CLOSE:
-                loop = false;
-                break;
-            case SDL_WINDOWEVENT_RESIZED:
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-            case SDL_WINDOWEVENT_MINIMIZED:
-            case SDL_WINDOWEVENT_MAXIMIZED:
-            case SDL_WINDOWEVENT_RESTORED:
-                HandleWindowStateEvent(event);
-                break;
-            }
-            break;
-
-        case SDL_KEYDOWN:
-            switch (event.key.keysym.sym)
-            {
-            case SDLK_ESCAPE:
-                SelectionManager::Instance()->UnSelect();
-                break;
-            }
-
-            if (Application::CommandsRegistry()->OnKeyDown())
-                break;
-
-            if (PropagateControlsEvent(event))
-                break;
-            break;
-
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEBUTTONDOWN:
-
-            if (event.button.button & SDL_BUTTON_LEFT)
-            {
-                if (!ImGui::GetHoveredID())
-                {
-                    if (SelectionManager::Instance()->SelectHoveredObject())
-                    {
-                        break;
-                    }
-                }
-            }
-
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEWHEEL:
-        case SDL_KEYUP:
-            // TODO: implement
-
-            PropagateControlsEvent(event);
-            break;
-
-        case (SDL_DROPFILE): {
-            char *dropped_filedir;
-
-            // In case if dropped file
-            dropped_filedir = event.drop.file;
-            // Shows directory of dropped file
-
-            m_pSceneRenderer->LoadModel(dropped_filedir, LRF_LOAD_ALL);
-
-            SDL_free(dropped_filedir); // Free dropped_filedir memory
-        }
-        }
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+        if (ImGui::GetIO().WantCaptureKeyboard)
+            return true;
+        break;
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+        if (ImGui::GetIO().WantCaptureMouse)
+            return true;
+        break;
     }
 
-    return loop;
+    return false;
 }
 
-void MainWindow::HandleWindowStateEvent(SDL_Event &e)
+void MainWindow::HandleKeyDown(SDL_Event &event)
 {
+    switch (event.key.keysym.sym)
+    {
+    case SDLK_ESCAPE:
+        SelectionManager::Instance()->UnSelect();
+        return;
+    }
+
+    if (Application::CommandsRegistry()->OnKeyDown())
+        return;
+
+    if (PropagateControlsEvent(event))
+        return;
+}
+
+void MainWindow::HandleDropfileEvent(SDL_Event &event)
+{
+    {
+        char *dropped_filedir;
+
+        // In case if dropped file
+        dropped_filedir = event.drop.file;
+        // Shows directory of dropped file
+
+        m_pSceneRenderer->LoadModel(dropped_filedir, LRF_LOAD_ALL);
+
+        SDL_free(dropped_filedir); // Free dropped_filedir memory
+    }
+}
+
+bool MainWindow::HandleWindowStateEvent(SDL_Event &e)
+{
+    bool bUpdateViewport = false;
+
     switch (e.window.event)
     {
+    case SDL_WINDOWEVENT_CLOSE:
+        Application::Instance()->Terminate();
+        return false;
+        break;
     case SDL_WINDOWEVENT_RESTORED:
-        m_windowState = 1;
+        m_windowState   = 1;
+        bUpdateViewport = true;
         break;
     case SDL_WINDOWEVENT_MAXIMIZED:
-        m_windowState = 2;
+        m_windowState   = 2;
+        bUpdateViewport = true;
         break;
-    case SDL_WINDOWEVENT_MINIMIZED:        
-        m_windowState = 0;
+    case SDL_WINDOWEVENT_MINIMIZED:
+        m_windowState   = 0;
+        bUpdateViewport = true;
+        break;
+    case SDL_WINDOWEVENT_ENTER:
+        m_bHasMouse = true;
+        break;
+    case SDL_WINDOWEVENT_LEAVE:
+        m_bHasMouse = false;
+        break;
+    case SDL_WINDOWEVENT_RESIZED:
+    case SDL_WINDOWEVENT_SIZE_CHANGED:
+        bUpdateViewport = true;
         break;
     }
 
-    SDL_GetWindowSize(m_pSDLWindow, &m_iWindowWidth, &m_iWindowHeight);
-    glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
+    if (bUpdateViewport)
+    {
+        SDL_GetWindowSize(m_pSDLWindow, &m_iWindowWidth, &m_iWindowHeight);
+        glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
+    }
+
+    return true;
 }
 
 void MainWindow::GL_BeginFrame()

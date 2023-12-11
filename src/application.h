@@ -23,25 +23,41 @@ class Application
 	bool m_bBakingFinished = true;
 
 	PersistentStorage*	m_pPersistentStorage;
-
 	LightBaker3000*		m_pLightBakerApplication;
 
 	bool m_bDelayedInitDone = false;
 
 	std::string m_strBakingStatus;
+    std::string m_strFileToLoad = "";
+
+    // Baker state
+    float m_flBakingPercentage = 0;
+    bool  m_bDoBakingAgain     = false;
+
+	bool m_bTerminated = false;
+
+	std::list<IPlatformWindow *> m_lstWindows;
+    IPlatformWindow *            FindWindowBySDLId(size_t sdlid)
+    {
+        for (auto &it : m_lstWindows)
+            if (it->GetId() == sdlid)
+                return it;
+
+		return nullptr;
+	}
+	
 public:
 	// Конструкторы\доступ
 	~Application();
 	static Application*				Instance();
 
 	static CCommandsRegistry*		CommandsRegistry();
-	
+
+	bool IsMouseCursorVisible();
 
 	// Функционал
 	void Run();
-
 	void InitMainWindow();
-
 	void Init(std::string cmdLine);
 	
 	static MainWindow* GetMainWindow();
@@ -78,16 +94,7 @@ public:
 
 	static IPlatformWindow *FindPlatformWindow(size_t id);
 
-private:
-	std::string m_strFileToLoad = "";
-
-	// Baker state
-
-	float m_flBakingPercentage = 0;
-	bool m_bDoBakingAgain = false;
-
-public:
-    bool IsMouseCursorVisible();
+	void Terminate();
 };
  
  inline int Con_Printf(const char* fmt, ...)

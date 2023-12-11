@@ -19,6 +19,7 @@
 #endif
 #include "hammer_fgd.h"
 #include "r_editor_grid.h"
+#include "secondary_window.h"
 
 
 Application::Application()
@@ -33,7 +34,13 @@ Application::~Application()
 {
 	
 
-	if (m_pMainWindow) delete m_pMainWindow;
+	//if (m_pMainWindow) delete m_pMainWindow;
+
+	for (auto &it : m_lstWindows)
+        delete it;
+
+	m_lstWindows.clear();
+
 	delete m_pFileSystem;
 		
 	delete m_pCommandsRegistry;	
@@ -46,7 +53,38 @@ Application::~Application()
 
 void Application::Run()
 {
-	m_pMainWindow->MainLoop();
+    bool loop = false;
+
+	do 
+	{
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+			// TODO: windowId not present in all event types, some events should be handled by application class
+            IPlatformWindow *pTarget = FindWindowBySDLId(event.window.windowID);
+
+			if (pTarget && !pTarget->IsTerminated())
+            {
+                bool bResult = pTarget->HandleEvent(event);
+                
+				if (!bResult)
+                    pTarget->SetTerminated(true);
+                else
+                    loop = true;
+            }
+        }
+
+		if (!loop)
+            break;
+
+        for (auto &it : m_lstWindows)
+        {
+            if (!it->IsTerminated())
+				it->IterateUpdate();
+        }
+
+	} while (loop && !m_bTerminated);
+	
 }
 
 void Application::InitMainWindow()
@@ -54,6 +92,18 @@ void Application::InitMainWindow()
 	m_pPersistentStorage = PersistentStorage::Instance();
 	m_pMainWindow = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
     m_pMainWindow->InitStuff();
+
+	Application::CommandsRegistry()->RegisterCommand(new CCommand(
+        GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() {
+
+			static size_t m_counter            = 1;
+			SecondaryWindow *pNewWindow = new SecondaryWindow(std::format("New window {0}", m_counter++));
+
+			m_lstWindows.push_back(pNewWindow);
+
+        }));
+
+	m_lstWindows.push_back(m_pMainWindow);
 }
 
 void Application::Init(std::string cmdLine)
@@ -304,6 +354,11 @@ IPlatformWindow *Application::FindPlatformWindow(size_t id)
 {
 	// TODO: implement
     return Instance()->m_pMainWindow;
+}
+
+void Application::Terminate()
+{
+    m_bTerminated = true;
 }
 
 bool Application::IsMouseCursorVisible()

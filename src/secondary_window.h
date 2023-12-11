@@ -8,20 +8,15 @@
 #include "common.h"
 
 
-class SecondaryWindow
+class SecondaryWindow: public IPlatformWindow
 {
     std::string m_strTitle;
-    SDL_Window *m_pSDLWindow;
-    SDL_GLContext m_pGLContext;
-
-    SDL_Thread* m_Thread;
-
-    static int threadProc(void *data);
-
 public:
     SecondaryWindow(std::string t);
     ~SecondaryWindow();
     
+    void LoopStep();
 
-int ThreadProc();
+    void IterateUpdate() override;
+    bool HandleEvent(SDL_Event &event) override;
 };

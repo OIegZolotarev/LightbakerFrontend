@@ -13,7 +13,7 @@ IPlatformWindow::~IPlatformWindow()
 
 size_t IPlatformWindow::GetId()
 {
-    return 0;
+    return SDL_GetWindowID(m_pSDLWindow);
 }
 
 void IPlatformWindow::AddEventHandler(IEventHandler *pHandler)

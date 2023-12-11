@@ -465,7 +465,7 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
 
     glm::vec2 viewportPos        = pViewport->GetClientAreaPosAbs();
     glm::vec2 viewportClientArea = pViewport->GetClientArea();
-    int       win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
+    float       win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
 
     // TODO: check this,
     auto h = 0;
