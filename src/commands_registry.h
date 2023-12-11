@@ -20,12 +20,6 @@ enum class GlobalCommands
 	Redo,
 	SceneScale,
 	DebugSelection,
-	// Render modes
-	LightshadedRenderMode,
-	UnshadedRenderMode,
-	GroupShadedRenderMode,
-	WireframeLightshadedRenderMode,
-	WireframeUnshadedRenderMode,
 	// ==========
 	DumpLightmapMesh,
 	DumpLightmapUV,

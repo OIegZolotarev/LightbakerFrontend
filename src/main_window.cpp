@@ -650,25 +650,6 @@ float MainWindow::RenderMainMenu()
 #endif
             COMMAND_ITEM(GlobalCommands::ToggleGround);
 
-            if (ImGui::BeginMenu("Render mode"))
-            {
-                RenderMode renderMode = GetSceneRenderer()->GetRenderMode();
-
-                std::tuple<GlobalCommands, RenderMode> modes[] = {
-                    {GlobalCommands::LightshadedRenderMode, RenderMode::Lightshaded},
-                    {GlobalCommands::UnshadedRenderMode, RenderMode::Unshaded},
-                    {GlobalCommands::GroupShadedRenderMode, RenderMode::Groups},
-                    {GlobalCommands::WireframeLightshadedRenderMode, RenderMode::WireframeShaded},
-                    {GlobalCommands::WireframeUnshadedRenderMode, RenderMode::WireframeUnshaded}};
-
-                for (int i = 0; i < ARRAYSIZE(modes); i++)
-                {
-                    COMMAND_ITEM(std::get<0>(modes[i]), renderMode == std::get<1>(modes[i]));
-                }
-
-                ImGui::EndMenu();
-            }
-
             COMMAND_ITEM(GlobalCommands::OpenProgramOptions);
 
             COMMAND_ITEM(GlobalCommands::ReloadAllShaders);

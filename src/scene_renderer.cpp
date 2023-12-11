@@ -83,25 +83,6 @@ void SceneRenderer::RegisterRendermodesCommands()
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::DumpLightmapUV, "Dump lightmap uv", 0, 0, 0, [&]() { DumpLightmapUV(); }));
 
-    Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::LightshadedRenderMode, "Lightshaded",
-                                                                  0, 0, 0,
-                                                                  [&]() { m_RenderMode = RenderMode::Lightshaded; }));
-
-    Application::CommandsRegistry()->RegisterCommand(new CCommand(GlobalCommands::UnshadedRenderMode,
-                                                                  "Unshaded (diffuse only)", 0, 0, 0,
-                                                                  [&]() { m_RenderMode = RenderMode::Unshaded; }));
-
-    Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::WireframeLightshadedRenderMode, "Lightshaded wireframe", 0, 0, 0,
-                     [&]() { m_RenderMode = RenderMode::WireframeShaded; }));
-
-    Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::WireframeUnshadedRenderMode, "Unshaded wireframe", 0, 0, 0,
-                     [&]() { m_RenderMode = RenderMode::WireframeUnshaded; }));
-
-    Application::CommandsRegistry()->RegisterCommand(new CCommand(
-        GlobalCommands::GroupShadedRenderMode, "Groups shaded", 0, 0, 0, [&]() { m_RenderMode = RenderMode::Groups; }));
-
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::ReloadAllShaders, "Reload all shaders", 0, 0, 0,
                      [&]() { GLBackend::Instance()->ReloadAllShaders(); }));
