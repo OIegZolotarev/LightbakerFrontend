@@ -265,6 +265,14 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             DoCloneViewport();
         }
 
+        if (ImGui::MenuItem("Send to other"))
+        {
+            IPlatformWindow *pWindow = Application::Instance()->FindWindowBySDLId(2);
+           
+            if (pWindow)
+                m_pPlatformWindow        = pWindow;
+        }
+
         if (m_bDocked)
         {
             if (ImGui::MenuItem("Undock"))

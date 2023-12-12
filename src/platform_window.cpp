@@ -25,3 +25,22 @@ const std::list<IEventHandler *> &IPlatformWindow::EventHandlers()
 {
     return m_vEventHandlers;
 }
+
+void IPlatformWindow::InitImGUISDL2Platform()
+{
+}
+
+void IPlatformWindow::SetTerminated(bool flag)
+{
+    m_bTerminated = flag;
+}
+
+bool IPlatformWindow::IsTerminated()
+{
+    return m_bTerminated;
+}
+
+SDL_GLContext &IPlatformWindow::GLContext()
+{
+    return m_pGLContext;
+}

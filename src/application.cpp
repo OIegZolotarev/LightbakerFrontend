@@ -30,6 +30,15 @@ Application::Application()
 	m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
 
+IPlatformWindow *Application::FindWindowBySDLId(size_t sdlid)
+{
+    for (auto &it : m_lstWindows)
+        if (it->GetId() == sdlid)
+            return it;
+
+    return nullptr;
+}
+
 Application::~Application()
 {
 	

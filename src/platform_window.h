@@ -11,7 +11,7 @@ protected:
     SDL_Window *m_pSDLWindow;    
     SDL_GLContext m_pGLContext;
 
-
+    ImGuiContext *m_pImGUIContext;
 private:
     std::list<IEventHandler *> m_vEventHandlers;
 
@@ -24,7 +24,7 @@ public:
 
     void AddEventHandler(IEventHandler *pHandler);
     const std::list<IEventHandler *> &EventHandlers();
-    virtual void                      InitImGUISDL2Platform(){};
+    virtual void                      InitImGUISDL2Platform();;
     
     /*
         IterateUpdate - runs single iteration of updates loop       
@@ -36,21 +36,9 @@ public:
         otherwise should return true    
     */
     virtual bool HandleEvent(SDL_Event & event)      = 0;
+        
+    void SetTerminated(bool flag);
+    bool IsTerminated();
 
-
-    
-    void SetTerminated(bool flag)
-    {
-        m_bTerminated = flag;
-    }
-
-    bool IsTerminated()
-    {
-        return m_bTerminated;
-    }
-
-    SDL_GLContext & GLContext()
-    {
-        return m_pGLContext;
-    }
+    SDL_GLContext & GLContext();
 };

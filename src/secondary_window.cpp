@@ -6,6 +6,7 @@
 
 #include "application.h"
 #include "secondary_window.h"
+#include "viewports_orchestrator.h"
 
 SecondaryWindow::SecondaryWindow(std::string title) : m_strTitle(title)
 {
@@ -20,6 +21,8 @@ SecondaryWindow::SecondaryWindow(std::string title) : m_strTitle(title)
 
     m_pGLContext = w->GLContext();
 
+    InitImGuiContext();
+
     //SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     //m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
 }
@@ -33,6 +36,20 @@ SecondaryWindow::~SecondaryWindow()
 void SecondaryWindow::LoopStep()
 {
     Application::GetMainWindow()->ClearBackground();
+    
+    ImGui::SetCurrentContext(m_pImGUIContext);
+
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+
+    ImGui::NewFrame();
+    ImGui::ShowDemoWindow();
+    
+    
+    ViewportsOrchestrator::Instance()->DisplayViewports(this);
+
+    ImGui::Render();
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void SecondaryWindow::IterateUpdate()
@@ -44,6 +61,34 @@ void SecondaryWindow::IterateUpdate()
 
 bool SecondaryWindow::HandleEvent(SDL_Event &event)
 {
+    ImGui::SetCurrentContext(m_pImGUIContext);
+    ImGui_ImplSDL2_ProcessEvent(&event);
     return true;
+}
+
+void SecondaryWindow::InitImGuiContext()
+{
+    // Save current context to prevent crashing
+    auto currentCont = ImGui::GetCurrentContext();
+
+    m_pImGUIContext = ImGui::CreateContext();
+
+    ImGui::SetCurrentContext(m_pImGUIContext);
+
+    ImGuiIO &io     = ImGui::GetIO();
+
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_NoMouseCursorChange;
+    io.MouseDrawCursor = true;
+
+    char *p = SDL_GetPrefPath(SDL_ORGANIZATION, SDL_APP_NAME);
+    m_strImGuiIniPath = std::format("{0}/imgui_secondary.ini", p);
+
+    io.IniFilename = m_strImGuiIniPath.c_str();
+
+    ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
+    ImGui_ImplOpenGL3_Init("#version 330");
+    
+    // Restore current context
+    ImGui::SetCurrentContext(currentCont);
 }
 

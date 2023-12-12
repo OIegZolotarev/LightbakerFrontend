@@ -199,6 +199,7 @@ int MainWindow::GetState()
 
 bool MainWindow::HandleEvent(SDL_Event &event)
 {
+    ImGui::SetCurrentContext(m_pImGUIContext);
     ImGui_ImplSDL2_ProcessEvent(&event);
 
     if (CheckImGuiEvent(event))
@@ -960,7 +961,7 @@ bool MainWindow::CheckImGuiEvent(SDL_Event &event)
             return true;
         break;
     }
-
+    
     return false;
 }
 

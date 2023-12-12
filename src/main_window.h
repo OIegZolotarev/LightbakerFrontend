@@ -113,7 +113,7 @@ private:
     int m_iWindowHeight;
     int m_iWindowWidth;
 
-    ImGuiContext *m_pImGUIContext;
+    
 
     timersData m_TimersData;
 

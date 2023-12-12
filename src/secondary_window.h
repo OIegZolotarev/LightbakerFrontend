@@ -11,6 +11,8 @@
 class SecondaryWindow: public IPlatformWindow
 {
     std::string m_strTitle;
+    std::string m_strImGuiIniPath;
+
 public:
     SecondaryWindow(std::string t);
     ~SecondaryWindow();
@@ -19,4 +21,7 @@ public:
 
     void IterateUpdate() override;
     bool HandleEvent(SDL_Event &event) override;
+
+private:
+    void InitImGuiContext();
 };

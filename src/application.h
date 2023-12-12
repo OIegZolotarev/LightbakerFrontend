@@ -37,15 +37,7 @@ class Application
 	bool m_bTerminated = false;
 
 	std::list<IPlatformWindow *> m_lstWindows;
-    IPlatformWindow *            FindWindowBySDLId(size_t sdlid)
-    {
-        for (auto &it : m_lstWindows)
-            if (it->GetId() == sdlid)
-                return it;
-
-		return nullptr;
-	}
-	
+    	
 public:
 	// Конструкторы\доступ
 	~Application();
@@ -95,6 +87,7 @@ public:
 	static IPlatformWindow *FindPlatformWindow(size_t id);
 
 	void Terminate();
+    IPlatformWindow *FindWindowBySDLId(size_t sdlid);
 };
  
  inline int Con_Printf(const char* fmt, ...)
