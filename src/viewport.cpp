@@ -56,10 +56,7 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
     m_strNamePopupKey = m_strName + "_popup";
 
     m_pCamera = new Camera(this);
-
-    
 }
-
 
 Viewport::~Viewport()
 {
@@ -84,7 +81,7 @@ void Viewport::RenderFrame(float flFrameDelta)
 
     sr->RenderScene(this);
 
-    //RenderGuizmo();
+    // RenderGuizmo();
 
     m_pFBO->Disable();
 }
@@ -94,29 +91,27 @@ void Viewport::RenderGuizmo()
     if (!SelectionManager::IsGizmoEnabled())
         return;
 
-//     auto mousePos = CalcRelativeMousePos();
-//     
-// 
-//     ImGui::SetCurrentContext(m_pImGUIContext);
-//     ImGui_ImplOpenGL3_NewFrame();
-//     ImGui_ImplSDL2_NewFrame();
+    //     auto mousePos = CalcRelativeMousePos();
+    //
+    //
+    //     ImGui::SetCurrentContext(m_pImGUIContext);
+    //     ImGui_ImplOpenGL3_NewFrame();
+    //     ImGui_ImplSDL2_NewFrame();
 
     // ImGui_ImplSDL2 changes viewport area to full area of main window
 
-//     auto &io       = ImGui::GetIO();    
-//     io.DisplaySize = {m_ClientAreaSize.x, m_ClientAreaSize.y};
-    
-    
-    //ImGui::GetMainViewport()->Size = {m_ClientAreaSize.x, m_ClientAreaSize.y};
-    //ImGui::GetMainViewport()->Pos  = {-m_DisplayWidgetPosition.x, -m_DisplayWidgetPosition.y};
-    
+    //     auto &io       = ImGui::GetIO();
+    //     io.DisplaySize = {m_ClientAreaSize.x, m_ClientAreaSize.y};
 
-    //ImGui::NewFrame();
+    // ImGui::GetMainViewport()->Size = {m_ClientAreaSize.x, m_ClientAreaSize.y};
+    // ImGui::GetMainViewport()->Pos  = {-m_DisplayWidgetPosition.x, -m_DisplayWidgetPosition.y};
+
+    // ImGui::NewFrame();
 
     ObjectPropertiesEditor::Instance()->RenderGuizmo(this);
 
-//     ImGui::Render();
-//     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    //     ImGui::Render();
+    //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Viewport::DisplayRenderedFrame()
@@ -126,8 +121,8 @@ void Viewport::DisplayRenderedFrame()
         return;
     }
 
-    //if (Application::GetMainWindow()->GetState() == 0)
-//        __debugbreak();
+    // if (Application::GetMainWindow()->GetState() == 0)
+    //        __debugbreak();
 
     ImGui::PushID(this);
 
@@ -175,28 +170,23 @@ void Viewport::DisplayRenderedFrame()
 #endif
 
         auto pos        = ImGui::GetCursorPos();
-        m_ClientAreaPos = {pos.x,pos.y};
+        m_ClientAreaPos = {pos.x, pos.y};
 
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
 
-        
-
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
-        
+
         RenderGuizmo();
-
-        
     }
-    ImGui::End();
 
-    
+    OutputDebug();
+
+    ImGui::End();
 
     HandlePicker();
 
     ImGui::PopID();
-
-    
 }
 
 void Viewport::HandlePicker()
@@ -235,24 +225,21 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
         ImGui::SeparatorText("Shading");
-        
-        std::pair<RenderMode, const char *> menuItems[] = 
-        {
-            {RenderMode::Lightshaded, "Lightshaded"},
-            {RenderMode::Unshaded, "Unshaded"},
-            {RenderMode::Groups, "Groups shaded"},
-            {RenderMode::WireframeShaded, "Wireframe shaded"},
-            {RenderMode::WireframeUnshaded, "Wireframe unshaded"}
-        };
 
-        for (auto & it: menuItems)
+        std::pair<RenderMode, const char *> menuItems[] = {{RenderMode::Lightshaded, "Lightshaded"},
+                                                           {RenderMode::Unshaded, "Unshaded"},
+                                                           {RenderMode::Groups, "Groups shaded"},
+                                                           {RenderMode::WireframeShaded, "Wireframe shaded"},
+                                                           {RenderMode::WireframeUnshaded, "Wireframe unshaded"}};
+
+        for (auto &it : menuItems)
         {
-            if (ImGui::MenuItem(it.second,0, m_RenderMode == it.first))
+            if (ImGui::MenuItem(it.second, 0, m_RenderMode == it.first))
             {
                 m_RenderMode = it.first;
             }
         }
-                
+
         ImGui::SeparatorText("2D View");
         ImGui::MenuItem("Top");
         ImGui::MenuItem("Side");
@@ -268,9 +255,15 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
         if (ImGui::MenuItem("Send to other"))
         {
             IPlatformWindow *pWindow = Application::Instance()->FindWindowBySDLId(2);
-           
+
             if (pWindow)
-                m_pPlatformWindow        = pWindow;
+            {
+                m_pPlatformWindow->RemoveEventHandler(this);
+
+                m_pPlatformWindow = pWindow;
+
+                m_pPlatformWindow->AddEventHandler(this);
+            }
         }
 
         if (m_bDocked)

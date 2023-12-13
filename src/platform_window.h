@@ -5,13 +5,52 @@
 
 #pragma once
 
+#include "common.h"
+
+class IEventHandler;
+
+struct timersData
+{
+    double frame_delta            = 0;
+    int    actual_fps             = 0;
+    uint64_t timestamp_now        = 0;
+    uint64_t timestamp_last       = 0;
+    int    frames_until_init      = 3;
+    double fps_accum              = 0;
+    int    num_frames_this_second = 0;
+};
+
+
+    
+
 class IPlatformWindow
 {
 protected:
-    SDL_Window *m_pSDLWindow;    
+    SDL_Window *m_pSDLWindow = nullptr;    
     SDL_GLContext m_pGLContext;
 
-    ImGuiContext *m_pImGUIContext;
+    ImGuiContext *m_pImGUIContext = nullptr;
+
+    int m_iWindowHeight = 800;
+    int m_iWindowWidth = 600;
+
+    std::string m_strTitle;
+
+    // Window state
+    bool m_bHasMouse;
+    int  m_windowState = -1;
+
+    bool CheckImGuiEvent(SDL_Event &event);
+    bool CommonHandleEvent(SDL_Event &event);
+        
+    void HandleKeyDown(SDL_Event &event);
+    bool HandleWindowStateEvent(SDL_Event &e);
+    void HandleDropfileEvent(SDL_Event &event);
+
+    bool PropagateControlsEvent(SDL_Event &event);
+
+    timersData m_TimersData;
+
 private:
     std::list<IEventHandler *> m_vEventHandlers;
 

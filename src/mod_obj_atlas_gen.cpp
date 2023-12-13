@@ -54,7 +54,7 @@ MeshDeclWrapper::MeshDeclWrapper(mobjdata_t* modelData, size_t groupId)
 
 	}
 
-	m_MeshDecl.vertexCount = m_nUVDataCount;
+	m_MeshDecl.vertexCount = (uint32_t)m_nUVDataCount;
 	m_MeshDecl.vertexUvData = m_pUVData;
 	m_MeshDecl.vertexStride = sizeof(glm::vec2);
 

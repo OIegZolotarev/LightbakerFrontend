@@ -8,8 +8,10 @@
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
 
-SecondaryWindow::SecondaryWindow(std::string title) : m_strTitle(title)
+SecondaryWindow::SecondaryWindow(std::string title)
 {
+    m_strTitle = title;
+
     SDL_WindowFlags window_flags =
         (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MAXIMIZED);
     m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
@@ -20,6 +22,8 @@ SecondaryWindow::SecondaryWindow(std::string title) : m_strTitle(title)
     IPlatformWindow *w = Application::GetMainWindow();
 
     m_pGLContext = w->GLContext();
+
+    
 
     InitImGuiContext();
 
@@ -35,8 +39,11 @@ SecondaryWindow::~SecondaryWindow()
 
 void SecondaryWindow::LoopStep()
 {
+    float flFrameDelta = Application::GetMainWindow()->FrameDelta();
     Application::GetMainWindow()->ClearBackground();
     
+    ViewportsOrchestrator::Instance()->RenderViewports(this, flFrameDelta);
+
     ImGui::SetCurrentContext(m_pImGUIContext);
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -61,9 +68,7 @@ void SecondaryWindow::IterateUpdate()
 
 bool SecondaryWindow::HandleEvent(SDL_Event &event)
 {
-    ImGui::SetCurrentContext(m_pImGUIContext);
-    ImGui_ImplSDL2_ProcessEvent(&event);
-    return true;
+    return CommonHandleEvent(event);
 }
 
 void SecondaryWindow::InitImGuiContext()

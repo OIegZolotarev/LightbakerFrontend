@@ -32,16 +32,7 @@ struct statusBarData
     //    std::string zoom              = "Zoom: ";
 };
 
-struct timersData
-{
-    double frame_delta            = 0;
-    int    actual_fps             = 0;
-    Uint64 timestamp_now          = 0;
-    Uint64 timestamp_last         = 0;
-    int    frames_until_init      = 3;
-    double fps_accum              = 0;
-    int    num_frames_this_second = 0;
-};
+
 
 typedef struct defaultDockSides_s
 {
@@ -65,31 +56,30 @@ public:
 
     void IterateUpdate() override;
 
-    int                 Width();
-    int                 Height();
+    int Width();
+    int Height();
 
-    SDL_Window *        Handle();
-    
-    DebugConsole *      Console();
-    SceneRenderer *     GetSceneRenderer();
-    
+    SDL_Window *Handle();
+
+    DebugConsole * Console();
+    SceneRenderer *GetSceneRenderer();
+
     void                UpdateDocks();
     defaultDockSides_s *GetDockSides();
-    
-    float               FrameDelta();
-    int                 GetFPS();
 
-    void                ClearBackground();
-    Viewport *          GetViewport(int index);
-    void                CloneViewport(Viewport *pViewport);
+    float FrameDelta();
+    int   GetFPS();
 
-    void                SetTitle(std::string &fileName);
-    void                UpdateStatusbar(int updateFlags);
-        
-    
-    int                 GetState();
-    bool                HandleEvent(SDL_Event &event) override;
-    
+    void      ClearBackground();
+    Viewport *GetViewport(int index);
+    void      CloneViewport(Viewport *pViewport);
+
+    void SetTitle(std::string &fileName);
+    void UpdateStatusbar(int updateFlags);
+
+    int  GetState();
+    bool HandleEvent(SDL_Event &event) override;
+
     void InitStuff();
 
 private:
@@ -107,26 +97,7 @@ private:
     bool  RenderToolbarIcon(GLuint iconId);
     float RenderMainMenu();
     float RenderMainToolbar(float menuHeight);
-
-    std::string m_strTitle;
-
-    int m_iWindowHeight;
-    int m_iWindowWidth;
-
-    
-
-    timersData m_TimersData;
-
-    bool CheckImGuiEvent(SDL_Event &event);
-
-    void HandleKeyDown(SDL_Event &e);
-    void HandleDropfileEvent(SDL_Event &e);
-    bool HandleWindowStateEvent(SDL_Event &e);
-
-    // Window state
-    bool m_bHasMouse;
-    int  m_windowState = -1;
-
+        
     void UpdateTimers();
     void GL_BeginFrame();
 
@@ -151,7 +122,7 @@ private:
     void InitBackend();
     void InitTimers();
     void InitCommands();
-    void InitBackgroundRenderer();    
+    void InitBackgroundRenderer();
     void InitViewports();
     void InitImGUISDL2Platform() override;
 
@@ -175,6 +146,4 @@ private:
     DrawMesh *     m_pBackgroundMesh;
 
     statusBarData m_statusBarData;
-
-    
 };

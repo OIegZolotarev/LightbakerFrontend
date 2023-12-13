@@ -228,23 +228,6 @@ void Application::ExecuteBaking()
 		m_bWaitingForBakingToFinish = true;
 		m_pLightBakerApplication->ExecuteBaking(lmMeshFile.c_str());
 	}
-
-// 	auto sceneRenderer = m_pMainWindow->GetSceneRenderer();
-// 
-// 	if (!sceneRenderer->IsModelLoaded())
-// 		return;
-// 	
-// 
-
-// 	
-// 	auto modelName = sceneRenderer->GetModelFileName();
-// 	auto baseDir = m_pFileSystem->BaseDirectoryFromFileName(modelName.c_str());
-// 	auto fileName = m_pFileSystem->BaseName(modelName);
-// 
-// 	auto exportedModel = std::format("{0}/{1}_exported.obj", baseDir, fileName);
-// 	
-// 	sceneRenderer->ExportModelForCompiling(nullptr);	
-// 	m_pLightBakerApplication->ExecuteBaking(exportedModel.c_str());
 }
 
 void Application::CheckIfBakngFinished()
@@ -341,11 +324,6 @@ void Application::FlagToDoBakingAgain()
 
 void Application::ParseLightBakerProgressMessage(std::string & captured)
 {
-	//__debugbreak();
-	//Con_Printf("C: %s", captured.c_str());
-	//m_strBakingStatus = captured;
-
-
 	std::regex word_regex("(.+), Elapsed:(.+), Remaining:(.+)");
 	auto words_begin = std::sregex_iterator(captured.begin(), captured.end(), word_regex);
 	auto words_end = std::sregex_iterator();

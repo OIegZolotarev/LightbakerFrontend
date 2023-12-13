@@ -10,7 +10,6 @@
 
 class SecondaryWindow: public IPlatformWindow
 {
-    std::string m_strTitle;
     std::string m_strImGuiIniPath;
 
 public:
