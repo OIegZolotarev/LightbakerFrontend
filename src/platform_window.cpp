@@ -44,3 +44,37 @@ SDL_GLContext &IPlatformWindow::GLContext()
 {
     return m_pGLContext;
 }
+
+void IPlatformWindow::RemoveEventHandler(IEventHandler *param1)
+{
+    m_vEventHandlers.remove_if([&](IEventHandler *t) { return t == param1; });
+}
+
+const char *IPlatformWindow::GetDescription()
+{
+    return m_strTitle.c_str();
+}
+
+bool IPlatformWindow::HasMouseInside()
+{
+    return m_bHasMouse;
+}
+
+glm::ivec2 IPlatformWindow::CenterPointRel()
+{
+    return {m_iWindowWidth / 2, m_iWindowHeight / 2};
+}
+
+SDL_Window *IPlatformWindow::SDLHandle()
+{
+    return m_pSDLWindow;
+}
+
+glm::ivec2 IPlatformWindow::CenterPointGlobal()
+{
+    int x, y;
+    SDL_GetWindowPosition(m_pSDLWindow, &x, &y);
+
+    return {x + m_iWindowWidth / 2, y + m_iWindowHeight / 2}; 
+
+}

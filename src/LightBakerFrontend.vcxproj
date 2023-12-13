@@ -197,6 +197,7 @@ build.bat
     <ClCompile Include="..\include\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\include\imgui\imgui_widgets.cpp" />
     <ClCompile Include="..\include\imgui\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="..\include\sdl-event-to-string\sdl_event_to_string.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process.cpp" />
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
@@ -297,6 +298,7 @@ build.bat
     <ClInclude Include="..\include\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\include\imgui\imstb_textedit.h" />
     <ClInclude Include="..\include\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\include\sdl-event-to-string\sdl_event_to_string.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="bsp_entities_properties_binding.h" />

@@ -41,4 +41,12 @@ public:
     bool IsTerminated();
 
     SDL_GLContext & GLContext();
+
+
+    void RemoveEventHandler(IEventHandler * handler);
+    const char *GetDescription();
+    bool        HasMouseInside();
+    glm::ivec2  CenterPointRel();
+    SDL_Window *SDLHandle();
+    glm::ivec2  CenterPointGlobal();
 };

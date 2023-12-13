@@ -37,7 +37,9 @@ class Application
 	bool m_bTerminated = false;
 
 	std::list<IPlatformWindow *> m_lstWindows;
-    	
+    bool             m_bEventsRedirectionEnabled = false;
+    IPlatformWindow *m_pEventsRedirectionTarget = nullptr; 	
+
 public:
 	// Конструкторы\доступ
 	~Application();
@@ -88,6 +90,9 @@ public:
 
 	void Terminate();
     IPlatformWindow *FindWindowBySDLId(size_t sdlid);
+    void             SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow);
+
+
 };
  
  inline int Con_Printf(const char* fmt, ...)

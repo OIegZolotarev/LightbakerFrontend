@@ -3,15 +3,16 @@
     (c) 2022 CrazyRussian
 */
 
+
 #include "application.h"
-#include "r_camera.h"
 #include "common.h"
+#include "r_camera.h"
 
 #include <algorithm>
 
 //#define OLD_GL
 
-Camera::Camera(Viewport * pViewport)
+Camera::Camera(Viewport *pViewport)
 {
     auto settings = Application::Instance()->GetPersistentStorage();
 
@@ -33,7 +34,7 @@ Camera::Camera(Viewport * pViewport)
     m_matProjection = glm::mat4(1.f);
 
     SetupCommonKeystrokesCallbacks();
-    SetupKeystrokes();    
+    SetupKeystrokes();
 
     m_pViewport = pViewport;
 }
@@ -140,7 +141,7 @@ void Camera::SetupKeystrokesBlender()
 
 void Camera::SetupCommonKeystrokesCallbacks()
 {
-#define DEBUG_KEYSTROKES 
+#define DEBUG_KEYSTROKES
 
     callbackRotate = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackRotate(%d)\n", bHit);
@@ -188,16 +189,13 @@ void Camera::SetupCommonKeystrokesCallbacks()
     });
 
     callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
-        
-        if (bHit)
-            Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
-
-
+        // if (bHit)
+        // Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
 
         if (bHit)
         {
             auto windowHandle = Application::GetMainWindow()->Handle();
-            //auto viewport     = Application::GetMainWindow()->Get3DGLViewport();
+            // auto viewport     = Application::GetMainWindow()->Get3DGLViewport();
 
             int winWidth  = Application::GetMainWindow()->Width();
             int winHeight = Application::GetMainWindow()->Height();
@@ -211,20 +209,22 @@ void Camera::SetupCommonKeystrokesCallbacks()
 
             m_bFPSNavigation = !m_bFPSNavigation;
 
-            Con_Printf("FPS state %d in %s\n", m_bFPSNavigation, m_pViewport->Name());
+            // Con_Printf("FPS state %d in %s\n", m_bFPSNavigation, m_pViewport->Name());
 
             if (m_bFPSNavigation)
             {
+                Application::Instance()->SetupEventsRedirection(true, m_pViewport->GetPlatformWindow());
                 Application::Instance()->HideMouseCursor();
-                SDL_SetRelativeMouseMode(SDL_TRUE);                           
+                SDL_SetRelativeMouseMode(SDL_TRUE);
             }
             else
             {
-                 Application::Instance()->ShowMouseCursor();
-                 SDL_SetRelativeMouseMode(SDL_FALSE);
-                 m_Mode = CameraMouseModes::None;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                Application::Instance()->ShowMouseCursor();
+                Application::Instance()->SetupEventsRedirection(false, m_pViewport->GetPlatformWindow());                
+                
+                m_Mode = CameraMouseModes::None;
             }
-
         }
     });
 
@@ -284,11 +284,11 @@ void Camera::Apply(float flFrameDelta)
     SetupPerspectiveMatrix();
 
     glDepthRange(0, 1);
-    
+
 #ifdef OLD_GL
     glMatrixMode(GL_MODELVIEW);
 #endif
-    
+
     SetupModelViewMatrix();
 
     m_Frustum.InitPerspective(this);
@@ -316,12 +316,12 @@ const glm::mat4 Camera::GetProjectionMatrix() const
     return m_matProjection;
 }
 
-float* Camera::GetViewMatrixPtr() const
+float *Camera::GetViewMatrixPtr() const
 {
-    return (float*)&m_matModelView[0][0];
+    return (float *)&m_matModelView[0][0];
 }
 
-float* Camera::GetProjectionMatrixPtr() const
+float *Camera::GetProjectionMatrixPtr() const
 {
     return (float *)&m_matProjection[0][0];
 }
@@ -348,7 +348,7 @@ int Camera::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
 }
 
 void Camera::UpdateOrientation(float flFrameDelta)
-{    
+{
     bool recalcPosition = CalcMovementSpeeds(flFrameDelta);
 
     if (m_bFPSNavigation)
@@ -375,13 +375,10 @@ void Camera::UpdateOrientation(float flFrameDelta)
             m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
                         (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
                         (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
-
-
-        
     }
 
     if (recalcPosition)
-        Application::GetMainWindow()->UpdateStatusbar(1<<StatusbarField::Position);
+        Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::Position);
 }
 
 bool Camera::CalcMovementSpeeds(float flFrameDelta)
@@ -502,7 +499,7 @@ Frustum *Camera::GetFrustum()
 
 glm::vec3 Camera::GetMoveSpeed()
 {
-    return *(glm::vec3*)(m_IdealMoveSpeeds);
+    return *(glm::vec3 *)(m_IdealMoveSpeeds);
 }
 
 bool Camera::IsFPSNavigationEngaged()
@@ -587,12 +584,12 @@ void Camera::SetUpSpeed(const int moveSpeed)
     m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
-int Camera::MouseMotionEvent(SDL_Event & _event, float flFrameDelta)
+int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
 {
     auto  event  = _event.motion;
     float flDist = m_pMoveSpeed->GetFloat();
 
-    //Con_Printf("MouseMotion: %d %d [%d]\n", event.xrel, event.yrel, m_Mode);
+    // Con_Printf("MouseMotion: %d %d [%d]\n", event.xrel, event.yrel, m_Mode);
 
     switch (m_Mode)
     {
@@ -608,8 +605,6 @@ int Camera::MouseMotionEvent(SDL_Event & _event, float flFrameDelta)
     case CameraMouseModes::Rotate: {
         float xDelta = event.xrel;
         float yDelta = event.yrel;
-        
-        
 
         m_Angles[PITCH] += yDelta * m_pCameraSensivityRotation->GetFloat();
         m_Angles[YAW] += xDelta * m_pCameraSensivityRotation->GetFloat();
@@ -682,9 +677,9 @@ int Camera::ButtonEvent(SDL_Event &_event)
         return 0;
 }
 
-int Camera::MouseWheelEvent(SDL_Event & _event, float flFrameDelta)
+int Camera::MouseWheelEvent(SDL_Event &_event, float flFrameDelta)
 {
-    auto event = _event.motion;    
+    auto  event  = _event.motion;
     float flDist = glm::length(m_Origin);
 
     if (isnan(flDist))
@@ -758,8 +753,6 @@ void Camera::SetupPerspectiveMatrix()
 
 void Camera::SetupModelViewMatrix()
 {
-
-
     m_matModelView = glm::mat4(1);
 
     glm::mat4 ident;
@@ -798,10 +791,10 @@ void Camera::SetupModelViewMatrix()
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 
-    #ifdef OLD_GL
+#ifdef OLD_GL
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf((float *)&m_matModelView);
-    #endif
+#endif
 
     auto matInv = glm::inverse(m_matModelView);
 

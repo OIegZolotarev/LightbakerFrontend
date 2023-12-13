@@ -17,6 +17,7 @@
 #ifndef LINUX
 #include <corecrt_malloc.h>
 #endif
+
 #include "hammer_fgd.h"
 #include "r_editor_grid.h"
 #include "secondary_window.h"
@@ -37,6 +38,26 @@ IPlatformWindow *Application::FindWindowBySDLId(size_t sdlid)
             return it;
 
     return nullptr;
+}
+
+//#include <windows.h>
+
+void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow)
+{
+    m_bEventsRedirectionEnabled = enabled;
+    m_pEventsRedirectionTarget  = targetWindow;
+
+	if (!enabled && targetWindow)
+    {
+		// TODO: save pointer position before enabling redirection 
+		// and returning it back there?
+
+        SDL_Window *pWindow = targetWindow->SDLHandle();
+        glm::ivec2   centerPoint = targetWindow->CenterPointGlobal();
+
+		SDL_WarpMouseGlobal((int)centerPoint.x, (int)centerPoint.y);
+	}
+
 }
 
 Application::~Application()
@@ -60,6 +81,8 @@ Application::~Application()
 	
 }
 
+#include <sdl-event-to-string\sdl_event_to_string.h>
+
 void Application::Run()
 {
     bool loop = false;
@@ -69,11 +92,44 @@ void Application::Run()
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-			// TODO: windowId not present in all event types, some events should be handled by application class
-            IPlatformWindow *pTarget = FindWindowBySDLId(event.window.windowID);
+			IPlatformWindow *pTarget = nullptr;
 
+			if (m_bEventsRedirectionEnabled && m_pEventsRedirectionTarget != nullptr)
+            {
+                pTarget = m_pEventsRedirectionTarget;
+            }			
+            else
+            {
+				// Input events are sent to window hovered by mouse
+				switch (event.type)
+                {
+                case SDL_KEYDOWN:
+                case SDL_KEYUP:
+                case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEBUTTONDOWN:
+                    for (auto &it : m_lstWindows)
+                    {
+                        if (it->HasMouseInside())
+                        {
+                            pTarget = it;
+                            break;
+                        }
+                    }
+                    break;
+
+                default:
+                    // TODO: windowId not present in all event types, some events should be handled by application class
+                    pTarget = FindWindowBySDLId(event.window.windowID);
+                    break;
+				}	
+            }
+						
 			if (pTarget && !pTarget->IsTerminated())
             {
+                std::string str = sdlEventToString(event);
+
+                Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
+
                 bool bResult = pTarget->HandleEvent(event);
                 
 				if (!bResult)

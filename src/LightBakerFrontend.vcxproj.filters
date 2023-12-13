@@ -93,6 +93,9 @@
     <Filter Include="Исходные файлы\EntitiesWavefront">
       <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\sdl-event-to-string">
+      <UniqueIdentifier>{7c270831-8f2d-41ef-8625-be10bd97898a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -382,6 +385,9 @@
     </ClCompile>
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\sdl-event-to-string\sdl_event_to_string.cpp">
+      <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -696,6 +702,9 @@
     </ClInclude>
     <ClInclude Include="goldsource_bsp_asynch_loader.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\sdl-event-to-string\sdl_event_to_string.h">
+      <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
