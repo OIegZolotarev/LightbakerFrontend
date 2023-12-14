@@ -324,6 +324,11 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
     return gIDMainDockspace;
 }
 
+bool MainWindow::IsMainWindow()
+{
+    return true;
+}
+
 void MainWindow::InitViewports()
 {
     auto vo = ViewportsOrchestrator::Instance();

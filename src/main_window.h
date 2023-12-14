@@ -146,4 +146,7 @@ private:
     DrawMesh *     m_pBackgroundMesh;
 
     statusBarData m_statusBarData;
+
+protected:
+    bool IsMainWindow() override;
 };

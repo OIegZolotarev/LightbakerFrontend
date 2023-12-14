@@ -51,6 +51,8 @@ protected:
 
     timersData m_TimersData;
 
+    virtual bool IsMainWindow();
+
 private:
     std::list<IEventHandler *> m_vEventHandlers;
 

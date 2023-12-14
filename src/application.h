@@ -91,8 +91,6 @@ public:
 	void Terminate();
     IPlatformWindow *FindWindowBySDLId(size_t sdlid);
     void             SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow);
-
-
 };
  
  inline int Con_Printf(const char* fmt, ...)

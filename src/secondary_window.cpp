@@ -33,7 +33,7 @@ SecondaryWindow::SecondaryWindow(std::string title)
 
 SecondaryWindow::~SecondaryWindow()
 {
-    if (m_pGLContext) SDL_GL_DeleteContext(m_pGLContext);
+    //if (m_pGLContext) SDL_GL_DeleteContext(m_pGLContext);
     if (m_pSDLWindow) SDL_DestroyWindow(m_pSDLWindow);
 }
 

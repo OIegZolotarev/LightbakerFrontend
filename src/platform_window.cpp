@@ -4,11 +4,11 @@
 */
 
 #include "platform_window.h"
+#include "application.h"
 #include "common.h"
 #include "imgui_internal.h"
 #include "selection_3d.h"
 #include "ui_common.h"
-#include "application.h"
 
 bool IPlatformWindow::CheckImGuiEvent(SDL_Event &event)
 {
@@ -102,9 +102,10 @@ bool IPlatformWindow::HandleWindowStateEvent(SDL_Event &e)
     switch (e.window.event)
     {
     case SDL_WINDOWEVENT_CLOSE:
-        Application::Instance()->Terminate();
+        if (IsMainWindow())
+            Application::Instance()->Terminate();
+
         return false;
-        break;
     case SDL_WINDOWEVENT_RESTORED:
         m_windowState   = 1;
         bUpdateViewport = true;
@@ -166,6 +167,11 @@ bool IPlatformWindow::PropagateControlsEvent(SDL_Event &event)
     }
 
     return bWasHandled;
+}
+
+bool IPlatformWindow::IsMainWindow()
+{
+    return false;
 }
 
 IPlatformWindow::~IPlatformWindow()
@@ -237,6 +243,5 @@ glm::ivec2 IPlatformWindow::CenterPointGlobal()
     int x, y;
     SDL_GetWindowPosition(m_pSDLWindow, &x, &y);
 
-    return {x + m_iWindowWidth / 2, y + m_iWindowHeight / 2}; 
-
+    return {x + m_iWindowWidth / 2, y + m_iWindowHeight / 2};
 }
