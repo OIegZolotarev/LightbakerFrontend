@@ -7,7 +7,6 @@
 
 #include "common.h"
 #include "editor_grid_shader.h"
-#include "geometry_selection_shader.h"
 #include "helper_geometry_shader.h"
 #include "lightmapped_scene_shader.h"
 #include "gl_shader.h"
@@ -110,8 +109,7 @@ class GLBackend
     // Scene render modes
     LightMappedSceneShaderProgram *m_pLightmappedSceneShader   = nullptr;
     DiffuseSceneShaderProgram *m_pDiffuseSceneShader           = nullptr;
-    GroupShadedSceneShaderProgram *m_pGroupShadedSceneShader   = nullptr;
-    GeometrySelectionShaderProgram *m_pGeometrySelectionShader = nullptr;
+    GroupShadedSceneShaderProgram *m_pGroupShadedSceneShader   = nullptr;    
     SpotlightConeShaderProgram *m_pSpotlightConeShader         = nullptr;    
 
     friend DrawMesh;
@@ -140,7 +138,6 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    const GeometrySelectionShaderProgram *GeometrySelectionShader() const;
     const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
     const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
     const GroupShadedSceneShaderProgram *GroupShadedSceneShader() const;

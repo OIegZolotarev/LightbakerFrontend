@@ -260,9 +260,6 @@
     <ClCompile Include="helper_geometry_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
-    <ClCompile Include="geometry_selection_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
     <ClCompile Include="editor_grid_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
@@ -572,9 +569,6 @@
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="helper_geometry_shader.h">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClInclude>
-    <ClInclude Include="geometry_selection_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="editor_grid_shader.h">

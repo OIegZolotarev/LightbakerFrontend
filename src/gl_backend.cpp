@@ -316,17 +316,10 @@ void GLBackend::DeleteAllShaders()
 {
     if (m_pLightmappedSceneShader)
         delete m_pLightmappedSceneShader;
-    if (m_pGeometrySelectionShader)
-        delete m_pGeometrySelectionShader;
     if (m_pSpotlightConeShader)
         delete m_pSpotlightConeShader;
     if (m_pDiffuseSceneShader)
         delete m_pDiffuseSceneShader;
-}
-
-const GeometrySelectionShaderProgram *GLBackend::GeometrySelectionShader() const
-{
-    return m_pGeometrySelectionShader;
 }
 
 const LightMappedSceneShaderProgram *GLBackend::LightMappedSceneShader() const
@@ -361,7 +354,6 @@ void GLBackend::ReloadAllShaders()
     m_pSolidGeometryShader     = QueryShader("res/glprogs/solidcolor_geom.glsl", {});
 
     m_pLightmappedSceneShader  = new LightMappedSceneShaderProgram;
-    m_pGeometrySelectionShader = new GeometrySelectionShaderProgram;
     m_pSpotlightConeShader     = new SpotlightConeShaderProgram;
 
     m_pGroupShadedSceneShader = new GroupShadedSceneShaderProgram;
