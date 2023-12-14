@@ -22,14 +22,18 @@ enum class DockPanels
 	TopRight,
 };
 
+class IPlatformWindow;
+
 class IGUIPanel
 {
 protected:
 	char* m_strPanelTitle = nullptr;
 	PanelsId m_id = PanelsId::None;
+
+	IPlatformWindow *m_pOwningWindow;
+
 private:
 	bool m_bDefaultPositionChecked = false;
-
 	void ResetPosition();
 public:
 	//	ImGui::DockBuilderDockWindow(strTabModelDisplay, Application::GetDockId(ImGuiDir_Down));

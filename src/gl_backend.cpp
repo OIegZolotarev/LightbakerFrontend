@@ -61,14 +61,7 @@ void DrawMesh::Unbind()
 
 void DrawMesh::Begin(GLenum mode)
 {
-//     if (m_vboId != 0)
-//         glDeleteBuffers(1, &m_vboId);
-// 
-//     if (m_vaoId != 0)
-//         glDeleteVertexArrays(1, &m_vaoId);
-
     m_drawMode = mode;
-
 
     if (!m_vboId)
         glGenBuffers(1, &m_vboId);
