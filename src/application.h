@@ -40,6 +40,8 @@ class Application
     bool             m_bEventsRedirectionEnabled = false;
     IPlatformWindow *m_pEventsRedirectionTarget = nullptr; 	
 
+	int SuggestMonitorForNewWindow();
+
 public:
 	// Конструкторы\доступ
 	~Application();

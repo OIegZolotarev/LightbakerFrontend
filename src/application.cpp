@@ -31,6 +31,41 @@ Application::Application()
     m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
 
+int Application::SuggestMonitorForNewWindow()
+{
+    int nMonitors = SDL_GetNumVideoDisplays();
+
+    if (nMonitors > 1)
+    {
+        int *monitorsUsage = new int[nMonitors];
+        memset(monitorsUsage, 0, sizeof(int) * nMonitors);
+
+        for (auto &it : m_lstWindows)
+        {
+            int index = SDL_GetWindowDisplayIndex(it->SDLHandle());
+            monitorsUsage[index]++;
+        }
+
+        int leastCluttered = 0;
+        int leastWindows   = 99999;
+
+        for (int i = 0; i < nMonitors; i++)
+        {
+            if (monitorsUsage[i] < leastWindows)
+            {
+                leastCluttered = i;
+                leastWindows   = monitorsUsage[i];
+            }
+        }
+
+        delete[] monitorsUsage;
+
+        return leastCluttered;
+    }
+
+    return 0;
+}
+
 IPlatformWindow *Application::FindWindowBySDLId(size_t sdlid)
 {
     for (auto &it : m_lstWindows)
@@ -87,7 +122,8 @@ void Application::Run()
         m_lstWindows.remove_if([](IPlatformWindow *wind) {
             if (wind->IsTerminated())
             {
-                //ViewportsOrchestrator::Instance()->DestroyWindowViewports(wind);
+                // TODO: review when will be optimizing FBO usage
+                ViewportsOrchestrator::Instance()->DestroyWindowViewports(wind);
                 delete wind;
                 return true;
             }
@@ -163,9 +199,12 @@ void Application::InitMainWindow()
     m_pMainWindow->InitStuff();
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() {
+        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() 
+            {
+            int displayIndex = SuggestMonitorForNewWindow();
+
             static size_t    m_counter  = 1;
-            SecondaryWindow *pNewWindow = new SecondaryWindow(std::format("New window {0}", m_counter++));
+            SecondaryWindow *pNewWindow = new SecondaryWindow(std::format("New window {0}", m_counter++), displayIndex);
 
             m_lstWindows.push_back(pNewWindow);
         }));

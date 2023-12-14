@@ -8,16 +8,17 @@
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
 
-SecondaryWindow::SecondaryWindow(std::string title)
+SecondaryWindow::SecondaryWindow(std::string t, int monitorIndex)
 {
-    m_strTitle = title;
+    m_strTitle = t;
 
     SDL_WindowFlags window_flags =
         (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_MAXIMIZED);
-    m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800,
+    m_pSDLWindow = SDL_CreateWindow(m_strTitle.c_str(), SDL_WINDOWPOS_CENTERED_DISPLAY(monitorIndex),
+                                    SDL_WINDOWPOS_CENTERED_DISPLAY(monitorIndex), 800,
                                     600, window_flags);
 
-    std::string threadName = std::format("SecodaryWindow (%s) thread", title.c_str());
+    std::string threadName = std::format("SecodaryWindow (%s) thread", t.c_str());
  
     IPlatformWindow *w = Application::GetMainWindow();
 

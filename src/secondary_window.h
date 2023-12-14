@@ -13,7 +13,7 @@ class SecondaryWindow: public IPlatformWindow
     std::string m_strImGuiIniPath;
 
 public:
-    SecondaryWindow(std::string t);
+    SecondaryWindow(std::string t, int monitorIndex);
     ~SecondaryWindow();
     
     void LoopStep();
