@@ -902,6 +902,8 @@ bool MainWindow::RenderToolbarIcon(GLuint iconId)
 
 void MainWindow::GL_BeginFrame()
 {
+    glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
+
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
 
@@ -919,7 +921,7 @@ void MainWindow::GL_BeginFrame()
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
+    
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
 }

@@ -93,6 +93,11 @@ public:
 	void Terminate();
     IPlatformWindow *FindWindowBySDLId(size_t sdlid);
     void             SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow);
+
+	std::list<IPlatformWindow *> &GetAllWindows()
+    {
+        return m_lstWindows;
+    }
 };
  
  inline int Con_Printf(const char* fmt, ...)

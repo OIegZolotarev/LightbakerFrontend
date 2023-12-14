@@ -252,18 +252,25 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             DoCloneViewport();
         }
 
-        if (ImGui::MenuItem("Send to other"))
+        if (ImGui::BeginMenu("Send to other window"))
         {
-            IPlatformWindow *pWindow = Application::Instance()->FindWindowBySDLId(2);
+            auto & lstWindow = Application::Instance()->GetAllWindows();
 
-            if (pWindow)
+            for (auto & it: lstWindow)
             {
-                m_pPlatformWindow->RemoveEventHandler(this);
-
-                m_pPlatformWindow = pWindow;
-
-                m_pPlatformWindow->AddEventHandler(this);
+                if (ImGui::MenuItem(it->GetDescription(),0, it == m_pPlatformWindow))
+                {
+                    if (it != m_pPlatformWindow)
+                    {
+                        m_pPlatformWindow->RemoveEventHandler(this);
+                        m_pPlatformWindow = it;
+                        m_pPlatformWindow->AddEventHandler(this);
+                    }
+                }
             }
+
+            ImGui::EndMenu();
+
         }
 
         if (m_bDocked)
