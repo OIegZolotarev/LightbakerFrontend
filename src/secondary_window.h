@@ -18,9 +18,12 @@ public:
     
     void LoopStep();
 
+    void RenderUI();
+
     void IterateUpdate() override;
     bool HandleEvent(SDL_Event &event) override;
 
 private:
     void InitImGuiContext();
+    void GL_BeginFrame();
 };

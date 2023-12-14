@@ -51,7 +51,7 @@ class HammerGameConfiguration : public GameConfiguration
     
     ~HammerGameConfiguration();
 
-    FGDEntityClass *LookupFGDClass(const std::string &classname);
+    FGDEntityClassWeakPtr LookupFGDClass(const std::string &classname);
 
     void Deserialize(std::string & fileName);
     void Serialize(std::string fileName) const override;

@@ -31,9 +31,11 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
 {   
     FGDPropertyDescriptor *propDescr = nullptr;
 
-    if (m_pFGDClass)
+    auto fgdClassPtr = m_pFGDClass.lock();
+    
+    if (fgdClassPtr)
     {
-        propDescr = m_pFGDClass->FindProperty(key);
+        propDescr = fgdClassPtr->FindProperty(key);
     }
 
     size_t prophash = BSPEntityProperty::CalcHash(key);
@@ -80,15 +82,17 @@ BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
 
 void BSPEntity::PopulateScene()
 {
-    if (m_pFGDClass)
+    auto classPtr = m_pFGDClass.lock();
+
+    if (classPtr)
     {
-        SetMins(m_pFGDClass->GetMins());
-        SetMaxs(m_pFGDClass->GetMaxs());
+        SetMins(classPtr->GetMins());
+        SetMaxs(classPtr->GetMaxs());
         
         if (!m_bIsSetColor)
-            SetColor(m_pFGDClass->GetColor());
+            SetColor(classPtr->GetColor());
 
-        m_pEditorSprite = m_pFGDClass->GetEditorSpite();
+        m_pEditorSprite = classPtr->GetEditorSpite();
     }
     else
     {
@@ -191,11 +195,13 @@ glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
     return glm::vec4(color.r, color.g, color.b, intensity);
 }
 
-void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
+void GoldSource::BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
 {
     m_pFGDClass = pClass;
 
-    if (!m_pFGDClass)
+    auto classPtr = m_pFGDClass.lock();
+
+    if (!classPtr)
         return;
 
     for (auto & it: m_lstProperties)        
@@ -203,11 +209,11 @@ void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
         if (it->PropertyDescriptor())
             continue;
 
-        auto descr = m_pFGDClass->FindProperty(it->Name());
+        auto descr = classPtr->FindProperty(it->Name());
         it->SetDescriptor(descr);       
     }
 
-    for (auto &fgdProp : pClass->GetProperties())
+    for (auto &fgdProp : classPtr->GetProperties())
     {
         auto hash = BSPEntityProperty::CalcHash(fgdProp->GetName());
 
@@ -221,7 +227,7 @@ void BSPEntity::SetFGDClass(FGDEntityClass *pClass)
 
 }
 
-GoldSource::FGDEntityClass *BSPEntity::GetFGDClass()
+GoldSource::FGDEntityClassWeakPtr BSPEntity::GetFGDClass()
 {
     return m_pFGDClass;
 }

@@ -27,15 +27,13 @@ HammerFGDFile::HammerFGDFile(FileData *fd)
 
 HammerFGDFile::~HammerFGDFile()
 {
-    for (auto &kv : m_Entities)
-    {
-        delete kv.second;
-    }
+    
 }
 
 void HammerFGDFile::AddEntityClass(FGDEntityClass *entityDef)
 {
-    classesMapping_t ttt = classesMapping_t(entityDef->ClassName(), entityDef);
+    FGDEntityClassSharedPtr ptr = FGDEntityClassSharedPtr(entityDef);
+    classesMapping_t  ttt = classesMapping_t(entityDef->ClassName(), ptr);
     m_Entities.insert(ttt);
 }
 
@@ -43,16 +41,22 @@ void HammerFGDFile::RelinkInheritedProperties()
 {
     for (auto &kv : m_Entities)
     {
-        FGDEntityClass *classDef = kv.second;
+        FGDEntityClassSharedPtr classDef = kv.second;
         classDef->RelinkInheritedProperties(this);
     }
 }
 
-GoldSource::FGDEntityClass * GoldSource::HammerFGDFile::FindEntityClass(const std::string &baseClassStr)
+std::string &HammerFGDFile::FileName()
+{
+    return m_strFileName;
+}
+
+GoldSource::FGDEntityClassWeakPtr GoldSource::HammerFGDFile::FindEntityClass(const std::string &baseClassStr)
 {
     if (!m_Entities.contains(baseClassStr))
-        return nullptr;
+        return FGDEntityClassWeakPtr();
 
+    // TODO: FIXME
     return m_Entities[baseClassStr];
 }
 
@@ -130,7 +134,9 @@ void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile *pOwner)
 {
     for (auto &baseClassStr : m_BaseClasses)
     {
-        FGDEntityClass *baseClass = pOwner->FindEntityClass(baseClassStr);
+        FGDEntityClassWeakPtr weakRef = pOwner->FindEntityClass(baseClassStr);
+
+        auto baseClass = weakRef.lock();
 
         if (!baseClass)
             continue;
@@ -156,7 +162,9 @@ void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile *pOwner)
 
     for (auto it = m_BaseClasses.rbegin(); it != m_BaseClasses.rend(); it++)
     {
-        FGDEntityClass *baseClass = pOwner->FindEntityClass(*it);
+        auto weakRef = pOwner->FindEntityClass(*it);
+
+        auto baseClass = weakRef.lock();
 
         if (!baseClass)
             continue;

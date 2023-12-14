@@ -46,7 +46,7 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
     if (multipleClasses)
     {
         m_strObjectsClassname = std::format("{0} objects", m_lstSelectedObjects.size());
-        m_pSelectedClass      = nullptr;
+        m_pSelectedClass      = FGDEntityClassWeakPtr();
     }
     else
     {
@@ -94,13 +94,15 @@ ImGuizmo::OPERATION BSPEntitiesPropertiesBinder::GetMeaningfulGizmoOperationMode
 
 void BSPEntitiesPropertiesBinder::RenderFooter()
 {
-    if (!m_pSelectedClass)
+    auto classPtr = m_pSelectedClass.lock();
+
+    if (!classPtr)
         return;
 
-    auto descr = m_pSelectedClass->Description();
+    auto & descr = classPtr->Description();
 
     if (!descr.empty())
-        ImGui::TextWrapped("%s - %s", m_pSelectedClass->ClassName().c_str(), descr.c_str());
+        ImGui::TextWrapped("%s - %s", classPtr->ClassName().c_str(), descr.c_str());
 }
 
 const char *BSPEntitiesPropertiesBinder::ObjectClassname()

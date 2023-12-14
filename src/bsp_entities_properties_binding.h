@@ -6,11 +6,10 @@
 #pragma once
 #include "object_props.h"
 #include "scene_entity.h"
+#include "hammer_fgd.h"
 
 namespace GoldSource
 {
-
-class FGDEntityClass;
 
 class BSPEntityProperty;
 
@@ -25,7 +24,7 @@ class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
     void CleanupDeadObjects();
     void CleanupPropertiesList();
 
-    FGDEntityClass *m_pSelectedClass = nullptr;
+    FGDEntityClassWeakPtr m_pSelectedClass;
 
 public:
 

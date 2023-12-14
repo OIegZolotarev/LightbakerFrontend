@@ -7,6 +7,7 @@
 #include "application.h"
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
+#include "ui_styles_manager.h"
 
 SecondaryWindow::SecondaryWindow(std::string t, int monitorIndex)
 {
@@ -40,11 +41,18 @@ SecondaryWindow::~SecondaryWindow()
 
 void SecondaryWindow::LoopStep()
 {
+    GL_BeginFrame();
+
     float flFrameDelta = Application::GetMainWindow()->FrameDelta();
     Application::GetMainWindow()->ClearBackground();
-    
+
     ViewportsOrchestrator::Instance()->RenderViewports(this, flFrameDelta);
 
+    RenderUI();
+}
+
+void SecondaryWindow::RenderUI()
+{
     ImGui::SetCurrentContext(m_pImGUIContext);
 
     ImGui_ImplOpenGL3_NewFrame();
@@ -52,8 +60,7 @@ void SecondaryWindow::LoopStep()
 
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
-    
-    
+
     ViewportsOrchestrator::Instance()->DisplayViewports(this);
 
     ImGui::Render();
@@ -94,7 +101,14 @@ void SecondaryWindow::InitImGuiContext()
     ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
     ImGui_ImplOpenGL3_Init("#version 330");
     
+    UIStyles::Manager::Instance()->ApplyCurrentStyle();
+
     // Restore current context
     ImGui::SetCurrentContext(currentCont);
+}
+
+void SecondaryWindow::GL_BeginFrame()
+{
+    glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 }
 

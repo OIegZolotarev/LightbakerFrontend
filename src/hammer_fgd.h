@@ -207,12 +207,15 @@ private:
     GLTexture *m_pEditorSprite = nullptr;
 };
 
+typedef std::shared_ptr<FGDEntityClass> FGDEntityClassSharedPtr;
+typedef std::weak_ptr<FGDEntityClass> FGDEntityClassWeakPtr;
+
 class HammerFGDFile
 {
     FileData *m_pFileData = nullptr;
 
-    typedef std::pair<std::string, FGDEntityClass *>  classesMapping_t;
-    std::unordered_map<std::string, FGDEntityClass *> m_Entities;
+    typedef std::pair<std::string, FGDEntityClassSharedPtr> classesMapping_t;
+    std::unordered_map<std::string, FGDEntityClassSharedPtr> m_Entities;
 
 public:
     HammerFGDFile(FileData *fd);
@@ -220,15 +223,12 @@ public:
 
     char *Data();
 
-    std::string &FileName()
-    {
-        return m_strFileName;
-    }
+    std::string &FileName();
 
     void AddEntityClass(FGDEntityClass *entityDef);
     void RelinkInheritedProperties();
 
-    FGDEntityClass *FindEntityClass(const std::string &baseClassStr);
+    FGDEntityClassWeakPtr FindEntityClass(const std::string &baseClassStr);
     std::string     AbsoluteResourcePath(std::string &m_EditorSprite);
 
 private:

@@ -909,10 +909,6 @@ void MainWindow::GL_BeginFrame()
 
     glClearDepth(1);
 
-    // 	if (settingMultisample->GetAsBool())
-    // 		glEnable(GL_MULTISAMPLE);
-    // 	else
-    //
     glDisable(GL_MULTISAMPLE);
 
     // glClearColor(0.25, .25, .25, 1);
@@ -920,8 +916,6 @@ void MainWindow::GL_BeginFrame()
     ClearBackground();
 
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
 }

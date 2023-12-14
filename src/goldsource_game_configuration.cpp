@@ -300,17 +300,17 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     fd->UnRef();
 }
 
-GoldSource::FGDEntityClass * GoldSource::HammerGameConfiguration::LookupFGDClass(const std::string &classname)
+GoldSource::FGDEntityClassWeakPtr GoldSource::HammerGameConfiguration::LookupFGDClass(const std::string &classname)
 {
     for (auto &it : m_lstFGDData)
     {
         auto fgdClass = it->FindEntityClass(classname);
 
-        if (fgdClass)
+        if (!fgdClass.expired())
             return fgdClass;
     }
 
-    return nullptr;
+    return FGDEntityClassWeakPtr();
 }
 
 void HammerGameConfiguration::ParseGameInfo()

@@ -18,7 +18,7 @@ class BSPEntityProperty;
 
 class BSPEntity : public SceneEntity
 {
-    FGDEntityClass *m_pFGDClass = nullptr;
+    FGDEntityClassWeakPtr m_pFGDClass;
 
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
@@ -53,8 +53,8 @@ public:
     bool                            HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
-    void            SetFGDClass(FGDEntityClass *pClass);
-    FGDEntityClass *GetFGDClass();
+    void SetFGDClass(FGDEntityClassWeakPtr pClass);
+    FGDEntityClassWeakPtr GetFGDClass();
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
