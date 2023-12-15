@@ -732,6 +732,9 @@ void MainWindow::RenderGUI()
     //    printf("ImGui::NewFrame()\n");
     ImGui::NewFrame();
 
+    if (m_bUpdateImGuiStyleNextFrame)
+        UIStyles::Manager::Instance()->ApplyCurrentStyle();
+
     if (delayInit > 0)
     {
         delayInit--;

@@ -28,6 +28,16 @@ void UIStyles::Manager::SelectNewStyle(size_t index)
 	}
 }
 
+void Manager::ScheduleStyleUpdateForAllWindows()
+{
+    auto &lst = Application::Instance()->GetAllWindows();
+
+	for (auto & it: lst)
+    {
+        it->ScheduleImGuiStyleUpdate();
+	}
+}
+
 Manager::~Manager()
 {
 	ClearPointersVector(m_Styles);

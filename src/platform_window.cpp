@@ -245,3 +245,8 @@ glm::ivec2 IPlatformWindow::CenterPointGlobal()
 
     return {x + m_iWindowWidth / 2, y + m_iWindowHeight / 2};
 }
+
+void IPlatformWindow::ScheduleImGuiStyleUpdate()
+{
+    m_bUpdateImGuiStyleNextFrame = true;
+}

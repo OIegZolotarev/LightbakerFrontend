@@ -61,6 +61,9 @@ void SecondaryWindow::RenderUI()
     ImGui::NewFrame();
     ImGui::ShowDemoWindow();
 
+    if (m_bUpdateImGuiStyleNextFrame)
+        UIStyles::Manager::Instance()->ApplyCurrentStyle();
+
     ViewportsOrchestrator::Instance()->DisplayViewports(this);
 
     ImGui::Render();

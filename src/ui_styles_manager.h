@@ -61,5 +61,6 @@ public:
 
 	void PopulateStylesOption(VariantValue* pOption);	
 	void ApplyCurrentStyle();
+    void ScheduleStyleUpdateForAllWindows();
 };
 }

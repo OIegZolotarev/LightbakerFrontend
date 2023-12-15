@@ -20,9 +20,6 @@ struct timersData
     int    num_frames_this_second = 0;
 };
 
-
-    
-
 class IPlatformWindow
 {
 protected:
@@ -53,10 +50,14 @@ protected:
 
     virtual bool IsMainWindow();
 
+    bool m_bUpdateImGuiStyleNextFrame;
+
 private:
     std::list<IEventHandler *> m_vEventHandlers;
 
     bool m_bTerminated = false;
+    
+
 public:
     IPlatformWindow() = default;
     virtual ~IPlatformWindow();
@@ -90,4 +91,6 @@ public:
     glm::ivec2  CenterPointRel();
     SDL_Window *SDLHandle();
     glm::ivec2  CenterPointGlobal();
+
+    void ScheduleImGuiStyleUpdate();
 };
