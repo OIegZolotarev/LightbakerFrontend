@@ -75,3 +75,6 @@ namespace TextUtils
 }
 
 const char *VA(const char *format, ...);
+
+#undef strlcpy
+size_t strlcpy(char *dst, const char *src, size_t maxlen);

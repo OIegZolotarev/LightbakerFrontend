@@ -220,6 +220,7 @@ typedef struct dstudiomodel10_s
     int numverts;      // number of unique vertices
     int vertinfoindex; // vertex bone info
     int vertindex;     // vertex vec3_t
+
     int numnorms;      // number of unique surface normals
     int norminfoindex; // normal bone info
     int normindex;     // normal vec3_t
@@ -227,8 +228,6 @@ typedef struct dstudiomodel10_s
     int numgroups; // deformation groups
     int groupindex;
 } dstudiomodel10_t;
-
-// vec3_t	boundingbox[model][bone][2];	// complex intersection info
 
 // meshes
 typedef struct dstudiomesh10_s
