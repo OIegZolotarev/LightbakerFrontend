@@ -11,6 +11,7 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "r_camera.h"
+#include "mdl_v10_goldsource.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -41,6 +42,11 @@ void Scene::LoadLevel(const char *levelName, int loadFlags)
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
+
+    auto fd = FileSystem::Instance()->LoadFile("res/mesh/sample.mdl");
+    pTestModel = new GoldSource::StudioModelV10(fd);
+    fd->UnRef();
+
 }
 
 Scene::~Scene()
@@ -162,6 +168,8 @@ void Scene::RenderLightShaded()
 
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
+
+    pTestModel->DebugRender();
 
     for (auto &it : m_SceneEntities)
     {

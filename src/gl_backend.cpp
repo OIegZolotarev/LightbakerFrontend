@@ -59,19 +59,28 @@ void DrawMesh::Unbind()
     glBindVertexArray(0);
 }
 
-void DrawMesh::Begin(GLenum mode)
+void DrawMesh::Begin(GLenum mode, bool draft)
 {
     m_drawMode = mode;
 
+    if (!draft)
+    {
+        if (!m_vboId)
+            glGenBuffers(1, &m_vboId);
+
+        if (!m_vaoId)
+            glGenVertexArrays(1, &m_vaoId);
+    }
+}
+
+void DrawMesh::End()
+{
     if (!m_vboId)
         glGenBuffers(1, &m_vboId);
 
     if (!m_vaoId)
         glGenVertexArrays(1, &m_vaoId);
-}
 
-void DrawMesh::End()
-{
     glBindVertexArray(m_vaoId);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_vboId);
@@ -245,6 +254,21 @@ void DrawMesh::TexCoord2fv(float *v)
 void DrawMesh::Element1i(size_t idx)
 {
     m_Indices.push_back((uint32_t)idx);
+}
+
+uint32_t DrawMesh::FirstElement(size_t offset)
+{
+    return m_Indices[offset];
+}
+
+uint32_t DrawMesh::LastElement(size_t offset)
+{
+    return m_Indices[(m_Indices.size() - 1) - offset];
+}
+
+size_t DrawMesh::CurrentIndex()
+{
+    return m_Indices.size();
 }
 
 size_t DrawMesh::CurrentElement()

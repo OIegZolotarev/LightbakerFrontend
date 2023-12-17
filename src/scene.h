@@ -19,6 +19,12 @@ enum class LevelFormat
     BSP
 };
 
+namespace GoldSource
+{
+class StudioModelV10;
+};
+
+
 class Scene
 {
     lightBakerSettings_s        m_lightBakerParams;
@@ -40,6 +46,8 @@ class Scene
 
     void ClearEntities();
     void LoadLevel(const char *levelName);
+
+     GoldSource::StudioModelV10 *pTestModel;
 
 public:
     Scene();

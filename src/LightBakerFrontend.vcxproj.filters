@@ -390,7 +390,7 @@
       <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClCompile>
     <ClCompile Include="mdl_v10_goldsource.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\GoldSource\MDL</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

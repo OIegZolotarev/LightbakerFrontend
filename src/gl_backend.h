@@ -57,7 +57,7 @@ class DrawMesh
     void Draw(uint32_t first = 0, uint32_t num = 0);
     void Unbind();
 
-    void Begin(GLenum mode);
+    void Begin(GLenum mode, bool draft = false);
     void End();
 
     void Vertex2f(float x, float y);
@@ -82,7 +82,10 @@ class DrawMesh
     void TexCoord2fv(float *v);
 
     void Element1i(size_t idx);
-
+    uint32_t FirstElement(size_t offset);
+    uint32_t LastElement(size_t offset);
+       
+    size_t CurrentIndex();
     size_t CurrentElement();
 
     void BindAndDraw();

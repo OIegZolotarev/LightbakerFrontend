@@ -4,15 +4,25 @@
 */
 
 #include "mdl_v10_goldsource.h"
-#include "file_system.h"
+#include "application.h"
+#include "common.h"
+#include "mathlib.h"
+#include "gl_backend.h"
 
 using namespace GoldSource;
+
+struct
+{
+    glm::vec4   boneAdj;
+    glm::mat4x4 boneTransform[MAXSTUDIOBONES];
+} g_StudioRenderState;
 
 StudioBoneV10::StudioBoneV10(dstudiobone10_t *pBone)
 {
     strlcpy(m_strName, pBone->name, sizeof(m_strName));
 
-    m_iFlags = pBone->flags;
+    m_iFlags  = pBone->flags;
+    m_iParent = pBone->parent;
 
     for (int i = 0; i < 6; i++)
     {
@@ -22,14 +32,9 @@ StudioBoneV10::StudioBoneV10(dstudiobone10_t *pBone)
     }
 }
 
-void StudioBoneV10::SetParent(StudioBoneV10 *pBone)
+int StudioBoneV10::GetParent()
 {
-    m_pParent = pBone;
-}
-
-StudioBoneV10 *StudioBoneV10::GetParent()
-{
-    return m_pParent;
+    return m_iParent;
 }
 
 StudioModelV10::StudioModelV10(FileData *fd)
@@ -41,6 +46,17 @@ StudioModelV10::StudioModelV10(FileData *fd)
         return;
 
     m_pFileData = fd;
+
+        // Skins
+
+    m_iNumSkinFamilies = hdr->skins.num_items;
+
+    short *skinRefs = (short *)(fd->Data() + hdr->skins.index);
+    m_vSkins.reserve(hdr->skins.num_items);
+    for (int i = 0; i < hdr->skins.num_items; i++)
+    {
+        m_vSkins.push_back(skinRefs[i]);
+    }
 
     // Bones
 
@@ -76,7 +92,7 @@ StudioModelV10::StudioModelV10(FileData *fd)
     m_vSeqGroups.reserve(hdr->seqgroups.num_items);
 
     for (int i = 0; i < hdr->seqgroups.num_items; i++)
-        m_vSeqGroups.push_back(StudioSeqGroupV10(&pSeqGroups[i]));
+        m_vSeqGroups.push_back(StudioSeqGroupV10(fd->Data(), &pSeqGroups[i]));
 
     // Textures
 
@@ -85,13 +101,488 @@ StudioModelV10::StudioModelV10(FileData *fd)
     m_vTextures.reserve(hdr->textures.num_items);
 
     for (int i = 0; i < hdr->textures.num_items; i++)
-        m_vTextures.push_back(StudioTextureV10(fd->Data(),&pTexture[i]));
-    
-        
+        m_vTextures.push_back(StudioTextureV10(fd->Data(), &pTexture[i]));
+
+    // Bodyparts
+
+    dstudiobodypart10_t *pBodyPart = (dstudiobodypart10_t *)(fd->Data() + hdr->bodyparts.index);
+
+    m_vBodyParts.reserve(hdr->bodyparts.num_items);
+
+    for (int i = 0; i < hdr->bodyparts.num_items; i++)
+    {
+        m_vBodyParts.push_back(StudioBodyPartV10(this, &pBodyPart[i]));
+    }
+
+    // Attachments
+
+    dstudioattachment10_t *pAttachments = (dstudioattachment10_t *)(fd->Data() + hdr->attachments.index);
+
+    m_vAttachments.reserve(hdr->attachments.num_items);
+
+    for (int i = 0; i < hdr->attachments.num_items; i++)
+    {
+        m_vAttachments.push_back(StudioAttachmentV10(&pAttachments[i]));
+    }
+
+    fd->Ref();
+
 }
 
 StudioModelV10::~StudioModelV10()
 {
+}
+
+void StudioModelV10::DebugRender()
+{
+    StudioEntityState state;
+    memset(&state, 0, sizeof(state));
+
+    m_EntityState = &state;
+
+    SetupBones();
+
+    for (int i = 0; i < (int)m_vBodyParts.size(); i++)
+    {
+        const StudioSubModelV10 *subModel = SetupModel(i);
+        subModel->DrawPoints();
+    }
+}
+
+int StudioModelV10::SetBodygroup(int iGroup, int iValue)
+{
+    if (iGroup > m_vBodyParts.size())
+        return -1;
+
+    StudioBodyPartV10 &bodyPart = m_vBodyParts[iGroup];
+
+    int bpBase      = bodyPart.Base();
+    int bpNumModels = bodyPart.NumModels();
+
+    int iCurrent = (m_EntityState->bodynum / bpBase) % bpNumModels;
+
+    if (iValue >= bodyPart.NumModels())
+        return iCurrent;
+
+    m_EntityState->bodynum = (m_EntityState->bodynum - (iCurrent * bpBase) + (iValue * bpBase));
+
+    return iValue;
+}
+
+int StudioModelV10::SetSkin(int iValue)
+{
+    if (iValue < m_iNumSkinFamilies)
+    {
+        return m_EntityState->skin;
+    }
+
+    m_EntityState->skin;
+
+    return iValue;
+}
+
+int StudioModelV10::SetSequence(int iSequence)
+{
+    if (iSequence >= m_vSequences.size())
+        iSequence = 0;
+
+    if (iSequence < 0)
+        iSequence = (int)m_vSequences.size() - iSequence;
+
+    m_EntityState->sequence = iSequence;
+    m_EntityState->frame    = 0;
+
+    return iSequence;
+}
+
+float StudioModelV10::SetBlending(int iBlender, float flValue)
+{
+    StudioSeqDescV10 *                   pSeqDesc = &m_vSequences[m_EntityState->sequence];
+    const StudioSeqDescV10::blendInfo_s *info     = pSeqDesc->GetBlendInfo(iBlender);
+
+    if (info->type == 0)
+        return flValue;
+
+    if (info->type & (STUDIO_XR | STUDIO_YR | STUDIO_ZR))
+    {
+        // ugly hack, invert value if end < start
+        if (info->end < info->start)
+            flValue = -flValue;
+
+        // does the controller not wrap?
+        if (info->start + 359.0 >= info->end)
+        {
+            if (flValue > ((info->start + info->end) / 2.0) + 180)
+                flValue = flValue - 360;
+            if (flValue < ((info->start + info->end) / 2.0) - 180)
+                flValue = flValue + 360;
+        }
+    }
+
+    int setting = 255 * (flValue - info->start) / (info->end - info->start);
+
+    if (setting < 0)
+        setting = 0;
+    if (setting > 255)
+        setting = 255;
+
+    m_EntityState->blending[iBlender] = setting;
+
+    return setting * (1.0 / 255.0) * (info->end - info->start) + info->start;
+}
+
+void StudioModelV10::SetupBones(void)
+{
+    static glm::vec3 pos[MAXSTUDIOBONES];
+    static glm::quat q[MAXSTUDIOBONES];
+
+    static glm::vec3 pos2[MAXSTUDIOBONES];
+    static glm::quat q2[MAXSTUDIOBONES];
+    static glm::vec3 pos3[MAXSTUDIOBONES];
+    static glm::quat q3[MAXSTUDIOBONES];
+    static glm::vec3 pos4[MAXSTUDIOBONES];
+    static glm::quat q4[MAXSTUDIOBONES];
+
+    StudioSeqDescV10 *pSeqDesc = &m_vSequences[m_EntityState->sequence];
+    dstudioanim10_t * pAnim    = GetAnim(pSeqDesc);
+
+    CalcRotations(pos, q, pSeqDesc, pAnim, m_EntityState->frame);
+
+    if (pSeqDesc->NumBlends() > 1)
+    {
+        float  s;
+        size_t nBones = m_vBones.size();
+
+        pAnim += nBones;
+
+        CalcRotations(pos2, q2, pSeqDesc, pAnim, m_EntityState->frame);
+        s = m_EntityState->blending[0] / 255.0;
+
+        SlerpBones(q, pos, q2, pos2, s);
+
+        if (pSeqDesc->NumBlends() == 4)
+        {
+            pAnim += nBones;
+            CalcRotations(pos3, q3, pSeqDesc, pAnim, m_EntityState->frame);
+
+            pAnim += nBones;
+            CalcRotations(pos4, q4, pSeqDesc, pAnim, m_EntityState->frame);
+
+            s = m_EntityState->blending[0] / 255.0;
+            SlerpBones(q3, pos3, q4, pos4, s);
+
+            s = m_EntityState->blending[1] / 255.0;
+            SlerpBones(q, pos, q3, pos3, s);
+        }
+    }
+
+    for (size_t i = 0; i < m_vBones.size(); i++)
+    {
+        glm::mat4x4 boneMatrix = glm::toMat4(q[i]);
+
+        boneMatrix[0][3] = pos[i][0];
+        boneMatrix[1][3] = pos[i][1];
+        boneMatrix[2][3] = pos[i][2];
+
+        int parentBone = m_vBones[i].GetParent();
+
+        if (parentBone != -1)
+        {
+            g_StudioRenderState.boneTransform[i] = boneMatrix;
+        }
+        else
+        {
+            g_StudioRenderState.boneTransform[i] = g_StudioRenderState.boneTransform[parentBone] * boneMatrix;
+        }
+    }
+}
+
+GoldSource::dstudioanim10_t *StudioModelV10::GetAnim(StudioSeqDescV10 *pSeqDesc)
+{
+    StudioSeqGroupV10 *pGroup = &m_vSeqGroups[pSeqDesc->SequenceGroup()];
+    return pGroup->GetAnimation(pSeqDesc);
+}
+
+void StudioModelV10::CalcBoneAdj()
+{
+    float value;
+
+    int j = 0;
+
+    for (auto &it : m_vBoneControllers)
+    {
+        int i = it.Index();
+
+        int   type       = it.Type();
+        float controller = m_EntityState->controller[i];
+
+        if (i <= 3)
+        {
+            // check for 360% wrapping
+            if (type & STUDIO_RLOOP)
+            {
+                value = controller * (360.0 / 256.0) + it.Start();
+            }
+            else
+            {
+                value = controller / 255.0;
+                value = std::clamp(value, 0.f, 1.f);
+                value = (1.0f - value) * it.Start() + value * it.End();
+            }
+        }
+        else
+        {
+            value = m_EntityState->mouth / 64.0;
+            if (value > 1.0)
+                value = 1.0;
+            value = (1.0 - value) * it.Start() + value * it.End();
+        }
+
+        switch (it.Type() & STUDIO_TYPES)
+        {
+        case STUDIO_XR:
+        case STUDIO_YR:
+        case STUDIO_ZR:
+            g_StudioRenderState.boneAdj[j] = value * (glm::pi<float>() / 180.0f);
+            break;
+        case STUDIO_X:
+        case STUDIO_Y:
+        case STUDIO_Z:
+            g_StudioRenderState.boneAdj[j] = value;
+            break;
+        }
+
+        j++;
+    }
+}
+
+void GoldSource::StudioModelV10::CalcRotations(glm::vec3 *pos, glm::quat *q, StudioSeqDescV10 *pSeqDesc,
+                                               dstudioanim10_t *pAnim, float f)
+{
+    int   frame;
+    float s;
+
+    frame = (int)f;
+    s     = (f - frame);
+
+    // add in programatic controllers
+    CalcBoneAdj();
+
+    for (size_t i = 0; i < m_vBones.size(); i++)
+    {
+        CalcBoneQuaternion(frame, s, &m_vBones[i], &pAnim[i], q[i]);
+        CalcBonePosition(frame, s, &m_vBones[i], &pAnim[i], pos[i]);
+    }
+
+    int motionType = pSeqDesc->MotionType();
+    int motionBone = pSeqDesc->MotionBone();
+
+    if (motionType & STUDIO_X)
+        pos[motionBone][0] = 0.0;
+    if (motionType & STUDIO_Y)
+        pos[motionBone][1] = 0.0;
+    if (motionType & STUDIO_Z)
+        pos[motionBone][2] = 0.0;
+}
+
+void StudioModelV10::CalcBoneQuaternion(int frame, float s, StudioBoneV10 *pBone, dstudioanim10_t *pAnim,
+                                                    glm::quat &q)
+{
+    int                   j, k;
+    glm::quat             q1, q2;
+    glm::vec3             angle1, angle2;
+    dstudioanimvalue10_t *pAnimValue;
+
+    for (j = 0; j < 3; j++)
+    {
+        auto dofInfo = pBone->GetDofInfo(j);
+
+        if (pAnim->offset[j + 3] == 0)
+        {
+            angle2[j] = angle1[j] = dofInfo->value; // default;
+        }
+        else
+        {
+            pAnimValue = (dstudioanimvalue10_t *)((byte *)pAnim + pAnim->offset[j + 3]);
+            k          = frame;
+
+            while (pAnimValue->num.total <= k)
+            {
+                k -= pAnimValue->num.total;
+                pAnimValue += pAnimValue->num.valid + 1;
+            }
+            // Bah, missing blend!
+            if (pAnimValue->num.valid > k)
+            {
+                angle1[j] = pAnimValue[k + 1].value;
+
+                if (pAnimValue->num.valid > k + 1)
+                {
+                    angle2[j] = pAnimValue[k + 2].value;
+                }
+                else
+                {
+                    if (pAnimValue->num.total > k + 1)
+                        angle2[j] = angle1[j];
+                    else
+                        angle2[j] = pAnimValue[pAnimValue->num.valid + 2].value;
+                }
+            }
+            else
+            {
+                angle1[j] = pAnimValue[pAnimValue->num.valid].value;
+                if (pAnimValue->num.total > k + 1)
+                {
+                    angle2[j] = angle1[j];
+                }
+                else
+                {
+                    angle2[j] = pAnimValue[pAnimValue->num.valid + 2].value;
+                }
+            }
+
+            angle1[j] = dofInfo->value + angle1[j] * dofInfo->scale;
+            angle2[j] = dofInfo->value + angle2[j] * dofInfo->scale;
+        }
+
+        if (dofInfo->controller != -1)
+        {
+            angle1[j] += g_StudioRenderState.boneAdj[dofInfo->controller];
+            angle2[j] += g_StudioRenderState.boneAdj[dofInfo->controller];
+        }
+    }
+
+    if (angle1 != angle2)
+    {
+        q1 = glm::quat(angle1);
+        q2 = glm::quat(angle2);
+
+        q = glm::slerp(q1, q2, s);
+    }
+    else
+    {
+        q = glm::quat(angle1);
+    }
+}
+
+byte *StudioModelV10::Header()
+{
+    return m_pFileData->Data();
+}
+
+const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) const
+{
+    int index;
+
+    if (bodypart > m_vBodyParts.size() - 1)
+    {
+        Con_Printf("StudioModelV10::SetupModel: no such bodypart %d\n", bodypart);
+        bodypart = 0;
+    }
+
+    auto &bodyPart = m_vBodyParts[bodypart];
+
+    index = m_EntityState->bodynum / bodyPart.Base();
+    index = index % bodyPart.NumModels();
+
+    return bodyPart.SubModel(index);
+}
+
+GoldSource::StudioTextureV10 *StudioModelV10::GetTexture(short textureIdx)
+{
+    // Out of bounds should be handled by stl lib
+    //assert(textureIdx >= 0 && textureIdx < m_vTextures.size());
+    return &m_vTextures[textureIdx];
+}
+
+short StudioModelV10::GetSkinRef(int skinref)
+{
+    return m_vSkins[skinref];
+}
+
+void StudioModelV10::SlerpBones(glm::quat *q1, glm::vec3 *pos1, glm::quat *q2, glm::vec3 *pos2, float s)
+{
+    int       i;
+    glm::quat q3;
+    float     s1;
+
+    if (s < 0)
+        s = 0;
+    else if (s > 1.0)
+        s = 1.0;
+
+    s1 = 1.0 - s;
+
+    for (i = 0; i < m_vBones.size(); i++)
+    {
+        q3 = glm::slerp(q1[i], q2[i], s);
+
+        q1[i][0]   = q3[0];
+        q1[i][1]   = q3[1];
+        q1[i][2]   = q3[2];
+        q1[i][3]   = q3[3];
+        pos1[i][0] = pos1[i][0] * s1 + pos2[i][0] * s;
+        pos1[i][1] = pos1[i][1] * s1 + pos2[i][1] * s;
+        pos1[i][2] = pos1[i][2] * s1 + pos2[i][2] * s;
+    }
+}
+
+void StudioModelV10::CalcBonePosition(int frame, float s, StudioBoneV10 *pBone, dstudioanim10_t *pAnim, glm::vec3 &pos)
+{
+    int                   j, k;
+    dstudioanimvalue10_t *pAnimValue;
+
+    for (j = 0; j < 3; j++)
+    {
+        StudioBoneV10::dofInfo_s *dofInfo = pBone->GetDofInfo(j);
+
+        pos[j] = dofInfo->value; // default;
+
+        if (pAnim->offset[j] != 0)
+        {
+            pAnimValue = (dstudioanimvalue10_t *)((byte *)pAnim + pAnim->offset[j]);
+
+            k = frame;
+
+            // find span of values that includes the frame we want
+            while (pAnimValue->num.total <= k)
+            {
+                k -= pAnimValue->num.total;
+                pAnimValue += pAnimValue->num.valid + 1;
+            }
+            // if we're inside the span
+            if (pAnimValue->num.valid > k)
+            {
+                // and there's more data in the span
+                if (pAnimValue->num.valid > k + 1)
+                {
+                    pos[j] += (pAnimValue[k + 1].value * (1.0 - s) + s * pAnimValue[k + 2].value) * dofInfo->scale;
+                }
+                else
+                {
+                    pos[j] += pAnimValue[k + 1].value * dofInfo->scale;
+                }
+            }
+            else
+            {
+                // are we at the end of the repeating values section and there's another section with data?
+                if (pAnimValue->num.total <= k + 1)
+                {
+                    pos[j] += (pAnimValue[pAnimValue->num.valid].value * (1.0 - s) +
+                               s * pAnimValue[pAnimValue->num.valid + 2].value) *
+                              dofInfo->scale;
+                }
+                else
+                {
+                    pos[j] += pAnimValue[pAnimValue->num.valid].value * dofInfo->scale;
+                }
+            }
+        }
+        if (dofInfo->controller != -1)
+        {
+            pos[j] += g_StudioRenderState.boneAdj[dofInfo->controller];
+        }
+    }
 }
 
 StudioHitBoxV10::StudioHitBoxV10(dstudiobbox10_t *pBox)
@@ -117,6 +608,15 @@ StudioSeqDescV10::StudioSeqDescV10(byte *header, dstudioseqdesc10_t *pDesc)
     for (int i = 0; i < pDesc->numpivots; i++)
     {
         m_vPivots.push_back(StudioPivotV10(&pivots[i]));
+    }
+
+    //
+
+    dstudioevent10_t *events = (dstudioevent10_t *)(header + pDesc->eventindex);
+
+    for (int i = 0; i < pDesc->numevents; i++)
+    {
+        m_vEvents.push_back(StudioEventV10(&events[i]));
     }
 
     m_iNumFrames = pDesc->numframes;
@@ -151,6 +651,21 @@ StudioSeqDescV10::StudioSeqDescV10(byte *header, dstudioseqdesc10_t *pDesc)
     m_iNextSeq = pDesc->nextseq;
 }
 
+int StudioSeqDescV10::SequenceGroup()
+{
+    return m_iSeqGroup;
+}
+
+int StudioSeqDescV10::MotionType()
+{
+    return m_iMotionType;
+}
+
+int StudioSeqDescV10::MotionBone()
+{
+    return m_iMotionBone;
+}
+
 StudioPivotV10::StudioPivotV10(dstudiopivot10_t *pPivot)
 {
     m_vecOrigin = pPivot->org;
@@ -167,8 +682,10 @@ StudioEventV10::StudioEventV10(dstudioevent10_t *pEvent)
     m_iType  = pEvent->type;
 }
 
-StudioBodyPartV10::StudioBodyPartV10(byte *hdr, dstudiobodyparts10_t *pBodyPart)
+StudioBodyPartV10::StudioBodyPartV10(StudioModelV10 *pModel, dstudiobodypart10_t *pBodyPart)
 {
+    byte *hdr = pModel->Header();
+
     strlcpy(m_strName, pBodyPart->name, sizeof(m_strName));
     m_iBase = pBodyPart->base;
 
@@ -178,30 +695,205 @@ StudioBodyPartV10::StudioBodyPartV10(byte *hdr, dstudiobodyparts10_t *pBodyPart)
 
     for (int i = 0; i < pBodyPart->nummodels; i++)
     {
-        m_vModels.push_back(StudioSubModelV10(hdr, &models[i]));
+        m_vModels.push_back(StudioSubModelV10(pModel, &models[i]));
     }
 }
 
-StudioMeshV10::StudioMeshV10(dstudiomesh10_t *pMesh)
+const int StudioBodyPartV10::Base() const
+{
+    return m_iBase;
+}
+
+const int StudioBodyPartV10::NumModels() const
+{
+    return (int)m_vModels.size();
+}
+
+StudioMeshV10::StudioMeshV10(StudioModelV10 *pModel, StudioSubModelV10 *pSubModel, dstudiomesh10_t *pMesh)
 {
     numtris   = pMesh->numtris;
     triindex  = pMesh->triindex;
     skinref   = pMesh->skinref;
     numnorms  = pMesh->numnorms;
     normindex = pMesh->normindex;
+
+    m_pModel    = pModel;
+    m_pSubmodel = pSubModel;
+
+    BuildDrawMesh();
 }
 
-StudioSubModelV10::StudioSubModelV10(byte *header, dstudiomodel10_t *pModel)
+StudioMeshV10::~StudioMeshV10()
 {
-    strlcpy(m_strName, pModel->name, sizeof(m_strName));
-    m_iType            = pModel->type;
-    m_flBoundingRadius = pModel->boundingradius;
+    if (m_pDrawMesh)
+        delete m_pDrawMesh;
+}
 
-    dstudiomesh10_s *meshes = (dstudiomesh10_t *)header + pModel->meshindex;
+void StudioMeshV10::BuildDrawMesh()
+{
+    int                i = 0;
+    float              s, t;
+    dstudiotricmd10_t *drawCmd;
+
+    m_pDrawMesh = new DrawMesh;
+    m_pDrawMesh->Begin(GL_TRIANGLES);
+    
+    
+    short *triCmds = (short *)((byte *)m_pModel->Header() + triindex);
+
+    short textureIdx = m_pModel->GetSkinRef(skinref);
+    StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
+
+     s = 1.0 / (float)pTexture->Width();
+     t = 1.0 / (float)pTexture->Height();
+
+     
+    
+     auto & verts = m_pSubmodel->GetVertices();
+     auto & normals = m_pSubmodel->GetNormals();
+
+
+    while (i = *triCmds++)
+    {
+        int type = 0;
+
+        if (i < 0)
+        {
+            type = GL_TRIANGLE_FAN;
+            i    = -i;
+        }
+        else
+        {
+            type = GL_TRIANGLE_STRIP;
+        }
+
+        drawCmd = (dstudiotricmd10_t *)(triCmds);
+
+        bool bFlip = false;
+
+        for (; i > 0; i--, drawCmd++)
+        {
+            //studioVertexFormat_t *vert = &m_vPreparedVertices[drawCmd->vertexIndex];
+
+//             vert->uv[0] = drawCmd->s * s;
+//             vert->uv[1] = drawCmd->t * t;
+// 
+//             VectorCopy(pStudioNormals[drawCmd->normalIndex], vert->normal);
+//             VectorCopy(pStudioVerts[drawCmd->vertexIndex], vert->position);
+
+
+            m_pDrawMesh->Vertex3fv((float*)&verts[drawCmd->vertindex].origin);
+
+            triCmds += 4;
+
+            if (m_pDrawMesh->CurrentIndex() < 3)
+            {
+                m_pDrawMesh->Element1i(drawCmd->vertindex);
+            }
+            else
+            {
+                switch (type)
+                {
+                case GL_TRIANGLE_FAN: {
+
+                    uint32_t firstElement = m_pDrawMesh->FirstElement(0); 
+                    uint32_t lastElement = m_pDrawMesh->LastElement(0); 
+
+                    m_pDrawMesh->Element1i(firstElement);
+                    m_pDrawMesh->Element1i(lastElement);
+                    m_pDrawMesh->Element1i(drawCmd->vertindex);
+
+                    break;
+                }
+                case GL_TRIANGLE_STRIP: {
+
+                    uint32_t lastElement = m_pDrawMesh->LastElement(0);
+                    uint32_t secondToLastElement = m_pDrawMesh->LastElement(0);
+
+
+                    if (bFlip)
+                    {                       
+                        m_pDrawMesh->Element1i(lastElement);
+                        m_pDrawMesh->Element1i(drawCmd->vertindex);
+                        m_pDrawMesh->Element1i(secondToLastElement);
+                    }
+                    else
+                    {
+                        m_pDrawMesh->Element1i(secondToLastElement);
+                        m_pDrawMesh->Element1i(lastElement);
+                        m_pDrawMesh->Element1i(drawCmd->vertindex);                        
+                    }
+
+                    bFlip = !bFlip;
+
+                    break;
+                }
+                }
+            }
+        }        
+    }
+
+    m_pDrawMesh->End();
+}
+
+void StudioMeshV10::DrawPoints()
+{
+    auto shader = GLBackend::Instance()->GroupShadedSceneShader();
+
+    shader->Bind();
+    shader->SetDefaultCamera();
+    shader->SetObjectColor(glm::vec4(1, 0, 0, 1));
+    shader->SetScale(10);    
+    shader->SetTransformIdentity();
+    
+    m_pDrawMesh->BindAndDraw();
+}
+
+StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel)
+{
+    byte *header = pMainModel->Header();
+    strlcpy(m_strName, pModel->name, sizeof(m_strName));
+
+    
+    // Vertices
+
+    glm::vec3 *verts     = (glm::vec3 *)(pMainModel->Header() + pModel->vertindex);
+    byte *     vertBones = (pMainModel->Header() + pModel->vertinfoindex);
+
+    m_vVerts.reserve(pModel->numverts);
+
+    for (int i = 0; i < pModel->numverts; i++)
+    {
+        m_vVerts.push_back(subModelVert(verts[i], vertBones[i]));
+    }
+
+    // Normals
+
+    glm::vec3 *normals   = (glm::vec3 *)(pMainModel->Header() + pModel->normindex);
+    byte *     normBones = (pMainModel->Header() + pModel->norminfoindex);
+
+    m_vNorms.reserve(pModel->numnorms);
+
+    for (int i = 0; i < pModel->numverts; i++)
+    {
+        m_vNorms.push_back(subModelNorm(verts[i], vertBones[i]));
+    }
+
+
+    dstudiomesh10_s *meshes = (dstudiomesh10_t *)(header + pModel->meshindex);
 
     for (int i = 0; i < pModel->nummesh; i++)
     {
-        m_vMeshes.push_back(StudioMeshV10(&meshes[i]));
+        m_vMeshes.push_back(new StudioMeshV10(pMainModel, this, &meshes[i]));
+    }
+
+}
+
+void StudioSubModelV10::DrawPoints() const
+{
+    for (auto & it: m_vMeshes)
+    {
+        it->DrawPoints();
     }
 }
 
@@ -213,9 +905,65 @@ StudioTextureV10::StudioTextureV10(byte *header, dstudiotexture10_t *pTexture)
     m_iHeight = pTexture->height;
 }
 
-StudioSeqGroupV10::StudioSeqGroupV10(dstudioseqgroup10_t *pGroup)
+int StudioTextureV10::Width()
+{
+    return m_iWidth;
+}
+
+int StudioTextureV10::Height()
+{
+    return m_iHeight;
+}
+
+GoldSource::StudioSeqGroupV10::StudioSeqGroupV10(byte *hdr, dstudioseqgroup10_t *pGroup)
 {
     strlcpy(m_strLabel, pGroup->label, sizeof(m_strLabel));
     strlcpy(m_strName, pGroup->name, sizeof(m_strName));
-    m_iData = pGroup->data;
+
+    // TODO: figure out how to copy only required data
+    m_pData = hdr + pGroup->data;
+}
+
+dstudioanim10_t *StudioSeqGroupV10::GetAnimation(StudioSeqDescV10 *pSeqDesc)
+{
+    if (pSeqDesc->SequenceGroup() == 0)
+    {
+        return (dstudioanim10_t *)((byte *)m_pData + pSeqDesc->AnimsIndex());
+    }
+
+    return nullptr;
+
+    // return (dstudioanim10_t *)((byte *)m_panimhdr[pseqdesc->seqgroup] + pseqdesc->animindex);
+}
+
+StudioAttachmentV10::StudioAttachmentV10(dstudioattachment10_t *pAttachment)
+{
+    strlcpy(m_strName, pAttachment->name, sizeof(m_strName));
+    m_iBone = pAttachment->bone;
+
+    m_iType = pAttachment->type;
+
+    m_Origin = pAttachment->org;
+    for (int i = 0; i < 3; i++)
+        m_Vectors[i] = pAttachment->vectors[i];
+}
+
+int StudioBoneControllerV10::Index()
+{
+    return index;
+}
+
+int StudioBoneControllerV10::Type()
+{
+    return type;
+}
+
+float StudioBoneControllerV10::Start()
+{
+    return start;
+}
+
+float StudioBoneControllerV10::End()
+{
+    return end;
 }

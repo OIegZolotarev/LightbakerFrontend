@@ -17,6 +17,7 @@ void VectorNormalize(glm::vec3 &vec)
     vec = glm::normalize(vec);
 }
 
+
 bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out)
 {
     glm::vec3 n1 = glm::normalize(plane1->normal);
