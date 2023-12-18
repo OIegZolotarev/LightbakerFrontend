@@ -48,7 +48,7 @@ using namespace GoldSource;
 
 void BSPRenderer::RecursiveWorldNode(mnode_t *node)
 {
-    int c, side, *pindex;
+    int c, side;
 //    glm::vec3 acceptpt, rejectpt;
     mplane_t *plane;
     msurface_t *surf, **mark;
@@ -307,7 +307,7 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
         t /= lmState->BlockHeight() * 16; // fa->texinfo->texture->height;
 
 
-        dw.color = {s, t, 0,0};
+        dw.ext.color = {s, t, 0,0};
 
         dw.xyz = {vec};
 
@@ -331,15 +331,15 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
         auto & v3 = m_verts[i + 2];
 
         pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
-        pMesh->Color3f(v3.color.r, v3.color.g, v3.color.b);
+        pMesh->Color3f(v3.ext.color.r, v3.ext.color.g, v3.ext.color.b);
         pMesh->Vertex3fv((float *)&v3.xyz);
 
         pMesh->TexCoord2f(v2.uv.x, v2.uv.y);
-        pMesh->Color3f(v2.color.r, v2.color.g, v2.color.b);
+        pMesh->Color3f(v2.ext.color.r, v2.ext.color.g, v2.ext.color.b);
         pMesh->Vertex3fv((float *)&v2.xyz);
 
         pMesh->TexCoord2f(v1.uv.x, v1.uv.y);
-        pMesh->Color3f(v1.color.r, v1.color.g, v1.color.b);
+        pMesh->Color3f(v1.ext.color.r, v1.ext.color.g, v1.ext.color.b);
         pMesh->Vertex3fv((float *)&v1.xyz);
 
     }

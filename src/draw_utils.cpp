@@ -8,7 +8,7 @@
 
 DrawMesh *DrawUtils::MakeWireframeBox(glm::vec3 extents)
 {
-    DrawMesh *pResult = new DrawMesh(DrawMeshFlags::NoColor | DrawMeshFlags::NoUV);
+    DrawMesh *pResult = new DrawMesh();
 
     glm::vec3 max = extents * 0.5f;
     glm::vec3 min = extents * -0.5f;
@@ -64,7 +64,7 @@ DrawMesh *DrawUtils::MakeWireframeBox(glm::vec3 extents)
 
 DrawMesh *DrawUtils::MakeWireframeSphere(float detail, float r)
 {
-    DrawMesh *pResult = new DrawMesh(DrawMeshFlags::NoColor | DrawMeshFlags::NoUV);
+    DrawMesh *pResult = new DrawMesh();
 
     pResult->Begin(GL_LINE_STRIP);
 
@@ -106,7 +106,7 @@ DrawMesh *DrawUtils::MakeWireframeSphere(float detail, float r)
 
 DrawMesh *DrawUtils::MakeWireframeCone(float detail /*= 36*/, float r /*= 1*/, float h /*= 1*/)
 {
-    DrawMesh *pResult = new DrawMesh(DrawMeshFlags::NoColor | DrawMeshFlags::NoUV);
+    DrawMesh *pResult = new DrawMesh();
 
     pResult->Begin(GL_LINES);
 
@@ -162,7 +162,7 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
     // TODO: rewrite using indices
     Icosphere s(1, detailLevel);
 
-    DrawMesh *pResult = new DrawMesh(DrawMeshFlags::NoColor | DrawMeshFlags::NoUV);
+    DrawMesh *pResult = new DrawMesh();
 
     pResult->Begin(GL_TRIANGLES);
 
