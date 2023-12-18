@@ -12,8 +12,6 @@ namespace GoldSource
 
 #define MAXSTUDIOBONES 128
 
-#pragma pack(push, 1)
-
 typedef struct dstudiolump_s
 {
     int32_t num_items;
@@ -256,8 +254,6 @@ typedef struct dstudiotricmd10_s
     int16_t normindex; // index int32_to normal array
     int16_t s, t;      // s,t position on skin
 } dstudiotricmd10_t;
-
-#pragma pack(pop, 1)
 
 // motion flags
 #define STUDIO_X     0x0001

@@ -6,8 +6,8 @@
 #include "mdl_v10_goldsource.h"
 #include "application.h"
 #include "common.h"
-#include "mathlib.h"
 #include "gl_backend.h"
+#include "mathlib.h"
 
 using namespace GoldSource;
 
@@ -47,7 +47,7 @@ StudioModelV10::StudioModelV10(FileData *fd)
 
     m_pFileData = fd;
 
-        // Skins
+    // Skins
 
     m_iNumSkinFamilies = hdr->skins.num_items;
 
@@ -126,7 +126,6 @@ StudioModelV10::StudioModelV10(FileData *fd)
     }
 
     fd->Ref();
-
 }
 
 StudioModelV10::~StudioModelV10()
@@ -385,8 +384,7 @@ void GoldSource::StudioModelV10::CalcRotations(glm::vec3 *pos, glm::quat *q, Stu
         pos[motionBone][2] = 0.0;
 }
 
-void StudioModelV10::CalcBoneQuaternion(int frame, float s, StudioBoneV10 *pBone, dstudioanim10_t *pAnim,
-                                                    glm::quat &q)
+void StudioModelV10::CalcBoneQuaternion(int frame, float s, StudioBoneV10 *pBone, dstudioanim10_t *pAnim, glm::quat &q)
 {
     int                   j, k;
     glm::quat             q1, q2;
@@ -491,7 +489,7 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
 GoldSource::StudioTextureV10 *StudioModelV10::GetTexture(short textureIdx)
 {
     // Out of bounds should be handled by stl lib
-    //assert(textureIdx >= 0 && textureIdx < m_vTextures.size());
+    // assert(textureIdx >= 0 && textureIdx < m_vTextures.size());
     return &m_vTextures[textureIdx];
 }
 
@@ -720,7 +718,9 @@ StudioMeshV10::StudioMeshV10(StudioModelV10 *pModel, StudioSubModelV10 *pSubMode
     m_pModel    = pModel;
     m_pSubmodel = pSubModel;
 
+    assert(_CrtCheckMemory());
     BuildDrawMesh();
+    assert(_CrtCheckMemory());
 }
 
 StudioMeshV10::~StudioMeshV10()
@@ -735,102 +735,85 @@ void StudioMeshV10::BuildDrawMesh()
     float              s, t;
     dstudiotricmd10_t *drawCmd;
 
+    CheckCorruption();
     m_pDrawMesh = new DrawMesh;
+    CheckCorruption();
+
     m_pDrawMesh->Begin(GL_TRIANGLES);
-    
-    
+
     short *triCmds = (short *)((byte *)m_pModel->Header() + triindex);
 
-    short textureIdx = m_pModel->GetSkinRef(skinref);
+    short             textureIdx = m_pModel->GetSkinRef(skinref);
     StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
 
-     s = 1.0 / (float)pTexture->Width();
-     t = 1.0 / (float)pTexture->Height();
+    s = 1.0 / (float)pTexture->Width();
+    t = 1.0 / (float)pTexture->Height();
 
-     
-    
-     auto & verts = m_pSubmodel->GetVertices();
-     auto & normals = m_pSubmodel->GetNormals();
+    auto &verts   = m_pSubmodel->GetVertices();
+    auto &normals = m_pSubmodel->GetNormals();
 
+    size_t numVerts = 0;
 
     while (i = *triCmds++)
     {
-        int type = 0;
+        int  vertexState = 0;
+        bool strip       = false;
 
         if (i < 0)
         {
-            type = GL_TRIANGLE_FAN;
-            i    = -i;
+            i = -i;
         }
         else
         {
-            type = GL_TRIANGLE_STRIP;
+            strip = true;
         }
 
-        drawCmd = (dstudiotricmd10_t *)(triCmds);
-
-        bool bFlip = false;
-
-        for (; i > 0; i--, drawCmd++)
+        for (; i > 0; i--, triCmds += 4)
         {
-            //studioVertexFormat_t *vert = &m_vPreparedVertices[drawCmd->vertexIndex];
+            // studioVertexFormat_t *vert = &m_vPreparedVertices[drawCmd->vertexIndex];
 
-//             vert->uv[0] = drawCmd->s * s;
-//             vert->uv[1] = drawCmd->t * t;
-// 
-//             VectorCopy(pStudioNormals[drawCmd->normalIndex], vert->normal);
-//             VectorCopy(pStudioVerts[drawCmd->vertexIndex], vert->position);
+            //             vert->uv[0] = drawCmd->s * s;
+            //             vert->uv[1] = drawCmd->t * t;
+            //
+            //             VectorCopy(pStudioNormals[drawCmd->normalIndex], vert->normal);
+            //             VectorCopy(pStudioVerts[drawCmd->vertexIndex], vert->position);
+                        
+            drawCmd = (dstudiotricmd10_t *)triCmds;
 
-
-            m_pDrawMesh->Vertex3fv((float*)&verts[drawCmd->vertindex].origin);
-
-            triCmds += 4;
-
-            if (m_pDrawMesh->CurrentIndex() < 3)
+            if (vertexState++ < 3)
             {
-                m_pDrawMesh->Element1i(drawCmd->vertindex);
+                m_pDrawMesh->Element1i(numVerts);
+            }
+            else if (strip)
+            {
+                uint32_t lastElement         = numVerts - 1;
+                uint32_t secondToLastElement = numVerts - 2;
+
+                if (vertexState & 1)
+                {
+                    m_pDrawMesh->Element1i(lastElement);
+                    m_pDrawMesh->Element1i(secondToLastElement);
+                    m_pDrawMesh->Element1i(numVerts);
+                }
+                else
+                {
+                    m_pDrawMesh->Element1i(secondToLastElement);
+                    m_pDrawMesh->Element1i(lastElement);
+                    m_pDrawMesh->Element1i(numVerts);
+                }
             }
             else
             {
-                switch (type)
-                {
-                case GL_TRIANGLE_FAN: {
 
-                    uint32_t firstElement = m_pDrawMesh->FirstElement(0); 
-                    uint32_t lastElement = m_pDrawMesh->LastElement(0); 
-
-                    m_pDrawMesh->Element1i(firstElement);
-                    m_pDrawMesh->Element1i(lastElement);
-                    m_pDrawMesh->Element1i(drawCmd->vertindex);
-
-                    break;
-                }
-                case GL_TRIANGLE_STRIP: {
-
-                    uint32_t lastElement = m_pDrawMesh->LastElement(0);
-                    uint32_t secondToLastElement = m_pDrawMesh->LastElement(0);
-
-
-                    if (bFlip)
-                    {                       
-                        m_pDrawMesh->Element1i(lastElement);
-                        m_pDrawMesh->Element1i(drawCmd->vertindex);
-                        m_pDrawMesh->Element1i(secondToLastElement);
-                    }
-                    else
-                    {
-                        m_pDrawMesh->Element1i(secondToLastElement);
-                        m_pDrawMesh->Element1i(lastElement);
-                        m_pDrawMesh->Element1i(drawCmd->vertindex);                        
-                    }
-
-                    bFlip = !bFlip;
-
-                    break;
-                }
-                }
+                m_pDrawMesh->Element1i(numVerts - (vertexState - 1));
+                m_pDrawMesh->Element1i(numVerts - 1);
+                m_pDrawMesh->Element1i(numVerts);
             }
-        }        
+
+            // m_pDrawMesh->
+            m_pDrawMesh->Vertex3fv((float *)&verts[drawCmd->vertindex].origin);
+            numVerts++;
+        }
     }
 
     m_pDrawMesh->End();
@@ -843,10 +826,16 @@ void StudioMeshV10::DrawPoints()
     shader->Bind();
     shader->SetDefaultCamera();
     shader->SetObjectColor(glm::vec4(1, 0, 0, 1));
-    shader->SetScale(10);    
+    shader->SetScale(10);
     shader->SetTransformIdentity();
-    
+
+    glDisable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
     m_pDrawMesh->BindAndDraw();
+
+    glEnable(GL_CULL_FACE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel)
@@ -854,7 +843,6 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
     byte *header = pMainModel->Header();
     strlcpy(m_strName, pModel->name, sizeof(m_strName));
 
-    
     // Vertices
 
     glm::vec3 *verts     = (glm::vec3 *)(pMainModel->Header() + pModel->vertindex);
@@ -879,19 +867,18 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
         m_vNorms.push_back(subModelNorm(verts[i], vertBones[i]));
     }
 
-
     dstudiomesh10_s *meshes = (dstudiomesh10_t *)(header + pModel->meshindex);
 
     for (int i = 0; i < pModel->nummesh; i++)
     {
+        assert(_CrtCheckMemory());
         m_vMeshes.push_back(new StudioMeshV10(pMainModel, this, &meshes[i]));
     }
-
 }
 
 void StudioSubModelV10::DrawPoints() const
 {
-    for (auto & it: m_vMeshes)
+    for (auto &it : m_vMeshes)
     {
         it->DrawPoints();
     }

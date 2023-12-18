@@ -30,3 +30,4 @@
 #define NICE_LINES
 
 
+#define CheckCorruption() assert(_CrtCheckMemory())
