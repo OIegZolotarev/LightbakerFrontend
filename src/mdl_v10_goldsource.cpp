@@ -3,11 +3,13 @@
     (c) 2023 CrazyRussian
 */
 
-#include "mdl_v10_goldsource.h"
 #include "application.h"
 #include "common.h"
+
+#include "mdl_v10_goldsource.h"
 #include "gl_backend.h"
 #include "mathlib.h"
+#include "img_indexed_from_memory.h"
 
 using namespace GoldSource;
 
@@ -49,11 +51,11 @@ StudioModelV10::StudioModelV10(FileData *fd)
 
     // Skins
 
-    m_iNumSkinFamilies = hdr->skins.num_items;
+    m_iNumSkinFamilies = hdr->num_skinref;
 
-    short *skinRefs = (short *)(fd->Data() + hdr->skins.index);
-    m_vSkins.reserve(hdr->skins.num_items);
-    for (int i = 0; i < hdr->skins.num_items; i++)
+    short *skinRefs = (short *)(fd->Data() + hdr->skins_index);
+    m_vSkins.reserve(hdr->num_skinref);
+    for (int i = 0; i < hdr->num_skinref; i++)
     {
         m_vSkins.push_back(skinRefs[i]);
     }
@@ -101,7 +103,7 @@ StudioModelV10::StudioModelV10(FileData *fd)
     m_vTextures.reserve(hdr->textures.num_items);
 
     for (int i = 0; i < hdr->textures.num_items; i++)
-        m_vTextures.push_back(StudioTextureV10(fd->Data(), &pTexture[i]));
+        m_vTextures.push_back(new StudioTextureV10(fd->Data(), &pTexture[i]));
 
     // Bodyparts
 
@@ -111,7 +113,7 @@ StudioModelV10::StudioModelV10(FileData *fd)
 
     for (int i = 0; i < hdr->bodyparts.num_items; i++)
     {
-        m_vBodyParts.push_back(StudioBodyPartV10(this, &pBodyPart[i]));
+        m_vBodyParts.push_back(new StudioBodyPartV10(this, &pBodyPart[i]));
     }
 
     // Attachments
@@ -130,7 +132,10 @@ StudioModelV10::StudioModelV10(FileData *fd)
 
 StudioModelV10::~StudioModelV10()
 {
+    ClearPointersVector(m_vTextures);
+    ClearPointersVector(m_vBodyParts);
 }
+
 
 void StudioModelV10::DebugRender()
 {
@@ -139,13 +144,19 @@ void StudioModelV10::DebugRender()
 
     m_EntityState = &state;
 
+    glCullFace(GL_FRONT);
+
     SetupBones();
 
-    for (int i = 0; i < (int)m_vBodyParts.size(); i++)
-    {
-        const StudioSubModelV10 *subModel = SetupModel(i);
-        subModel->DrawPoints();
-    }
+     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
+     {
+         const StudioSubModelV10 *subModel = SetupModel(i);
+         subModel->DrawPoints();
+     }
+
+    OverlayBones();
+
+    glCullFace(GL_BACK);
 }
 
 int StudioModelV10::SetBodygroup(int iGroup, int iValue)
@@ -153,14 +164,14 @@ int StudioModelV10::SetBodygroup(int iGroup, int iValue)
     if (iGroup > m_vBodyParts.size())
         return -1;
 
-    StudioBodyPartV10 &bodyPart = m_vBodyParts[iGroup];
+    StudioBodyPartV10* bodyPart = m_vBodyParts[iGroup];
 
-    int bpBase      = bodyPart.Base();
-    int bpNumModels = bodyPart.NumModels();
+    int bpBase      = bodyPart->Base();
+    int bpNumModels = bodyPart->NumModels();
 
     int iCurrent = (m_EntityState->bodynum / bpBase) % bpNumModels;
 
-    if (iValue >= bodyPart.NumModels())
+    if (iValue >= bodyPart->NumModels())
         return iCurrent;
 
     m_EntityState->bodynum = (m_EntityState->bodynum - (iCurrent * bpBase) + (iValue * bpBase));
@@ -230,6 +241,22 @@ float StudioModelV10::SetBlending(int iBlender, float flValue)
     return setting * (1.0 / 255.0) * (info->end - info->start) + info->start;
 }
 
+void R_ConcatTransforms(const glm::mat4x4 &in1, const glm::mat4x4 &in2, glm::mat4x4 &out)
+{
+    out[0][0] = in1[0][0] * in2[0][0] + in1[0][1] * in2[1][0] + in1[0][2] * in2[2][0];
+    out[0][1] = in1[0][0] * in2[0][1] + in1[0][1] * in2[1][1] + in1[0][2] * in2[2][1];
+    out[0][2] = in1[0][0] * in2[0][2] + in1[0][1] * in2[1][2] + in1[0][2] * in2[2][2];
+    out[0][3] = in1[0][0] * in2[0][3] + in1[0][1] * in2[1][3] + in1[0][2] * in2[2][3] + in1[0][3];
+    out[1][0] = in1[1][0] * in2[0][0] + in1[1][1] * in2[1][0] + in1[1][2] * in2[2][0];
+    out[1][1] = in1[1][0] * in2[0][1] + in1[1][1] * in2[1][1] + in1[1][2] * in2[2][1];
+    out[1][2] = in1[1][0] * in2[0][2] + in1[1][1] * in2[1][2] + in1[1][2] * in2[2][2];
+    out[1][3] = in1[1][0] * in2[0][3] + in1[1][1] * in2[1][3] + in1[1][2] * in2[2][3] + in1[1][3];
+    out[2][0] = in1[2][0] * in2[0][0] + in1[2][1] * in2[1][0] + in1[2][2] * in2[2][0];
+    out[2][1] = in1[2][0] * in2[0][1] + in1[2][1] * in2[1][1] + in1[2][2] * in2[2][1];
+    out[2][2] = in1[2][0] * in2[0][2] + in1[2][1] * in2[1][2] + in1[2][2] * in2[2][2];
+    out[2][3] = in1[2][0] * in2[0][3] + in1[2][1] * in2[1][3] + in1[2][2] * in2[2][3] + in1[2][3];
+}
+
 void StudioModelV10::SetupBones(void)
 {
     static glm::vec3 pos[MAXSTUDIOBONES];
@@ -279,19 +306,24 @@ void StudioModelV10::SetupBones(void)
     {
         glm::mat4x4 boneMatrix = glm::toMat4(q[i]);
 
+        boneMatrix = glm::transpose(boneMatrix);
+
         boneMatrix[0][3] = pos[i][0];
         boneMatrix[1][3] = pos[i][1];
         boneMatrix[2][3] = pos[i][2];
 
         int parentBone = m_vBones[i].GetParent();
 
-        if (parentBone != -1)
+        if (parentBone == -1)
         {
             g_StudioRenderState.boneTransform[i] = boneMatrix;
         }
-        else
+        else if (parentBone >= 0)
         {
-            g_StudioRenderState.boneTransform[i] = g_StudioRenderState.boneTransform[parentBone] * boneMatrix;
+            // TODO: figure out difference between R_ConcatTransforms and matrix multiplication
+            /* g_StudioRenderState.boneTransform[i] = g_StudioRenderState.boneTransform[parentBone] * boneMatrix;*/
+            R_ConcatTransforms(g_StudioRenderState.boneTransform[parentBone], boneMatrix,
+                               g_StudioRenderState.boneTransform[i]);
         }
     }
 }
@@ -393,7 +425,7 @@ void StudioModelV10::CalcBoneQuaternion(int frame, float s, StudioBoneV10 *pBone
 
     for (j = 0; j < 3; j++)
     {
-        auto dofInfo = pBone->GetDofInfo(j);
+        auto dofInfo = pBone->GetDofInfo(j + 3);
 
         if (pAnim->offset[j + 3] == 0)
         {
@@ -480,21 +512,103 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
 
     auto &bodyPart = m_vBodyParts[bodypart];
 
-    index = m_EntityState->bodynum / bodyPart.Base();
-    index = index % bodyPart.NumModels();
+    index = m_EntityState->bodynum / bodyPart->Base();
+    index = index % bodyPart->NumModels();
 
-    return bodyPart.SubModel(index);
+    return bodyPart->SubModel(index);
+}
+
+void StudioModelV10::OverlayBones()
+{
+    auto &bt = g_StudioRenderState.boneTransform;
+
+    for (size_t i = 0; i < m_vBones.size(); i++)
+    {
+        glm::vec3 bp = {bt[i][0][3], bt[i][1][3], bt[i][2][3]};
+
+        int parent = m_vBones[i].GetParent();
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4({1, 1, 1, 1});
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4x4(1.f));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(1);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        if (m_vBones[i].GetParent() != -1)
+        {
+            glPointSize(3.0f);
+
+            mesh.Begin(GL_LINES);
+
+            shader->UniformByKind(UniformKind::Color)->SetFloat4({1, 0.7f, 0, 1});
+            // mesh.Color3f(1, 0.7f, 0);
+
+            mesh.Vertex3f(bt[parent][0][3], bt[parent][1][3], bt[parent][2][3]);
+            mesh.Vertex3f(bt[i][0][3], bt[i][1][3], bt[i][2][3]);
+            mesh.End();
+
+            mesh.BindAndDraw();
+
+            shader->UniformByKind(UniformKind::Color)->SetFloat4({0, 0, 0.8f, 1});
+
+            // glColor3f(0, 0, 0.8f);
+
+            mesh.Begin(GL_POINTS);
+            if (m_vBones[parent].GetParent() != -1)
+                mesh.Vertex3f(bt[parent][0][3], bt[parent][1][3], bt[parent][2][3]);
+
+            mesh.Vertex3f(bt[i][0][3], bt[i][1][3], bt[i][2][3]);
+            mesh.End();
+            mesh.BindAndDraw();
+        }
+        else
+        {
+            // draw parent bone node
+            glPointSize(5.0f);
+
+            // glColor3f(0.8f, 0, 0);
+            shader->UniformByKind(UniformKind::Color)->SetFloat4({0.8f, 0, 0, 1});
+
+            mesh.Begin(GL_POINTS);
+            mesh.Vertex3f(bt[i][0][3], bt[i][1][3], bt[i][2][3]);
+            mesh.End();
+            mesh.BindAndDraw();
+        }
+    }
+
+    glPointSize(1.0f);
 }
 
 GoldSource::StudioTextureV10 *StudioModelV10::GetTexture(short textureIdx)
 {
     // Out of bounds should be handled by stl lib
     // assert(textureIdx >= 0 && textureIdx < m_vTextures.size());
-    return &m_vTextures[textureIdx];
+    return m_vTextures[textureIdx];
 }
 
 short StudioModelV10::GetSkinRef(int skinref)
 {
+    if (skinref >= m_vSkins.size())
+        return 0;
+
     return m_vSkins[skinref];
 }
 
@@ -693,7 +807,7 @@ StudioBodyPartV10::StudioBodyPartV10(StudioModelV10 *pModel, dstudiobodypart10_t
 
     for (int i = 0; i < pBodyPart->nummodels; i++)
     {
-        m_vModels.push_back(StudioSubModelV10(pModel, &models[i]));
+        m_vModels.push_back(new StudioSubModelV10(pModel, &models[i]));
     }
 }
 
@@ -777,7 +891,7 @@ void StudioMeshV10::BuildDrawMesh()
             //
             //             VectorCopy(pStudioNormals[drawCmd->normalIndex], vert->normal);
             //             VectorCopy(pStudioVerts[drawCmd->vertexIndex], vert->position);
-                        
+
             drawCmd = (dstudiotricmd10_t *)triCmds;
 
             if (vertexState++ < 3)
@@ -791,27 +905,32 @@ void StudioMeshV10::BuildDrawMesh()
 
                 if (vertexState & 1)
                 {
-                    m_pDrawMesh->Element1i(lastElement);
                     m_pDrawMesh->Element1i(secondToLastElement);
+                    m_pDrawMesh->Element1i(lastElement);                    
                     m_pDrawMesh->Element1i(numVerts);
                 }
                 else
                 {
-                    m_pDrawMesh->Element1i(secondToLastElement);
                     m_pDrawMesh->Element1i(lastElement);
+                    m_pDrawMesh->Element1i(secondToLastElement);                    
                     m_pDrawMesh->Element1i(numVerts);
                 }
             }
             else
             {
-
                 m_pDrawMesh->Element1i(numVerts - (vertexState - 1));
                 m_pDrawMesh->Element1i(numVerts - 1);
                 m_pDrawMesh->Element1i(numVerts);
             }
 
             // m_pDrawMesh->
-            m_pDrawMesh->Vertex3fv((float *)&verts[drawCmd->vertindex].origin);
+
+            auto &vertInfo = verts[drawCmd->vertindex];
+
+
+            m_pDrawMesh->TexCoord2f(drawCmd->s * s, drawCmd->t * t);
+            m_pDrawMesh->Bone1ub(0,vertInfo.bone);
+            m_pDrawMesh->Vertex3fv((float *)&vertInfo.origin);
             numVerts++;
         }
     }
@@ -821,21 +940,39 @@ void StudioMeshV10::BuildDrawMesh()
 
 void StudioMeshV10::DrawPoints()
 {
-    auto shader = GLBackend::Instance()->GroupShadedSceneShader();
+    auto shader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
+
+    short             textureIdx = m_pModel->GetSkinRef(skinref);
+    StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
+    GLBackend::BindTexture(0, pTexture->GetGLTexture());
 
     shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetObjectColor(glm::vec4(1, 0, 0, 1));
-    shader->SetScale(10);
-    shader->SetTransformIdentity();
-
-    glDisable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    
+    for (auto & it: shader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::BonesTransform:
+            // TODO: send actual bones count
+            it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
+            break;
+        case UniformKind::TransformMatrix:
+            it->SetMat4(glm::mat4(1));
+            break;
+        case UniformKind::Diffuse:
+            it->SetInt(0);
+            break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(0);
+            break;
+        default:
+            GLBackend::SetUniformValue(it);
+            break;
+        }
+    }
 
     m_pDrawMesh->BindAndDraw();
 
-    glEnable(GL_CULL_FACE);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }
 
 StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel)
@@ -884,12 +1021,25 @@ void StudioSubModelV10::DrawPoints() const
     }
 }
 
+StudioSubModelV10::~StudioSubModelV10()
+{
+    ClearPointersVector(m_vMeshes);
+    
+}
+
 StudioTextureV10::StudioTextureV10(byte *header, dstudiotexture10_t *pTexture)
 {
     strlcpy(m_strName, pTexture->name, sizeof(m_strName));
     m_iFlags  = pTexture->flags;
     m_iWidth  = pTexture->width;
     m_iHeight = pTexture->height;
+    
+    byte *textureData = header + pTexture->index;
+    byte *pallete     = header + pTexture->index + (pTexture->width * pTexture->height);
+
+    m_pPixels = new IndexedFromMemoryImage(m_iWidth, m_iHeight, textureData, pallete);
+    m_pTexture = TextureManager::LoadTextureAsynch(m_pPixels, 0, m_strName, TextureSource::IndexedFrommemory);
+
 }
 
 int StudioTextureV10::Width()
@@ -900,6 +1050,20 @@ int StudioTextureV10::Width()
 int StudioTextureV10::Height()
 {
     return m_iHeight;
+}
+
+GLTexture *StudioTextureV10::GetGLTexture()
+{
+    return m_pTexture;
+}
+
+StudioTextureV10::~StudioTextureV10()
+{
+    if (m_pTexture)
+        TextureManager::Instance()->DestroyTexture(m_pTexture);
+
+    if (m_pPixels)
+        delete m_pPixels;
 }
 
 GoldSource::StudioSeqGroupV10::StudioSeqGroupV10(byte *hdr, dstudioseqgroup10_t *pGroup)

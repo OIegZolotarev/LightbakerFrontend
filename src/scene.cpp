@@ -43,9 +43,11 @@ Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
 
-    auto fd = FileSystem::Instance()->LoadFile("res/mesh/sample.mdl");
+    
+    auto fd = FileSystem::Instance()->LoadFile("res/mesh/alyx_ultra_high_poly.mdl");
     pTestModel = new GoldSource::StudioModelV10(fd);
     fd->UnRef();
+
 
 }
 

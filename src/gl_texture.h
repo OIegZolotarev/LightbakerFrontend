@@ -15,12 +15,15 @@ namespace GoldSource
 class WADTexturePool;
 };
 
+
+
 enum class TextureSource
 {
     CommonImage,
     GoldSourceMipTexture,
     GoldSourceWadFile,
     GoldSourceSprite,
+    IndexedFrommemory,
     GuessByItself,
     FrameBufferColor,
     FrameBufferDepth,
@@ -278,4 +281,5 @@ public:
     
     static GLTexture *GetWhiteTexture();
     static GLTexture *GetFallbackTexture();
+    void              DestroyTexture(GLTexture *m_pTexture);
 };

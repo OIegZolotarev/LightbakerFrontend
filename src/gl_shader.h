@@ -43,6 +43,7 @@ enum class UniformKind
     Lightmap,
     Viewport,
     ObjectSerialNumber,
+    BonesTransform,
 };
 
 enum class UniformDataType
@@ -69,7 +70,8 @@ enum class UniformDataType
     Sampler1DShadow,
     Sampler2DShadow,
     Sampler2DRect,
-    Sampler2DRectShadow
+    Sampler2DRectShadow,
+    FloatMat4Array,
 };
 
 #define FL_TEXTURE_UNIT0 (1 << 0)
@@ -139,6 +141,7 @@ class ShaderUniform
     void SetMat2(glm::mat2 newVal);
     void SetMat3(glm::mat3 newVal);
     void SetMat4(glm::mat4 newVal);
+    void SetMat4Array(glm::mat4 *data, size_t n);
     void SetSampler1D(int newVal);
     void SetSampler2D(int newVal);
     void SetSampler3D(int newVal);

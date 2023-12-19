@@ -44,8 +44,10 @@ typedef struct dstudiohdrv10_s
 
     int32_t texturedata_index;
     int32_t num_skinref;
+    int32_t num_skins;
+    int32_t skins_index;
 
-    dstudiolump_t skins;
+    
 
     dstudiolump_t bodyparts;
     dstudiolump_t attachments;

@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include <locale>
 #include <stb/stb_image.h>
+#include "img_indexed_from_memory.h"
 
 void                     GLReloadTexture(GLTexture *r, FileData *sourceFile);
 std::vector<GLTexture *> g_vecGLTextures;
@@ -577,6 +578,9 @@ RawTexture *TextureManager::LoadRawTexture(void *data, size_t length,
     case TextureSource::GoldSourceSprite:
         pResult = DecodeGoldsourceSprite(data, length);
         break;
+    case TextureSource::IndexedFrommemory:
+        pResult = ((IndexedFromMemoryImage*)data)->MakeRawTexture();
+        break;
     case TextureSource::GuessByItself:
         break;
     case TextureSource::Unknown:
@@ -684,6 +688,20 @@ GLTexture *TextureManager::GetWhiteTexture()
 GLTexture *TextureManager::GetFallbackTexture()
 {
     return Instance()->m_pEmoTexture;
+}
+
+void TextureManager::DestroyTexture(GLTexture *m_pTexture)
+{
+    m_lstTexturesPool.remove_if([&](GLTexture *pTexture) {
+
+        if (pTexture == m_pTexture)
+        {
+            delete pTexture;
+            return true;
+        }
+
+        return false;
+    });
 }
 
 RawTexture *TextureManager::DecodeCommonImage(const void *data, size_t length)

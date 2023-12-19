@@ -169,7 +169,7 @@ void Application::Run()
             {
                 std::string str = sdlEventToString(event);
 
-                Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
+                //Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
 
                 bool bResult = pTarget->HandleEvent(event);
 

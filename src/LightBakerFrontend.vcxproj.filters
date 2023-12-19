@@ -392,6 +392,12 @@
     <ClCompile Include="mdl_v10_goldsource.cpp">
       <Filter>Исходные файлы\GoldSource\MDL</Filter>
     </ClCompile>
+    <ClCompile Include="gl_draw_mesh.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="img_indexed_from_memory.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -711,6 +717,13 @@
     </ClInclude>
     <ClInclude Include="mdl_v10_goldsource.h">
       <Filter>Исходные файлы\GoldSource\MDL</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_draw_mesh.h">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h" />
+    <ClInclude Include="img_indexed_from_memory.h">
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

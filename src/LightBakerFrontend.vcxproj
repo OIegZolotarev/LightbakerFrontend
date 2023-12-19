@@ -206,7 +206,9 @@ build.bat
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
+    <ClCompile Include="gl_draw_mesh.cpp" />
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
+    <ClCompile Include="img_indexed_from_memory.cpp" />
     <ClCompile Include="mdl_v10_goldsource.cpp" />
     <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
@@ -303,9 +305,12 @@ build.bat
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="bsp_entities_properties_binding.h" />
     <ClInclude Include="bsp_entity_property.h" />
+    <ClInclude Include="color.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
+    <ClInclude Include="gl_draw_mesh.h" />
     <ClInclude Include="goldsource_bsp_asynch_loader.h" />
+    <ClInclude Include="img_indexed_from_memory.h" />
     <ClInclude Include="mdl_v10_goldsource.h" />
     <ClInclude Include="mdl_v10_disk_structs_goldsource.h" />
     <ClInclude Include="r_frustum.h" />

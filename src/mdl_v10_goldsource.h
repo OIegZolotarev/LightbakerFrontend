@@ -11,9 +11,11 @@
 
 class FileData;
 class DrawMesh;
+class IndexedFromMemoryImage;
 
 namespace GoldSource
 {
+
 class StudioModelV10;
 class StudioSubModelV10;
 
@@ -172,10 +174,16 @@ class StudioTextureV10
     int  m_iWidth;
     int  m_iHeight;
 
+    IndexedFromMemoryImage *m_pPixels = nullptr;
+    GLTexture *m_pTexture = nullptr;
+
 public:
     StudioTextureV10(byte *header, dstudiotexture10_t *pTexture);
+    ~StudioTextureV10();
     int Width();
     int Height();
+
+    GLTexture *GetGLTexture();
 };
 
 class StudioMeshV10
@@ -240,6 +248,8 @@ private:
 
 public:
     StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel);
+    ~StudioSubModelV10();
+
     void DrawPoints() const;
 
     const std::vector<subModelVert> &GetVertices() const
@@ -258,16 +268,20 @@ class StudioBodyPartV10
     char m_strName[64];
     int  m_iBase;
 
-    std::vector<StudioSubModelV10> m_vModels;
+    std::vector<StudioSubModelV10 * > m_vModels;
 
 public:
     StudioBodyPartV10(StudioModelV10 *pModel, dstudiobodypart10_t *pBodyPart);
+    ~StudioBodyPartV10()
+    {
+        ClearPointersVector(m_vModels);
+    }
     const int Base() const;
     const int NumModels() const;
 
     const StudioSubModelV10 *SubModel(size_t index) const
     {
-        return &m_vModels[index];
+        return m_vModels[index];
     }
 };
 
@@ -336,8 +350,8 @@ class StudioModelV10
     std::vector<StudioHitBoxV10>         m_vHitBoxes;
     std::vector<StudioSeqDescV10>        m_vSequences;
     std::vector<StudioSeqGroupV10>       m_vSeqGroups;
-    std::vector<StudioTextureV10>        m_vTextures;
-    std::vector<StudioBodyPartV10>       m_vBodyParts;
+    std::vector<StudioTextureV10*>        m_vTextures;
+    std::vector<StudioBodyPartV10*>       m_vBodyParts;
     std::vector<StudioAttachmentV10>     m_vAttachments;
     std::vector<StudioBoneControllerV10> m_vBoneControllers;
 
@@ -356,6 +370,8 @@ class StudioModelV10
     void SlerpBones(glm::quat *q1, glm::vec3 *pos1, glm::quat *q2, glm::vec3 *pos2, float s);
 
     const StudioSubModelV10 *SetupModel(int bodypart) const;
+
+    void OverlayBones();
 
 public:
     StudioModelV10(FileData *fd);
