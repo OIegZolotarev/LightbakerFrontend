@@ -148,13 +148,26 @@ void StudioModelV10::DebugRender()
 
     SetupBones();
 
-     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
-     {
-         const StudioSubModelV10 *subModel = SetupModel(i);
-         subModel->DrawPoints();
-     }
+    m_EntityState->origin = glm::vec3(0, 0, 0);
 
-    OverlayBones();
+    for (int x = 0 ; x < 8; x++)
+    {
+        for (int y = 0; y < 8; y++)
+        {
+
+            m_EntityState->origin = glm::vec3(x * 32, y * 32, 0);
+
+            for (int i = 0; i < (int)m_vBodyParts.size(); i++)
+            {
+                const StudioSubModelV10 *subModel = SetupModel(i);
+                subModel->DrawPoints(m_EntityState);
+            }
+        }
+    }
+
+     
+
+    //OverlayBones();
 
     glCullFace(GL_BACK);
 }
@@ -938,7 +951,7 @@ void StudioMeshV10::BuildDrawMesh()
     m_pDrawMesh->End();
 }
 
-void StudioMeshV10::DrawPoints()
+void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState * pState)
 {
     auto shader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 
@@ -956,8 +969,12 @@ void StudioMeshV10::DrawPoints()
             // TODO: send actual bones count
             it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
             break;
-        case UniformKind::TransformMatrix:
-            it->SetMat4(glm::mat4(1));
+        case UniformKind::TransformMatrix: {
+
+            glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+            it->SetMat4(offset);
+        }
+        
             break;
         case UniformKind::Diffuse:
             it->SetInt(0);
@@ -1013,11 +1030,11 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
     }
 }
 
-void StudioSubModelV10::DrawPoints() const
+void StudioSubModelV10::DrawPoints(StudioEntityState * pState) const
 {
     for (auto &it : m_vMeshes)
     {
-        it->DrawPoints();
+        it->DrawPoints(pState);
     }
 }
 

@@ -16,6 +16,19 @@ class IndexedFromMemoryImage;
 namespace GoldSource
 {
 
+struct StudioEntityState
+{
+    glm::vec3 origin;
+    int   bodynum;
+    int   skin;
+    int   sequence;
+    float frame;
+    float blending[2];
+
+    float controller[4];
+    float mouth;
+};
+
 class StudioModelV10;
 class StudioSubModelV10;
 
@@ -204,7 +217,7 @@ class StudioMeshV10
 public:
     StudioMeshV10(StudioModelV10 *pModel, StudioSubModelV10 *pSubModel, dstudiomesh10_t *pMesh);
     ~StudioMeshV10();
-    void DrawPoints();
+    void DrawPoints(StudioEntityState * pState);
 };
 
 class StudioSubModelV10
@@ -250,7 +263,7 @@ public:
     StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel);
     ~StudioSubModelV10();
 
-    void DrawPoints() const;
+    void DrawPoints(StudioEntityState * pState) const;
 
     const std::vector<subModelVert> &GetVertices() const
     {
@@ -299,17 +312,7 @@ public:
     StudioAttachmentV10(dstudioattachment10_t *pAttachment);
 };
 
-struct StudioEntityState
-{
-    int   bodynum;
-    int   skin;
-    int   sequence;
-    float frame;
-    float blending[2];
 
-    float controller[4];
-    float mouth;
-};
 
 class StudioBoneControllerV10
 {
