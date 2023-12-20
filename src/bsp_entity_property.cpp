@@ -103,7 +103,7 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantV
      m_Type = AdaptPropertyType();
  }
 
-size_t GoldSource::BSPEntityProperty::CalcHash(const std::string &val)
+size_t BSPEntityProperty::CalcHash(const std::string &val)
 {
     return std::hash<std::string>{}(val);
 }

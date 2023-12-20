@@ -11,6 +11,7 @@
 #include "model_obj.h"
 #include "scene_entity.h"
 #include "serial_counter.h"
+#include "mod_manager.h"
 
 enum class LevelFormat
 {
@@ -47,7 +48,7 @@ class Scene
     void ClearEntities();
     void LoadLevel(const char *levelName);
 
-     GoldSource::StudioModelV10 *pTestModel;
+     IModelWeakPtr pTestModel;
 
 public:
     Scene();

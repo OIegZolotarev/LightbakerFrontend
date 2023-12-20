@@ -362,3 +362,8 @@ size_t strlcpy(char *dst, const char *src, size_t maxlen)
     return srclen;
 }
 
+size_t StrHash(const char *val)
+{
+    return std::hash<const char *>{}(val);
+}
+

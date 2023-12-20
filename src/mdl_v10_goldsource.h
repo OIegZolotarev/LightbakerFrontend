@@ -8,6 +8,7 @@
 #include "common.h"
 #include "mdl_v10_disk_structs_goldsource.h"
 #include "text_utils.h"
+#include "mod_manager.h"
 
 class FileData;
 class DrawMesh;
@@ -15,15 +16,14 @@ class IndexedFromMemoryImage;
 
 namespace GoldSource
 {
-
 struct StudioEntityState
 {
     glm::vec3 origin;
-    int   bodynum;
-    int   skin;
-    int   sequence;
-    float frame;
-    float blending[2];
+    int       bodynum;
+    int       skin;
+    int       sequence;
+    float     frame;
+    float     blending[2];
 
     float controller[4];
     float mouth;
@@ -103,11 +103,11 @@ public:
         float end;
     };
 
-    int SequenceGroup();
-
-    int MotionType();
-
-    int MotionBone();
+    int   SequenceGroup();
+    int   MotionType();
+    int   MotionBone();
+    int   NumFrames();
+    float FPS();
 
 private:
     char  m_strName[32];
@@ -187,8 +187,8 @@ class StudioTextureV10
     int  m_iWidth;
     int  m_iHeight;
 
-    IndexedFromMemoryImage *m_pPixels = nullptr;
-    GLTexture *m_pTexture = nullptr;
+    IndexedFromMemoryImage *m_pPixels  = nullptr;
+    GLTexture *             m_pTexture = nullptr;
 
 public:
     StudioTextureV10(byte *header, dstudiotexture10_t *pTexture);
@@ -217,7 +217,7 @@ class StudioMeshV10
 public:
     StudioMeshV10(StudioModelV10 *pModel, StudioSubModelV10 *pSubModel, dstudiomesh10_t *pMesh);
     ~StudioMeshV10();
-    void DrawPoints(StudioEntityState * pState);
+    void DrawPoints(StudioEntityState *pState);
 };
 
 class StudioSubModelV10
@@ -263,7 +263,7 @@ public:
     StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel);
     ~StudioSubModelV10();
 
-    void DrawPoints(StudioEntityState * pState) const;
+    void DrawPoints(StudioEntityState *pState) const;
 
     const std::vector<subModelVert> &GetVertices() const
     {
@@ -281,7 +281,7 @@ class StudioBodyPartV10
     char m_strName[64];
     int  m_iBase;
 
-    std::vector<StudioSubModelV10 * > m_vModels;
+    std::vector<StudioSubModelV10 *> m_vModels;
 
 public:
     StudioBodyPartV10(StudioModelV10 *pModel, dstudiobodypart10_t *pBodyPart);
@@ -312,8 +312,6 @@ public:
     StudioAttachmentV10(dstudioattachment10_t *pAttachment);
 };
 
-
-
 class StudioBoneControllerV10
 {
     int32_t bone; // -1 == 0
@@ -342,7 +340,7 @@ public:
     float End();
 };
 
-class StudioModelV10
+class StudioModelV10 : public IModel
 {
     FileData *m_pFileData;
 
@@ -353,8 +351,8 @@ class StudioModelV10
     std::vector<StudioHitBoxV10>         m_vHitBoxes;
     std::vector<StudioSeqDescV10>        m_vSequences;
     std::vector<StudioSeqGroupV10>       m_vSeqGroups;
-    std::vector<StudioTextureV10*>        m_vTextures;
-    std::vector<StudioBodyPartV10*>       m_vBodyParts;
+    std::vector<StudioTextureV10 *>      m_vTextures;
+    std::vector<StudioBodyPartV10 *>     m_vBodyParts;
     std::vector<StudioAttachmentV10>     m_vAttachments;
     std::vector<StudioBoneControllerV10> m_vBoneControllers;
 
@@ -388,9 +386,13 @@ public:
     int   SetSequence(int iSequence);
     float SetBlending(int iBlender, float flValue);
 
+    void AdvanceFrame(float dt);
+
     byte *            Header();
     short             GetSkinRef(int skinref);
     StudioTextureV10 *GetTexture(short textureIdx);
+
+    void Render(SceneEntity *pEntity, RenderMode mode) override;
 };
 
 } // namespace GoldSource

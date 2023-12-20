@@ -6,10 +6,10 @@
 #include "application.h"
 #include "common.h"
 
-#include "mdl_v10_goldsource.h"
 #include "gl_backend.h"
-#include "mathlib.h"
 #include "img_indexed_from_memory.h"
+#include "mathlib.h"
+#include "mdl_v10_goldsource.h"
 
 using namespace GoldSource;
 
@@ -39,7 +39,7 @@ int StudioBoneV10::GetParent()
     return m_iParent;
 }
 
-StudioModelV10::StudioModelV10(FileData *fd)
+StudioModelV10::StudioModelV10(FileData *fd) : IModel(fd->Name().c_str())
 {
     dstudiohdrv10_t *hdr = (dstudiohdrv10_t *)fd->Data();
 
@@ -136,38 +136,30 @@ StudioModelV10::~StudioModelV10()
     ClearPointersVector(m_vBodyParts);
 }
 
+StudioEntityState state;
 
 void StudioModelV10::DebugRender()
 {
-    StudioEntityState state;
-    memset(&state, 0, sizeof(state));
+    
+    //memset(&state, 0, sizeof(state));
 
+    
     m_EntityState = &state;
-
+    
+    AdvanceFrame(Application::GetMainWindow()->FrameDelta());
     glCullFace(GL_FRONT);
 
     SetupBones();
 
     m_EntityState->origin = glm::vec3(0, 0, 0);
-
-    for (int x = 0 ; x < 8; x++)
+    
+    for (int i = 0; i < (int)m_vBodyParts.size(); i++)
     {
-        for (int y = 0; y < 8; y++)
-        {
-
-            m_EntityState->origin = glm::vec3(x * 32, y * 32, 0);
-
-            for (int i = 0; i < (int)m_vBodyParts.size(); i++)
-            {
-                const StudioSubModelV10 *subModel = SetupModel(i);
-                subModel->DrawPoints(m_EntityState);
-            }
-        }
+        const StudioSubModelV10 *subModel = SetupModel(i);
+        subModel->DrawPoints(m_EntityState);
     }
 
-     
-
-    //OverlayBones();
+    // OverlayBones();
 
     glCullFace(GL_BACK);
 }
@@ -177,7 +169,7 @@ int StudioModelV10::SetBodygroup(int iGroup, int iValue)
     if (iGroup > m_vBodyParts.size())
         return -1;
 
-    StudioBodyPartV10* bodyPart = m_vBodyParts[iGroup];
+    StudioBodyPartV10 *bodyPart = m_vBodyParts[iGroup];
 
     int bpBase      = bodyPart->Base();
     int bpNumModels = bodyPart->NumModels();
@@ -531,6 +523,39 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
     return bodyPart->SubModel(index);
 }
 
+void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
+{
+    DebugRender();
+}
+
+void StudioModelV10::AdvanceFrame(float dt)
+{
+    StudioSeqDescV10 &seq = m_vSequences[m_EntityState->sequence];
+
+    if (dt > 0.1)
+        dt = (float)0.1;
+    m_EntityState->frame += dt * seq.FPS();
+
+    int nFrames = seq.NumFrames();
+
+    if (nFrames <= 1)
+    {
+        m_EntityState->frame = 0;
+    }
+    else
+    {
+        if (m_EntityState->frame < 0)
+        {
+            m_EntityState->frame = nFrames - 1;
+        }
+        else
+        {
+            
+            m_EntityState->frame -= (int)(m_EntityState->frame / (nFrames - 1)) * (nFrames - 1);
+        }
+    }
+}
+
 void StudioModelV10::OverlayBones()
 {
     auto &bt = g_StudioRenderState.boneTransform;
@@ -791,6 +816,16 @@ int StudioSeqDescV10::MotionBone()
     return m_iMotionBone;
 }
 
+int StudioSeqDescV10::NumFrames()
+{
+    return m_iNumFrames;
+}
+
+float GoldSource::StudioSeqDescV10::FPS()
+{
+    return m_flFps;
+}
+
 StudioPivotV10::StudioPivotV10(dstudiopivot10_t *pPivot)
 {
     m_vecOrigin = pPivot->org;
@@ -919,13 +954,13 @@ void StudioMeshV10::BuildDrawMesh()
                 if (vertexState & 1)
                 {
                     m_pDrawMesh->Element1i(secondToLastElement);
-                    m_pDrawMesh->Element1i(lastElement);                    
+                    m_pDrawMesh->Element1i(lastElement);
                     m_pDrawMesh->Element1i(numVerts);
                 }
                 else
                 {
                     m_pDrawMesh->Element1i(lastElement);
-                    m_pDrawMesh->Element1i(secondToLastElement);                    
+                    m_pDrawMesh->Element1i(secondToLastElement);
                     m_pDrawMesh->Element1i(numVerts);
                 }
             }
@@ -940,9 +975,8 @@ void StudioMeshV10::BuildDrawMesh()
 
             auto &vertInfo = verts[drawCmd->vertindex];
 
-
             m_pDrawMesh->TexCoord2f(drawCmd->s * s, drawCmd->t * t);
-            m_pDrawMesh->Bone1ub(0,vertInfo.bone);
+            m_pDrawMesh->Bone1ub(0, vertInfo.bone);
             m_pDrawMesh->Vertex3fv((float *)&vertInfo.origin);
             numVerts++;
         }
@@ -951,7 +985,7 @@ void StudioMeshV10::BuildDrawMesh()
     m_pDrawMesh->End();
 }
 
-void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState * pState)
+void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState)
 {
     auto shader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 
@@ -960,8 +994,8 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState * pState)
     GLBackend::BindTexture(0, pTexture->GetGLTexture());
 
     shader->Bind();
-    
-    for (auto & it: shader->Uniforms())
+
+    for (auto &it : shader->Uniforms())
     {
         switch (it->Kind())
         {
@@ -970,12 +1004,11 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState * pState)
             it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
             break;
         case UniformKind::TransformMatrix: {
-
             glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
             it->SetMat4(offset);
         }
-        
-            break;
+
+        break;
         case UniformKind::Diffuse:
             it->SetInt(0);
             break;
@@ -989,7 +1022,6 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState * pState)
     }
 
     m_pDrawMesh->BindAndDraw();
-
 }
 
 StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel)
@@ -1030,7 +1062,7 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
     }
 }
 
-void StudioSubModelV10::DrawPoints(StudioEntityState * pState) const
+void StudioSubModelV10::DrawPoints(StudioEntityState *pState) const
 {
     for (auto &it : m_vMeshes)
     {
@@ -1041,7 +1073,6 @@ void StudioSubModelV10::DrawPoints(StudioEntityState * pState) const
 StudioSubModelV10::~StudioSubModelV10()
 {
     ClearPointersVector(m_vMeshes);
-    
 }
 
 StudioTextureV10::StudioTextureV10(byte *header, dstudiotexture10_t *pTexture)
@@ -1050,13 +1081,12 @@ StudioTextureV10::StudioTextureV10(byte *header, dstudiotexture10_t *pTexture)
     m_iFlags  = pTexture->flags;
     m_iWidth  = pTexture->width;
     m_iHeight = pTexture->height;
-    
+
     byte *textureData = header + pTexture->index;
     byte *pallete     = header + pTexture->index + (pTexture->width * pTexture->height);
 
-    m_pPixels = new IndexedFromMemoryImage(m_iWidth, m_iHeight, textureData, pallete);
+    m_pPixels  = new IndexedFromMemoryImage(m_iWidth, m_iHeight, textureData, pallete);
     m_pTexture = TextureManager::LoadTextureAsynch(m_pPixels, 0, m_strName, TextureSource::IndexedFrommemory);
-
 }
 
 int StudioTextureV10::Width()

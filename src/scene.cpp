@@ -42,13 +42,8 @@ void Scene::LoadLevel(const char *levelName, int loadFlags)
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
-
     
-    auto fd = FileSystem::Instance()->LoadFile("res/mesh/alyx_ultra_high_poly.mdl");
-    pTestModel = new GoldSource::StudioModelV10(fd);
-    fd->UnRef();
-
-
+    pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
 }
 
 Scene::~Scene()
@@ -171,7 +166,10 @@ void Scene::RenderLightShaded()
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
 
-    pTestModel->DebugRender();
+    if (auto ptr = pTestModel.lock())
+    {
+        ptr->Render(0, sr->GetRenderMode());
+    }
 
     for (auto &it : m_SceneEntities)
     {
