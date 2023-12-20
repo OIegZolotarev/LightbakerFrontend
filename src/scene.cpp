@@ -166,10 +166,6 @@ void Scene::RenderLightShaded()
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
 
-    if (auto ptr = pTestModel.lock())
-    {
-        ptr->Render(0, sr->GetRenderMode());
-    }
 
     for (auto &it : m_SceneEntities)
     {

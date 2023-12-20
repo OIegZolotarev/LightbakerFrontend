@@ -151,7 +151,7 @@ void StudioModelV10::DebugRender()
 
     SetupBones();
 
-    m_EntityState->origin = glm::vec3(0, 0, 0);
+    
     
     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
     {
@@ -525,6 +525,9 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
 
 void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
 {
+    m_EntityState         = &state;
+    m_EntityState->origin = pEntity->GetPosition();
+
     DebugRender();
 }
 

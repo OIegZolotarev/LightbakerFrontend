@@ -3,8 +3,8 @@
     (c) 2023 CrazyRussian
 */
 
-#include "scene_entity.h"
 #include "application.h"
+#include "scene_entity.h"
 #include "properties_editor.h"
 
 void SceneEntity::SetClassName(const char *name)
@@ -30,6 +30,16 @@ void SceneEntity::InvokeSelect()
 std::string &SceneEntity::GetClassName()
 {
     return m_ClassName;
+}
+
+bool SceneEntity::IsTransparent()
+{
+    return false;
+}
+
+SceneEntityWeakPtr SceneEntity::Next()
+{
+    return m_pNext;
 }
 
 void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)

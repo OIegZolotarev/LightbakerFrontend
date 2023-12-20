@@ -260,6 +260,11 @@ const GoldSource::FGDPropertiesList &FGDEntityClass::GetProperties() const
     return m_Properties;
 }
 
+const std::string &FGDEntityClass::GetModel() const
+{
+    return m_Model;
+}
+
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,
                                            OptionalDefaultValAndHelp_t defValueAndHelp)
     : FGDPropertyDescriptor(name, "flags", desc, defValueAndHelp)

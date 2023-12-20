@@ -91,8 +91,19 @@ void BSPEntity::PopulateScene()
         
         if (!m_bIsSetColor)
             SetColor(classPtr->GetColor());
-
+        
         m_pEditorSprite = classPtr->GetEditorSpite();
+
+        auto & studioModel = classPtr->GetModel();
+
+
+        if (!studioModel.empty())
+        {
+            IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str());
+
+            SetModel(model);
+        }
+
     }
     else
     {
@@ -155,7 +166,15 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
 void BSPEntity::RenderUnshaded()
 {
+    auto &model = GetModel();
+        
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
+    if (auto ptr = model.lock())
+    {
+        ptr->Render(this, RenderMode::Unshaded);
+        return;
+    }
 
     if (m_pEditorSprite)
     {
@@ -195,7 +214,7 @@ glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
     return glm::vec4(color.r, color.g, color.b, intensity);
 }
 
-void GoldSource::BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
+void BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
 {
     m_pFGDClass = pClass;
 

@@ -32,6 +32,7 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName)
 
     if (!fd && strcasecmp(fileName, "res/mesh/error.mdl"))
     {
+        Con_Printf("ModelsManager::LookupModel(): fallback on %s\n", fileName);
         return LookupModel("res/mesh/error.mdl");
     }
     else if (!fd)

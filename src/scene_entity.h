@@ -7,6 +7,7 @@
 #include "gl_texture.h"
 #include "object_props.h"
 #include "selection_3d.h"
+#include "mod_manager.h"
 
 enum class EntityClasses
 {
@@ -72,14 +73,13 @@ public:
 
     virtual bool IsDataLoaded();
 
-    DECLARE_PROPERTY(uint32_t, SerialNumber);
-    DECLARE_PROPERTY(glm::vec3, Position);
-
-    DECLARE_PROPERTY(glm::vec3, Mins);
-    DECLARE_PROPERTY(glm::vec3, Maxs);
-
-    DECLARE_PROPERTY(glm::vec3, Color);
-    DECLARE_PROPERTY(GLTexture *, EditorIcon);
+    DECLARE_PROPERTY(uint32_t      , SerialNumber);
+    DECLARE_PROPERTY(glm::vec3     , Position);
+    DECLARE_PROPERTY(glm::vec3     , Mins);
+    DECLARE_PROPERTY(glm::vec3     , Maxs);
+    DECLARE_PROPERTY(glm::vec3     , Color);
+    DECLARE_PROPERTY(GLTexture *   , EditorIcon);
+    DECLARE_PROPERTY(IModelWeakPtr , Model);
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
@@ -113,16 +113,9 @@ public:
         return static_cast<T*>(rawPtr);
     }
 
-    virtual bool IsTransparent()
-    {
-        return false;
-    }
+    virtual bool IsTransparent();
 
-    std::weak_ptr<SceneEntity> Next()
-    {
-        return m_pNext;
-    }
-
+    std::weak_ptr<SceneEntity> Next();
     void SetNext(std::weak_ptr<SceneEntity> & pOther);
 };
 

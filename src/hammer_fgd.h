@@ -162,7 +162,8 @@ public:
     void SetCtorFlags(int flags);
 
     void SetBaseClasses(std::list<std::string> classes);
-
+    
+    const std::string &GetModel() const;
     const std::string &ClassName() const;
     const std::string &Description() const;
 
