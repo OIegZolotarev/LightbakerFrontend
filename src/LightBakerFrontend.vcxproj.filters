@@ -99,6 +99,9 @@
     <Filter Include="Исходные файлы\GoldSource\MDL">
       <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Filesystem">
+      <UniqueIdentifier>{8833e7a8-eeaf-4339-97a9-24f19c1d89b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -114,9 +117,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="commands_registry.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="file_system.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
@@ -404,6 +404,15 @@
     <ClCompile Include="entity_transform.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="fs_core.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_handle.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_data.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -422,9 +431,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="commands_registry.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="file_system.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="event_handler.h">
@@ -736,6 +742,15 @@
     </ClInclude>
     <ClInclude Include="entity_transform.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_core.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_file_handle.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_file_data.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

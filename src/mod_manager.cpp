@@ -5,7 +5,7 @@
 
 #include "application.h"
 #include "mod_manager.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include "mdl_v10_goldsource.h"
 #include "text_utils.h"
 

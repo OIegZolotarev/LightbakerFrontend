@@ -13,57 +13,9 @@
 
 #include "application.h"
 #include "common.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <filesystem>
-
-FileData::FileData(byte *data, size_t length, const char *name)
-{
-    if (data)
-        m_pData = data;
-    else
-    {
-        m_bOwnsData = true;
-        m_pData     = new byte[length];
-    }
-
-    m_szLength = length;
-
-    m_Name = name;
-}
-
-FileData::~FileData()
-{
-    if (m_bOwnsData)
-        delete[] m_pData;
-}
-
-size_t FileData::Length()
-{
-    return m_szLength;
-}
-
-byte *FileData::Data()
-{
-    return m_pData;
-}
-
-std::string &FileData::Name()
-{
-    return m_Name;
-}
-
-void FileData::Ref()
-{
-    m_nReferences++;
-}
-
-void FileData::UnRef()
-{
-    m_nReferences--;
-    if (!m_nReferences)
-        delete this;
-}
 
 std::string FileData::BaseName()
 {
@@ -368,15 +320,6 @@ IFileHandle *FileSystem::OpenFileHandle(const char *filePath)
     return new FileHandleOS(filePath);
 }
 
-// ��������� ��� ����� �� �������
-// ����������� ��� ���� ������� � ��� �� �������� ��� � �������� ����
-// ��������� �������
-//	{0} - ������� � ������� ��������� ����
-//	{1} - ��� ����� ��� ����������
-//	{2} - ���������� ����� (� ������ - ".txt")
-//
-//	������:
-//		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
 std::string FileSystem::MakeTemplatePath(const char *fileName, const char *templ)
 {
 #ifndef LINUX
@@ -391,130 +334,4 @@ std::string FileSystem::MakeTemplatePath(const char *fileName, const char *templ
     std::string result = std::vformat(templ, std::make_format_args(directory, baseName, extension));
     return result;
 #endif
-}
-
-FileHandleOS::FileHandleOS(const char *fileName)
-{
-    m_pFileHandle = fopen(fileName, "rb");
-    m_Name        = fileName;
-}
-
-FileHandleOS::~FileHandleOS()
-{
-    if (m_pFileHandle)
-        fclose(m_pFileHandle);
-}
-
-size_t FileHandleOS::TotalSize()
-{
-    fseek(m_pFileHandle, 0, SEEK_END);
-    size_t len = ftell(m_pFileHandle);
-    fseek(m_pFileHandle, m_Offset, SEEK_SET);
-
-    return len;
-}
-
-size_t FileHandleOS::Position()
-{
-    return m_Offset;
-}
-
-size_t FileHandleOS::Read(size_t elementSize, size_t elementsCount, void *destBuffer)
-{
-    size_t r = fread(destBuffer, elementSize, elementsCount, m_pFileHandle);
-    m_Offset += r;
-    return r;
-}
-
-bool FileHandleOS::Seek(size_t position, SeekOrigin origin)
-{
-    int r = 0;
-
-    switch (origin)
-    {
-    case SeekOrigin::Start:
-        r = fseek(m_pFileHandle, (long)position, SEEK_SET);
-        break;
-    case SeekOrigin::Relative:
-        r = fseek(m_pFileHandle, (long)position, SEEK_CUR);
-        break;
-    case SeekOrigin::End:
-        r = fseek(m_pFileHandle, (long)position, SEEK_END);
-        break;
-    default:
-        break;
-    }
-
-    return !r;
-}
-
-FileHandleUncompressedArchive::FileHandleUncompressedArchive(FILE *fpArchive, size_t dataStart, size_t dataLength)
-{
-    m_pArchiveFile = fpArchive;
-    m_DataStart    = dataStart;
-    m_DataLength   = dataLength;
-
-    _fseeki64(m_pArchiveFile, m_DataStart, SEEK_SET);
-}
-
-FileHandleUncompressedArchive::~FileHandleUncompressedArchive()
-{
-}
-
-size_t FileHandleUncompressedArchive::Position()
-{
-    return m_Offset;
-}
-
-size_t FileHandleUncompressedArchive::Read(size_t elementSize, size_t elementsCount, void *destBuffer)
-{
-    size_t elementsRead = elementsCount;
-    size_t bytesToRead = elementSize * elementsCount;
-    size_t bytesLeft   = m_DataLength - (m_Offset - m_DataStart);
-
-    if (bytesLeft < bytesToRead)
-    {
-        bytesToRead = bytesLeft;
-        elementsRead = bytesToRead / elementSize;
-    }
-
-    fread(destBuffer, elementSize, elementsRead, m_pArchiveFile);
-
-    return elementsRead;
-}
-
-bool FileHandleUncompressedArchive::Seek(size_t position, SeekOrigin origin)
-{
-    if (position > m_DataLength)
-        return false;
-
-    switch (origin)
-    {
-    case SeekOrigin::Start:
-        m_Offset = position;
-        break;
-    case SeekOrigin::Relative:
-        m_Offset += position;
-        break;
-    case SeekOrigin::End:
-        m_Offset = m_DataLength - 1 - position;
-        break;
-    default:
-        break;
-    
-    }
-    
-    fseek(m_pArchiveFile, m_Offset, SEEK_SET);
-
-    return true;
-}
-
-size_t FileHandleUncompressedArchive::TotalSize()
-{
-    return m_DataLength;
-}
-
-const char *IFileHandle::FileName()
-{
-    return m_Name.c_str();
 }

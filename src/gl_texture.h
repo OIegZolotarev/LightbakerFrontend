@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include "loader_thread.h"
 //#include "wad_textures.h"
 

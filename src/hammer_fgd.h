@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file_system.h"
+#include "fs_core.h"
 
 class GLTexture;
 

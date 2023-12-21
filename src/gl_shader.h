@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "file_system.h"
+#include "fs_core.h"
 
 #define MAX_UNIFORM_NAME_LEN 64
 

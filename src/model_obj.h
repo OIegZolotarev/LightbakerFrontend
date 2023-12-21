@@ -4,7 +4,7 @@
 */
 
 #pragma once
-#include "file_system.h"
+#include "fs_core.h"
 #include "gl_texture.h"
 #include "scene_renderer.h"
 #include "gl_backend.h"

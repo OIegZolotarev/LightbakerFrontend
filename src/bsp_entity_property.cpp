@@ -8,7 +8,7 @@
 #include "Scene.h"
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include "game_configuration.h"
 #include "goldsource_game_configuration.h"
 #include "object_props.h"

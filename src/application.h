@@ -7,7 +7,7 @@
 
 #include "main_window.h"
 #include "commands_registry.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include "persistent.h"
 #include "lb3k_wrapper.h"
 
