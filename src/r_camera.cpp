@@ -7,7 +7,6 @@
 #include "application.h"
 #include "common.h"
 #include "r_camera.h"
-
 #include <algorithm>
 
 //#define OLD_GL
@@ -221,8 +220,8 @@ void Camera::SetupCommonKeystrokesCallbacks()
             {
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 Application::Instance()->ShowMouseCursor();
-                Application::Instance()->SetupEventsRedirection(false, m_pViewport->GetPlatformWindow());                
-                
+                Application::Instance()->SetupEventsRedirection(false, m_pViewport->GetPlatformWindow());
+
                 m_Mode = CameraMouseModes::None;
             }
         }
@@ -607,8 +606,9 @@ int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
         float yDelta = event.yrel;
 
         m_Angles[PITCH] += yDelta * m_pCameraSensivityRotation->GetFloat();
-        m_Angles[YAW] += xDelta * m_pCameraSensivityRotation->GetFloat();
+        m_Angles[YAW] -= xDelta * m_pCameraSensivityRotation->GetFloat();
 
+        m_Angles[YAW]   = AngleMod(m_Angles[YAW]);
         m_Angles[PITCH] = std::clamp(m_Angles[PITCH], -90.f, 90.f);
 
         return EVENT_FINISHED;
@@ -705,7 +705,7 @@ int Camera::MouseWheelEvent(SDL_Event &_event, float flFrameDelta)
         float yDelta = event.yrel * flFrameDelta * 20;
 
         m_Angles[PITCH] += yDelta;
-        m_Angles[YAW] += xDelta;
+        m_Angles[YAW] -= xDelta;
 
         return EVENT_FINISHED;
     }
@@ -755,39 +755,60 @@ void Camera::SetupModelViewMatrix()
 {
     m_matModelView = glm::mat4(1);
 
-    glm::mat4 ident;
+#define QUAKE_STYLE
 
-    //#define QUAKE_STYLE
+    auto concatRotate = [&](float deg, float x, float y, float z) {
+        glm::mat4 ident = glm::mat4(1);
+        ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
+        m_matModelView *= ident;
+    };
 
-#ifdef QUAKE_STYLE
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
-    m_matModelView *= ident;
+    concatRotate(-90, 1, 0, 0); // put Z going up
+    concatRotate(90, 0, 0, 1);  // put Z going up
+    concatRotate(-m_Angles[2], 1, 0, 0);
+    concatRotate(-m_Angles[0], 0, 1, 0);
+    concatRotate(-m_Angles[1], 0, 0, 1);
 
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
-    m_matModelView *= ident;
-
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
-    m_matModelView *= ident;
-
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, -glm::radians(m_Angles[PITCH]), glm::vec3(0, 1, 0));
-    m_matModelView *= ident;
-
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
-    m_matModelView *= ident;
-#else
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
-    m_matModelView *= ident;
-
-    ident = glm::mat4(1);
-    ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
-    m_matModelView *= ident;
-#endif
+    
+    // #ifdef QUAKE_STYLE
+    //
+    //          ident = glm::mat4(1);
+    //          ident = glm::rotate(ident, -glm::radians(90.f), glm::vec3(1, 0, 0));
+    //          m_matModelView *= ident;
+    //
+    //          ident = glm::mat4(1);
+    //          ident = glm::rotate(ident, glm::radians(180.f), glm::vec3(0, 0, 1));
+    //          m_matModelView *= ident;
+    //
+    //
+    // //     ident = glm::mat4(1);
+    // //     ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
+    // //     m_matModelView *= ident;
+    // //
+    // //     ident = glm::mat4(1);
+    // //     ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
+    // //     m_matModelView *= ident;
+    //
+    //     ident = glm::mat4(1);
+    //     ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
+    //     m_matModelView *= ident;
+    //
+    //     ident = glm::mat4(1);
+    //     ident = glm::rotate(ident, -glm::radians(m_Angles[PITCH]), glm::vec3(0, 1, 0));
+    //     m_matModelView *= ident;
+    //
+    //     ident = glm::mat4(1);
+    //     ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
+    //     m_matModelView *= ident;
+    // #else
+    //     ident = glm::mat4(1);
+    //     ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
+    //     m_matModelView *= ident;
+    //
+    //     ident = glm::mat4(1);
+    //     ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
+    //     m_matModelView *= ident;
+    // #endif
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 

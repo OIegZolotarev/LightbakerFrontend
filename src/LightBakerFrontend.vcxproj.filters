@@ -401,6 +401,9 @@
     <ClCompile Include="mod_manager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="entity_transform.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -730,6 +733,9 @@
     </ClInclude>
     <ClInclude Include="mod_manager.h">
       <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="entity_transform.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

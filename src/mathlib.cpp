@@ -48,6 +48,16 @@ bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, co
     return true;
 }
 
+float AngleMod(float val)
+{
+    if (val > 360)
+        return val - 360;
+    else if (val < 0)
+        return val + 360;
+
+    return val;
+}
+
 void plane_s::CalcSignBits()
 {
     signbits = 0;

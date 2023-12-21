@@ -41,3 +41,5 @@ typedef struct plane_s
 } plane_t;
 
 bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out);
+
+float AngleMod(float val);

@@ -100,7 +100,6 @@ void BSPEntity::PopulateScene()
         if (!studioModel.empty())
         {
             IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str());
-
             SetModel(model);
         }
 

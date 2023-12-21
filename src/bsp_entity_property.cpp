@@ -209,7 +209,7 @@ void BSPEntityProperty::ParseOrigin(const std::string &value)
                 origin[i] = 0;
         }
 
-        SetPosition(ConvertOriginToSceneSpace(origin));
+        SetPosition(origin);
         m_pOwner->SetPosition(GetPosition());
 
         SetDisplayName("Origin");

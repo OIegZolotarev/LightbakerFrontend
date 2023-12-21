@@ -178,8 +178,9 @@ BSPRenderer::BSPRenderer(BSPLevel *world)
     }
 
     constexpr float ang = glm::radians(90.f);
-    m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
-    m_Transform *= glm::rotate(glm::mat4(1), ang, {0.f, 0.f, 1.f});
+    m_Transform         = glm::mat4(1);
+    //m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
+    //m_Transform *= glm::rotate(glm::mat4(1), ang, {0.f, 0.f, 1.f});
 }
 
 BSPRenderer::~BSPRenderer()
@@ -190,7 +191,7 @@ BSPRenderer::~BSPRenderer()
 void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
 {
     // Make Z-Axis look up
-    m_vecEyesPosition = cameraPosition.xzy;
+    m_vecEyesPosition = cameraPosition.xyz;
     auto shader = GLBackend::Instance()->LightMappedSceneShader();
 
 
