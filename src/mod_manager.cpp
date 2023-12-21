@@ -14,14 +14,16 @@ ModelsManager::~ModelsManager()
     m_lstModels.clear();
 }
 
-IModelWeakPtr ModelsManager::LookupModel(const char *fileName)
+IModelWeakPtr ModelsManager::LookupModel(const char *fileName, bool canFallback)
 {
     size_t hash = StrHash(fileName);
+
 
     for (auto &it : m_lstModels)
     {
         if (it->Hash() == hash)
         {
+            Con_Printf("ModelsManager::LookupModel(): using cached entry for %s\n", fileName);
             return it;
         }
     }
@@ -30,16 +32,23 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName)
 
     auto fd = FileSystem::Instance()->LoadFile(fileName);
 
-    if (!fd && strcasecmp(fileName, "res/mesh/error.mdl"))
+    if (!fd)
     {
-        Con_Printf("ModelsManager::LookupModel(): fallback on %s\n", fileName);
-        return LookupModel("res/mesh/error.mdl");
+        if (!canFallback)
+            return IModelWeakPtr();
+        else if (strcasecmp(fileName, "res/mesh/error.mdl"))
+        {
+            Con_Printf("ModelsManager::LookupModel(): fallback on %s\n", fileName);
+            return LookupModel("res/mesh/error.mdl", false);
+        }
+        else
+            return IModelWeakPtr();
     }
-    else if (!fd)
-        return IModelWeakPtr();
 
-    GoldSource::StudioModelV10 *pModel = new GoldSource::StudioModelV10(fd);
+    GoldSource::StudioModelV10 *pModel = new GoldSource::StudioModelV10(fd);    
     fd->UnRef();
+
+    pModel->SetHash(hash);
 
     IModelSharedPtr pResult = IModelSharedPtr(pModel);
 

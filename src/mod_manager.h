@@ -20,7 +20,10 @@ public:
         
     virtual void Render(SceneEntity *pEntity, RenderMode mode) = 0;
     size_t       Hash();
-
+    void         SetHash(size_t hash)
+    {
+        m_Hash = hash;
+    }
 };
 
 typedef std::shared_ptr<IModel> IModelSharedPtr;
@@ -33,5 +36,5 @@ public:
     
     ~ModelsManager();
 
-    IModelWeakPtr LookupModel(const char *fileName);
+    IModelWeakPtr LookupModel(const char *fileName, bool canFallback = true);
 };
