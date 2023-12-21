@@ -33,14 +33,21 @@ public:
 
 class FileSystem
 {
-    std::vector<IArchive *> m_vecArchiveProviders;
+    std::list<IArchive *> m_vecArchiveProviders;
+
+private:
+
+    friend IArchive;
+    friend class FolderMount;
+
+    static FileData *LoadFileFromOS(const char* fileName);
 
 public:
     FileSystem();
     ~FileSystem();
-
-    
+        
     void MountArchive(IArchive * pArchive);
+    void UnmountArchive(IArchive * pArchive);
 
     static FileSystem *Instance();
 
@@ -100,5 +107,6 @@ public:
 
     IFileHandle *OpenFileHandle(const char *filePath);
 
+    static std::string MakeCanonicalPath(const char* src);
 
 };

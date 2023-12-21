@@ -17,6 +17,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <filesystem>
 #include "fs_quake1_pak.h"
+#include "fs_folder_mount.h"
 
 std::string FileData::BaseName()
 {
@@ -71,9 +72,40 @@ bool IArchive::IsHidden()
     return m_bHideFromUser;
 }
 
+FileData *FileSystem::LoadFileFromOS(const char *fileName)
+{
+    FILE *fp = fopen(fileName, "rb");
+
+    if (!fp)
+        return nullptr;
+
+    size_t length = 0;
+    byte * data   = 0;
+
+    fseek(fp, 0, SEEK_END);
+    length = ftell(fp);
+    data   = new byte[length + 1];
+    memset(data, 0, length + 1);
+
+    rewind(fp);
+
+    fread(data, 1, length, fp);
+    fclose(fp);
+
+    std::filesystem::path p = std::filesystem::path(fileName);
+    auto                  c = std::filesystem::canonical(p);
+
+    FileData *pResult;
+    pResult = new FileData(data, length, c.string().c_str());
+    pResult->FlagOwnsData();
+
+    return pResult;
+}
+
 FileSystem::FileSystem()
 {
-    MountArchive(new Quake1Pak("res.pak"));
+    // MountArchive(new Quake1Pak("res.pak"));    
+    //MountArchive(new FolderMount("extra/"));
 }
 
 FileSystem::~FileSystem()
@@ -97,29 +129,7 @@ FileData *FileSystem::LoadFile(const char *fileName)
             return pResult;
     }
 
-    FILE *fp = fopen(fileName, "rb");
-
-    if (!fp)
-        return pResult;
-
-    size_t length = 0;
-    byte * data   = 0;
-
-    fseek(fp, 0, SEEK_END);
-    length = ftell(fp);
-    data   = new byte[length + 1];
-    memset(data, 0, length + 1);
-
-    rewind(fp);
-
-    fread(data, 1, length, fp);
-    fclose(fp);
-
-    std::filesystem::path p = std::filesystem::path(fileName);
-    auto                  c = std::filesystem::canonical(p);
-
-    pResult = new FileData(data, length, c.string().c_str());
-    pResult->FlagOwnsData();
+    pResult = LoadFileFromOS(fileName);
 
     return pResult;
 }
@@ -324,9 +334,22 @@ IFileHandle *FileSystem::OpenFileHandle(const char *filePath)
     return new FileHandleOS(filePath);
 }
 
+std::string FileSystem::MakeCanonicalPath(const char *src)
+{
+    std::filesystem::path p = std::filesystem::path(src);
+    auto                  c = std::filesystem::canonical(p);
+
+    return c.string();
+}
+
 void FileSystem::MountArchive(IArchive * pArchive)
 {
     m_vecArchiveProviders.push_back(pArchive);
+}
+
+void FileSystem::UnmountArchive(IArchive *pArchive)
+{
+    m_vecArchiveProviders.remove_if([&](IArchive *pTest) { return pTest == pArchive; });
 }
 
 std::string FileSystem::MakeTemplatePath(const char *fileName, const char *templ)

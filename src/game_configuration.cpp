@@ -10,6 +10,7 @@
 #include "goldsource_game_configuration.h"
 #include <regex>
 #include "text_utils.h"
+#include "fs_folder_mount.h"
 
 GameConfiguration::GameConfiguration(std::string descr, std::string gameDirectory) : m_Description(descr)
 {
@@ -29,8 +30,6 @@ const char *GameConfiguration::Description() const
 {
     return m_Description.c_str();
 }
-
-
 
 bool GameConfiguration::MatchesGameDirectoryMask(std::string &levelFilePath) const
 {
@@ -70,6 +69,39 @@ void GameConfiguration::SetGameDirectory(std::string &gameDir)
     auto gdPathCanonical = std::filesystem::canonical(gdPath);
 
     m_GameDirectory = gdPathCanonical.string();
+
+    if (m_pFSRootMount)
+        delete m_pFSRootMount;
+
+    m_pFSRootMount = new FolderMount(gameDir.c_str());
+}
+
+void GameConfiguration::Serialize(std::string fileName) const
+{
+}
+
+void GameConfiguration::EditDialog()
+{
+}
+
+void GameConfiguration::SetDefault(bool bFlag)
+{
+    m_bDefault = bFlag;
+}
+
+bool GameConfiguration::IsDefault()
+{
+    return m_bDefault;
+}
+
+void GameConfiguration::MountGameFS()
+{
+    FileSystem::Instance()->MountArchive(m_pFSRootMount);
+}
+
+void GameConfiguration::UnmountGameFS()
+{
+    FileSystem::Instance()->UnmountArchive(m_pFSRootMount);
 }
 
 void GameConfigurationsManager::Init(PersistentStorage *storage)
