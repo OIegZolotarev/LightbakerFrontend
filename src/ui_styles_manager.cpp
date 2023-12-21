@@ -3,8 +3,9 @@
     (c) 2023 CrazyRussian
 */
 
-#include "ui_styles_manager.h"
 #include "application.h"
+#include "ui_styles_manager.h"
+
 #include "common.h"
 #include "text_utils.h"
 

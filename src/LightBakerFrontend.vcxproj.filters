@@ -411,6 +411,9 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="fs_quake1_pak.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_folder_mount.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -750,6 +753,9 @@
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
     <ClInclude Include="fs_quake1_pak.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_folder_mount.h">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
   </ItemGroup>

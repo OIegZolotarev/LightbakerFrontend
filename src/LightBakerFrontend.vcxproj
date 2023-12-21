@@ -208,6 +208,7 @@ build.bat
     <ClCompile Include="files_listview_ex.cpp" />
     <ClCompile Include="fs_file_data.cpp" />
     <ClCompile Include="fs_file_handle.cpp" />
+    <ClCompile Include="fs_folder_mount.cpp" />
     <ClCompile Include="fs_quake1_pak.cpp" />
     <ClCompile Include="gl_draw_mesh.cpp" />
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
@@ -314,6 +315,7 @@ build.bat
     <ClInclude Include="files_listview_ex.h" />
     <ClInclude Include="fs_file_data.h" />
     <ClInclude Include="fs_file_handle.h" />
+    <ClInclude Include="fs_folder_mount.h" />
     <ClInclude Include="fs_quake1_pak.h" />
     <ClInclude Include="gl_draw_mesh.h" />
     <ClInclude Include="goldsource_bsp_asynch_loader.h" />
