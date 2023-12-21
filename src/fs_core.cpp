@@ -16,6 +16,7 @@
 #include "fs_core.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <filesystem>
+#include "fs_quake1_pak.h"
 
 std::string FileData::BaseName()
 {
@@ -72,10 +73,13 @@ bool IArchive::IsHidden()
 
 FileSystem::FileSystem()
 {
+    MountArchive(new Quake1Pak("res.pak"));
 }
 
 FileSystem::~FileSystem()
 {
+    for (auto &it : m_vecArchiveProviders)
+        delete it;
 }
 
 FileSystem *FileSystem::Instance() 
@@ -318,6 +322,11 @@ IFileHandle *FileSystem::OpenFileHandle(const char *filePath)
 {
     // OS-only for now
     return new FileHandleOS(filePath);
+}
+
+void FileSystem::MountArchive(IArchive * pArchive)
+{
+    m_vecArchiveProviders.push_back(pArchive);
 }
 
 std::string FileSystem::MakeTemplatePath(const char *fileName, const char *templ)

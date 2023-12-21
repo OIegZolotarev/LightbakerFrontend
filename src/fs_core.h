@@ -39,6 +39,9 @@ public:
     FileSystem();
     ~FileSystem();
 
+    
+    void MountArchive(IArchive * pArchive);
+
     static FileSystem *Instance();
 
     [[nodiscard]] FileData *LoadFile(const char *fileName);
@@ -96,4 +99,6 @@ public:
 
 
     IFileHandle *OpenFileHandle(const char *filePath);
+
+
 };

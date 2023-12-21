@@ -3,9 +3,10 @@
     (c) 2022 CrazyRussian
 */
 
+#define _CRT_SECURE_NO_WARNINGS
+
 #include "common.h"
 #include "fs_file_handle.h"
-
 
 
 FileHandleOS::FileHandleOS(const char *fileName)

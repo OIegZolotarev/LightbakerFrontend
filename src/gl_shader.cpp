@@ -266,6 +266,12 @@ void ShaderProgram::LoadAndParseShader()
 
     FileData *fd = FileSystem::Instance()->LoadFile(m_FileName);
 
+    if (!fd)
+    {
+        Con_Printf("ShaderProgram::LoadAndParseShader(): file %s not found!\n", m_FileName.c_str());
+        return;
+    }
+
     std::string src = PreprocessIncludes(fd);
 
     m_uiVertexShader   = MakeShader(src, ShaderTypes::Vertex, m_Defines);

@@ -206,6 +206,9 @@ build.bat
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
+    <ClCompile Include="fs_file_data.cpp" />
+    <ClCompile Include="fs_file_handle.cpp" />
+    <ClCompile Include="fs_quake1_pak.cpp" />
     <ClCompile Include="gl_draw_mesh.cpp" />
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
     <ClCompile Include="img_indexed_from_memory.cpp" />
@@ -228,7 +231,7 @@ build.bat
     <ClCompile Include="debug_panel.cpp" />
     <ClCompile Include="draw_utils.cpp" />
     <ClCompile Include="gl_backend.cpp" />
-    <ClCompile Include="file_system.cpp" />
+    <ClCompile Include="fs_core.cpp" />
     <ClCompile Include="bsp_entity.cpp" />
     <ClCompile Include="goldsource_bsp_renderer.cpp" />
     <ClCompile Include="goldsource_bsp_level.cpp" />
@@ -309,6 +312,9 @@ build.bat
     <ClInclude Include="color.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
+    <ClInclude Include="fs_file_data.h" />
+    <ClInclude Include="fs_file_handle.h" />
+    <ClInclude Include="fs_quake1_pak.h" />
     <ClInclude Include="gl_draw_mesh.h" />
     <ClInclude Include="goldsource_bsp_asynch_loader.h" />
     <ClInclude Include="img_indexed_from_memory.h" />
@@ -335,7 +341,7 @@ build.bat
     <ClInclude Include="draw_utils.h" />
     <ClInclude Include="enum_iterator.h" />
     <ClInclude Include="gl_backend.h" />
-    <ClInclude Include="file_system.h" />
+    <ClInclude Include="fs_core.h" />
     <ClInclude Include="event_handler.h" />
     <ClInclude Include="bsp_entity.h" />
     <ClInclude Include="goldsource_bsp_mem_structs.h" />

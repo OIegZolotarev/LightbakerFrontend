@@ -401,9 +401,6 @@
     <ClCompile Include="mod_manager.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="entity_transform.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="fs_core.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
@@ -411,6 +408,9 @@
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
     <ClCompile Include="fs_file_data.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_quake1_pak.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -740,9 +740,6 @@
     <ClInclude Include="mod_manager.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="entity_transform.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="fs_core.h">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
@@ -750,6 +747,9 @@
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
     <ClInclude Include="fs_file_data.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_quake1_pak.h">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
   </ItemGroup>

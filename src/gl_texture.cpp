@@ -825,6 +825,13 @@ void TextureManager::MakeFallbackTexture(GLTexture *pResult, FallbackTexture fal
         break;
     }
 
+    if (!pFallback)
+    {
+        Con_Printf("TextureManager(): Can't fallback for texture %s - no falback texture avaible!!!\n",
+                   pResult->Name().c_str());
+        return;
+    }
+
     pResult->m_uiGLTexnum = pFallback->m_uiGLTexnum;
     pResult->m_iWidth     = pFallback->m_iWidth;
     pResult->m_iHeight    = pFallback->m_iHeight;
