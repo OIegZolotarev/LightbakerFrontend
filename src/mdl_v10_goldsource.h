@@ -190,7 +190,11 @@ class StudioTextureV10
     IndexedFromMemoryImage *m_pPixels  = nullptr;
     GLTexture *             m_pTexture = nullptr;
 
+    bool m_bFallback = false;
+
 public:
+    StudioTextureV10(GLTexture * fallback);
+
     StudioTextureV10(byte *header, dstudiotexture10_t *pTexture);
     ~StudioTextureV10();
     int Width();

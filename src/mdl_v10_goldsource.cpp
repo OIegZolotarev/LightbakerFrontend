@@ -10,6 +10,7 @@
 #include "img_indexed_from_memory.h"
 #include "mathlib.h"
 #include "mdl_v10_goldsource.h"
+#include "gl_texture.h"
 
 using namespace GoldSource;
 
@@ -640,8 +641,12 @@ void StudioModelV10::OverlayBones()
 
 GoldSource::StudioTextureV10 *StudioModelV10::GetTexture(short textureIdx)
 {
-    // Out of bounds should be handled by stl lib
-    // assert(textureIdx >= 0 && textureIdx < m_vTextures.size());
+    if (textureIdx >= m_vTextures.size())
+    {
+        static StudioTextureV10 fallback(TextureManager::Instance()->GetFallbackTexture());
+        return &fallback;
+    }
+
     return m_vTextures[textureIdx];
 }
 
@@ -911,6 +916,7 @@ void StudioMeshV10::BuildDrawMesh()
     short             textureIdx = m_pModel->GetSkinRef(skinref);
     StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
 
+
     s = 1.0 / (float)pTexture->Width();
     t = 1.0 / (float)pTexture->Height();
 
@@ -1092,6 +1098,17 @@ StudioTextureV10::StudioTextureV10(byte *header, dstudiotexture10_t *pTexture)
     m_pTexture = TextureManager::LoadTextureAsynch(m_pPixels, 0, m_strName, TextureSource::IndexedFrommemory);
 }
 
+StudioTextureV10::StudioTextureV10(GLTexture *fallback)
+{
+    m_pTexture  = fallback;
+    m_bFallback = true;
+
+    m_iWidth  = fallback->Width();
+    m_iHeight = fallback->Height();
+
+    strlcpy(m_strName, "fallback",sizeof(m_strName));
+}
+
 int StudioTextureV10::Width()
 {
     return m_iWidth;
@@ -1109,7 +1126,7 @@ GLTexture *StudioTextureV10::GetGLTexture()
 
 StudioTextureV10::~StudioTextureV10()
 {
-    if (m_pTexture)
+    if (m_pTexture && !m_bFallback)
         TextureManager::Instance()->DestroyTexture(m_pTexture);
 
     if (m_pPixels)
