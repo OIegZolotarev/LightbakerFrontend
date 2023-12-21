@@ -344,6 +344,9 @@ std::string FileSystem::MakeCanonicalPath(const char *src)
 
 void FileSystem::MountArchive(IArchive * pArchive)
 {
+    if (!pArchive)
+        Application::EPICFAIL("FileSystem::MountArchive(): nullptr input!");
+
     m_vecArchiveProviders.push_back(pArchive);
 }
 

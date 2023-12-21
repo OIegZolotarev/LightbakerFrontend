@@ -96,12 +96,14 @@ bool GameConfiguration::IsDefault()
 
 void GameConfiguration::MountGameFS()
 {
-    FileSystem::Instance()->MountArchive(m_pFSRootMount);
+    if (m_pFSRootMount)
+        FileSystem::Instance()->MountArchive(m_pFSRootMount);
 }
 
 void GameConfiguration::UnmountGameFS()
 {
-    FileSystem::Instance()->UnmountArchive(m_pFSRootMount);
+    if (m_pFSRootMount)
+        FileSystem::Instance()->UnmountArchive(m_pFSRootMount);
 }
 
 void GameConfigurationsManager::Init(PersistentStorage *storage)
