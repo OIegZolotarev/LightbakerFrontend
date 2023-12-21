@@ -43,7 +43,7 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
     // TODO: fix later
     static int counter = 0;
 
-    AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
+    AttachmentTypes fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
 
     // TODO: FBO pool for reusing by viewports
     m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
@@ -172,7 +172,7 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
-        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
+        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
 
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);

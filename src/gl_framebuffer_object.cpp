@@ -64,6 +64,10 @@ void GLFramebufferObject::SetupColorAttachment(int n, AttachmentTypes typeHint)
         internalFormat = GL_RGBA;
         format         = GL_RGBA;
         break;
+    case AttachmentTypes::RGB:
+        internalFormat = GL_RGB;
+        format         = GL_RGB;
+        break;
     case AttachmentTypes::R32UI:
         internalFormat = GL_R32UI;
         format         = GL_RGB_INTEGER;

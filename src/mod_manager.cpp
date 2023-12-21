@@ -23,7 +23,7 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName, bool canFallback)
     {
         if (it->Hash() == hash)
         {
-            Con_Printf("ModelsManager::LookupModel(): using cached entry for %s\n", fileName);
+            // Con_Printf("ModelsManager::LookupModel(): using cached entry for %s\n", fileName);
             return it;
         }
     }

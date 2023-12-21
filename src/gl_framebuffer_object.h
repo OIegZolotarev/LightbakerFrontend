@@ -11,6 +11,7 @@
 enum class AttachmentTypes
 {
     RGBA = 0,
+    RGB,
     R32UI,
     ListEnd
 };
