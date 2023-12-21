@@ -48,6 +48,11 @@ Scene::Scene()
 
 Scene::~Scene()
 {
+    if (auto ptr = m_pGameConfiguration.lock())
+    {
+        ptr->UnmountGameFS();
+    }
+
     // FreeVector(m_vecSceneLightDefs);
     m_SceneEntities.clear();
     delete m_pEditHistory;
@@ -330,6 +335,11 @@ void Scene::LoadLevel(const char *levelName)
 
     auto cfg             = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
     m_pGameConfiguration = *cfg;
+
+    if (auto ptr = m_pGameConfiguration.lock())
+    {
+        ptr->MountGameFS();
+    }
 
     auto format = DetermineLevelFormatFromFileName(levelName);
 
