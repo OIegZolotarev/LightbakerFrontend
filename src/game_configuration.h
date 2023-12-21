@@ -37,6 +37,28 @@ protected:
 public:
     GameConfiguration() = default;
     GameConfiguration(std::string description, std::string gameDirectory);
+
+    GameConfiguration(const GameConfiguration & other)
+    {
+        m_GameDirectory = other.m_GameDirectory;
+        m_Description = other.m_Description;
+        m_SavedFileName = other.m_SavedFileName;
+        m_Engine = other.m_Engine;
+
+        // TODO: copy FS mount point?
+    }
+
+    GameConfiguration(const GameConfiguration && other)
+    {
+        m_GameDirectory = other.m_GameDirectory;
+        m_Description   = other.m_Description;
+        m_SavedFileName = other.m_SavedFileName;
+        m_Engine        = other.m_Engine;
+
+        m_pFSRootMount = other.m_pFSRootMount;
+        m_bDefault     = other.m_bDefault;
+    }
+
     ~GameConfiguration();
 
     // Data

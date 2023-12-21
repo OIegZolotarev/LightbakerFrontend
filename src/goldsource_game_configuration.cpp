@@ -50,8 +50,8 @@ GoldSource::HammerGameConfiguration *HammerGameConfiguration::Get(GameConfigurat
     return hammerConfig;
 }
 
-HammerGameConfiguration::HammerGameConfiguration(HammerGameConfiguration &other)
-    : GameConfiguration(other.m_Description, other.m_GameDirectory)
+HammerGameConfiguration::HammerGameConfiguration(const HammerGameConfiguration &other)
+    : GameConfiguration(other)
 {
     m_GameName     = other.m_GameName;
     m_ModDirectory = other.m_ModDirectory;
@@ -144,8 +144,11 @@ GameConfiguration *HammerGameConfiguration::Clone()
 
 HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName) : HammerGameConfiguration()
 {
+
     m_SavedFileName = savedFileName;
     Deserialize(savedFileName);
+
+    SetGameDirectory(m_GameDirectory);
 
     // TODO: make cache and add loading code to copy constructor
     //
@@ -267,7 +270,11 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
         m_Description = j["Description"];
 
     if (j.contains("GameDirectory"))
-        m_GameDirectory = j["GameDirectory"];
+    {
+        std::string d = j["GameDirectory"];
+        SetGameDirectory(d);
+    }
+
 
     if (j.contains("FGDFiles"))
     {

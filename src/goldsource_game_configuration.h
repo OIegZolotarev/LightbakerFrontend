@@ -45,9 +45,13 @@ class HammerGameConfiguration : public GameConfiguration
 
   public:
     HammerGameConfiguration();
-    HammerGameConfiguration(HammerGameConfiguration &other);
+    
+    
+    HammerGameConfiguration(const HammerGameConfiguration &other);
+
     HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
+
     
     ~HammerGameConfiguration();
 
