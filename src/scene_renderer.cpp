@@ -481,12 +481,12 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
         case UniformKind::TransformMatrix: {
             glm::vec3 offset = m_Mins + scale * 0.5f;
 
-            glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), m_Position - offset);
+            glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), m_Position + offset);
             it->SetMat4(mat);
         }
         break;
         case UniformKind::Scale:
-            it->SetFloat3(scale.xzy);
+            it->SetFloat3(scale.xyz);
             break;
         case UniformKind::ObjectSerialNumber:
             it->SetInt(objectSerialNumber);
