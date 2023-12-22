@@ -29,7 +29,7 @@ enum class LightTypes
 class Lb3kLightEntity : public SceneEntity
 {
   public:
-    Lb3kLightEntity();
+    Lb3kLightEntity(Scene * pScene);
     Lb3kLightEntity(Lb3kLightEntity &other);
 
     void SetType(LightTypes type);
@@ -48,7 +48,7 @@ class Lb3kLightEntity : public SceneEntity
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
     void OnUnhovered() override;
-    void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
     void OnUnSelect() override;
 
@@ -102,14 +102,16 @@ class LightPropertiesBinding : public IObjectPropertiesBinding
   public:
     LightPropertiesBinding(lightDefWPtr_t ref);
 
-    void FillProperties(std::vector<VariantValue> &collection) override;
+    void FillProperties(std::list<VariantValue*>& collection) override;
     void UpdateObjectProperties(VariantValue *data, size_t num) override;
     bool IsObjectValid() override;
 
-    size_t GetSerialNumber() override;
+    uint32_t GetSerialNumber() override;
     void OnPropertyChangeSavedToHistory() override;
 
     ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
 
     const char *ObjectClassname() override;
+
+    void UpdateProperty(VariantValue *prop) override;
 };

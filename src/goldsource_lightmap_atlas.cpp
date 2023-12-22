@@ -97,10 +97,6 @@ void LightmapAtlas::UploadBlock(bool dynamic)
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_LIGHTMAP_FORMAT, m_BlockWidth, m_BlockHeight, 0, GL_LIGHTMAP_FORMAT, GL_UNSIGNED_BYTE, lightmap_buffer);
 
-	FILE* fp = fopen("test.raw", "wb");
-	fwrite(lightmap_buffer, m_BlockWidth * m_BlockHeight, LIGHTMAP_BYTES, fp);
-	fclose(fp);
-
 	if (m_CurrentLightmapTexture == MAX_LIGHTMAPS)
 		throw new std::exception("LM_UploadBlock() - MAX_LIGHTMAPS exceeded\n");
 

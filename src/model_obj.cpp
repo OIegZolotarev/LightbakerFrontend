@@ -7,7 +7,7 @@
 
 #include "application.h"
 #include "model_obj.h"
-#include "camera.h"
+#include "r_camera.h"
 #include "common_resources.h"
 #include "gl_backend.h"
 #include "mod_obj_asynch_exporter.h"
@@ -20,7 +20,7 @@
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
 
-ModelOBJ::ModelOBJ(const char *fileName)
+ModelOBJ::ModelOBJ(const char *fileName, Scene *pScene) : SceneEntity(pScene)
 {
     m_strModelName = fileName;
     auto fs        = Application::GetFileSystem();
@@ -77,7 +77,7 @@ void ModelOBJ::DrawDebug()
         else
             GLBackend::BindTexture(0, nullptr);
 
-        mesh.Draw(it.first_face, it.num_faces);
+        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
     }
 
     mesh.Unbind();
@@ -254,7 +254,7 @@ void ModelOBJ::OnMouseMove(glm::vec2 delta)
 {
 }
 
-void ModelOBJ::OnSelect()
+void ModelOBJ::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
     // Con_Printf("ModelOBJ::OnSelect()\n");
 }
@@ -324,7 +324,7 @@ void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader *shader)
             GLBackend::BindTexture(0, it.diffuse_texture ? it.diffuse_texture : nullptr);
         }
 
-        mesh.Draw(it.first_face, it.num_faces);
+        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
 
         // break;
     }
@@ -359,7 +359,7 @@ void ModelOBJ::RenderGroupShaded()
 
     // for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
 
-    int index = 0;
+    size_t index = 0;
 
     for (auto &it : m_ModelData.meshes)
     {
@@ -380,7 +380,7 @@ void ModelOBJ::RenderGroupShaded()
 
         shader->SetObjectColor(glm::vec4(rgb, 1));
 
-        mesh.Draw(it.first_face, it.num_faces);
+        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
         index++;
     }
 

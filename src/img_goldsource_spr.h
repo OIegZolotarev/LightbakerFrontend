@@ -6,16 +6,7 @@
 #pragma once
 
 #include "spritegn.h"
+#include "color.h"
 
 RawTexture *DecodeGoldSourceSpite(byte *data, size_t length);
 
-typedef struct  
-{
-    byte r, g, b;
-}color24_t;
-
-
-typedef struct
-{
-    byte r, g, b, a;
-} color32_t;

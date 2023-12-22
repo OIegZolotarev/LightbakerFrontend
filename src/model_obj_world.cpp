@@ -7,9 +7,9 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "goldsource_bsp_level.h"
-#include "camera.h"
+#include "r_camera.h"
 
-ModelObjWorld::ModelObjWorld(const char* fileName)
+ModelObjWorld::ModelObjWorld(const char *fileName, Scene *pScene) : IWorldEntity(pScene)
 {
 	SetClassName("worldspawn");
 	m_EnvColor = glm::vec3(1, 1, 1);
@@ -17,7 +17,7 @@ ModelObjWorld::ModelObjWorld(const char* fileName)
 	auto fs = Application::GetFileSystem();
 	auto ext = fs->ExtensionFromPath(fileName);
 
-	m_pObjWorld = new ModelOBJ(fileName);
+	m_pObjWorld = new ModelOBJ(fileName, pScene);
 
 }
 
@@ -26,14 +26,10 @@ ModelObjWorld::~ModelObjWorld()
 	if (m_pObjWorld) delete m_pObjWorld;
 }
 
-void ModelObjWorld::OnSelect()
+void ModelObjWorld::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
-	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRenderer->GetScene();
-
-	auto weakRef = scene->GetEntityWeakRef(this);
-
-	WorldspawnPropertiesBinder* binder = new WorldspawnPropertiesBinder(weakRef);
+	SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
+	WorldspawnPropertiesBinder *binder = new WorldspawnPropertiesBinder(weakRef);
 	LoadPropertiesToPropsEditor(binder);
 }
 
@@ -97,7 +93,7 @@ EntityClasses ModelObjWorld::EntityClass()
 	return EntityClasses::World;
 }
 
-void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& collection)
+void WorldspawnPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
 {
 	auto ptr = m_ptr.lock();
 
@@ -106,11 +102,13 @@ void WorldspawnPropertiesBinder::FillProperties(std::vector<VariantValue>& colle
 
 	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
 
-	VariantValue p;
 
-	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
-	p.SetColorRGB(world->GetEnvColor());
-	collection.push_back(p);
+	// TODO: redo
+// 	VariantValue p;
+// 
+// 	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
+// 	p.SetColorRGB(world->GetEnvColor());
+// 	collection.push_back(p);
 
 }
 
@@ -151,5 +149,10 @@ void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, siz
 const char* WorldspawnPropertiesBinder::ObjectClassname()
 {
 	return "World (Wavefront Obj)";
+}
+
+void WorldspawnPropertiesBinder::UpdateProperty(VariantValue *prop)
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }
 

@@ -347,4 +347,24 @@ const char *VA(const char *format, ...)
     return s;
 }
 
+size_t strlcpy(char *dst, const char *src, size_t maxlen)
+{
+    const size_t srclen = strlen(src);
+    if (srclen + 1 < maxlen)
+    {
+        memcpy(dst, src, srclen + 1);
+    }
+    else if (maxlen != 0)
+    {
+        memcpy(dst, src, maxlen - 1);
+        dst[maxlen - 1] = '\0';
+    }
+    return srclen;
+}
+
+size_t StrHash(const char *val)
+{
+    std::string_view v(val);
+    return std::hash<std::string_view>{}(v);
+}
 

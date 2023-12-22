@@ -3,15 +3,15 @@
     (c) 2023 CrazyRussian
 */
 
-
+#include "scene.h"
 #include "application.h"
+#include "goldsource_bsp_world.h"
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
-#include "properties_editor.h"
 #include "model_obj_world.h"
-#include "scene.h"
-#include "goldsource_bsp_world.h"
-#include "camera.h"
+#include "properties_editor.h"
+#include "r_camera.h"
+#include "mdl_v10_goldsource.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -42,10 +42,17 @@ void Scene::LoadLevel(const char *levelName, int loadFlags)
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
+    
+    pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
 }
 
 Scene::~Scene()
 {
+    if (auto ptr = m_pGameConfiguration.lock())
+    {
+        ptr->UnmountGameFS();
+    }
+
     // FreeVector(m_vecSceneLightDefs);
     m_SceneEntities.clear();
     delete m_pEditHistory;
@@ -80,7 +87,7 @@ void Scene::DoDeleteSelection()
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
-    auto newLight = std::make_shared<Lb3kLightEntity>();
+    auto newLight = std::make_shared<Lb3kLightEntity>(this);
 
     // newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
     newLight->SetPosition(pos);
@@ -117,9 +124,14 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 
 SceneEntityPtr Scene::AddNewGenericEntity()
 {
-    auto newEntity = std::make_shared<SceneEntity>();
+    auto newEntity = std::make_shared<SceneEntity>(this);
     m_SceneEntities.push_back(newEntity);
     return newEntity;
+}
+
+void Scene::AddNewSceneEntity(SceneEntityPtr entity)
+{
+    m_SceneEntities.push_back(entity);
 }
 
 std::list<SceneEntityPtr> &Scene::GetSceneObjects()
@@ -154,8 +166,11 @@ void Scene::RenderObjectsFor3DSelection()
 
 void Scene::RenderLightShaded()
 {
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
     auto selectionManager = SelectionManager::Instance();
-    auto frustum = Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetCamera()->GetFrustum();
+    auto frustum          = sr->GetCamera()->GetFrustum();
+
 
     for (auto &it : m_SceneEntities)
     {
@@ -165,15 +180,20 @@ void Scene::RenderLightShaded()
         if (!it->IsDataLoaded())
             continue;
 
-
         // TODO: precalculate when origin\mins\maxs are changed
         glm::vec3 absMins = it->GetPosition() + it->GetMins();
         glm::vec3 absMaxs = it->GetPosition() + it->GetMaxs();
 
-         if (frustum->CullBox(absMins, absMaxs))
-             continue;
+        if (frustum->CullBox(absMins, absMaxs))
+            continue;
 
-        it->RenderLightshaded();
+         if (it->IsTransparent())
+         {
+             sr->AddTransparentEntity(it);
+         }
+         else
+         
+            it->RenderLightshaded();
         // selectionManager->PushObject(it);
     }
 }
@@ -204,7 +224,7 @@ std::string Scene::GetModelTextureName()
     return "";
 }
 
-void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn)
+void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn)
 {
     it->SetSerialNumber(sn);
     m_SceneEntities.push_back(it);
@@ -287,7 +307,7 @@ void Scene::Reload(int loadFlags)
 {
     if (loadFlags & LRF_RELOAD_LIGHTMAPS)
     {
-        auto it            = m_SceneEntities.begin();
+        auto           it     = m_SceneEntities.begin();
         ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
 
         entity->ReloadLightmaps();
@@ -313,9 +333,13 @@ void Scene::LoadLevel(const char *levelName)
 {
     auto s = std::string(levelName);
 
-    auto cfg = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
+    auto cfg             = GameConfigurationsManager::Instance()->FindConfigurationForLevel(s);
     m_pGameConfiguration = *cfg;
-    
+
+    if (auto ptr = m_pGameConfiguration.lock())
+    {
+        ptr->MountGameFS();
+    }
 
     auto format = DetermineLevelFormatFromFileName(levelName);
 
@@ -326,14 +350,13 @@ void Scene::LoadLevel(const char *levelName)
     case LevelFormat::Unknown:
         break;
     case LevelFormat::WavefrontOBJ:
-        pLevelEntity = std::make_shared<ModelObjWorld>(levelName);
+        pLevelEntity = std::make_shared<ModelObjWorld>(levelName, this);
         break;
     case LevelFormat::BSP:
-        pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName);
+        pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName, this);
         break;
     default:
         break;
-    
     }
 
     if (!m_SceneEntities.empty())
@@ -357,12 +380,10 @@ std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t 
     // 	auto obj = (ModelOBJ*)entity;
     // 	return obj->Export(newPath, lb3kOptions);
 
-    auto it            = m_SceneEntities.begin();
-    
+    auto it = m_SceneEntities.begin();
 
     auto entity = (*it).get();
-    
-    
+
     IWorldEntity *pWorld = dynamic_cast<IWorldEntity *>(entity);
     if (NULL != pWorld)
     {
@@ -424,6 +445,6 @@ GameConfigurationWeakPtr Scene::UsedGameConfiguration()
 }
 
 uint32_t Scene::AllocSerialNumber()
-{    
+{
     return m_ObjectsCounter.Allocate();
 }

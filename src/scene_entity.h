@@ -7,6 +7,7 @@
 #include "gl_texture.h"
 #include "object_props.h"
 #include "selection_3d.h"
+#include "mod_manager.h"
 
 enum class EntityClasses
 {
@@ -32,8 +33,11 @@ public:                                                                         
         return m_##Name;                                                                                               \
     }
 
-typedef std::pair<std::string, std::string>          kvData;
-typedef std::unordered_map<std::string, std::string> TPropertiesMap;
+// Not used 
+// typedef std::pair<std::string, std::string>          kvData;
+// typedef std::unordered_map<std::string, std::string> TPropertiesMap;
+
+class Scene;
 
 class SceneEntity : public ISelectableObject
 {
@@ -45,15 +49,20 @@ class SceneEntity : public ISelectableObject
     EntityClasses m_EntityClass;
 
 protected:
+    
     void SetClassName(const char *name);
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
 
     // TODO: copy-constructor
     // Обобщенные пары ключ-значение
-    TPropertiesMap m_vProperties;
+    // TPropertiesMap m_vProperties;
 
+    // For transparent sorting
+    std::weak_ptr<SceneEntity> m_pNext;
+
+    Scene *m_pScene;
 public:
-    SceneEntity();
+    SceneEntity(Scene * pScene);
     SceneEntity(SceneEntity &other);
 
     virtual void RenderLightshaded(); // С лайтмапой
@@ -64,18 +73,17 @@ public:
 
     virtual bool IsDataLoaded();
 
-    DECLARE_PROPERTY(uint32_t, SerialNumber);
-    DECLARE_PROPERTY(glm::vec3, Position);
-
-    DECLARE_PROPERTY(glm::vec3, Mins);
-    DECLARE_PROPERTY(glm::vec3, Maxs);
-
-    DECLARE_PROPERTY(glm::vec3, Color);
-    DECLARE_PROPERTY(GLTexture *, EditorIcon);
+    DECLARE_PROPERTY(uint32_t      , SerialNumber);
+    DECLARE_PROPERTY(glm::vec3     , Position);
+    DECLARE_PROPERTY(glm::vec3     , Mins);
+    DECLARE_PROPERTY(glm::vec3     , Maxs);
+    DECLARE_PROPERTY(glm::vec3     , Color);
+    DECLARE_PROPERTY(GLTexture *   , EditorIcon);
+    DECLARE_PROPERTY(IModelWeakPtr , Model);
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
-    void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
     void OnUnSelect() override;
     void OnUnhovered() override;
 
@@ -83,12 +91,32 @@ public:
     virtual bool        IsLightEntity();
     virtual void        OnAdditionToScene(class Scene *pScene){};
 
-    void           CopyProperties(TPropertiesMap propsmap);
-    TPropertiesMap & GetProperties();
-
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
 
+    void InvokeSelect();
+    std::string &GetClassName();
+
+    template<class T> 
+    static T* GetRawSafest(std::weak_ptr<SceneEntity> & weakRef)
+    {
+        auto ptr = weakRef.lock();
+
+        if (!ptr)
+            return nullptr;
+
+        SceneEntity * rawPtr = ptr.get();
+
+        if (! instanceof <T>(rawPtr))
+            return nullptr;
+
+        return static_cast<T*>(rawPtr);
+    }
+
+    virtual bool IsTransparent();
+
+    std::weak_ptr<SceneEntity> Next();
+    void SetNext(std::weak_ptr<SceneEntity> & pOther);
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

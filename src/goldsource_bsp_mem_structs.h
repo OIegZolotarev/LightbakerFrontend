@@ -144,7 +144,7 @@ typedef struct msurface_s
     
     // CrazyRussian
     size_t meshOffset, meshLength; 
-    GLuint diffuseTexture;
+    GLTexture * diffuseTexture;
     
 } msurface_t;
 

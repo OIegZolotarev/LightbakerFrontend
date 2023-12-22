@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include <better-enums/enum.h>
-#include "Camera.h"
+#include "r_camera.h"
 #include "mathlib.h"
 
 BETTER_ENUM(FrustumPlanes, int, Right, Left, Top, Bottom, NearZ, FarZ);

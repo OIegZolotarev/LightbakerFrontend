@@ -216,6 +216,7 @@ void OptionsValue::UpdateProperty()
 {
 	if (m_Value->GetId() == (int)ApplicationSettings::GUIColorScheme)
 	{
-		UIStyles::Manager::Instance()->SelectNewStyle(m_Value->GetEnumValue());
+		// UIStyles::Manager::Instance()->SelectNewStyle(m_Value->GetEnumValue());
+        UIStyles::Manager::Instance()->ScheduleStyleUpdateForAllWindows();
 	}
 }

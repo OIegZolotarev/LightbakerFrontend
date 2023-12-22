@@ -4,7 +4,7 @@
 */
 
 #include "application.h"
-#include "grid_renderer.h"
+#include "r_editor_grid.h"
 
 
 GridRenderer::~GridRenderer()

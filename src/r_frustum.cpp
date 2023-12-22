@@ -4,9 +4,9 @@
 */
 
 #include "application.h"
-#include "camera.h"
+#include "r_camera.h"
 #include "common.h"
-#include "frustum.h"
+#include "r_frustum.h"
 
 void Frustum::SetPlane(int i, const glm::vec3 &vecNormal, float dist)
 {

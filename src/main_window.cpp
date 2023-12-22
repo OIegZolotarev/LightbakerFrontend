@@ -3,8 +3,8 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "application.h"
 #include "main_window.h"
+#include "application.h"
 
 #include "common_resources.h"
 #include "console_output_panel.h"
@@ -18,17 +18,17 @@
 #include "ui_common.h"
 #include "ui_styles_manager.h"
 
-#include "grid_renderer.h"
 #include "hammer_fgd.h"
+#include "r_editor_grid.h"
 
 #include "gl_screenspace_2d_renderer.h"
 #include "popup_loadfile_dialog.h"
 #include "scene_renderer.h"
 #include "secondary_window.h"
 #include "viewport.h"
+#include "viewports_orchestrator.h"
 #include "wad_textures.h"
 #include <list>
-#include "viewports_orchestrator.h"
 
 bool DEBUG_3D_SELECTION = false;
 
@@ -39,12 +39,15 @@ SDL_Cursor *g_EmptyCursor;
 char        g_IMGuiIniPath[1024];
 
 MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
-    : m_iWindowWidth(defaultSize.x), m_iWindowHeight(defaultSize.y)
+    
 {
+    m_iWindowWidth = (defaultSize.x);
+    
+    m_iWindowHeight = (defaultSize.y);
+
     m_strTitle = title;
 
-    //InitStuff();
-       
+    // InitStuff();
 
     m_vPanels.push_back(ObjectPropertiesEditor::Instance());
     m_vPanels.push_back(new SceneObjectPanel);
@@ -53,20 +56,22 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =  Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+    m_pUseGradientBackground =
+        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
-    //SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
+    // SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
 }
 
 void MainWindow::InitStuff()
 {
     InitBackend();
-    
+
     m_pSceneRenderer = new SceneRenderer(this);
     AddEventHandler(m_pSceneRenderer);
 
     InitCommonResources();
     InitCommands();
+    InitTimers();
 }
 
 MainWindow::~MainWindow()
@@ -77,8 +82,7 @@ MainWindow::~MainWindow()
     delete TextureManager::Instance();
 
     FreeGLTextures();
-    
-    
+
     delete m_pSceneRenderer;
 
     ClearPointersVector(m_vPanels);
@@ -119,12 +123,11 @@ void MainWindow::InitBackend()
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 
+    SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
+
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
-
-#ifdef WIN32
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
-#endif
-
+    
     // enable VSync
     SDL_GL_SetSwapInterval(1);
 
@@ -133,7 +136,7 @@ void MainWindow::InitBackend()
         printf("[ERROR] Couldn't initialize glad\n");
     }
     else
-        printf("gladInitialized\n");
+        printf("[INFO] GLAD Initialized\n");
 
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
@@ -166,14 +169,15 @@ void MainWindow::InitBackend()
     style->WindowRounding  = 4;
 
     // setup platform/renderer bindings
-    ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
+    InitImGUISDL2Platform();
+
     ImGui_ImplOpenGL3_Init("#version 330");
 
     ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
-    g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
-    SDL_SetCursor(g_EmptyCursor);
+    // g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
+    // SDL_SetCursor(g_EmptyCursor);
 
     // Force backend to initialize
     GLBackend::Instance();
@@ -185,7 +189,21 @@ void MainWindow::InitBackend()
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
+}
 
+void MainWindow::InitImGUISDL2Platform()
+{
+    ImGui_ImplSDL2_InitForOpenGL(m_pSDLWindow, m_pGLContext);
+}
+
+int MainWindow::GetState()
+{
+    return m_windowState;
+}
+
+bool MainWindow::HandleEvent(SDL_Event &event)
+{
+    return CommonHandleEvent(event);
 }
 
 void MainWindow::InitBackgroundRenderer()
@@ -273,7 +291,9 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowBgAlpha(0);
+
     ImGui::Begin(label, NULL, host_window_flags);
+
     ImGui::PopStyleVar(3);
 
     gIDMainDockspace = ImGui::GetID(strDockspace);
@@ -304,6 +324,11 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
     return gIDMainDockspace;
 }
 
+bool MainWindow::IsMainWindow()
+{
+    return true;
+}
+
 void MainWindow::InitViewports()
 {
     auto vo = ViewportsOrchestrator::Instance();
@@ -311,11 +336,11 @@ void MainWindow::InitViewports()
     if (!vo->LoadViewports())
     {
         vo->AddNewViewport("Main", this, nullptr);
-    }   
+    }
 }
 
 void MainWindow::CloneViewport(Viewport *pViewport)
-{    
+{
     auto       vo      = ViewportsOrchestrator::Instance();
     static int counter = 1;
 
@@ -327,10 +352,10 @@ void MainWindow::CloneViewport(Viewport *pViewport)
 Viewport *MainWindow::GetViewport(int index)
 {
     return nullptr;
-// 
-//     auto it = m_lstViewports.begin();
-//     std::advance(it, index);
-//     return *it;
+    //
+    //     auto it = m_lstViewports.begin();
+    //     std::advance(it, index);
+    //     return *it;
 }
 
 void MainWindow::SetTitle(std::string &fileName)
@@ -376,7 +401,7 @@ void MainWindow::UpdateStatusbar(int updateFlags)
     {
         int gs = GridRenderer::Instance()->GridStep();
 
-        m_statusBarData.gridStep = std::format("Grid: {0}", gs);
+        m_statusBarData.gridStep = std::format("Grid: {0} units", gs);
     }
 }
 void MainWindow::UpdateDocks()
@@ -394,36 +419,32 @@ int MainWindow::GetFPS()
     return m_TimersData.actual_fps;
 }
 
-int *MainWindow::Get3DGLViewport()
+void MainWindow::IterateUpdate()
 {
-    return m_i3DViewport;
+    SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
+
+    GLBackend::Instance()->NewFrame();
+    Application::Instance()->CheckIfBakngFinished();
+
+    UpdateTimers();
+    GL_BeginFrame();
+
+    ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
+
+    LoaderThread::Instance()->ExecuteEndCallbacks(10);
+
+    RenderGUI();
+
+    SDL_GL_SwapWindow(m_pSDLWindow);    
 }
 
-void MainWindow::MainLoop()
+void MainWindow::InitTimers()
 {
     m_TimersData.timestamp_now          = SDL_GetPerformanceCounter();
     m_TimersData.timestamp_last         = SDL_GetPerformanceCounter();
     m_TimersData.frames_until_init      = 3;
     m_TimersData.fps_accum              = 0;
     m_TimersData.num_frames_this_second = 0;
-
-    while (!m_bTerminated)
-    {
-        GLBackend::Instance()->NewFrame();
-        Application::Instance()->CheckIfBakngFinished();
-        m_bTerminated = !HandleEvents(!m_bTerminated);
-
-        UpdateTimers();
-        GL_BeginFrame();
-
-        ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
-
-        LoaderThread::Instance()->ExecuteEndCallbacks(10);
-
-        RenderGUI();
-
-        SDL_GL_SwapWindow(m_pSDLWindow);
-    }
 }
 
 int MainWindow::Width()
@@ -456,22 +477,7 @@ SceneRenderer *MainWindow::GetSceneRenderer()
     return m_pSceneRenderer;
 }
 
-bool MainWindow::PropagateControlsEvent(SDL_Event &event)
-{
-    bool bWasHandled = false;
 
-    for (auto &it : EventHandlers())
-    {
-        int result = it->HandleEvent(bWasHandled, event, m_TimersData.frame_delta / 1000);
-
-        bWasHandled = bWasHandled | result & EVENT_HANDLED;
-
-        if (result & EVENT_CONSUMED)
-            break;
-    }
-
-    return bWasHandled;
-}
 
 void MainWindow::InitCommands()
 {
@@ -606,7 +612,7 @@ float MainWindow::RenderMainMenu()
 
             if (ImGui::MenuItem("Exit"))
             {
-                m_bTerminated = true;
+                Application::Instance()->Terminate();
             }
 
             ImGui::EndMenu();
@@ -646,25 +652,6 @@ float MainWindow::RenderMainMenu()
 #endif
             COMMAND_ITEM(GlobalCommands::ToggleGround);
 
-            if (ImGui::BeginMenu("Render mode"))
-            {
-                RenderMode renderMode = GetSceneRenderer()->GetRenderMode();
-
-                std::tuple<GlobalCommands, RenderMode> modes[] = {
-                    {GlobalCommands::LightshadedRenderMode, RenderMode::Lightshaded},
-                    {GlobalCommands::UnshadedRenderMode, RenderMode::Unshaded},
-                    {GlobalCommands::GroupShadedRenderMode, RenderMode::Groups},
-                    {GlobalCommands::WireframeLightshadedRenderMode, RenderMode::WireframeShaded},
-                    {GlobalCommands::WireframeUnshadedRenderMode, RenderMode::WireframeUnshaded}};
-
-                for (int i = 0; i < ARRAYSIZE(modes); i++)
-                {
-                    COMMAND_ITEM(std::get<0>(modes[i]), renderMode == std::get<1>(modes[i]));
-                }
-
-                ImGui::EndMenu();
-            }
-
             COMMAND_ITEM(GlobalCommands::OpenProgramOptions);
 
             COMMAND_ITEM(GlobalCommands::ReloadAllShaders);
@@ -675,6 +662,7 @@ float MainWindow::RenderMainMenu()
         if (ImGui::BeginMenu("Windows"))
         {
             COMMAND_ITEM(GlobalCommands::ResetLayout);
+            COMMAND_ITEM(GlobalCommands::OpenNewWindow);
 
             ImGui::EndMenu();
         }
@@ -734,12 +722,18 @@ void MainWindow::RenderGUI()
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
     // start the Dear ImGui frame
+    ImGui::SetCurrentContext(m_pImGUIContext);
+
     ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplSDL2_NewFrame(m_pSDLWindow);
+    ImGui_ImplSDL2_NewFrame();
 
     static int delayInit = 2;
 
+    //    printf("ImGui::NewFrame()\n");
     ImGui::NewFrame();
+
+    if (m_bUpdateImGuiStyleNextFrame)
+        UIStyles::Manager::Instance()->ApplyCurrentStyle();
 
     if (delayInit > 0)
     {
@@ -759,8 +753,6 @@ void MainWindow::RenderGUI()
 
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
 
-    ObjectPropertiesEditor::Instance()->RenderGuizmo();
-
     for (auto &it : m_vPanels)
         it->InvokeRender();
 
@@ -774,6 +766,28 @@ void MainWindow::RenderGUI()
 
     DrawLoadingBanner();
 
+    DrawStatusBar();
+
+#ifdef _DEBUG
+    ImGui::ShowDemoWindow();
+#endif
+
+    ViewportsOrchestrator::Instance()->DisplayViewports(this);
+
+    ImGui::Render();
+
+    // Update and Render additional Platform Windows
+    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+    {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+    }
+
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+void MainWindow::DrawStatusBar()
+{
     auto viewport = ImGui::FindViewportByID(m_defaultDockSides.idDockLeftBottom);
 
     ImGuiWindowFlags window_flags =
@@ -802,23 +816,6 @@ void MainWindow::RenderGUI()
 
         ImGui::End();
     }
-
-#ifdef _DEBUG
-    ImGui::ShowDemoWindow();
-#endif
-
-    ViewportsOrchestrator::Instance()->DisplayViewports(this);
-
-    ImGui::Render();
-
-    // Update and Render additional Platform Windows
-    if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-    {
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-    }
-
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void MainWindow::DrawLoadingBanner()
@@ -901,117 +898,20 @@ bool MainWindow::RenderToolbarIcon(GLuint iconId)
     return ImGui::ImageButton((ImTextureID)iconId, ImVec2(16, 16));
 }
 
-bool MainWindow::HandleEvents(bool loop)
-{
-    SDL_Event event;
-    while (SDL_PollEvent(&event))
-    {
-        ImGui_ImplSDL2_ProcessEvent(&event);
 
-        bool bIgnorableEvent = true;
 
-        switch (event.type)
-        {
-        case SDL_KEYDOWN:
-        case SDL_KEYUP:
-            if (ImGui::GetIO().WantCaptureKeyboard && bIgnorableEvent)
-                continue;
-            break;
-        case SDL_MOUSEBUTTONDOWN:
-        case SDL_MOUSEBUTTONUP:
-            if (ImGui::GetIO().WantCaptureMouse && bIgnorableEvent)
-                continue;
-            break;
-        }
 
-        switch (event.type)
-        {
-        case SDL_QUIT:
-            loop = false;
-            break;
 
-        case SDL_WINDOWEVENT:
-            switch (event.window.event)
-            {
-            case SDL_WINDOWEVENT_CLOSE:
-                loop = false;
-                break;
-            case SDL_WINDOWEVENT_RESIZED:
-            case SDL_WINDOWEVENT_SIZE_CHANGED:
-            case SDL_WINDOWEVENT_MINIMIZED:
-            case SDL_WINDOWEVENT_MAXIMIZED:
-            case SDL_WINDOWEVENT_RESTORED:
-                SDL_GetWindowSize(m_pSDLWindow, &m_iWindowWidth, &m_iWindowHeight);
-                glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
-                break;
-            }
-            break;
-
-        case SDL_KEYDOWN:
-            switch (event.key.keysym.sym)
-            {
-            case SDLK_ESCAPE:
-                SelectionManager::Instance()->UnSelect();
-                break;
-            }
-
-            if (Application::CommandsRegistry()->OnKeyDown())
-                break;
-
-            if (PropagateControlsEvent(event))
-                break;
-            break;
-
-        case SDL_MOUSEMOTION:
-        case SDL_MOUSEBUTTONDOWN:
-
-            if (event.button.button & SDL_BUTTON_LEFT)
-            {
-                if (!ImGui::GetHoveredID())
-                {
-                    if (SelectionManager::Instance()->SelectHoveredObject())
-                    {
-                        break;
-                    }
-                }
-            }
-
-        case SDL_MOUSEBUTTONUP:
-        case SDL_MOUSEWHEEL:
-        case SDL_KEYUP:
-            // TODO: implement
-
-            PropagateControlsEvent(event);
-            break;
-
-        case (SDL_DROPFILE): {
-            char *dropped_filedir;
-
-            // In case if dropped file
-            dropped_filedir = event.drop.file;
-            // Shows directory of dropped file
-
-            m_pSceneRenderer->LoadModel(dropped_filedir, LRF_LOAD_ALL);
-
-            SDL_free(dropped_filedir); // Free dropped_filedir memory
-        }
-        }
-    }
-
-    return loop;
-}
 
 void MainWindow::GL_BeginFrame()
 {
+    glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
+
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LEQUAL);
 
     glClearDepth(1);
 
-    // 	if (settingMultisample->GetAsBool())
-    // 		glEnable(GL_MULTISAMPLE);
-    // 	else
-    //
     glDisable(GL_MULTISAMPLE);
 
     // glClearColor(0.25, .25, .25, 1);
@@ -1019,8 +919,6 @@ void MainWindow::GL_BeginFrame()
     ClearBackground();
 
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
 }
@@ -1066,16 +964,6 @@ void MainWindow::ClearBackground()
 
 void MainWindow::UpdateTimers()
 {
-    if (m_TimersData.frames_until_init > 0)
-    {
-        m_TimersData.frames_until_init--;
-
-        if (m_TimersData.frames_until_init == 0)
-        {
-            // DelayedInit()
-        }
-    }
-
     m_TimersData.timestamp_last = m_TimersData.timestamp_now;
     m_TimersData.timestamp_now  = SDL_GetPerformanceCounter();
 

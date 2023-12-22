@@ -4,9 +4,8 @@
 */
 
 #pragma once
-#include <optional>
 #include "persistent.h"
-
+#include <optional>
 
 enum class GameEngines
 {
@@ -14,14 +13,19 @@ enum class GameEngines
     Xash3d
 };
 
+class FolderMount;
+
 class GameConfiguration
 {
     friend class GameConfigurationsManager;
     bool m_bDefault = false;
 
-  protected:
-         
+    // Filesystem descriptor
+    FolderMount *m_pFSRootMount = nullptr;
 
+protected:
+    
+    // Common data
     std::string m_GameDirectory;
     std::string m_Description;
 
@@ -30,43 +34,64 @@ class GameConfiguration
 
     GameEngines m_Engine;
 
-  public:
+public:
     GameConfiguration() = default;
     GameConfiguration(std::string description, std::string gameDirectory);
+
+    GameConfiguration(const GameConfiguration & other)
+    {
+        m_GameDirectory = other.m_GameDirectory;
+        m_Description = other.m_Description;
+        m_SavedFileName = other.m_SavedFileName;
+        m_Engine = other.m_Engine;
+
+        // TODO: copy FS mount point?
+    }
+
+    GameConfiguration(const GameConfiguration && other)
+    {
+        m_GameDirectory = other.m_GameDirectory;
+        m_Description   = other.m_Description;
+        m_SavedFileName = other.m_SavedFileName;
+        m_Engine        = other.m_Engine;
+
+        m_pFSRootMount = other.m_pFSRootMount;
+        m_bDefault     = other.m_bDefault;
+    }
+
     ~GameConfiguration();
 
+    // Data
     const char *Name() const;
-
     const char *Description() const;
 
+    // Helpers
     bool MatchesGameDirectoryMask(std::string &levelFilePath) const;
 
+    // Setters
     void SetDescription(std::string &descr);
     void SetGameDirectory(std::string &gameDir);
 
-    virtual void Serialize(std::string fileName) const {};
-
-    virtual void EditDialog()
-    {
-    }
-
+    // Data manipulation
+    virtual void Serialize(std::string fileName) const;   
     virtual GameConfiguration *Clone() = 0;
 
-    void SetDefault(bool bFlag)
-    {
-        m_bDefault = bFlag;
-    }
+    virtual void EditDialog();
 
-    bool IsDefault()
-    {
-        return m_bDefault;
-    }
+    // Default managment
+    void SetDefault(bool bFlag);
+    bool IsDefault();
+
+    // Filesystem
+    void MountGameFS();
+    void UnmountGameFS();
+    
 };
 
 typedef std::tuple<std::string, GameEngines> gamelookupresult_t;
 
 typedef std::shared_ptr<GameConfiguration> GameConfigurationPtr;
-typedef std::weak_ptr<GameConfiguration> GameConfigurationWeakPtr;
+typedef std::weak_ptr<GameConfiguration>   GameConfigurationWeakPtr;
 
 typedef std::optional<GameConfigurationWeakPtr> GameConfigurationWeakPtrOpt;
 
@@ -79,26 +104,26 @@ class GameConfigurationsManager : public Singleton<GameConfigurationsManager>
 
     PersistentStorage *m_pPersistentStorage;
 
-  public:
+public:
     ~GameConfigurationsManager();
-    
+
     // Initialization
-    void Init(PersistentStorage * storage);
+    void Init(PersistentStorage *storage);
     void LoadGameConfigsFromDisk();
-       
+
     // Searching
     GameConfigurationWeakPtrOpt FindGameByName(const char *gameName) const;
     GameConfigurationWeakPtrOpt FindConfigurationForLevel(std::string &levelFilePath);
-    
+
     // Accessing
-    std::list<GameConfigurationPtr> &AllConfigurations();
+    std::list<GameConfigurationPtr> &         AllConfigurations();
     const std::list<GameConfigurationWeakPtr> AllConfigurationsWeakPtr() const;
-    
+
     // Saving and updating
-    static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);    
-    void UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited);
+    static std::string SuggestSaveFileName(GameEngines engine, const std::string &m_Description);
+    void               UpdateGameConfiguration(GameConfigurationWeakPtr ptr, GameConfiguration *edited);
 
     // Default configurations
-    void SetDefaultGameConfiguration(GameConfigurationWeakPtr ptr);
+    void                     SetDefaultGameConfiguration(GameConfigurationWeakPtr ptr);
     GameConfigurationWeakPtr GetDefaultGameConfiguration();
 };

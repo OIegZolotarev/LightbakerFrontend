@@ -11,6 +11,7 @@
 #include "model_obj.h"
 #include "scene_entity.h"
 #include "serial_counter.h"
+#include "mod_manager.h"
 
 enum class LevelFormat
 {
@@ -18,6 +19,12 @@ enum class LevelFormat
     WavefrontOBJ,
     BSP
 };
+
+namespace GoldSource
+{
+class StudioModelV10;
+};
+
 
 class Scene
 {
@@ -41,6 +48,8 @@ class Scene
     void ClearEntities();
     void LoadLevel(const char *levelName);
 
+     IModelWeakPtr pTestModel;
+
 public:
     Scene();
     ~Scene();
@@ -48,13 +57,11 @@ public:
     void LoadLevel(const char *levelName, int loadFlags);
 
     void           DoDeleteSelection();
+
     SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
     SceneEntityPtr AddNewGenericEntity();
 
-    void AddNewSceneEntity(SceneEntityPtr entity)
-    {
-        m_SceneEntities.push_back(entity);
-    }
+    void AddNewSceneEntity(SceneEntityPtr entity);
 
     std::list<SceneEntityPtr> &GetSceneObjects();
     std::list<SceneEntityPtr> &GetLightDefs();
@@ -73,7 +80,7 @@ public:
     std::string GetModelTextureName();
 
     // Entity manipulation
-    void               AddEntityWithSerialNumber(SceneEntityPtr it, size_t sn);
+    void               AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);
     SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
     void               DeleteEntityWithSerialNumber(size_t serialNumber);
     void               DeleteEntity(SceneEntityWeakPtr l);

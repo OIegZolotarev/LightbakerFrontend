@@ -25,4 +25,5 @@ public:
 
     void SaveViewports(nlohmann::json & persistentData);
     bool LoadViewports();
+    void DestroyWindowViewports(IPlatformWindow *wind);
 };

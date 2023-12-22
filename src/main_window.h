@@ -9,10 +9,12 @@
 #include "console.h"
 #include "igui_panel.h"
 #include "object_props.h"
+#include "platform_window.h"
 #include "scene_renderer.h"
 #include "ui_common.h"
-#include "viewport.h"
-#include "platform_window.h"
+
+class Viewport;
+class SceneRenderer;
 
 BETTER_ENUM(StatusbarField, int, GameConfig, Position, ObjectDescription, ObjectSize, GridStep)
 
@@ -30,16 +32,7 @@ struct statusBarData
     //    std::string zoom              = "Zoom: ";
 };
 
-struct timersData
-{
-    double frame_delta            = 0;
-    int    actual_fps             = 0;
-    Uint64 timestamp_now          = 0;
-    Uint64 timestamp_last         = 0;
-    int    frames_until_init      = 3;
-    double fps_accum              = 0;
-    int    num_frames_this_second = 0;
-};
+
 
 typedef struct defaultDockSides_s
 {
@@ -59,34 +52,35 @@ class MainWindow : public IPlatformWindow
 {
 public:
     MainWindow(const char *title, glm::vec2 defaultSize);
-
-    void InitStuff();
-
     ~MainWindow();
 
-    void MainLoop();
+    void IterateUpdate() override;
 
-    int           Width();
-    int           Height();
-    SDL_Window *  Handle();
-    float         FrameDelta();
-    DebugConsole *Console();
+    int Width();
+    int Height();
 
-    class SceneRenderer *GetSceneRenderer();
-    int *                Get3DGLViewport();
+    SDL_Window *Handle();
+
+    DebugConsole * Console();
+    SceneRenderer *GetSceneRenderer();
 
     void                UpdateDocks();
     defaultDockSides_s *GetDockSides();
 
-    int  GetFPS();
-    void ClearBackground();
+    float FrameDelta();
+    int   GetFPS();
 
-    void SetTitle(std::string &fileName);
-
-    void UpdateStatusbar(int updateFlags);
-    
+    void      ClearBackground();
     Viewport *GetViewport(int index);
     void      CloneViewport(Viewport *pViewport);
+
+    void SetTitle(std::string &fileName);
+    void UpdateStatusbar(int updateFlags);
+
+    int  GetState();
+    bool HandleEvent(SDL_Event &event) override;
+
+    void InitStuff();
 
 private:
     enum ToolbarIcons
@@ -103,25 +97,13 @@ private:
     bool  RenderToolbarIcon(GLuint iconId);
     float RenderMainMenu();
     float RenderMainToolbar(float menuHeight);
-
-    std::string m_strTitle;
-    SDL_Window *m_pSDLWindow;
-
-    int m_iWindowHeight;
-    int m_iWindowWidth;
-
-    SDL_GLContext m_pGLContext;
-    ImGuiContext *m_pImGUIContext;
-
-    timersData m_TimersData;
-    bool       m_bTerminated;
-
-    bool HandleEvents(bool loop);
-
+        
     void UpdateTimers();
     void GL_BeginFrame();
 
     void RenderGUI();
+
+    void DrawStatusBar();
 
     void DrawLoadingBanner();
     void DrawBakingInProgressBanner(float yBannerOffset);
@@ -129,28 +111,30 @@ private:
     void LimitToTargetFPS();
 
     class SceneRenderer *m_pSceneRenderer;
-    
+
     bool PropagateControlsEvent(SDL_Event &e);
-    
 
     bool         m_bShowConsole = true;
     DebugConsole m_Console;
 
     // Initialization
+
     void InitBackend();
+    void InitTimers();
     void InitCommands();
     void InitBackgroundRenderer();
-    
+    void InitViewports();
+    void InitImGUISDL2Platform() override;
 
     // Docking
     defaultDockSides_s       m_defaultDockSides;
     std::vector<IGUIPanel *> m_vPanels;
 
-    void InitDocks();
+    void    InitDocks();
     ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
                                   const ImGuiWindowClass *window_class);
 
-    int m_i3DViewport[4];    
+    int   m_i3DViewport[4];
     float m_flBakingProgress = 0;
 
     // Fancy backgound
@@ -163,9 +147,6 @@ private:
 
     statusBarData m_statusBarData;
 
-    // Viewports    
-    void InitViewports();  
-    
-
-
+protected:
+    bool IsMainWindow() override;
 };

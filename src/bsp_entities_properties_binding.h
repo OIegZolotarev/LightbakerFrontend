@@ -6,30 +6,40 @@
 #pragma once
 #include "object_props.h"
 #include "scene_entity.h"
+#include "hammer_fgd.h"
 
 namespace GoldSource
 {
 
-class BSPProperty;
+class BSPEntityProperty;
 
 class BSPEntitiesPropertiesBinder : public IObjectPropertiesBinding
 {
+    std::string m_strObjectsClassname;
+
     std::list<SceneEntityWeakPtr> m_lstSelectedObjects;    
-    std::list<GoldSource::BSPProperty*> m_lstCommonProperties;
+    std::list<GoldSource::BSPEntityProperty*> m_lstCommonProperties;
+
+    void RebuildPropertiesList();
+    void CleanupDeadObjects();
+    void CleanupPropertiesList();
+
+    FGDEntityClassWeakPtr m_pSelectedClass;
 
 public:
 
     void        SelectEntity(SceneEntityWeakPtr ptr);
-
-    void        FillProperties(std::vector<VariantValue> &collection) override;
+    void FillProperties(std::list<VariantValue*>& collection) override;
     const char *ObjectClassname() override;
     void        OnPropertyChangeSavedToHistory() override;
-    void        UpdateObjectProperties(VariantValue *props, size_t num) override;
+    
+    
 
-private:
-    void RebuildPropertiesList();
-    void CleanupDeadObjects();
-    void CleanupPropertiesList();
+    void RenderFooter() override;
+
+    ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
+
+    void UpdateProperty(VariantValue *prop) override;
 };
 
 } // namespace GoldSource

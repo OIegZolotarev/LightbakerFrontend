@@ -1,6 +1,6 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
@@ -9,132 +9,155 @@
 
 enum class PropertiesTypes
 {
-	Enum,
-	Flags,
-	Position,
-	ColorRGB,
-	ColorRGBA,
-	Float,
-	Angles,
-	Int,
-	SizeX,
-	Bool,
-	String,
-	
+    Enum,
+    Flags,
+    Position,
+    ColorRGB,
+    ColorRGBA,
+    Float,
+    Angles,
+    Int,
+    SizeX,
+    Bool,
+    String,
 };
 
 typedef std::pair<std::string, int> enumValuePair_t;
 
 class VariantValue
 {
-	int id;
-	PropertiesTypes type;
-	
-	std::string display_name;	
-	std::vector<enumValuePair_t> m_EnumOrFlagsValues;
+protected:
+    PropertiesTypes m_Type;
+    bool m_bInitialized = false;
+    std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
-	bool initialized = false;
-	float m_Limits[2] = { -FLT_MAX, FLT_MAX };
+        union data {
+        int       asEnum;
+        int       asFlags;
+        glm::vec3 asPosition;
+        glm::vec4 asColorRGBA;
+        glm::vec3 asColorRGB;
+        float     asFloat;
+        glm::vec3 asAngles;
+        int       asInt;
+        bool      asBool;
+    } m_Value;
 
-	union data
-	{
-		int asEnum;
-		int asFlags;
-		glm::vec3 asPosition;
-		glm::vec4 asColorRGBA;
-		glm::vec3 asColorRGB;
-		float asFloat;
-		glm::vec3 asAngles;
-		int asInt;
-		bool asBool;
-	}value;
+private:
+    std::string m_strHelp = "";
+    std::string m_strDisplayName;
 
-	std::string m_StringValue;
+    int             m_Id;
+    
+    
+    float m_Limits[2]    = {-FLT_MAX, FLT_MAX};
 
-	char* m_TempLabel = 0;
+
+
+    std::string m_StringValue;
+
+    char *m_TempLabel = 0;
+
+    virtual int classId()
+    {
+        return 0;
+    }
 
 public:
-	VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
-	VariantValue();
-	~VariantValue();
+    VariantValue();
+    ~VariantValue();
 
-	int FindEnumValueIndex(int enumValue);
-	void SetEnumIndexFromValue(int value);
+    VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
+    VariantValue(const VariantValue &pOther);
 
-	const int		GetEnumValue() const;
-	const int		GetFlags() const;
-	const glm::vec3	GetPosition() const;
-	const glm::vec3	GetColorRGB() const;
-	const glm::vec4	GetColorRGBA() const;
-	const float		GetFloat() const;
-	const glm::vec3	GetAngles() const;
-	const int		GetInt() const;
-	const float		GetSizeX() const;
-	const bool		GetAsBool() const;
-	const char*		GetString() const;
+    
 
-	void SetEnumValue(int val);
-	void SetFlags(int val);
-	void SetPosition(glm::vec3 val);
-	void SetColorRGB(glm::vec3 val);
-	void SetColorRGBA(glm::vec4 val);
-	void SetFloat(float val);
-	void SetAngles(glm::vec3 val);
-	void SetInt(int val);
-	void SetSizeX(float val);
-	void SetBool(bool val);
-	void SetString(const char* value);
-	void SetString(std::string val);
+    int  FindEnumValueIndex(int enumValue);
+    void SetEnumIndexFromValue(int value);
 
-	const int GetId() const;
-	const PropertiesTypes GetType() const;
+    const int       GetEnumValue() const;
+    const int       GetFlags() const;
+    const glm::vec3 GetPosition() const;
+    const glm::vec3 GetColorRGB() const;
+    const glm::vec4 GetColorRGBA() const;
+    const float     GetFloat() const;
+    const glm::vec3 GetAngles() const;
+    const int       GetInt() const;
+    const float     GetSizeX() const;
+    const bool      GetAsBool() const;
+    const char *    GetString() const;
 
-	void AddEnumValue(const char* descr, int val);
-	
-	const char* DisplayName() const;
-	
+    void SetEnumValue(int val);
+    void SetFlags(int val);
+    void SetPosition(glm::vec3 val);
+    void SetColorRGB(glm::vec3 val);
+    void SetColorRGBA(glm::vec4 val);
+    void SetFloat(float val);
+    void SetAngles(glm::vec3 val);
+    void SetInt(int val);
+    void SetSizeX(float val);
+    void SetBool(bool val);
+    void SetString(const char *value);
+    void SetString(std::string val);
 
-	void* Data();
+    const int             GetId() const;
+    const PropertiesTypes GetType() const;
 
-	const std::vector<enumValuePair_t>& GetEnumValues() const; 
-	void SetTempLabel(char* param1);
-	const char* TempLabel();
+    void AddEnumValue(const char *descr, int val);
 
-	bool IsInitialized()
-	{
-		return initialized;
-	}
+    const char *DisplayName() const;
 
-	void SetNumericalLimits(float min, float max);
-	void ValidateValue();
-	float* GetNumericalLimits();
+    void *Data();
+
+    const std::vector<enumValuePair_t> &GetEnumValues() const;
+    void                                SetTempLabel(char *param1);
+    const char *                        TempLabel();
+
+    bool IsInitialized();
+
+    void         SetNumericalLimits(float min, float max);
+    void         ValidateValue();
+    float *      GetNumericalLimits();
+    std::string *GetStdStringPtr();
+
+    const std::string &Help() const;
+
+    void SetHelp(const std::string &str);
+
+    void SetDisplayName(const std::string & dispName, bool updateIfSet = true);
 };
-
 
 class IObjectPropertiesBinding
 {
 public:
-	virtual void FillProperties(std::vector<VariantValue>& collection) = 0;
-	virtual void UpdateObjectProperties(VariantValue * props,size_t num) = 0;
+    virtual void FillProperties(std::list<VariantValue *> &collection)   = 0;
 
-	virtual bool IsObjectValid(){
-		return true;
-	}
+    // Legacy
+    virtual void UpdateObjectProperties(VariantValue *props, size_t num){};
 
-	virtual size_t GetSerialNumber()
-	{
-		return 0;
-	}
+    virtual void UpdateProperty(VariantValue *prop) = 0;
 
-	virtual void OnPropertyChangeSavedToHistory() {};
+    virtual bool IsObjectValid()
+    {
+        return true;
+    }
 
-	virtual ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode()
-	{
-		return (ImGuizmo::OPERATION)0;
-	}
+    virtual uint32_t GetSerialNumber()
+    {
+        return 0;
+    }
 
-	virtual const char* ObjectClassname()
-	{
-		return "<no classname>";
-	}
+    virtual void OnPropertyChangeSavedToHistory(){};
+
+    virtual ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode()
+    {
+        return (ImGuizmo::OPERATION)0;
+    }
+
+    virtual const char *ObjectClassname()
+    {
+        return "<no classname>";
+    }
+
+    virtual void RenderFooter();
 };

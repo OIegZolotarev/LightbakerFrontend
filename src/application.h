@@ -7,7 +7,7 @@
 
 #include "main_window.h"
 #include "commands_registry.h"
-#include "file_system.h"
+#include "fs_core.h"
 #include "persistent.h"
 #include "lb3k_wrapper.h"
 
@@ -23,25 +23,37 @@ class Application
 	bool m_bBakingFinished = true;
 
 	PersistentStorage*	m_pPersistentStorage;
-
 	LightBaker3000*		m_pLightBakerApplication;
 
 	bool m_bDelayedInitDone = false;
 
 	std::string m_strBakingStatus;
+    std::string m_strFileToLoad = "";
+
+    // Baker state
+    float m_flBakingPercentage = 0;
+    bool  m_bDoBakingAgain     = false;
+
+	bool m_bTerminated = false;
+
+	std::list<IPlatformWindow *> m_lstWindows;
+    bool             m_bEventsRedirectionEnabled = false;
+    IPlatformWindow *m_pEventsRedirectionTarget = nullptr; 	
+
+	int SuggestMonitorForNewWindow();
+
 public:
 	// Конструкторы\доступ
 	~Application();
 	static Application*				Instance();
 
 	static CCommandsRegistry*		CommandsRegistry();
-	
+
+	bool IsMouseCursorVisible();
 
 	// Функционал
 	void Run();
-
 	void InitMainWindow();
-
 	void Init(std::string cmdLine);
 	
 	static MainWindow* GetMainWindow();
@@ -78,16 +90,14 @@ public:
 
 	static IPlatformWindow *FindPlatformWindow(size_t id);
 
-private:
-	std::string m_strFileToLoad = "";
+	void Terminate();
+    IPlatformWindow *FindWindowBySDLId(size_t sdlid);
+    void             SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow);
 
-	// Baker state
-
-	float m_flBakingPercentage = 0;
-	bool m_bDoBakingAgain = false;
-
-public:
-    bool IsMouseCursorVisible();
+	std::list<IPlatformWindow *> &GetAllWindows()
+    {
+        return m_lstWindows;
+    }
 };
  
  inline int Con_Printf(const char* fmt, ...)

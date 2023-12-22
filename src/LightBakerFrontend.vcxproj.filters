@@ -51,12 +51,6 @@
     <Filter Include="Исходные файлы\PersistentParameters">
       <UniqueIdentifier>{fcdd47aa-f3fd-4a5a-8922-2838ebdc544d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\Scene\EntitiesShared">
-      <UniqueIdentifier>{2bcdf519-9a06-4b80-a70d-60e2628742f5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Scene\EntitiesWavefront">
-      <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\ImGUI\helpers">
       <UniqueIdentifier>{2e6b35fd-541f-463a-bb19-638bd7156cfe}</UniqueIdentifier>
     </Filter>
@@ -93,6 +87,21 @@
     <Filter Include="Исходные файлы\GoldSource\BSP">
       <UniqueIdentifier>{9823dc40-24f5-4ea0-9318-ab0c8ff65846}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\EntitiesShared">
+      <UniqueIdentifier>{2bcdf519-9a06-4b80-a70d-60e2628742f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\EntitiesWavefront">
+      <UniqueIdentifier>{f19757ef-ab38-416a-a94c-ae355c189c1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\sdl-event-to-string">
+      <UniqueIdentifier>{7c270831-8f2d-41ef-8625-be10bd97898a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\GoldSource\MDL">
+      <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Filesystem">
+      <UniqueIdentifier>{8833e7a8-eeaf-4339-97a9-24f19c1d89b0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -108,9 +117,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="commands_registry.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="file_system.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
@@ -198,10 +204,10 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="lights.cpp">
-      <Filter>Исходные файлы\Scene\EntitiesWavefront</Filter>
+      <Filter>Исходные файлы\EntitiesWavefront</Filter>
     </ClCompile>
     <ClCompile Include="model_obj_world.cpp">
-      <Filter>Исходные файлы\Scene\EntitiesWavefront</Filter>
+      <Filter>Исходные файлы\EntitiesWavefront</Filter>
     </ClCompile>
     <ClCompile Include="ui_styles_manager.cpp">
       <Filter>Исходные файлы</Filter>
@@ -239,22 +245,13 @@
     <ClCompile Include="properties_editor.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="grid_renderer.cpp">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="popup_options_window.cpp">
-      <Filter>Исходные файлы\PersistentParameters</Filter>
-    </ClCompile>
-    <ClCompile Include="ui_options_pages.cpp">
-      <Filter>Исходные файлы\PersistentParameters</Filter>
-    </ClCompile>
     <ClCompile Include="persistent.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
     <ClCompile Include="Icosphere.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="shader_program.cpp">
+    <ClCompile Include="gl_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClCompile>
     <ClCompile Include="spotlight_cone_shader.cpp">
@@ -266,17 +263,14 @@
     <ClCompile Include="helper_geometry_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
-    <ClCompile Include="geometry_selection_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
     <ClCompile Include="editor_grid_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="scene_entity.cpp">
-      <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
+      <Filter>Исходные файлы\EntitiesShared</Filter>
     </ClCompile>
     <ClCompile Include="world_entity.cpp">
-      <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
+      <Filter>Исходные файлы\EntitiesShared</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_bsp_world.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
@@ -332,10 +326,10 @@
     <ClCompile Include="img_goldsource_spr.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
-    <ClCompile Include="camera.cpp">
+    <ClCompile Include="r_camera.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="frustum.cpp">
+    <ClCompile Include="r_frustum.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="mathlib.cpp">
@@ -356,9 +350,6 @@
     <ClCompile Include="gl_screenspace_2d_renderer.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
-    <ClCompile Include="mod_obj_data.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="secondary_window.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -368,17 +359,62 @@
     <ClCompile Include="viewports_orchestrator.cpp">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClCompile>
-    <ClCompile Include="bsp_entities_properties_binding.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="goldsource_bsp_entity.cpp">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClCompile>
     <ClCompile Include="scene_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
-    <ClCompile Include="bsp_property.cpp">
+    <ClCompile Include="popup_options_window.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_obj_data.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
+    </ClCompile>
+    <ClCompile Include="r_editor_grid.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_options_pages.cpp">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entities_properties_binding.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entity_property.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
+    <ClCompile Include="bsp_entity.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_bsp_asynch_loader.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\include\sdl-event-to-string\sdl_event_to_string.cpp">
+      <Filter>Исходные файлы\sdl-event-to-string</Filter>
+    </ClCompile>
+    <ClCompile Include="mdl_v10_goldsource.cpp">
+      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_draw_mesh.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="img_indexed_from_memory.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_manager.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_core.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_handle.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_data.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_quake1_pak.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_folder_mount.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -398,9 +434,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="commands_registry.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="file_system.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="event_handler.h">
@@ -496,14 +529,14 @@
     <ClInclude Include="loader_thread.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="shader_program.h">
+    <ClInclude Include="gl_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClInclude>
     <ClInclude Include="lights.h">
-      <Filter>Исходные файлы\Scene\EntitiesWavefront</Filter>
+      <Filter>Исходные файлы\EntitiesWavefront</Filter>
     </ClInclude>
     <ClInclude Include="model_obj_world.h">
-      <Filter>Исходные файлы\Scene\EntitiesWavefront</Filter>
+      <Filter>Исходные файлы\EntitiesWavefront</Filter>
     </ClInclude>
     <ClInclude Include="ui_styles_manager.h">
       <Filter>Исходные файлы</Filter>
@@ -547,15 +580,6 @@
     <ClInclude Include="properties_editor.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="grid_renderer.h">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="popup_options_window.h">
-      <Filter>Исходные файлы\PersistentParameters</Filter>
-    </ClInclude>
-    <ClInclude Include="ui_options_pages.h">
-      <Filter>Исходные файлы\PersistentParameters</Filter>
-    </ClInclude>
     <ClInclude Include="persistent.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClInclude>
@@ -574,17 +598,14 @@
     <ClInclude Include="helper_geometry_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
-    <ClInclude Include="geometry_selection_shader.h">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClInclude>
     <ClInclude Include="editor_grid_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="scene_entity.h">
-      <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
+      <Filter>Исходные файлы\EntitiesShared</Filter>
     </ClInclude>
     <ClInclude Include="world_entity.h">
-      <Filter>Исходные файлы\Scene\EntitiesShared</Filter>
+      <Filter>Исходные файлы\EntitiesShared</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
@@ -643,10 +664,10 @@
     <ClInclude Include="spritegn.h">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="camera.h">
+    <ClInclude Include="r_camera.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="frustum.h">
+    <ClInclude Include="r_frustum.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="mathlib.h">
@@ -682,14 +703,60 @@
     <ClInclude Include="viewports_orchestrator.h">
       <Filter>Исходные файлы\Viewports</Filter>
     </ClInclude>
+    <ClInclude Include="popup_options_window.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="r_editor_grid.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="ui_options_pages.h">
+      <Filter>Исходные файлы\PersistentParameters</Filter>
+    </ClInclude>
     <ClInclude Include="bsp_entities_properties_binding.h">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
-    <ClInclude Include="goldsource_bsp_entity.h">
+    <ClInclude Include="bsp_entity_property.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="bsp_entity.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_bsp_asynch_loader.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
-    <ClInclude Include="bsp_property.h">
-      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    <ClInclude Include="..\include\sdl-event-to-string\sdl_event_to_string.h">
+      <Filter>Исходные файлы\sdl-event-to-string</Filter>
+    </ClInclude>
+    <ClInclude Include="mdl_v10_disk_structs_goldsource.h">
+      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+    </ClInclude>
+    <ClInclude Include="mdl_v10_goldsource.h">
+      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+    </ClInclude>
+    <ClInclude Include="gl_draw_mesh.h">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h" />
+    <ClInclude Include="img_indexed_from_memory.h">
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_manager.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_core.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_file_handle.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_file_data.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_quake1_pak.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="fs_folder_mount.h">
+      <Filter>Исходные файлы\Filesystem</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

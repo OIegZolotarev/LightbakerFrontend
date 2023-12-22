@@ -17,44 +17,45 @@ LightPropertiesBinding::LightPropertiesBinding(lightDefWPtr_t ref)
 	m_pwLightDef = ref;
 }
 
-void LightPropertiesBinding::FillProperties(std::vector<VariantValue>& collection)
+void LightPropertiesBinding::FillProperties(std::list<VariantValue*>& collection)
 {
 	auto ptr = m_pwLightDef.lock();
 
 	if (!ptr)
 		return;
 
-	VariantValue p;
-	
-	MakeLightTypeProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightFlagsProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightPosProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightAnglesProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightColorProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightIntensityProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeConeAProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeConeBProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeSizeProperty(p, ptr);
-	collection.push_back(p);
-
-	MakeLightStyleProperty(p, ptr);
-	collection.push_back(p);
+	// TODO: rework this
+// 	VariantValue p;
+// 	
+// 	MakeLightTypeProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightFlagsProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightPosProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightAnglesProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightColorProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightIntensityProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeConeAProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeConeBProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeSizeProperty(p, ptr);
+// 	collection.push_back(p);
+// 
+// 	MakeLightStyleProperty(p, ptr);
+// 	collection.push_back(p);
 
 }
 
@@ -194,7 +195,7 @@ bool LightPropertiesBinding::IsObjectValid()
 	return m_pwLightDef.lock() != nullptr;
 }
 
-size_t LightPropertiesBinding::GetSerialNumber()
+uint32_t LightPropertiesBinding::GetSerialNumber()
 {
 	auto ptr = m_pwLightDef.lock();
 
@@ -239,7 +240,12 @@ const char* LightPropertiesBinding::ObjectClassname()
 	return "Light source (LB3k)";
 }
 
-Lb3kLightEntity::Lb3kLightEntity()
+void LightPropertiesBinding::UpdateProperty(VariantValue *prop)
+{
+    
+}
+
+Lb3kLightEntity::Lb3kLightEntity(Scene *pScene) : SceneEntity(pScene)
 {
 	SetClassName("light");
 }
@@ -295,7 +301,7 @@ void Lb3kLightEntity::OnUnhovered()
 	
 }
 
-void Lb3kLightEntity::OnSelect()
+void Lb3kLightEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 	auto scene = sceneRenderer->GetScene();

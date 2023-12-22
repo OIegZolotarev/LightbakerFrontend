@@ -3,10 +3,11 @@
     (c) 2023 CrazyRussian
 */
 
-#include "application.h"
 #include "viewport.h"
+#include "application.h"
 #include "gl_screenspace_2d_renderer.h"
 #include "imgui_internal.h"
+#include "properties_editor.h"
 
 glm::vec2 Viewport::CalcRelativeMousePos()
 {
@@ -34,7 +35,8 @@ int Viewport::ReadPixel(unsigned int x, unsigned int y)
     return r[0];
 }
 
-Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom) : m_pPlatformWindow(pHostWindow)
+Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom)
+    : m_pPlatformWindow(pHostWindow)
 {
     m_FrameBufferSize = {2048, 2048};
 
@@ -67,14 +69,49 @@ void Viewport::RenderFrame(float flFrameDelta)
     m_pFBO->Enable();
     m_pCamera->Apply(flFrameDelta);
 
+// Debug FBO usage
+#if DEBUG_FBO_AREA_USAGE
+    glClearColor(1, 0, 0, 1);
     glClear(GL_COLOR_BUFFER_BIT);
+#endif
+
     auto sr = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 
     glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
 
     sr->RenderScene(this);
 
+    // RenderGuizmo();
+
     m_pFBO->Disable();
+}
+
+void Viewport::RenderGuizmo()
+{
+    if (!SelectionManager::IsGizmoEnabled())
+        return;
+
+    //     auto mousePos = CalcRelativeMousePos();
+    //
+    //
+    //     ImGui::SetCurrentContext(m_pImGUIContext);
+    //     ImGui_ImplOpenGL3_NewFrame();
+    //     ImGui_ImplSDL2_NewFrame();
+
+    // ImGui_ImplSDL2 changes viewport area to full area of main window
+
+    //     auto &io       = ImGui::GetIO();
+    //     io.DisplaySize = {m_ClientAreaSize.x, m_ClientAreaSize.y};
+
+    // ImGui::GetMainViewport()->Size = {m_ClientAreaSize.x, m_ClientAreaSize.y};
+    // ImGui::GetMainViewport()->Pos  = {-m_DisplayWidgetPosition.x, -m_DisplayWidgetPosition.y};
+
+    // ImGui::NewFrame();
+
+    ObjectPropertiesEditor::Instance()->RenderGuizmo(this);
+
+    //     ImGui::Render();
+    //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Viewport::DisplayRenderedFrame()
@@ -84,9 +121,10 @@ void Viewport::DisplayRenderedFrame()
         return;
     }
 
-    ImGui::PushID(this);
+    // if (Application::GetMainWindow()->GetState() == 0)
+    //        __debugbreak();
 
-    int *viewport = Application::GetMainWindow()->Get3DGLViewport();
+    ImGui::PushID(this);
 
     if (m_bDocked)
     {
@@ -126,22 +164,32 @@ void Viewport::DisplayRenderedFrame()
         float uv_x = viewportSize.x / (m_FrameBufferSize.x);
         float uv_y = viewportSize.y / (m_FrameBufferSize.y);
 
-        auto pos = ImGui::GetCursorPos();
+#if DEBUG_FBO_AREA_USAGE
+        uv_x = 1;
+        uv_y = 1;
+#endif
+
+        auto pos        = ImGui::GetCursorPos();
+        m_ClientAreaPos = {pos.x, pos.y};
 
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
 
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
 
-        ImGui::End();
+        RenderGuizmo();
     }
 
-    HanlePicker();
+    OutputDebug();
+
+    ImGui::End();
+
+    HandlePicker();
 
     ImGui::PopID();
 }
 
-void Viewport::HanlePicker()
+void Viewport::HandlePicker()
 {
     auto ratPos = CalcRelativeMousePos();
 
@@ -156,9 +204,10 @@ void Viewport::HanlePicker()
 
             auto obj = scene->GetEntityBySerialNumber(m_hoveredObjectId);
             auto ptr = obj.lock();
+
             if (ptr)
             {
-                ptr->OnSelect();
+                ptr->OnSelect(obj);
             }
         }
     }
@@ -175,10 +224,22 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
-        ImGui::SeparatorText("3D View");
-        ImGui::MenuItem("3D Textured");
-        ImGui::MenuItem("3D Flatshaded");
-        ImGui::MenuItem("3D Wireframe");
+        ImGui::SeparatorText("Shading");
+
+        std::pair<RenderMode, const char *> menuItems[] = {{RenderMode::Lightshaded, "Lightshaded"},
+                                                           {RenderMode::Unshaded, "Unshaded"},
+                                                           {RenderMode::Groups, "Groups shaded"},
+                                                           {RenderMode::WireframeShaded, "Wireframe shaded"},
+                                                           {RenderMode::WireframeUnshaded, "Wireframe unshaded"}};
+
+        for (auto &it : menuItems)
+        {
+            if (ImGui::MenuItem(it.second, 0, m_RenderMode == it.first))
+            {
+                m_RenderMode = it.first;
+            }
+        }
+
         ImGui::SeparatorText("2D View");
         ImGui::MenuItem("Top");
         ImGui::MenuItem("Side");
@@ -189,6 +250,27 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
         if (ImGui::MenuItem("Clone"))
         {
             DoCloneViewport();
+        }
+
+        if (ImGui::BeginMenu("Send to other window"))
+        {
+            auto & lstWindow = Application::Instance()->GetAllWindows();
+
+            for (auto & it: lstWindow)
+            {
+                if (ImGui::MenuItem(it->GetDescription(),0, it == m_pPlatformWindow))
+                {
+                    if (it != m_pPlatformWindow)
+                    {
+                        m_pPlatformWindow->RemoveEventHandler(this);
+                        m_pPlatformWindow = it;
+                        m_pPlatformWindow->AddEventHandler(this);
+                    }
+                }
+            }
+
+            ImGui::EndMenu();
+
         }
 
         if (m_bDocked)
@@ -285,7 +367,7 @@ Viewport *Viewport::LoadState(nlohmann::json &persistentData)
     Viewport *pResult = new Viewport(name.c_str(), pWindow, nullptr);
 
     pResult->m_bVisible = visible;
-    pResult->m_bDocked = docked;
+    pResult->m_bDocked  = docked;
 
     return pResult;
 }
@@ -294,6 +376,16 @@ void Viewport::RegisterEventHandlerAtHost()
 {
     assert(m_pPlatformWindow);
     m_pPlatformWindow->AddEventHandler(this);
+}
+
+bool Viewport::IsVisible()
+{
+    return m_bVisible;
+}
+
+glm::vec2 Viewport::GetClientAreaPosAbs()
+{
+    return m_DisplayWidgetPosition + m_ClientAreaPos;
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()

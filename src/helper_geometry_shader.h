@@ -4,7 +4,7 @@
 */
 
 #pragma once
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "common.h"
 #include "scene_shader.h"
 

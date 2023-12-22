@@ -9,7 +9,7 @@
 #include "imgui_internal.h"
 #include "ui_common.h"
 
-#include "Camera.h"
+#include "r_camera.h"
 #include "helpers.h"
 #include "imgui_popups.h"
 #include "popup_edit_gameconfiguration.h"
@@ -156,9 +156,10 @@ void OptionsDialog::Render()
     {
         if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
         {
-            RenderOptionsPages(pageToRender);
-            ImGui::EndChild();
+            RenderOptionsPages(pageToRender);            
         }
+
+        ImGui::EndChild();
     }
 
     RenderFooter();

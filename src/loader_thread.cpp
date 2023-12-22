@@ -152,7 +152,7 @@ void LoaderThread::ScheduleEndCallback(ITaskStepResult* task)
 
 void LoaderThread::ExecuteEndCallbacks(size_t maxCallbacks)
 {
-	SDL_LockMutex(m_MainThreadMutex);
+	
 
 	size_t nRemaining = maxCallbacks;
 
@@ -161,15 +161,17 @@ void LoaderThread::ExecuteEndCallbacks(size_t maxCallbacks)
 
 	while (m_FinishedTasks.size() > 0 && nRemaining > 0)
 	{
+        SDL_LockMutex(m_MainThreadMutex);
 		auto stepInfo = m_FinishedTasks.front();
 		m_FinishedTasks.pop();
+        SDL_UnlockMutex(m_MainThreadMutex);
 
 		stepInfo->ExecuteOnCompletion();
 		delete stepInfo;
 		
 	}
 
-	SDL_UnlockMutex(m_MainThreadMutex);
+	
 }
 
 void LoaderThread::DestroyThreads()

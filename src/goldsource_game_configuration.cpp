@@ -3,16 +3,16 @@
     (c) 2023 CrazyRussian
 */
 
-#include "application.h"
 #include "goldsource_game_configuration.h"
+#include "application.h"
 #include "common.h"
 #include "files_listview_ex.h"
+#include "gl_texture.h"
 #include "imgui_helpers.h"
 #include "imgui_listview_ex.h"
 #include "lb3k_imgui_icons.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
-#include "gl_texture.h"
 
 using namespace GoldSource;
 
@@ -33,12 +33,25 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
         ParseGameInfo();
         break;
     }
-
-
 }
 
-HammerGameConfiguration::HammerGameConfiguration(HammerGameConfiguration &other)
-    : GameConfiguration(other.m_Description, other.m_GameDirectory)
+GoldSource::HammerGameConfiguration *HammerGameConfiguration::Get(GameConfigurationWeakPtr pConfigWeakPtr)
+{
+    auto               pConfigPtr = pConfigWeakPtr.lock();
+    GameConfiguration *pConfig    = pConfigPtr.get();
+
+    if (! instanceof <GoldSource::HammerGameConfiguration>(pConfig))
+    {
+        return nullptr;
+    }
+
+    GoldSource::HammerGameConfiguration *hammerConfig = (GoldSource::HammerGameConfiguration *)pConfig;
+
+    return hammerConfig;
+}
+
+HammerGameConfiguration::HammerGameConfiguration(const HammerGameConfiguration &other)
+    : GameConfiguration(other)
 {
     m_GameName     = other.m_GameName;
     m_ModDirectory = other.m_ModDirectory;
@@ -59,12 +72,12 @@ HammerGameConfiguration::HammerGameConfiguration(HammerGameConfiguration &other)
 
 void HammerGameConfiguration::InitListViewBindings()
 {
+    // TODO: m_lstFGDData keeps freed fgd data
     FilesListViewBindings *bindings = new FilesListViewBindings(m_FGDFiles);
     bindings->SetDialogTitle("Select FGD file");
     bindings->SetFileFilter(".fgd");
 
     m_pFGDListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS | LV_DISABLE_EDIT_ITEMS);
-
 
     bindings = new FilesListViewBindings(m_WadFiles);
     bindings->SetDialogTitle("Select WAD file");
@@ -72,8 +85,7 @@ void HammerGameConfiguration::InitListViewBindings()
 
     m_pWadsListView = new ListViewEx(bindings, LV_DISABLE_SORT_ITEMS | LV_DISABLE_EDIT_ITEMS);
 
-
-    m_pCSGInputField = new InputFieldEx("CSG Program:", m_CompilationPrograms.csg, FL_FILE_SELECTOR);  
+    m_pCSGInputField = new InputFieldEx("CSG Program:", m_CompilationPrograms.csg, FL_FILE_SELECTOR);
     m_pBSPInputField = new InputFieldEx("BSP Program:", m_CompilationPrograms.bsp, FL_FILE_SELECTOR);
     m_pVISInputField = new InputFieldEx("VIS Program:", m_CompilationPrograms.vis, FL_FILE_SELECTOR);
     m_pRADInputField = new InputFieldEx("RAD Program:", m_CompilationPrograms.rad, FL_FILE_SELECTOR);
@@ -81,18 +93,17 @@ void HammerGameConfiguration::InitListViewBindings()
     auto configureCompilerInputField = [](InputFieldEx *field) {
         field->SetHeaderPosition(HeaderPosition::Top);
         field->SetFileDialogTitle("Choose program");
-        #ifndef LINUX
-            field->SetFileDialogFilter(".exe");
-        #else
-            field->SetFileDialogFilter("*");
-        #endif
+#ifndef LINUX
+        field->SetFileDialogFilter(".exe");
+#else
+        field->SetFileDialogFilter("*");
+#endif
     };
 
     configureCompilerInputField(m_pCSGInputField);
     configureCompilerInputField(m_pBSPInputField);
     configureCompilerInputField(m_pVISInputField);
     configureCompilerInputField(m_pRADInputField);
-   
 }
 
 HammerGameConfiguration::HammerGameConfiguration()
@@ -123,7 +134,7 @@ void HammerGameConfiguration::RenderCompilerUI()
 void HammerGameConfiguration::RenderFGDUI()
 {
     ImGui::SeparatorText("FGD Files");
-    m_pFGDListView->RenderGui();    
+    m_pFGDListView->RenderGui();
 }
 
 GameConfiguration *HammerGameConfiguration::Clone()
@@ -133,18 +144,20 @@ GameConfiguration *HammerGameConfiguration::Clone()
 
 HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName) : HammerGameConfiguration()
 {
+
     m_SavedFileName = savedFileName;
     Deserialize(savedFileName);
 
-    // TODO: make cache and add loading code to copy constructor 
+    SetGameDirectory(m_GameDirectory);
+
+    // TODO: make cache and add loading code to copy constructor
     //
-    for (auto & it : m_FGDFiles)
+    for (auto &it : m_FGDFiles)
     {
         FileData *fd = FileSystem::Instance()->LoadFile(it);
         m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
         fd->UnRef();
     }
-
 }
 
 void HammerGameConfiguration::EditDialog()
@@ -186,7 +199,6 @@ void HammerGameConfiguration::Serialize(std::string fileName) const
         nlohmann::json j;
         nlohmann::json compilers;
         nlohmann::json fgdFiles;
-
 
         FILE *fp = FileSystem::OpenFileForWriting(fileName);
 
@@ -241,8 +253,8 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
 {
     FileData *fd = FileSystem::Instance()->LoadFile(fileName);
 
-    std::string json_data = std::string(std::string_view((char *)fd->Data(), fd->Length()));
-    nlohmann::json j      = nlohmann::json::parse(json_data);
+    std::string    json_data = std::string(std::string_view((char *)fd->Data(), fd->Length()));
+    nlohmann::json j         = nlohmann::json::parse(json_data);
 
     if (j.contains("Compilers"))
     {
@@ -258,7 +270,11 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
         m_Description = j["Description"];
 
     if (j.contains("GameDirectory"))
-        m_GameDirectory = j["GameDirectory"];
+    {
+        std::string d = j["GameDirectory"];
+        SetGameDirectory(d);
+    }
+
 
     if (j.contains("FGDFiles"))
     {
@@ -272,13 +288,11 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     {
         m_WadFiles = j["WADFiles"];
 
-        for (auto & it: m_WadFiles)
+        for (auto &it : m_WadFiles)
         {
             TextureManager::Instance()->RegisterWAD(it.c_str(), true);
         }
-
     }
-    
 
     if (j.contains("Engine"))
     {
@@ -293,17 +307,17 @@ void HammerGameConfiguration::Deserialize(std::string &fileName)
     fd->UnRef();
 }
 
-FGDEntityClass *HammerGameConfiguration::LookupFGDClass(std::string &classname)
+GoldSource::FGDEntityClassWeakPtr GoldSource::HammerGameConfiguration::LookupFGDClass(const std::string &classname)
 {
     for (auto &it : m_lstFGDData)
     {
         auto fgdClass = it->FindEntityClass(classname);
 
-        if (fgdClass)
+        if (!fgdClass.expired())
             return fgdClass;
     }
 
-    return nullptr;
+    return FGDEntityClassWeakPtr();
 }
 
 void HammerGameConfiguration::ParseGameInfo()

@@ -5,7 +5,9 @@
 
 #pragma once
 
-#include "file_system.h"
+#include "fs_core.h"
+
+class GLTexture;
 
 namespace GoldSource
 {
@@ -85,11 +87,17 @@ protected:
 public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther);
 
-    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr,
-                          OptionalDefaultValAndHelp_s defaultValueAndHelp);
+    FGDPropertyDescriptor(std::string name, std::string typeId, std::string descr, OptionalDefaultValAndHelp_s defaultValueAndHelp);
 
     ~FGDPropertyDescriptor();
-    std::string &GetName();
+    const std::string &GetName() const;
+    const std::string &GetDescription() const;
+    const std::string &GetHelp() const;
+
+    virtual FGDPropertyDescriptor *Clone()
+    {
+        return new FGDPropertyDescriptor(this);
+    }
 };
 
 class FGDFlagsEnumProperty : public FGDPropertyDescriptor
@@ -100,6 +108,16 @@ public:
     FGDFlagsEnumProperty(FGDFlagsEnumProperty *pOther);
 
     bool IsSpawnflagsProperty();
+
+    const FGDFlagsList &GetValues() const
+    {
+        return m_Values;
+    }
+
+    virtual FGDPropertyDescriptor *Clone()
+    {
+        return new FGDFlagsEnumProperty(this);
+    }
 
 private:
     FGDFlagsList m_Values;
@@ -138,24 +156,16 @@ public:
     void SetDecalEntity(bool flag);
     void SetEditorSprite(std::string sprite);
     void SetPropertyExtra(std::string p, float value);
-    ;
 
-    void AddProperty(FGDPropertyDescriptor *p)
-    {
-        m_Properties.push_back(p);
-    }
+    void AddProperty(FGDPropertyDescriptor *p);
 
-    void SetCtorFlags(int flags)
-    {
-        m_CtorDefinitionFlags = flags;
-    }
+    void SetCtorFlags(int flags);
 
-    void SetBaseClasses(std::list<std::string> classes)
-    {
-        m_BaseClasses = classes;
-    }
-
+    void SetBaseClasses(std::list<std::string> classes);
+    
+    const std::string &GetModel() const;
     const std::string &ClassName() const;
+    const std::string &Description() const;
 
     glm::vec3 GetMins();
     glm::vec3 GetMaxs();
@@ -163,6 +173,9 @@ public:
     glm::vec3 GetColor();
 
     GLTexture *GetEditorSpite();
+
+    FGDPropertyDescriptor *  FindProperty(const std::string &propertyName) const;
+    const FGDPropertiesList &GetProperties() const;
 
 private:
     HammerFGDFile *m_pOwner;
@@ -190,18 +203,20 @@ private:
 
     std::list<std::string> m_BaseClasses;
 
-    FGDPropertyDescriptor *FindProperty(std::string &propertyName);
-    void                   RelinkInheritedProperties(class HammerFGDFile *pFile);
+    void RelinkInheritedProperties(class HammerFGDFile *pFile);
 
     GLTexture *m_pEditorSprite = nullptr;
 };
+
+typedef std::shared_ptr<FGDEntityClass> FGDEntityClassSharedPtr;
+typedef std::weak_ptr<FGDEntityClass> FGDEntityClassWeakPtr;
 
 class HammerFGDFile
 {
     FileData *m_pFileData = nullptr;
 
-    typedef std::pair<std::string, FGDEntityClass *>  classesMapping_t;
-    std::unordered_map<std::string, FGDEntityClass *> m_Entities;
+    typedef std::pair<std::string, FGDEntityClassSharedPtr> classesMapping_t;
+    std::unordered_map<std::string, FGDEntityClassSharedPtr> m_Entities;
 
 public:
     HammerFGDFile(FileData *fd);
@@ -209,15 +224,12 @@ public:
 
     char *Data();
 
-    std::string &FileName()
-    {
-        return m_strFileName;
-    }
+    std::string &FileName();
 
     void AddEntityClass(FGDEntityClass *entityDef);
     void RelinkInheritedProperties();
 
-    FGDEntityClass *FindEntityClass(std::string &baseClassStr);
+    FGDEntityClassWeakPtr FindEntityClass(const std::string &baseClassStr);
     std::string     AbsoluteResourcePath(std::string &m_EditorSprite);
 
 private:

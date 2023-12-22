@@ -3,10 +3,9 @@
         (c) 2023 CrazyRussian
 */
 
-
 #include "application.h"
+#include "viewports_orchestrator.h"
 #include "common.h"
-#include "viewports_orchestrator.h" 
 
 ViewportsOrchestrator::~ViewportsOrchestrator()
 {
@@ -14,7 +13,7 @@ ViewportsOrchestrator::~ViewportsOrchestrator()
         delete it;
 }
 
-void ViewportsOrchestrator::Init(nlohmann::json && data)
+void ViewportsOrchestrator::Init(nlohmann::json &&data)
 {
     m_savedViewports = data;
 }
@@ -33,6 +32,9 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 {
     for (auto &it : m_lstViewports)
     {
+        if (!it->IsVisible())
+            continue;
+
         if (it->GetPlatformWindow() != pWindow)
             continue;
 
@@ -42,7 +44,7 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 
 void ViewportsOrchestrator::DisplayViewports(IPlatformWindow *pWindow)
 {
-    for (auto & it: m_lstViewports)
+    for (auto &it : m_lstViewports)
     {
         if (it->GetPlatformWindow() != pWindow)
             continue;
@@ -79,4 +81,16 @@ bool ViewportsOrchestrator::LoadViewports()
     }
 
     return true;
+}
+
+void ViewportsOrchestrator::DestroyWindowViewports(IPlatformWindow *wind)
+{
+    m_lstViewports.remove_if([&](Viewport *pViewport) {
+        if (pViewport->GetPlatformWindow() == wind)
+        {
+            delete pViewport;
+            return true;
+        }
+        return false;
+    });
 }

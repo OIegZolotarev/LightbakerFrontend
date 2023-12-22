@@ -17,6 +17,7 @@ void VectorNormalize(glm::vec3 &vec)
     vec = glm::normalize(vec);
 }
 
+
 bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out)
 {
     glm::vec3 n1 = glm::normalize(plane1->normal);
@@ -45,6 +46,16 @@ bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, co
     out *= (1.0f / denom);
 
     return true;
+}
+
+float AngleMod(float val)
+{
+    if (val > 360)
+        return val - 360;
+    else if (val < 0)
+        return val + 360;
+
+    return val;
 }
 
 void plane_s::CalcSignBits()

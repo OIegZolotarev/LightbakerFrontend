@@ -9,7 +9,7 @@
 #include "event_handler.h"
 #include "scene_renderer.h"
 #include <stack>
-#include "Frustum.h"
+#include "r_frustum.h"
 
 enum class CameraMouseModes
 {
@@ -164,8 +164,8 @@ class Camera : public IEventHandler
     Camera(class Viewport * pViewport);
     ~Camera();
 
-    glm::vec3 &GetAngles();
-    glm::vec3 &GetOrigin();
+    const glm::vec3 &GetAngles() const;
+    const glm::vec3 &GetOrigin() const;
 
     void Apply(float flFrameDelta);
     void Reset();

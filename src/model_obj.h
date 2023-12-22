@@ -4,7 +4,7 @@
 */
 
 #pragma once
-#include "file_system.h"
+#include "fs_core.h"
 #include "gl_texture.h"
 #include "scene_renderer.h"
 #include "gl_backend.h"
@@ -16,7 +16,7 @@
 class ModelOBJ: public SceneEntity
 {
 public:
-	ModelOBJ(const char* fileName);
+	ModelOBJ(const char* fileName, Scene * pScene);
 	~ModelOBJ();
 
 
@@ -50,7 +50,7 @@ public:
 	// Selectable object
 	void OnHovered() override;
 	void OnMouseMove(glm::vec2 delta) override;
-	void OnSelect() override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	void OnUnSelect() override;
 	void OnUnhovered() override;
 	

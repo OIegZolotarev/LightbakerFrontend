@@ -22,20 +22,22 @@ void DebugPanel::Render()
     Viewport *pViewport2 = Application::GetMainWindow()->GetViewport(1);
 
 	int fps = Application::GetMainWindow()->GetFPS();
+        
+	if (ImGui::Begin("Debug"))
+    {
+        // ImGui::LoadIniSettingsFromDisk
 
-	ImGui::Begin("Debug");
+        ImGui::Text("FPS: %d\n", fps);
 
-	//ImGui::LoadIniSettingsFromDisk
+        auto *stats = GLBackend::Instance()->RenderStats();
 
-	ImGui::Text("FPS: %d\n", fps);
+        ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
+        ImGui::Text("Triangles: %d\n", stats->nTriangles);
 
-	auto *stats = GLBackend::Instance()->RenderStats();
-
-	ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
-	ImGui::Text("Triangles: %d\n", stats->nTriangles);
-	
-	if (pViewport1) pViewport1->OutputDebug();
-    if (pViewport2) pViewport2->OutputDebug();
-
-	ImGui::End();
+        if (pViewport1)
+            pViewport1->OutputDebug();
+        if (pViewport2)
+            pViewport2->OutputDebug();                
+    }
+    ImGui::End();
 }

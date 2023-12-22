@@ -45,13 +45,17 @@ class HammerGameConfiguration : public GameConfiguration
 
   public:
     HammerGameConfiguration();
-    HammerGameConfiguration(HammerGameConfiguration &other);
+    
+    
+    HammerGameConfiguration(const HammerGameConfiguration &other);
+
     HammerGameConfiguration(std::string & savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
+
     
     ~HammerGameConfiguration();
 
-    FGDEntityClass *LookupFGDClass(std::string &classname);
+    FGDEntityClassWeakPtr LookupFGDClass(const std::string &classname);
 
     void Deserialize(std::string & fileName);
     void Serialize(std::string fileName) const override;
@@ -63,6 +67,9 @@ class HammerGameConfiguration : public GameConfiguration
     void RenderFGDUI();
 
     GameConfiguration *Clone() override;
+
+    static HammerGameConfiguration *Get(GameConfigurationWeakPtr pConfigWeakPtr);
+
 };
 
 } // namespace GoldSource

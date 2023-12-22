@@ -4,37 +4,39 @@
 */
 
 #include "application.h"
-#include "shader_program.h"
+#include "gl_shader.h"
 #include "gl_backend.h"
 #include "text_utils.h"
 #include <type_traits>
 #include <boost/functional/hash.hpp>
+#include <string.h>
 
 static uniformDecl_t g_UniformDecl[]{
 
     // clang-format off
-    {"u_ProjectionMatrix"    , UniformKind::ProjectionMatrix    , UniformDataType::FloatMat4 , 0} ,
-    {"u_ModelViewMatrix"     , UniformKind::ModelViewMatrix     , UniformDataType::FloatMat4 , 0} ,
-    {"u_TransformMatrix"     , UniformKind::TransformMatrix     , UniformDataType::FloatMat4 , 0} ,
-    {"u_Scale"               , UniformKind::Scale               , UniformDataType::FloatVec3 , 0} ,
-    {"u_GridStep"            , UniformKind::GridStep            , UniformDataType::Int       , 0} ,
-    {"u_GridHighlightCustom" , UniformKind::GridHighlightCustom , UniformDataType::Int       , 0} ,
-    {"u_GridAxisColor"       , UniformKind::GridAxisColor       , UniformDataType::FloatVec4 , 0} ,
-    {"u_GridMainColor"       , UniformKind::GridMainColor       , UniformDataType::FloatVec4 , 0} ,
-    {"u_Grid64thLineColor"   , UniformKind::Grid64thLineColor   , UniformDataType::FloatVec4 , 0} ,
-    {"u_Grid1024thLineColor" , UniformKind::Grid1024thLineColor , UniformDataType::FloatVec4 , 0} ,
-    {"u_GridCustomColor"     , UniformKind::GridCustomColor     , UniformDataType::FloatVec4 , 0} ,
-    {"u_Color"               , UniformKind::Color               , UniformDataType::FloatVec4 , 0} ,
-    {"u_Color2"              , UniformKind::Color2              , UniformDataType::FloatVec4 , 0} ,
-    {"u_Color3"              , UniformKind::Color3              , UniformDataType::FloatVec4 , 0} ,
-    {"u_Color4"              , UniformKind::Color4              , UniformDataType::FloatVec4 , 0} ,
-    {"u_RightVector"         , UniformKind::RightVector         , UniformDataType::FloatVec3 , 0} ,
-    {"u_UpVector"            , UniformKind::UpVector            , UniformDataType::FloatVec3 , 0} ,
-    {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3 , 0} ,
-    {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT0},
-    {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::FloatVec3 , FL_TEXTURE_UNIT1},
-    {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4   , 0},
-    {"u_ObjectSerialNumber"  , UniformKind::ObjectSerialNumber  , UniformDataType::Int       , 0}
+    {"u_ProjectionMatrix"    , UniformKind::ProjectionMatrix    , UniformDataType::FloatMat4      , 0} ,
+    {"u_ModelViewMatrix"     , UniformKind::ModelViewMatrix     , UniformDataType::FloatMat4      , 0} ,
+    {"u_TransformMatrix"     , UniformKind::TransformMatrix     , UniformDataType::FloatMat4      , 0} ,
+    {"u_Scale"               , UniformKind::Scale               , UniformDataType::FloatVec3      , 0} ,
+    {"u_GridStep"            , UniformKind::GridStep            , UniformDataType::Int            , 0} ,
+    {"u_GridHighlightCustom" , UniformKind::GridHighlightCustom , UniformDataType::Int            , 0} ,
+    {"u_GridAxisColor"       , UniformKind::GridAxisColor       , UniformDataType::FloatVec4      , 0} ,
+    {"u_GridMainColor"       , UniformKind::GridMainColor       , UniformDataType::FloatVec4      , 0} ,
+    {"u_Grid64thLineColor"   , UniformKind::Grid64thLineColor   , UniformDataType::FloatVec4      , 0} ,
+    {"u_Grid1024thLineColor" , UniformKind::Grid1024thLineColor , UniformDataType::FloatVec4      , 0} ,
+    {"u_GridCustomColor"     , UniformKind::GridCustomColor     , UniformDataType::FloatVec4      , 0} ,
+    {"u_Color"               , UniformKind::Color               , UniformDataType::FloatVec4      , 0} ,
+    {"u_Color2"              , UniformKind::Color2              , UniformDataType::FloatVec4      , 0} ,
+    {"u_Color3"              , UniformKind::Color3              , UniformDataType::FloatVec4      , 0} ,
+    {"u_Color4"              , UniformKind::Color4              , UniformDataType::FloatVec4      , 0} ,
+    {"u_RightVector"         , UniformKind::RightVector         , UniformDataType::FloatVec3      , 0} ,
+    {"u_UpVector"            , UniformKind::UpVector            , UniformDataType::FloatVec3      , 0} ,
+    {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3      , 0} ,
+    {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::Int            , FL_TEXTURE_UNIT0},
+    {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::Int            , FL_TEXTURE_UNIT1},
+    {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4        , 0},
+    {"u_ObjectSerialNumber"  , UniformKind::ObjectSerialNumber  , UniformDataType::Int            , 0},
+    {"u_BonesTransform"      , UniformKind::BonesTransform      , UniformDataType::FloatMat4Array , 0}
     // clang-format on
 };
 
@@ -86,7 +88,7 @@ void ShaderProgram::ParseProgramUniforms()
 
     m_vecUniforms.reserve(count);
 
-    for (size_t i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
     {
         int size;
         GLuint fmt;
@@ -98,6 +100,11 @@ void ShaderProgram::ParseProgramUniforms()
 
         if (loc == -1)
             continue;
+
+        char *end = strchr(name, '[');
+        if (end)
+            *end = 0;
+
 
         uniformDecl_t *decl = FindUniformDecl(name);
 
@@ -186,7 +193,7 @@ GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
 
 GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines)
 {
-    size_t num_blocks = defines.size() + 3; // Shader type and shader source
+    int num_blocks = (int)(defines.size() + 3); // Shader type and shader source
 
     std::string *definesText = new std::string[defines.size()];
 
@@ -258,6 +265,12 @@ void ShaderProgram::LoadAndParseShader()
     m_uiProgramId = glCreateProgram();
 
     FileData *fd = FileSystem::Instance()->LoadFile(m_FileName);
+
+    if (!fd)
+    {
+        Con_Printf("ShaderProgram::LoadAndParseShader(): file %s not found!\n", m_FileName.c_str());
+        return;
+    }
 
     std::string src = PreprocessIncludes(fd);
 
@@ -561,6 +574,12 @@ void ShaderUniform::SetMat4(glm::mat4 newVal)
         m_ValueCached.valMat4 = newVal;
         UpdateUniformValue();
     }
+}
+
+void ShaderUniform::SetMat4Array(glm::mat4 *data, size_t n)
+{
+    assert(m_pDecl->datatype == UniformDataType::FloatMat4Array);
+    glUniformMatrix4fv(m_Location, n, GL_FALSE, &data[0][0][0]);
 }
 
 void ShaderUniform::SetSampler1D(int newVal)

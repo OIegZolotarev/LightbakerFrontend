@@ -17,13 +17,13 @@ class ModelObjWorld: public IWorldEntity
 	ModelOBJ* m_pObjWorld = nullptr;
 public:
 
-	ModelObjWorld(const char* fileName);
+	ModelObjWorld(const char* fileName, Scene * pScene);
 	~ModelObjWorld();
 
 	DECLARE_PROPERTY(glm::vec3, EnvColor);
 	DECLARE_PROPERTY(std::string, Skybox);
 
-	void OnSelect() override;
+	void        OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions) override;
 
 	void RenderBoundingBox() override;
@@ -61,7 +61,7 @@ public:
 		m_ptr = ptr;
 	}
 
-	void FillProperties(std::vector<VariantValue>& collection) override;
+	void FillProperties(std::list<VariantValue*>& collection) override;
 	bool IsObjectValid() override;
 	void OnPropertyChangeSavedToHistory() override;
 	void UpdateObjectProperties(VariantValue* props, size_t num) override;
@@ -70,4 +70,6 @@ public:
 
 	const char* ObjectClassname() override;
 
+
+ void UpdateProperty(VariantValue *prop) override;
 };

@@ -25,7 +25,7 @@ enum class PlaneTypes
 };
 
 void VectorMA(const glm::vec3 &start, const float scale, const glm::vec3 &direction, glm::vec3 &dest);
-void VectorNormalize(glm::vec3 & vec);
+void VectorNormalize(glm::vec3 &vec);
 
 typedef struct plane_s
 {
@@ -41,3 +41,5 @@ typedef struct plane_s
 } plane_t;
 
 bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out);
+
+float AngleMod(float val);

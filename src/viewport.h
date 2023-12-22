@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "camera.h"
+#include "r_camera.h"
 #include "event_handler.h"
 #include "gl_framebuffer_object.h"
 #include "mathlib.h"
@@ -54,14 +54,19 @@ class Viewport : public IEventHandler
     void UpdateDisplayWidgetPos();
 
     // Object picking
-    void   HanlePicker();
+    void   HandlePicker();
     size_t m_hoveredObjectId;
-
+    
 public:
     Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom);
+
+    
+
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
+
+    void RenderGuizmo();
 
     // Displaying
     void DisplayRenderedFrame();
@@ -81,4 +86,9 @@ public:
     static Viewport *LoadState(nlohmann::json &persistentData);
 
     void RegisterEventHandlerAtHost();
+    bool IsVisible();
+    glm::vec2 GetClientAreaPosAbs();
+
+private:
+    glm::vec2 m_ClientAreaPos;
 };

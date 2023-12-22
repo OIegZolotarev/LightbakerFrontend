@@ -5,16 +5,34 @@
 VariantValue::VariantValue()
 {
 	//memset(this, 0, sizeof(*this));
-	memset(&value, 0, sizeof(value));
+    memset(&m_Value, 0, sizeof(m_Value));
 }
 
 VariantValue::VariantValue(int _id, PropertiesTypes _type, std::string _displayName)
 {
-	id = _id;
-	type = _type;
-	display_name = _displayName;
+	m_Id= _id;
+	m_Type = _type;
+	m_strDisplayName= _displayName;
 	
-	memset(&value, 0, sizeof(value));
+	memset(&m_Value, 0, sizeof(m_Value));
+}
+
+ VariantValue::VariantValue(const VariantValue &pOther)
+{
+    m_Id                = pOther.m_Id;
+    m_Type              = pOther.m_Type;
+    m_strDisplayName    = pOther.m_strDisplayName;
+    m_EnumOrFlagsValues = pOther.m_EnumOrFlagsValues;
+    m_bInitialized      = pOther.m_bInitialized;
+
+    m_Limits[0] = pOther.m_Limits[0];
+    m_Limits[1] = pOther.m_Limits[1];
+
+    m_StringValue = pOther.m_StringValue;
+
+    m_Value = pOther.m_Value;
+
+    SetHelp(pOther.m_strHelp);
 }
 
 VariantValue::~VariantValue()
@@ -39,7 +57,7 @@ int VariantValue::FindEnumValueIndex(int enumValue)
 
 void VariantValue::SetEnumIndexFromValue(int value)
 {
-	this->value.asEnum = FindEnumValueIndex(value);
+	this->m_Value.asEnum = FindEnumValueIndex(value);
 }
 
 const int VariantValue::GetEnumValue() const
@@ -47,55 +65,55 @@ const int VariantValue::GetEnumValue() const
 	if (!m_EnumOrFlagsValues.size())
 		return 0;
 #pragma warning(disable:4018)
-	if (value.asEnum > (m_EnumOrFlagsValues.size() - 1))
+    if (m_Value.asEnum > (m_EnumOrFlagsValues.size() - 1))
 		return 0;
 
-	return m_EnumOrFlagsValues[value.asEnum].second;
+	return m_EnumOrFlagsValues[m_Value.asEnum].second;
 }
 
 const int VariantValue::GetFlags() const
 {
-	return value.asFlags;
+    return m_Value.asFlags;
 }
 
 const glm::vec3 VariantValue::GetPosition() const
 {
-	return value.asPosition;
+    return m_Value.asPosition;
 }
 
 const glm::vec3 VariantValue::GetColorRGB() const
 {
-	return value.asColorRGB;
+    return m_Value.asColorRGB;
 }
 
 const glm::vec4 VariantValue::GetColorRGBA() const
 {
-	return value.asColorRGBA;
+    return m_Value.asColorRGBA;
 }
 
 const float VariantValue::GetFloat() const
 {
-	return value.asFloat;
+    return m_Value.asFloat;
 }
 
 const glm::vec3 VariantValue::GetAngles() const
 {
-	return value.asAngles;
+    return m_Value.asAngles;
 }
 
 const int VariantValue::GetInt() const
 {
-	return value.asInt;
+    return m_Value.asInt;
 }
 
 const float VariantValue::GetSizeX() const
 {
-	return value.asFloat;
+    return m_Value.asFloat;
 }
 
 const bool VariantValue::GetAsBool() const
 {
-	return value.asBool;
+    return m_Value.asBool;
 }
 
 const char* VariantValue::GetString() const
@@ -105,14 +123,14 @@ const char* VariantValue::GetString() const
 
 void VariantValue::SetEnumValue(int val)
 {
-	initialized = true;
+	m_bInitialized = true;
     int idx     = 0;
 
-	for (auto it: m_EnumOrFlagsValues)
+	for (auto & it: m_EnumOrFlagsValues)
     {
         if (it.second == val)
         {
-            value.asEnum = idx;
+            m_Value.asEnum = idx;
 		}
 
 		idx++;
@@ -123,56 +141,56 @@ void VariantValue::SetEnumValue(int val)
 
 void VariantValue::SetFlags(int val)
 {
-	initialized = true;
-	value.asFlags = val;
+	m_bInitialized = true;
+	m_Value.asFlags = val;
 }
 
 void VariantValue::SetPosition(glm::vec3 val)
 {
-	initialized = true;
-	value.asPosition = val;
+	m_bInitialized = true;
+    m_Value.asPosition = val;
 }
 
 void VariantValue::SetColorRGB(glm::vec3 val)
 {
-	initialized = true;
-	value.asColorRGB = val;
+    m_bInitialized     = true;
+    m_Value.asColorRGB = val;
 }
 
 void VariantValue::SetColorRGBA(glm::vec4 val)
 {
-	initialized = true;
-	value.asColorRGBA = val;
+    m_bInitialized      = true;
+    m_Value.asColorRGBA = val;
 }
 
 void VariantValue::SetFloat(float val)
 {
-	initialized = true;
-	value.asFloat = val;
+    m_bInitialized  = true;
+    m_Value.asFloat = val;
 }
 
 void VariantValue::SetAngles(glm::vec3 val)
 {
-	initialized = true;
-	value.asAngles = val;
+    m_bInitialized   = true;
+    m_Value.asAngles = val;
 }
 
 void VariantValue::SetInt(int val)
 {
-	initialized = true;
-	value.asInt = val;
+    m_bInitialized = true;
+    m_Value.asInt = val;
 }
 
 void VariantValue::SetSizeX(float val)
 {
-	initialized = true;
-	value.asFloat = val;
+    m_bInitialized  = true;
+    m_Value.asFloat = val;
 }
 
 void VariantValue::SetBool(bool val)
 {
-	initialized = true;
-	value.asBool = val;
+    m_bInitialized = true;
+    m_Value.asBool = val;
 }
 
 void VariantValue::SetString(const char* value)
@@ -192,22 +210,22 @@ void VariantValue::AddEnumValue(const char* descr, int val)
 
 const int VariantValue::GetId() const
 {
-	return id;
+	return m_Id;
 }
 
 const char* VariantValue::DisplayName() const
 {
-	return display_name.c_str();
+	return m_strDisplayName.c_str();
 }
 
 const PropertiesTypes VariantValue::GetType() const
 {
-	return type;
+	return m_Type;
 }
 
 void* VariantValue::Data()
 {
-	return (void*)&value.asBool;
+	return (void*)&m_Value.asBool;
 }
 
 const std::vector<enumValuePair_t>& VariantValue::GetEnumValues() const
@@ -225,6 +243,11 @@ const char* VariantValue::TempLabel()
 	return m_TempLabel;
 }
 
+bool VariantValue::IsInitialized()
+{
+    return m_bInitialized;
+}
+
 void VariantValue::SetNumericalLimits(float min, float max)
 {
 	m_Limits[0] = min;
@@ -233,14 +256,14 @@ void VariantValue::SetNumericalLimits(float min, float max)
 
 void VariantValue::ValidateValue()
 {
-	switch (type)
+	switch (m_Type)
 	{		
 	case PropertiesTypes::Float:	
-		value.asFloat = std::clamp(value.asFloat, m_Limits[0], m_Limits[1]);
+		m_Value.asFloat = std::clamp(m_Value.asFloat, m_Limits[0], m_Limits[1]);
 		break;
 	case PropertiesTypes::SizeX:
 	case PropertiesTypes::Int:	
-		value.asInt = std::clamp(value.asInt, (int)m_Limits[0], (int)m_Limits[1]);		
+		m_Value.asInt = std::clamp(m_Value.asInt, (int)m_Limits[0], (int)m_Limits[1]);		
 		break;	
 	default:
 		break;
@@ -251,4 +274,32 @@ void VariantValue::ValidateValue()
 float* VariantValue::GetNumericalLimits()
 {
 	return m_Limits;
+}
+
+std::string *VariantValue::GetStdStringPtr()
+{
+    return &m_StringValue;
+}
+
+const std::string &VariantValue::Help() const
+{
+    return m_strHelp;
+}
+
+void VariantValue::SetHelp(const std::string &str)
+{
+    m_strHelp = str;
+}
+
+void VariantValue::SetDisplayName(const std::string & dispName, bool updateIfSet /*= true*/)
+{
+    if (!updateIfSet && !m_strDisplayName.empty())
+        return;
+
+    m_strDisplayName = dispName;
+}
+
+void IObjectPropertiesBinding::RenderFooter()
+{
+    return;
 }
