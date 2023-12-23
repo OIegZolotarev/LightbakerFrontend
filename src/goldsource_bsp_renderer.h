@@ -93,6 +93,9 @@ class BSPRenderer
 
   private:
     glm::mat4 m_Transform;
+
+  public:
+      void ReloadLightmaps();
 };
 
 } // namespace GoldSource

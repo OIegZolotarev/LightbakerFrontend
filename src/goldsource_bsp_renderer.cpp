@@ -456,6 +456,22 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
     return pResult;
 }
 
+void BSPRenderer::ReloadLightmaps()
+{
+    for (auto &it : m_RenderInfos)
+        delete it;
+
+    m_RenderInfos.clear();
+
+    auto &modelList = m_pLevel->GetSubmodels();
+
+    for (auto &it : modelList)
+    {
+        auto renderCookie = BuildDisplayMesh(&it);
+        m_RenderInfos.push_back(renderCookie);
+    }
+}
+
 BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl)
 {
     m_pMesh       = pMesh;

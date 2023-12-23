@@ -16,6 +16,7 @@ using namespace GoldSource;
 void BSPWorld::ReloadLightmaps()
 {
     m_pLevel->ReloadLightmaps();
+    m_pRenderer->ReloadLightmaps();
 }
 
 void BSPWorld::OnAdditionToScene(Scene *pScene)
