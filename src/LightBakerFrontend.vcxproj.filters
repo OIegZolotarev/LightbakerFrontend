@@ -389,7 +389,7 @@
     <ClCompile Include="..\include\sdl-event-to-string\sdl_event_to_string.cpp">
       <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClCompile>
-    <ClCompile Include="mdl_v10_goldsource.cpp">
+    <ClCompile Include="mod_mdlv10.cpp">
       <Filter>Исходные файлы\GoldSource\MDL</Filter>
     </ClCompile>
     <ClCompile Include="gl_draw_mesh.cpp">
@@ -727,10 +727,10 @@
     <ClInclude Include="..\include\sdl-event-to-string\sdl_event_to_string.h">
       <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClInclude>
-    <ClInclude Include="mdl_v10_disk_structs_goldsource.h">
+    <ClInclude Include="mod_mdlv10_disk_structs.h">
       <Filter>Исходные файлы\GoldSource\MDL</Filter>
     </ClInclude>
-    <ClInclude Include="mdl_v10_goldsource.h">
+    <ClInclude Include="mod_mdlv10.h">
       <Filter>Исходные файлы\GoldSource\MDL</Filter>
     </ClInclude>
     <ClInclude Include="gl_draw_mesh.h">

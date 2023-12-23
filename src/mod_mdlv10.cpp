@@ -9,7 +9,7 @@
 #include "gl_backend.h"
 #include "img_indexed_from_memory.h"
 #include "mathlib.h"
-#include "mdl_v10_goldsource.h"
+#include "mod_mdlv10.h"
 #include "gl_texture.h"
 
 using namespace GoldSource;

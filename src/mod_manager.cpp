@@ -6,7 +6,7 @@
 #include "application.h"
 #include "mod_manager.h"
 #include "fs_core.h"
-#include "mdl_v10_goldsource.h"
+#include "mod_mdlv10.h"
 #include "text_utils.h"
 
 ModelsManager::~ModelsManager()

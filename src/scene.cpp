@@ -6,7 +6,7 @@
 #include "scene.h"
 #include "application.h"
 #include "goldsource_bsp_world.h"
-#include "mdl_v10_goldsource.h"
+#include "mod_mdlv10.h"
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
 #include "model_obj_world.h"

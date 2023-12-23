@@ -19,10 +19,10 @@ void mobjdata_s::CalcMinsMaxs(glm::vec3 &mins, glm::vec3 &maxs)
     {
         for (int j = 0; j < vertSize; j++)
         {
-            if (mins[i] > verts[i + j])
-                mins[i] = verts[i + j];
-            if (maxs[i] < verts[i + j])
-                mins[i] = verts[i + j];
+            if (mins[j] > verts[(size_t)(i + j)])
+                mins[j] = verts[(size_t)(i + j)];
+            if (maxs[j] < verts[(size_t)(i + j)])
+                mins[j] = verts[(size_t)(i + j)];
         }
     }
 }

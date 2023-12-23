@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "mdl_v10_disk_structs_goldsource.h"
+#include "mod_mdlv10_disk_structs.h"
 #include "text_utils.h"
 #include "mod_manager.h"
 

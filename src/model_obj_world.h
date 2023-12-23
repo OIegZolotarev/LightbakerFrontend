@@ -12,6 +12,23 @@
 #include "goldsource_bsp_renderer.h"
 #include "world_entity.h"
 
+#define DECLARE_PROPERTY(Type, Name)                                                                                   \
+protected:                                                                                                             \
+    Type m_##Name;                                                                                                     \
+    bool m_bIsSet##Name = false;                                                                                       \
+                                                                                                                       \
+public:                                                                                                                \
+    void Set##Name(Type val)                                                                                           \
+    {                                                                                                                  \
+        m_##Name       = val;                                                                                          \
+        m_bIsSet##Name = true;                                                                                         \
+    }                                                                                                                  \
+    const Type Get##Name()                                                                                             \
+    {                                                                                                                  \
+        return m_##Name;                                                                                               \
+    }
+
+
 class ModelObjWorld: public IWorldEntity
 {
 	ModelOBJ* m_pObjWorld = nullptr;
