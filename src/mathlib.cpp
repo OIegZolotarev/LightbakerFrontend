@@ -175,5 +175,5 @@ const glm::vec3 &BoundingBox::Mins() const
 
 const glm::vec3 &BoundingBox::Maxs() const
 {
-    return m_Mins;
+    return m_Maxs;
 }
