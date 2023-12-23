@@ -87,7 +87,14 @@ void BSPEntity::PopulateScene()
 
     if (classPtr)
     {
-        SetBoundingBox(classPtr->GetBoundingBox());
+        auto ch = classPtr->ClassName().c_str();
+
+        auto bbox = classPtr->GetBoundingBox();
+
+        if (glm::length2(bbox.Size()) == 0)
+            SetBoundingBox(BoundingBox(8));
+        else
+            SetBoundingBox(bbox);
 
         // if (!m_bIsSetColor)
         SetRenderColor(classPtr->GetColor());
@@ -109,8 +116,8 @@ void BSPEntity::PopulateScene()
     {
         SetBoundingBox(BoundingBox(8));
 
-        //if (!m_bIsSetColor)
-          SetRenderColor({1, 0, 1,1});
+        // if (!m_bIsSetColor)
+        SetRenderColor({1, 0, 1, 1});
     }
 
     std::shared_ptr<SceneEntity> ptr(this);
@@ -164,7 +171,7 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
 void BSPEntity::RenderUnshaded()
 {
-    const IModelWeakPtr  model = GetModel();
+    const IModelWeakPtr model = GetModel();
 
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
 

@@ -89,6 +89,7 @@ private:
 
 
 void ParseAngles(const std::string &value);
+    std::string SerializeValue();
 };
 
 } // namespace GoldSource

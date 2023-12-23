@@ -86,7 +86,8 @@ public:
     const float     GetSizeX() const;
     const bool      GetAsBool() const;
     const char *    GetString() const;
-
+    std::string GetStringStd() const;
+    
     void SetEnumValue(int val);
     void SetFlags(int val);
     void SetPosition(glm::vec3 val);

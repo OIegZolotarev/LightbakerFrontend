@@ -121,6 +121,11 @@ const char* VariantValue::GetString() const
 	return m_StringValue.c_str();
 }
 
+std::string VariantValue::GetStringStd() const
+{
+    return m_StringValue;
+}
+
 void VariantValue::SetEnumValue(int val)
 {
 	m_bInitialized = true;

@@ -25,8 +25,8 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const std::string 
 
     SetDescriptor(pDescr);
 
-    m_Type = AdaptPropertyType();
-    m_pOwner = (BSPEntity*)pOwner;
+    m_Type   = AdaptPropertyType();
+    m_pOwner = (BSPEntity *)pOwner;
 
     ParseValue(value);
 }
@@ -62,7 +62,7 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Light;
         return PropertiesTypes::ColorRGBA;
     }
-    else 
+    else
         m_iSpecialId = PropertyMetatype::None;
 
     return PropertiesTypes::String;
@@ -83,25 +83,25 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantV
     m_Name   = pOther->m_Name;
     m_pOwner = nullptr;
     m_Hash   = pOther->m_Hash;
-    
+
     // TODO: check if this is enough
     m_iSpecialId = pOther->m_iSpecialId;
 
     SetDescriptor(pOther->m_pDescriptor);
 }
 
- BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr)
+BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr)
 {
-     m_pOwner = (BSPEntity *)pOwner;
+    m_pOwner = (BSPEntity *)pOwner;
 
-     m_Name   = pDescr->GetName();
-     m_Hash   = CalcHash(m_Name);
+    m_Name = pDescr->GetName();
+    m_Hash = CalcHash(m_Name);
 
-     m_bInitialized = false;
-     SetDescriptor(pDescr);
-     
-     m_Type = AdaptPropertyType();
- }
+    m_bInitialized = false;
+    SetDescriptor(pDescr);
+
+    m_Type = AdaptPropertyType();
+}
 
 size_t BSPEntityProperty::CalcHash(const std::string &val)
 {
@@ -135,6 +135,31 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
     }
 }
 
+std::string BSPEntityProperty::SerializeValue()
+{
+    switch (m_iSpecialId)
+    {
+    case PropertyMetatype::Classname:
+        return GetStringStd();
+    case PropertyMetatype::Origin: {
+        glm::vec3 pos = GetPosition();
+        return std::format("{0} {1} {2}", pos[0], pos[1], pos[2]);
+    }
+    case PropertyMetatype::Angles: {
+        glm::vec3 ang = GetAngles();
+        return std::format("{0} {1} {2}", ang[0], ang[1], ang[2]);
+    }
+    case PropertyMetatype::Flags:
+        return std::format("{0}", GetFlags());
+    case PropertyMetatype::Light: {
+        glm::vec4 val = GetColorRGBA();
+        return std::format("{0} {1} {2} {3}", val[0], val[1], val[2], val[3]);
+    }
+    default:
+        return GetStringStd();
+        break;
+    }
+}
 
 void BSPEntityProperty::ParseAngles(const std::string &value)
 {
@@ -154,7 +179,7 @@ void BSPEntityProperty::ParseAngles(const std::string &value)
         }
 
         SetAngles(angles);
-        m_pOwner->SetAngles(GetAngles());        
+        m_pOwner->SetAngles(GetAngles());
     }
 }
 
@@ -182,9 +207,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         break;
     default:
         break;
-    
     }
-
 }
 
 void BSPEntityProperty::RebuildFlagsList()
@@ -192,9 +215,8 @@ void BSPEntityProperty::RebuildFlagsList()
     if (!m_pDescriptor)
         return;
 
-
-     if (! instanceof <FGDFlagsEnumProperty>(m_pDescriptor))
-         return;
+    if (! instanceof <FGDFlagsEnumProperty>(m_pDescriptor))
+        return;
 
     m_EnumOrFlagsValues.clear();
 
@@ -204,7 +226,6 @@ void BSPEntityProperty::RebuildFlagsList()
     {
         AddEnumValue(it.description.c_str(), it.value);
     }
-
 }
 
 void BSPEntityProperty::ParseFlags(const std::string &value)
@@ -265,11 +286,10 @@ GoldSource::FGDPropertyDescriptor *BSPEntityProperty::PropertyDescriptor()
 
 void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
 {
-    m_pDescriptor = (FGDPropertyDescriptor*)descr;
+    m_pDescriptor = (FGDPropertyDescriptor *)descr;
 
     if (m_pDescriptor)
     {
-
         SetHelp(m_pDescriptor->GetHelp());
 
         if (m_iSpecialId == PropertyMetatype::Flags)
@@ -306,7 +326,9 @@ void BSPEntityProperty::ParseLight(const std::string &value)
 
 void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    std::string stringValue = SerializeValue();
+
+    fprintf(fp, "\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
 }
 
 void BSPEntityProperty::ParseClassname(const std::string &value)
