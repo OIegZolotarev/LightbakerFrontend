@@ -1145,7 +1145,7 @@ void BSPLevel::Mod_ReloadFacesLighting(lump_t* l)
 void BSPLevel::ReloadLightmaps()
 {
 	auto fs = Application::GetFileSystem();
-	auto & name = m_pFileData->Name();
+	std::string name = m_pFileData->Name();
 
 	m_pFileData->UnRef();
 
@@ -1195,8 +1195,6 @@ std::string BSPLevel::Export(const char *newPath, lightBakerSettings_t *lb3kOpti
 	fwrite(m_Header, sizeof(dheader_t), 1, fpOut);
 
 	fclose(fpOut);
-
-
 
 	return m_pFileData->Name();
 }

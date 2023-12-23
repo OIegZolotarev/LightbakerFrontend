@@ -70,10 +70,7 @@ void GameConfiguration::SetGameDirectory(std::string &gameDir)
 
     m_GameDirectory = gdPathCanonical.string();
 
-    if (m_pFSRootMount)
-        delete m_pFSRootMount;
-
-    m_pFSRootMount = new FolderMount(gameDir.c_str());
+    m_pFSRootMount = std::make_shared<FolderMount>(gameDir.c_str());
 }
 
 void GameConfiguration::Serialize(std::string fileName) const
@@ -96,14 +93,16 @@ bool GameConfiguration::IsDefault()
 
 void GameConfiguration::MountGameFS()
 {
+    // TODO: Fixme
     if (m_pFSRootMount)
-        FileSystem::Instance()->MountArchive(m_pFSRootMount);
+        FileSystem::Instance()->MountArchive(m_pFSRootMount.get());
 }
 
 void GameConfiguration::UnmountGameFS()
 {
+    // TODO: Fixme
     if (m_pFSRootMount)
-        FileSystem::Instance()->UnmountArchive(m_pFSRootMount);
+        FileSystem::Instance()->UnmountArchive(m_pFSRootMount.get());
 }
 
 void GameConfigurationsManager::Init(PersistentStorage *storage)

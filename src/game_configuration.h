@@ -21,7 +21,7 @@ class GameConfiguration
     bool m_bDefault = false;
 
     // Filesystem descriptor
-    FolderMount *m_pFSRootMount = nullptr;
+    std::shared_ptr<FolderMount> m_pFSRootMount;
 
 protected:
     
@@ -44,6 +44,7 @@ public:
         m_Description = other.m_Description;
         m_SavedFileName = other.m_SavedFileName;
         m_Engine = other.m_Engine;
+        m_pFSRootMount  = other.m_pFSRootMount;
 
         // TODO: copy FS mount point?
     }

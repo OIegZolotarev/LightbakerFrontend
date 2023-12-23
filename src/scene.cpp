@@ -301,7 +301,7 @@ void Scene::Reload(int loadFlags)
     if (loadFlags & LRF_RELOAD_LIGHTMAPS)
     {
         auto           it     = m_SceneEntities.begin();
-        ModelObjWorld *entity = (ModelObjWorld *)(*it).get();
+        IWorldEntity *entity = (IWorldEntity *)(*it).get();
 
         entity->ReloadLightmaps();
 
