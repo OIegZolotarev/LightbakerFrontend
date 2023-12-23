@@ -171,7 +171,7 @@ public:
 
     const BoundingBox &GetBoundingBox() const;
 
-    glm::vec3 GetColor();
+    glm::vec4 GetColor();
 
     GLTexture *GetEditorSpite();
 

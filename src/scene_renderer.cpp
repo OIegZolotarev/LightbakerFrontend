@@ -193,7 +193,7 @@ void SceneRenderer::RenderHelperGeometry()
         if (!it->IsLightEntity())
             continue;
 
-        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetColor(), it->GetSerialNumber());
+        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(), it->GetSerialNumber());
 
         if (it->IsSelected())
         {
@@ -353,7 +353,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
             switch (it->Kind())
             {
             case UniformKind::Color:
-                it->SetFloat4((glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1)));
+                it->SetFloat4(glm::vec4(1, 1, 1,1) - ptr->GetRenderColor());
                 break;
             case UniformKind::TransformMatrix: {
                 glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
@@ -383,7 +383,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
         shader->Bind();
         shader->SetDefaultCamera();
-        shader->SetColor(glm::vec4(glm::vec3(1, 1, 1) - ptr->GetColor(), 1));
+        shader->SetColor(glm::vec4(1,1,1,1) - ptr->GetRenderColor());
 
         glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 
@@ -656,7 +656,7 @@ void SceneRenderer::RenderGenericEntity(SceneEntity *pEntity)
         switch (it->Kind())
         {
         case UniformKind::Color: {
-            it->SetFloat4({pEntity->GetColor(), 1});
+            it->SetFloat4(pEntity->GetRenderColor());
         }
         break;
         case UniformKind::TransformMatrix: {

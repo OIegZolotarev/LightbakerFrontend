@@ -92,7 +92,7 @@ void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::sh
 void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
 {
 	p = VariantValue(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
-	p.SetColorRGB(ptr->GetColor());
+	p.SetColorRGB(ptr->GetRenderColor());
 }
 
 void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
@@ -159,7 +159,7 @@ void LightPropertiesBinding::UpdateObjectProperties(VariantValue* props, size_t 
 			break;
 		case LightProperties::Color:
 			MakeLightColorProperty(oldValue, ptr);
-			ptr->SetColor(it.GetColorRGB());
+			ptr->SetRenderColor(it.GetColorRGBA());
 			break;
 		case LightProperties::Intensity:
 			MakeLightIntensityProperty(oldValue, ptr);

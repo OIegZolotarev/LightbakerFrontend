@@ -85,8 +85,11 @@ SceneEntity::SceneEntity(Scene *pScene)
     m_pScene = pScene;
     
 
-    m_Color      = {0, 0, 0};
-    m_EditorIcon = nullptr;
+    // m_Color      = {0, 0, 0};
+    // m_EditorIcon = nullptr;
+
+    SetEditorIcon(nullptr);
+    SetRenderColor({1, 1, 1, 1});
 }
 
 SceneEntity::SceneEntity(SceneEntity &other)
@@ -96,9 +99,9 @@ SceneEntity::SceneEntity(SceneEntity &other)
     m_EntVars.bboxRelative = other.m_EntVars.bboxRelative;
     m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
     
+    m_EntVars.rendercolor = other.m_EntVars.rendercolor;
+    m_EntVars.editor_icon = other.m_EntVars.editor_icon;
 
-    m_Color      = other.m_Color;
-    m_EditorIcon = other.m_EditorIcon;
 }
 
 void SceneEntity::RenderLightshaded()

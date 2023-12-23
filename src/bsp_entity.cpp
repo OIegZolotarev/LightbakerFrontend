@@ -5,8 +5,8 @@
 
 #include "application.h"
 
-#include "bsp_entity.h"
 #include "bsp_entities_properties_binding.h"
+#include "bsp_entity.h"
 #include "bsp_entity_property.h"
 
 #include "common.h"
@@ -55,7 +55,6 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     }
 }
 
-
 bool BSPEntity::IsTransparent()
 {
     return m_pEditorSprite != nullptr;
@@ -90,8 +89,8 @@ void BSPEntity::PopulateScene()
     {
         SetBoundingBox(classPtr->GetBoundingBox());
 
-        if (!m_bIsSetColor)
-            SetColor(classPtr->GetColor());
+        // if (!m_bIsSetColor)
+        SetRenderColor(classPtr->GetColor());
 
         m_pEditorSprite = classPtr->GetEditorSpite();
 
@@ -110,8 +109,8 @@ void BSPEntity::PopulateScene()
     {
         SetBoundingBox(BoundingBox(8));
 
-        if (!m_bIsSetColor)
-            SetColor({1, 0, 1});
+        //if (!m_bIsSetColor)
+          SetRenderColor({1, 0, 1,1});
     }
 
     std::shared_ptr<SceneEntity> ptr(this);
@@ -165,7 +164,7 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
 void BSPEntity::RenderUnshaded()
 {
-    auto &model = GetModel();
+    const IModelWeakPtr  model = GetModel();
 
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
 
@@ -193,7 +192,7 @@ void BSPEntity::RenderUnshaded()
     }
     else
     {
-        sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), m_Color,
+        sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), GetRenderColor(),
                                      GetSerialNumber());
     }
 }
@@ -214,7 +213,7 @@ void BSPEntity::RenderBoundingBox()
 
 glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
 {
-    auto color     = pEntity->GetColor() * 255.f;
+    auto color     = pEntity->GetRenderColor() * 255.f;
     auto intensity = pEntity->GetIntensity();
 
     return glm::vec4(color.r, color.g, color.b, intensity);

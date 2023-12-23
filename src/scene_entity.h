@@ -5,9 +5,9 @@
 
 #pragma once
 #include "gl_texture.h"
+#include "mod_manager.h"
 #include "object_props.h"
 #include "selection_3d.h"
-#include "mod_manager.h"
 
 enum class EntityClasses
 {
@@ -44,15 +44,15 @@ typedef struct sentvars_s
     // Bounding boxes
     BoundingBox bboxRelative;
     BoundingBox bboxAbsolute;
-    
+
     // Displaying
-    ColorRGBA     rendercolor;
-    ColorRGBA     wireframecolor;    
+    ColorRGBA rendercolor;
+    ColorRGBA wireframecolor;
 
     // Models
     IModelWeakPtr model;
-    GLTexture*     editor_icon; // TODO: make sprite-models later
-    
+    GLTexture *   editor_icon; // TODO: make sprite-models later
+
     // Studio models
     int   bodynum;
     int   skin;
@@ -64,7 +64,7 @@ typedef struct sentvars_s
     float mouth;
 
     // Editor entity
-    uint32_t serialNumber;    
+    uint32_t    serialNumber;
     std::size_t classname_hash;
     std::string classname;
 
@@ -77,40 +77,39 @@ typedef struct sentvars_s
         bboxRelative = BoundingBox(8);
         bboxAbsolute = BoundingBox(8);
 
-        rendercolor = {1, 1, 1, 1};
+        rendercolor    = {1, 1, 1, 1};
         wireframecolor = {1, 1, 1, 1};
 
-        model = IModelWeakPtr();
+        model       = IModelWeakPtr();
         editor_icon = nullptr;
 
-        bodynum = 0;
-        skin    = 0;
+        bodynum  = 0;
+        skin     = 0;
         sequence = 0;
         frame    = 0;
-        
+
         for (auto &it : blending)
             it = 0;
 
         for (auto &it : controller)
             it = 0;
 
-        mouth = 0;
+        mouth        = 0;
         serialNumber = 0;
 
         classname_hash = 0;
         classname      = "";
     }
 
-}sentvars_t;
-
+} sentvars_t;
 
 class Scene;
 
 class SceneEntity : public ISelectableObject
 {
-    bool m_bDataLoaded = true;    
-    EntityClasses m_EntityClass;    
-    sentvars_t m_EntVars;
+    bool          m_bDataLoaded = true;
+    EntityClasses m_EntityClass;
+    sentvars_t    m_EntVars;
 
     void RecalcAbsBBox()
     {
@@ -118,7 +117,6 @@ class SceneEntity : public ISelectableObject
     }
 
 protected:
-    
     const BoundingBox &GetRelativeBoundingBox() const;
     const BoundingBox &GetAbsoulteBoundingBox() const;
 
@@ -129,8 +127,9 @@ protected:
     std::weak_ptr<SceneEntity> m_pNext;
 
     Scene *m_pScene;
+
 public:
-    SceneEntity(Scene * pScene);
+    SceneEntity(Scene *pScene);
     SceneEntity(SceneEntity &other);
 
     virtual void RenderLightshaded(); // С лайтмапой
@@ -153,7 +152,7 @@ public:
         return m_EntVars.serialNumber;
     }
 
-    void SetPosition(const glm::vec3 & pos)
+    void SetPosition(const glm::vec3 &pos)
     {
         m_EntVars.origin = pos;
         RecalcAbsBBox();
@@ -163,15 +162,41 @@ public:
     {
         return m_EntVars.origin;
     }
-    
-    void SetBoundingBox(const BoundingBox & bbox)
+
+    void SetBoundingBox(const BoundingBox &bbox)
     {
-        m_EntVars.bboxRelative = bbox;        
+        m_EntVars.bboxRelative = bbox;
     }
 
-    DECLARE_PROPERTY(glm::vec3     , Color);
-    DECLARE_PROPERTY(GLTexture *   , EditorIcon);
-    DECLARE_PROPERTY(IModelWeakPtr , Model);
+    void SetRenderColor(const ColorRGBA &color)
+    {
+        m_EntVars.rendercolor = color;
+    }
+
+    const ColorRGBA GetRenderColor() const
+    {
+        return m_EntVars.rendercolor;
+    }
+
+    const GLTexture *GetEditorIcon() const
+    {
+        return m_EntVars.editor_icon;
+    }
+
+    void SetEditorIcon(GLTexture *pTexture)
+    {
+        m_EntVars.editor_icon = pTexture;
+    }
+
+    IModelWeakPtr GetModel() const
+    {
+        return m_EntVars.model;
+    }
+
+    void SetModel(IModelWeakPtr &model)
+    {
+        m_EntVars.model = model;
+    }
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
@@ -186,29 +211,28 @@ public:
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
 
-    void InvokeSelect();
+    void               InvokeSelect();
     const std::string &GetClassName() const;
 
-    template<class T> 
-    static T* GetRawSafest(std::weak_ptr<SceneEntity> & weakRef)
+    template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
     {
         auto ptr = weakRef.lock();
 
         if (!ptr)
             return nullptr;
 
-        SceneEntity * rawPtr = ptr.get();
+        SceneEntity *rawPtr = ptr.get();
 
         if (! instanceof <T>(rawPtr))
             return nullptr;
 
-        return static_cast<T*>(rawPtr);
+        return static_cast<T *>(rawPtr);
     }
 
     virtual bool IsTransparent();
 
     std::weak_ptr<SceneEntity> Next();
-    void SetNext(std::weak_ptr<SceneEntity> & pOther);
+    void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
 };
 

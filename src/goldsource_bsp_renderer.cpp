@@ -221,7 +221,7 @@ void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
             GLBackend::BindTexture(1, it.lm);
             GLBackend::BindTexture(0, it.diffuse);
 
-            pMesh->Draw(it.first, it.count);
+            pMesh->Draw((uint32_t)it.first, (uint32_t)it.count);
         }
     }
 

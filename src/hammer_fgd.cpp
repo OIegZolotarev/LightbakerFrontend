@@ -204,9 +204,9 @@ FGDPropertyDescriptor *FGDEntityClass::FindProperty(const std::string &propertyN
     return nullptr;
 }
 
-glm::vec3 FGDEntityClass::GetColor()
+glm::vec4 GoldSource::FGDEntityClass::GetColor()
 {
-    return m_Color;
+    return glm::vec4(m_Color,1);
 }
 
 void FGDEntityClass::SetBBoxOffset(const glm::vec3 offset)

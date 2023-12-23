@@ -6,12 +6,12 @@
 #include "scene.h"
 #include "application.h"
 #include "goldsource_bsp_world.h"
+#include "mdl_v10_goldsource.h"
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "r_camera.h"
-#include "mdl_v10_goldsource.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -42,7 +42,7 @@ void Scene::LoadLevel(const char *levelName, int loadFlags)
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
-    
+
     pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
 }
 
@@ -96,11 +96,11 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 
     float hue = (float)rand() / 32768.f;
 
-    glm::vec3 rgb;
+    glm::vec4 rgb = {1, 1, 1, 1};
 
     ImGui::ColorConvertHSVtoRGB(hue, 1, 1, rgb[0], rgb[1], rgb[2]);
 
-    newLight->SetColor(rgb);
+    newLight->SetRenderColor(rgb);
     newLight->SetSerialNumber(m_ObjectsCounter.Allocate());
 
     newLight->SetIntensity(500);
@@ -171,7 +171,6 @@ void Scene::RenderLightShaded()
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
 
-
     for (auto &it : m_SceneEntities)
     {
         if (!it)
@@ -183,14 +182,12 @@ void Scene::RenderLightShaded()
         if (frustum->CullBox(it->AbsoulteBoundingBox()))
             continue;
 
-         if (it->IsTransparent())
-         {
-             sr->AddTransparentEntity(it);
-         }
-         else
-         
+        if (it->IsTransparent())
+        {
+            sr->AddTransparentEntity(it);
+        }
+        else
             it->RenderLightshaded();
-        // selectionManager->PushObject(it);
     }
 }
 
