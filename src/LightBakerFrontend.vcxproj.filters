@@ -736,7 +736,6 @@
     <ClInclude Include="gl_draw_mesh.h">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClInclude>
-    <ClInclude Include="color.h" />
     <ClInclude Include="img_indexed_from_memory.h">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
@@ -757,6 +756,9 @@
     </ClInclude>
     <ClInclude Include="fs_folder_mount.h">
       <Filter>Исходные файлы\Filesystem</Filter>
+    </ClInclude>
+    <ClInclude Include="color.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

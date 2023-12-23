@@ -75,5 +75,7 @@ void BSPWorld::OnLevelLoaded()
     short *minsmaxs = m_pLevel->GetNodes(0)->minmaxs;
     
     SetBoundingBox(BoundingBox(minsmaxs)); 
+    SetPosition(glm::vec3{0, 0, 0});
+
     m_pLevel->PopulateScene(m_pScene);
 }

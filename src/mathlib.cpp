@@ -138,7 +138,7 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
 
 BoundingBox::BoundingBox(const glm::vec3 pos, const BoundingBox &other)
 {
-    m_Mins = pos + other.m_Maxs;
+    m_Mins = pos + other.m_Mins;
     m_Maxs = pos + other.m_Maxs;
 }
 
