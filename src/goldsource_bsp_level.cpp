@@ -1145,7 +1145,7 @@ void BSPLevel::Mod_ReloadFacesLighting(lump_t* l)
 void BSPLevel::ReloadLightmaps()
 {
 	auto fs = Application::GetFileSystem();
-	auto name = m_pFileData->Name();
+	auto & name = m_pFileData->Name();
 
 	m_pFileData->UnRef();
 
@@ -1162,11 +1162,12 @@ void BSPLevel::ReloadLightmaps()
 	Mod_ReloadFacesLighting(&m_Header->lumps[LUMP_FACES]);
 }
 
-std::string GoldSource::BSPLevel::Export(const char *newPath, lightBakerSettings_t *lb3kOptions)
+std::string BSPLevel::Export(const char *newPath, lightBakerSettings_t *lb3kOptions)
 {
 	
-	FILE* fpOut = fopen(m_pFileData->Name().c_str(), "wb");
+	FILE *fpOut = fopen(m_pFileData->Name().c_str(), "wb");
 	
+	//fwrite(m_Header, sizeof(dheader_t), 1, fpOut);
 	fwrite(m_pFileData->Data(), m_pFileData->Length(), 1, fpOut);
 
 	size_t pos = ftell(fpOut);

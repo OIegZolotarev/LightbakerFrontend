@@ -131,6 +131,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseClassname(value);
         break;
     default:
+        SetString(value);
         break;
     }
 }
@@ -153,7 +154,7 @@ std::string BSPEntityProperty::SerializeValue()
         return std::format("{0}", GetFlags());
     case PropertyMetatype::Light: {
         glm::vec4 val = GetColorRGBA();
-        return std::format("{0} {1} {2} {3}", val[0], val[1], val[2], val[3]);
+        return std::format("{0} {1} {2} {3}", val[0] * 255, val[1] * 255, val[2] * 255, val[3]);
     }
     default:
         return GetStringStd();
@@ -234,6 +235,9 @@ void BSPEntityProperty::ParseFlags(const std::string &value)
 
     if (m_pDescriptor)
         RebuildFlagsList();
+
+
+    SetFlags(std::stoi(value));
 }
 
 void BSPEntityProperty::ParseOrigin(const std::string &value)
@@ -328,6 +332,7 @@ void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
 {
     std::string stringValue = SerializeValue();
 
+    // Con_Printf("\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
     fprintf(fp, "\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
 }
 

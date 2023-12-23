@@ -47,11 +47,14 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     if (existingProp)
     {
         existingProp->ParseValue(value);
+        assert(existingProp->IsInitialized());
     }
     else
     {
         BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
         m_lstProperties.push_back(pProperty);
+
+        assert(pProperty->IsInitialized());
     }
 }
 
@@ -89,7 +92,7 @@ void BSPEntity::PopulateScene()
     {
         auto ch = classPtr->ClassName().c_str();
 
-        auto bbox = classPtr->GetBoundingBox();
+        const BoundingBox &  bbox = classPtr->GetBoundingBox();
 
         if (glm::length2(bbox.Size()) == 0)
             SetBoundingBox(BoundingBox(8));

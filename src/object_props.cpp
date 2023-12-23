@@ -200,11 +200,13 @@ void VariantValue::SetBool(bool val)
 
 void VariantValue::SetString(const char* value)
 {
+    m_bInitialized = true;
 	m_StringValue = value;
 }
 
 void VariantValue::SetString(std::string val)
 {
+    m_bInitialized = true;
     m_StringValue = val;
 }
 
