@@ -30,6 +30,8 @@ struct StudioEntityState
 
     float controller[4];
     float mouth;
+
+    glm::mat4 worldTransform;
 };
 
 class StudioModelV10;

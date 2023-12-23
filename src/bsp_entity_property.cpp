@@ -116,7 +116,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseOrigin(value);
         break;
     case PropertyMetatype::Angles:
-        // ParseAngles(value);
+        ParseAngles(value);
         break;
     case PropertyMetatype::Wad:
         ParseWad(value);
@@ -136,6 +136,28 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
 }
 
 
+void BSPEntityProperty::ParseAngles(const std::string &value)
+{
+    auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
+
+    glm::vec3 angles = {0, 0, 0};
+
+    if (digits.size() == 3)
+    {
+        int i = 0;
+        for (auto it = digits.begin(); it != digits.end(); it++, i++)
+        {
+            angles[i] = std::stof(*it);
+
+            if (isnan(angles[i]))
+                angles[i] = 0;
+        }
+
+        SetAngles(angles);
+        m_pOwner->SetAngles(GetAngles());        
+    }
+}
+
 void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
 {
     m_Value = pNewProperty->m_Value;
@@ -148,6 +170,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         m_pOwner->SetPosition(GetPosition());
         break;
     case PropertyMetatype::Angles:
+        m_pOwner->SetAngles(GetAngles());
         break;
     case PropertyMetatype::Flags:
         break;

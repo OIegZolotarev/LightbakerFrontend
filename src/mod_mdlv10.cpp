@@ -7,10 +7,10 @@
 #include "common.h"
 
 #include "gl_backend.h"
+#include "gl_texture.h"
 #include "img_indexed_from_memory.h"
 #include "mathlib.h"
 #include "mod_mdlv10.h"
-#include "gl_texture.h"
 
 using namespace GoldSource;
 
@@ -141,19 +141,15 @@ StudioEntityState state;
 
 void StudioModelV10::DebugRender()
 {
-    
-    //memset(&state, 0, sizeof(state));
+    // memset(&state, 0, sizeof(state));
 
-    
     m_EntityState = &state;
-    
+
     AdvanceFrame(Application::GetMainWindow()->FrameDelta());
     glCullFace(GL_FRONT);
 
     SetupBones();
 
-    
-    
     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
     {
         const StudioSubModelV10 *subModel = SetupModel(i);
@@ -526,10 +522,30 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
 
 void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
 {
-    m_EntityState         = &state;
-    m_EntityState->origin = pEntity->GetPosition();
+    m_EntityState               = &state;
+    m_EntityState->origin       = pEntity->GetPosition();
     m_EntityState->serialNumber = pEntity->GetSerialNumber();
-    //m_EntityState->angles       = pEntity->GetPosition();
+    m_EntityState->angles       = pEntity->GetAngles();
+
+    // glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+
+    glm::mat4 transform = glm::mat4(1);
+
+    auto concatRotate = [&](float deg, float x, float y, float z) {
+        glm::mat4 ident = glm::mat4(1);
+        ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
+        transform *= ident;
+    };
+
+    // same order as R_RotateForEntity from Quake
+
+    transform = glm::translate(transform, m_EntityState->origin);
+
+    concatRotate(m_EntityState->angles[1], 0, 0, 1);
+    concatRotate(-m_EntityState->angles[0], 0, 1, 0);
+    concatRotate(m_EntityState->angles[2], 1, 0, 0);
+
+    m_EntityState->worldTransform = transform;
 
     DebugRender();
 }
@@ -556,7 +572,6 @@ void StudioModelV10::AdvanceFrame(float dt)
         }
         else
         {
-            
             m_EntityState->frame -= (int)(m_EntityState->frame / (nFrames - 1)) * (nFrames - 1);
         }
     }
@@ -934,7 +949,6 @@ void StudioMeshV10::BuildDrawMesh()
     short             textureIdx = m_pModel->GetSkinRef(skinref);
     StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
 
-
     s = 1.0 / (float)pTexture->Width();
     t = 1.0 / (float)pTexture->Height();
 
@@ -1031,8 +1045,8 @@ void StudioMeshV10::DrawPoints(StudioEntityState *pState)
             it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
             break;
         case UniformKind::TransformMatrix: {
-            glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
-            it->SetMat4(offset);
+            // glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+            it->SetMat4(pState->worldTransform);
         }
 
         break;
@@ -1124,7 +1138,7 @@ StudioTextureV10::StudioTextureV10(GLTexture *fallback)
     m_iWidth  = fallback->Width();
     m_iHeight = fallback->Height();
 
-    strlcpy(m_strName, "fallback",sizeof(m_strName));
+    strlcpy(m_strName, "fallback", sizeof(m_strName));
 }
 
 int StudioTextureV10::Width()

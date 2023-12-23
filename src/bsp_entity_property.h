@@ -88,6 +88,7 @@ private:
     void RebuildFlagsList();
 
 
+void ParseAngles(const std::string &value);
 };
 
 } // namespace GoldSource

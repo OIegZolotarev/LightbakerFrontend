@@ -430,7 +430,6 @@ void MainWindow::IterateUpdate()
     GL_BeginFrame();
 
     ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
-
     LoaderThread::Instance()->ExecuteEndCallbacks(10);
 
     RenderGUI();

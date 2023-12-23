@@ -74,6 +74,16 @@ const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
     return m_EntVars.bboxAbsolute;
 }
 
+const glm::vec3 SceneEntity::GetAngles() const
+{
+    return m_EntVars.angles;
+}
+
+void SceneEntity::SetAngles(const glm::vec3 &angles)
+{
+    m_EntVars.angles = angles;
+}
+
 void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 {
     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();

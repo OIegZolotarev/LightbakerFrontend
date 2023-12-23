@@ -126,6 +126,9 @@ public:
     void SetSerialNumber(const uint32_t newNum);
     const uint32_t GetSerialNumber() const;
 
+    const glm::vec3 GetAngles() const;
+    void            SetAngles(const glm::vec3 &angles);
+
     void SetPosition(const glm::vec3 &pos);
     const glm::vec3 GetPosition() const;
 
@@ -166,6 +169,7 @@ public:
     std::weak_ptr<SceneEntity> Next();
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
+    
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
@@ -185,3 +189,4 @@ template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weak
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
 typedef std::weak_ptr<SceneEntity>   SceneEntityWeakPtr;
+
