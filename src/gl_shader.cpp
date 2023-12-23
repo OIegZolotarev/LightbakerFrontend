@@ -579,7 +579,7 @@ void ShaderUniform::SetMat4(glm::mat4 newVal)
 void ShaderUniform::SetMat4Array(glm::mat4 *data, size_t n)
 {
     assert(m_pDecl->datatype == UniformDataType::FloatMat4Array);
-    glUniformMatrix4fv(m_Location, n, GL_FALSE, &data[0][0][0]);
+    glUniformMatrix4fv(m_Location, (GLsizei)n, GL_FALSE, &data[0][0][0]);
 }
 
 void ShaderUniform::SetSampler1D(int newVal)
