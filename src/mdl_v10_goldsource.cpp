@@ -836,6 +836,22 @@ float GoldSource::StudioSeqDescV10::FPS()
     return m_flFps;
 }
 
+const GoldSource::StudioSeqDescV10::blendInfo_s *StudioSeqDescV10::GetBlendInfo(size_t index) const
+{
+    assert(index >= 0 && index < 2);
+    return &m_Blends[index];
+}
+
+const int StudioSeqDescV10::NumBlends() const
+{
+    return numblends;
+}
+
+const int StudioSeqDescV10::AnimsIndex() const
+{
+    return animindex;
+}
+
 StudioPivotV10::StudioPivotV10(dstudiopivot10_t *pPivot)
 {
     m_vecOrigin = pPivot->org;

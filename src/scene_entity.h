@@ -17,22 +17,6 @@ enum class EntityClasses
     Light,
 };
 
-#define DECLARE_PROPERTY(Type, Name)                                                                                   \
-protected:                                                                                                             \
-    Type m_##Name;                                                                                                     \
-    bool m_bIsSet##Name = false;                                                                                       \
-                                                                                                                       \
-public:                                                                                                                \
-    void Set##Name(Type val)                                                                                           \
-    {                                                                                                                  \
-        m_##Name       = val;                                                                                          \
-        m_bIsSet##Name = true;                                                                                         \
-    }                                                                                                                  \
-    const Type Get##Name()                                                                                             \
-    {                                                                                                                  \
-        return m_##Name;                                                                                               \
-    }
-
 typedef struct sentvars_s
 {
     // Transformation
@@ -111,10 +95,7 @@ class SceneEntity : public ISelectableObject
     EntityClasses m_EntityClass;
     sentvars_t    m_EntVars;
 
-    void RecalcAbsBBox()
-    {
-        m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
-    }
+    void RecalcAbsBBox();
 
 protected:
     const BoundingBox &GetRelativeBoundingBox() const;
@@ -142,61 +123,25 @@ public:
 
     // DECLARE_PROPERTY(uint32_t      , SerialNumber);
 
-    void SetSerialNumber(const uint32_t newNum)
-    {
-        m_EntVars.serialNumber = newNum;
-    }
+    void SetSerialNumber(const uint32_t newNum);
+    const uint32_t GetSerialNumber() const;
 
-    const uint32_t GetSerialNumber() const
-    {
-        return m_EntVars.serialNumber;
-    }
+    void SetPosition(const glm::vec3 &pos);
+    const glm::vec3 GetPosition() const;
 
-    void SetPosition(const glm::vec3 &pos)
-    {
-        m_EntVars.origin = pos;
-        RecalcAbsBBox();
-    }
+    void SetBoundingBox(const BoundingBox &bbox);
+    
+    void SetRenderColor(const ColorRGBA &color);
+    const ColorRGBA GetRenderColor() const;
+    
+    const GLTexture *GetEditorIcon() const;
+    void SetEditorIcon(GLTexture *pTexture);
 
-    const glm::vec3 GetPosition() const
-    {
-        return m_EntVars.origin;
-    }
+    IModelWeakPtr GetModel() const;
+    void SetModel(IModelWeakPtr &model);
 
-    void SetBoundingBox(const BoundingBox &bbox)
-    {
-        m_EntVars.bboxRelative = bbox;
-    }
-
-    void SetRenderColor(const ColorRGBA &color)
-    {
-        m_EntVars.rendercolor = color;
-    }
-
-    const ColorRGBA GetRenderColor() const
-    {
-        return m_EntVars.rendercolor;
-    }
-
-    const GLTexture *GetEditorIcon() const
-    {
-        return m_EntVars.editor_icon;
-    }
-
-    void SetEditorIcon(GLTexture *pTexture)
-    {
-        m_EntVars.editor_icon = pTexture;
-    }
-
-    IModelWeakPtr GetModel() const
-    {
-        return m_EntVars.model;
-    }
-
-    void SetModel(IModelWeakPtr &model)
-    {
-        m_EntVars.model = model;
-    }
+    void SetFrame(const float newVal);
+    const float GetFrame() const;
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
@@ -206,7 +151,7 @@ public:
 
     virtual const char *Description();
     virtual bool        IsLightEntity();
-    virtual void        OnAdditionToScene(class Scene *pScene){};
+    virtual void        OnAdditionToScene(class Scene *pScene);;
 
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
@@ -214,20 +159,7 @@ public:
     void               InvokeSelect();
     const std::string &GetClassName() const;
 
-    template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
-    {
-        auto ptr = weakRef.lock();
-
-        if (!ptr)
-            return nullptr;
-
-        SceneEntity *rawPtr = ptr.get();
-
-        if (! instanceof <T>(rawPtr))
-            return nullptr;
-
-        return static_cast<T *>(rawPtr);
-    }
+    template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef);
 
     virtual bool IsTransparent();
 
@@ -235,6 +167,21 @@ public:
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
 };
+
+template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
+{
+    auto ptr = weakRef.lock();
+
+    if (!ptr)
+        return nullptr;
+
+    SceneEntity *rawPtr = ptr.get();
+
+    if (! instanceof <T>(rawPtr))
+        return nullptr;
+
+    return static_cast<T *>(rawPtr);
+}
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
 typedef std::weak_ptr<SceneEntity>   SceneEntityWeakPtr;

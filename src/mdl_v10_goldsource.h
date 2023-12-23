@@ -154,21 +154,11 @@ private:
 public:
     StudioSeqDescV10(byte *header, dstudioseqdesc10_t *pDesc);
 
-    const blendInfo_s *GetBlendInfo(size_t index) const
-    {
-        assert(index >= 0 && index < 2);
-        return &m_Blends[index];
-    }
+    const blendInfo_s *GetBlendInfo(size_t index) const;
 
-    const int NumBlends() const
-    {
-        return numblends;
-    }
+    const int NumBlends() const;
 
-    const int AnimsIndex() const
-    {
-        return animindex;
-    }
+    const int AnimsIndex() const;
 };
 
 class StudioSeqGroupV10

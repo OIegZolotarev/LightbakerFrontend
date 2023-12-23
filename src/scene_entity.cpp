@@ -7,6 +7,11 @@
 #include "scene_entity.h"
 #include "properties_editor.h"
 
+void SceneEntity::RecalcAbsBBox()
+{
+    m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+}
+
 const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
 {
     return m_EntVars.bboxRelative;
@@ -131,6 +136,72 @@ bool SceneEntity::IsDataLoaded()
     return m_bDataLoaded;
 }
 
+void SceneEntity::SetSerialNumber(const uint32_t newNum)
+{
+    m_EntVars.serialNumber = newNum;
+}
+
+const uint32_t SceneEntity::GetSerialNumber() const
+{
+    return m_EntVars.serialNumber;
+}
+
+void SceneEntity::SetPosition(const glm::vec3 &pos)
+{
+    m_EntVars.origin = pos;
+    RecalcAbsBBox();
+}
+
+const glm::vec3 SceneEntity::GetPosition() const
+{
+    return m_EntVars.origin;
+}
+
+void SceneEntity::SetBoundingBox(const BoundingBox &bbox)
+{
+    m_EntVars.bboxRelative = bbox;
+}
+
+void SceneEntity::SetRenderColor(const ColorRGBA &color)
+{
+    m_EntVars.rendercolor = color;
+}
+
+const ColorRGBA SceneEntity::GetRenderColor() const
+{
+    return m_EntVars.rendercolor;
+}
+
+const GLTexture *SceneEntity::GetEditorIcon() const
+{
+    return m_EntVars.editor_icon;
+}
+
+void SceneEntity::SetEditorIcon(GLTexture *pTexture)
+{
+    m_EntVars.editor_icon = pTexture;
+}
+
+IModelWeakPtr SceneEntity::GetModel() const
+{
+    return m_EntVars.model;
+}
+
+void SceneEntity::SetModel(IModelWeakPtr &model)
+{
+    m_EntVars.model = model;
+}
+
+void SceneEntity::SetFrame(const float newVal)
+{
+    m_EntVars.frame = newVal;
+}
+
+const float SceneEntity::GetFrame() const
+{
+    return m_EntVars.frame;
+}
+
 void SceneEntity::OnHovered()
 {
 }
@@ -159,6 +230,10 @@ const char *SceneEntity::Description()
 bool SceneEntity::IsLightEntity()
 {
     return false;
+}
+
+void SceneEntity::OnAdditionToScene(class Scene *pScene)
+{
 }
 
 EntityClasses SceneEntity::EntityClass()

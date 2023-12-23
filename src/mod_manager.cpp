@@ -18,12 +18,10 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName, bool canFallback)
 {
     size_t hash = StrHash(fileName);
 
-
     for (auto &it : m_lstModels)
     {
         if (it->Hash() == hash)
         {
-            // Con_Printf("ModelsManager::LookupModel(): using cached entry for %s\n", fileName);
             return it;
         }
     }
