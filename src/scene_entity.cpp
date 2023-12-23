@@ -222,6 +222,7 @@ void SceneEntity::OnMouseMove(glm::vec2 delta)
 
 void SceneEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
+    ObjectPropertiesEditor::Instance()->UnloadObject();
 }
 
 void SceneEntity::OnUnSelect()

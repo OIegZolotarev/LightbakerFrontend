@@ -12,6 +12,7 @@ bool SelectionManager::m_bGizmoEnabled = false;
  
 void SelectionManager::EnableGizmo(bool status)
 {
+	
     m_bGizmoEnabled = status;
     ImGuizmo::Enable(status);
 }

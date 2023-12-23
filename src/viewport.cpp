@@ -197,8 +197,12 @@ void Viewport::HandlePicker()
     {
         m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
 
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
+
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
+            
+
             auto sr    = Application::GetMainWindow()->GetSceneRenderer();
             auto scene = sr->GetScene();
 
@@ -209,6 +213,11 @@ void Viewport::HandlePicker()
             {
                 ptr->OnSelect(obj);
             }
+            else
+            {
+                ObjectPropertiesEditor::Instance()->UnloadObject();
+            }
+                
         }
     }
 }
