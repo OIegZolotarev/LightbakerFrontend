@@ -12,6 +12,7 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "r_camera.h"
+#include "gl_backend.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -171,6 +172,11 @@ void Scene::RenderLightShaded()
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
 
+    renderStats_s* stats = GLBackend::Instance()->RenderStats();
+
+    stats->nEntitiesTotal = m_SceneEntities.size();
+    stats->nEntitiesRendered = 0;
+
     for (auto &it : m_SceneEntities)
     {
         if (!it)
@@ -182,12 +188,17 @@ void Scene::RenderLightShaded()
         if (frustum->CullBox(it->AbsoulteBoundingBox()))
             continue;
 
+        stats->nEntitiesRendered++;
+
         if (it->IsTransparent())
         {
             sr->AddTransparentEntity(it);
         }
         else
+        {
+            
             it->RenderLightshaded();
+        }
     }
 }
 

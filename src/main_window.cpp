@@ -743,6 +743,9 @@ void MainWindow::RenderGUI()
         {
             if (pers->IsFreshFile())
                 InitDocks();
+
+            ViewportsOrchestrator::Instance()->FlagRepaintAll();
+
             Application::Instance()->FlagDelayedInitDone();
         }
     }

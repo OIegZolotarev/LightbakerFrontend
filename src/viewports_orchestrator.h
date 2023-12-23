@@ -20,6 +20,8 @@ public:
     void      Init(nlohmann::json && persistentData);
     Viewport* AddNewViewport(const char *name, IPlatformWindow * pHostWindow,Viewport * pCloneFrom, bool initialyVisible = true);
 
+    void FlagRepaintAll();
+
     void RenderViewports(IPlatformWindow *pWindow, float flFrameDelta);
     void DisplayViewports(IPlatformWindow *pWindow);
 

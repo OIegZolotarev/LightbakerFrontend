@@ -56,16 +56,14 @@ class Viewport : public IEventHandler
     // Object picking
     void   HandlePicker();
     size_t m_hoveredObjectId;
-    
+
+    glm::vec2 m_ClientAreaPos;
+
 public:
     Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom);
-
-    
-
     ~Viewport();
 
     void RenderFrame(float flFrameDelta);
-
     void RenderGuizmo();
 
     // Displaying
@@ -89,6 +87,8 @@ public:
     bool IsVisible();
     glm::vec2 GetClientAreaPosAbs();
 
-private:
-    glm::vec2 m_ClientAreaPos;
+    void FlagUpdate()
+    {
+        m_bNeedUpdate = true;
+    }
 };

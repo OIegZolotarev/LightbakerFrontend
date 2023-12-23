@@ -28,6 +28,14 @@ Viewport *ViewportsOrchestrator::AddNewViewport(const char *name, IPlatformWindo
     return pResult;
 }
 
+void ViewportsOrchestrator::FlagRepaintAll()
+{
+    for (auto & it:m_lstViewports)
+    {
+        it->FlagUpdate();
+    }
+}
+
 void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFrameDelta)
 {
     for (auto &it : m_lstViewports)
