@@ -528,6 +528,8 @@ void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
 {
     m_EntityState         = &state;
     m_EntityState->origin = pEntity->GetPosition();
+    m_EntityState->serialNumber = pEntity->GetSerialNumber();
+    //m_EntityState->angles       = pEntity->GetPosition();
 
     DebugRender();
 }
@@ -994,7 +996,7 @@ void StudioMeshV10::BuildDrawMesh()
     m_pDrawMesh->End();
 }
 
-void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState)
+void StudioMeshV10::DrawPoints(StudioEntityState *pState)
 {
     auto shader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 
@@ -1022,7 +1024,7 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState)
             it->SetInt(0);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(0);
+            it->SetInt(pState->serialNumber);
             break;
         default:
             GLBackend::SetUniformValue(it);

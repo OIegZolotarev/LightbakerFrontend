@@ -180,11 +180,7 @@ void Scene::RenderLightShaded()
         if (!it->IsDataLoaded())
             continue;
 
-        // TODO: precalculate when origin\mins\maxs are changed
-        glm::vec3 absMins = it->GetPosition() + it->GetMins();
-        glm::vec3 absMaxs = it->GetPosition() + it->GetMaxs();
-
-        if (frustum->CullBox(absMins, absMaxs))
+        if (frustum->CullBox(it->AbsoulteBoundingBox()))
             continue;
 
          if (it->IsTransparent())

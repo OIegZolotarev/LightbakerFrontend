@@ -135,3 +135,45 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
 
     return sides;
 }
+
+BoundingBox::BoundingBox(const glm::vec3 pos, const BoundingBox &other)
+{
+    m_Mins = pos + other.m_Maxs;
+    m_Maxs = pos + other.m_Maxs;
+}
+
+BoundingBox::BoundingBox(const glm::vec3 &mins, const glm::vec3 &maxs)
+{
+    m_Mins = mins;
+    m_Maxs = maxs;
+}
+
+BoundingBox::BoundingBox(const glm::vec3 size)
+{
+    m_Mins = {-size.x * 0.5f, -size.y * 0.5f, -size.z * 0.5f};
+    m_Maxs = {size.x * 0.5f, size.y * 0.5f, size.z * 0.5f};    
+}
+
+BoundingBox::BoundingBox(const float scale)
+{
+    const float h = scale * 0.5f;
+    
+    m_Mins        = {-h, -h, -h};
+    m_Maxs        = {h, h, h};
+}
+
+ BoundingBox::BoundingBox(const short *minsmaxs)
+{
+     m_Mins = {(float)minsmaxs[0], (float)minsmaxs[1], (float)minsmaxs[2]}; 
+     m_Maxs = {(float)minsmaxs[3], (float)minsmaxs[4], (float)minsmaxs[5]}; 
+ }
+
+const glm::vec3 &BoundingBox::Mins() const
+{
+    return m_Mins;
+}
+
+const glm::vec3 &BoundingBox::Maxs() const
+{
+    return m_Mins;
+}

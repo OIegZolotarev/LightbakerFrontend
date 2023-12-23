@@ -33,29 +33,97 @@ public:                                                                         
         return m_##Name;                                                                                               \
     }
 
-// Not used 
-// typedef std::pair<std::string, std::string>          kvData;
-// typedef std::unordered_map<std::string, std::string> TPropertiesMap;
+typedef struct sentvars_s
+{
+    // Transformation
+    glm::vec3 origin;
+    glm::vec3 angles;
+
+    glm::vec3 scale;
+
+    // Bounding boxes
+    BoundingBox bboxRelative;
+    BoundingBox bboxAbsolute;
+    
+    // Displaying
+    ColorRGBA     rendercolor;
+    ColorRGBA     wireframecolor;    
+
+    // Models
+    IModelWeakPtr model;
+    GLTexture*     editor_icon; // TODO: make sprite-models later
+    
+    // Studio models
+    int   bodynum;
+    int   skin;
+    int   sequence;
+    float fps;
+    float frame;
+    float blending[2];
+    float controller[4];
+    float mouth;
+
+    // Editor entity
+    uint32_t serialNumber;    
+    std::size_t classname_hash;
+    std::string classname;
+
+    sentvars_s()
+    {
+        origin = {0, 0, 0};
+        angles = {0, 0, 0};
+        scale  = {1, 1, 1};
+
+        bboxRelative = BoundingBox(8);
+        bboxAbsolute = BoundingBox(8);
+
+        rendercolor = {1, 1, 1, 1};
+        wireframecolor = {1, 1, 1, 1};
+
+        model = IModelWeakPtr();
+        editor_icon = nullptr;
+
+        bodynum = 0;
+        skin    = 0;
+        sequence = 0;
+        frame    = 0;
+        
+        for (auto &it : blending)
+            it = 0;
+
+        for (auto &it : controller)
+            it = 0;
+
+        mouth = 0;
+        serialNumber = 0;
+
+        classname_hash = 0;
+        classname      = "";
+    }
+
+}sentvars_t;
+
 
 class Scene;
 
 class SceneEntity : public ISelectableObject
 {
-    bool m_bDataLoaded = true;
+    bool m_bDataLoaded = true;    
+    EntityClasses m_EntityClass;    
+    sentvars_t m_EntVars;
 
-    std::size_t m_ClassNameHash;
-    std::string m_ClassName;
-
-    EntityClasses m_EntityClass;
+    void RecalcAbsBBox()
+    {
+        m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+    }
 
 protected:
     
+    const BoundingBox &GetRelativeBoundingBox() const;
+    const BoundingBox &GetAbsoulteBoundingBox() const;
+
     void SetClassName(const char *name);
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
-
-    // TODO: copy-constructor
-    // Обобщенные пары ключ-значение
-    // TPropertiesMap m_vProperties;
 
     // For transparent sorting
     std::weak_ptr<SceneEntity> m_pNext;
@@ -73,10 +141,34 @@ public:
 
     virtual bool IsDataLoaded();
 
-    DECLARE_PROPERTY(uint32_t      , SerialNumber);
-    DECLARE_PROPERTY(glm::vec3     , Position);
-    DECLARE_PROPERTY(glm::vec3     , Mins);
-    DECLARE_PROPERTY(glm::vec3     , Maxs);
+    // DECLARE_PROPERTY(uint32_t      , SerialNumber);
+
+    void SetSerialNumber(const uint32_t newNum)
+    {
+        m_EntVars.serialNumber = newNum;
+    }
+
+    const uint32_t GetSerialNumber() const
+    {
+        return m_EntVars.serialNumber;
+    }
+
+    void SetPosition(const glm::vec3 & pos)
+    {
+        m_EntVars.origin = pos;
+        RecalcAbsBBox();
+    }
+
+    const glm::vec3 GetPosition() const
+    {
+        return m_EntVars.origin;
+    }
+    
+    void SetBoundingBox(const BoundingBox & bbox)
+    {
+        m_EntVars.bboxRelative = bbox;        
+    }
+
     DECLARE_PROPERTY(glm::vec3     , Color);
     DECLARE_PROPERTY(GLTexture *   , EditorIcon);
     DECLARE_PROPERTY(IModelWeakPtr , Model);
@@ -95,7 +187,7 @@ public:
     void                  FlagDataLoaded();
 
     void InvokeSelect();
-    std::string &GetClassName();
+    const std::string &GetClassName() const;
 
     template<class T> 
     static T* GetRawSafest(std::weak_ptr<SceneEntity> & weakRef)
@@ -117,6 +209,7 @@ public:
 
     std::weak_ptr<SceneEntity> Next();
     void SetNext(std::weak_ptr<SceneEntity> & pOther);
+    const BoundingBox &        AbsoulteBoundingBox() const;
 };
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;

@@ -7,10 +7,20 @@
 #include "scene_entity.h"
 #include "properties_editor.h"
 
+const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
+{
+    return m_EntVars.bboxRelative;
+}
+
+const BoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
+{
+    return m_EntVars.bboxAbsolute;
+}
+
 void SceneEntity::SetClassName(const char *name)
 {
-    m_ClassName     = std::string(name);
-    m_ClassNameHash = std::hash<const char *>{}(name);
+    m_EntVars.classname = std::string(name);
+    m_EntVars.classname_hash = std::hash<const char *>{}(name);
 }
 
 void SceneEntity::FlagDataLoaded()
@@ -27,9 +37,9 @@ void SceneEntity::InvokeSelect()
     SelectionManager::Instance()->UnSelectEverythingBut(this);
 }
 
-std::string &SceneEntity::GetClassName()
+const std::string &SceneEntity::GetClassName() const
 {
-    return m_ClassName;
+    return m_EntVars.classname;
 }
 
 bool SceneEntity::IsTransparent()
@@ -54,6 +64,11 @@ void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
     m_pNext = pOther;
 }
 
+const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
+{
+    return m_EntVars.bboxAbsolute;
+}
+
 void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 {
     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
@@ -68,12 +83,7 @@ void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 SceneEntity::SceneEntity(Scene *pScene)
 {
     m_pScene = pScene;
-
-    m_SerialNumber = 0;
-    m_Position     = {0, 0, 0};
-
-    m_Mins = {-4, -4, -4};
-    m_Maxs = {4, 4, 4};
+    
 
     m_Color      = {0, 0, 0};
     m_EditorIcon = nullptr;
@@ -82,10 +92,10 @@ SceneEntity::SceneEntity(Scene *pScene)
 SceneEntity::SceneEntity(SceneEntity &other)
 {
     m_pScene   = other.m_pScene;
-    m_Position = other.m_Position;
-
-    m_Mins = other.m_Mins;
-    m_Maxs = other.m_Maxs;
+    
+    m_EntVars.bboxRelative = other.m_EntVars.bboxRelative;
+    m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
+    
 
     m_Color      = other.m_Color;
     m_EditorIcon = other.m_EditorIcon;
@@ -140,7 +150,7 @@ void SceneEntity::OnUnhovered()
 
 const char *SceneEntity::Description()
 {
-    return m_ClassName.c_str();
+    return m_EntVars.classname.c_str();
 }
 
 bool SceneEntity::IsLightEntity()

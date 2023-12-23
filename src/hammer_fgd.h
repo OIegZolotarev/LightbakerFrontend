@@ -147,9 +147,11 @@ public:
     ~FGDEntityClass();
 
     void SetColor(glm::vec3 color);
-    void SetBBox(glm::vec3 size);
-    void SetBBoxOffset(glm::vec3 offset);
-    void SetBBox(glm::vec3 min, glm::vec3 max);
+    void SetBBox(const glm::vec3 size);
+    void SetBBoxOffset(const glm::vec3 offset);
+    void SetBBox(const glm::vec3 min, const glm::vec3 max);
+
+    void SetBBox(const BoundingBox & other);
 
     void SetModel(std::string model);
     void SetSprite(std::string model);
@@ -167,8 +169,7 @@ public:
     const std::string &ClassName() const;
     const std::string &Description() const;
 
-    glm::vec3 GetMins();
-    glm::vec3 GetMaxs();
+    const BoundingBox &GetBoundingBox() const;
 
     glm::vec3 GetColor();
 
@@ -191,7 +192,7 @@ private:
     glm::vec3 m_BboxOffset;
     size_t    m_EditorSequence;
 
-    glm::vec3 m_Mins = {-8, -8, -8}, m_Maxs = {8, 8, 8};
+    BoundingBox m_BoundingBox;
     glm::vec3 m_Color = {1, 0, 1};
 
     std::string m_Model;
@@ -206,6 +207,7 @@ private:
     void RelinkInheritedProperties(class HammerFGDFile *pFile);
 
     GLTexture *m_pEditorSprite = nullptr;
+
 };
 
 typedef std::shared_ptr<FGDEntityClass> FGDEntityClassSharedPtr;

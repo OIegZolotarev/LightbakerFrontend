@@ -18,12 +18,15 @@ namespace GoldSource
 {
 struct StudioEntityState
 {
+    glm::vec3 angles;
     glm::vec3 origin;
     int       bodynum;
     int       skin;
     int       sequence;
     float     frame;
     float     blending[2];
+    
+    uint32_t  serialNumber;
 
     float controller[4];
     float mouth;

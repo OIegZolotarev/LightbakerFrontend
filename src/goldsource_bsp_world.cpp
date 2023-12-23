@@ -73,9 +73,7 @@ void BSPWorld::OnLevelLoaded()
     }
 
     short *minsmaxs = m_pLevel->GetNodes(0)->minmaxs;
-    SetMins({(float)minsmaxs[0], (float)minsmaxs[1], (float)minsmaxs[2]});
-
-    SetMaxs({(float)minsmaxs[3], (float)minsmaxs[4], (float)minsmaxs[5]});
-
+    
+    SetBoundingBox(BoundingBox(minsmaxs)); 
     m_pLevel->PopulateScene(m_pScene);
 }
