@@ -170,6 +170,7 @@ const glm::vec3 SceneEntity::GetPosition() const
 void SceneEntity::SetBoundingBox(const BoundingBox &bbox)
 {
     m_EntVars.bboxRelative = bbox;
+    RecalcAbsBBox();
 }
 
 void SceneEntity::SetRenderColor(const ColorRGBA &color)

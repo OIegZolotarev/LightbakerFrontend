@@ -6,8 +6,8 @@
 #include "application.h"
 #include "common.h"
 
-#include "goldsource_bsp_world.h"
 #include "goldsource_bsp_asynch_loader.h"
+#include "goldsource_bsp_world.h"
 #include "r_camera.h"
 #include "scene_renderer.h"
 
@@ -74,9 +74,17 @@ void BSPWorld::OnLevelLoaded()
     }
 
     short *minsmaxs = m_pLevel->GetNodes(0)->minmaxs;
-    
-    SetBoundingBox(BoundingBox(minsmaxs)); 
+
+    SetBoundingBox(BoundingBox(minsmaxs));
     SetPosition(glm::vec3{0, 0, 0});
 
+    ModelsManager::Instance()->OnSceneLoaded(m_pScene); 
+
     m_pLevel->PopulateScene(m_pScene);
+    
+}
+
+GoldSource::BSPModelRenderCookiePtr BSPWorld::GetBSPModelRenderCookie(size_t idx)
+{
+    return m_pRenderer->GetBSPModelRenderCookie(idx);
 }

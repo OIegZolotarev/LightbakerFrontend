@@ -62,6 +62,11 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Light;
         return PropertiesTypes::ColorRGBA;
     }
+    else if (m_Hash == SpecialKeys::KeyModel())
+    {
+        m_iSpecialId = PropertyMetatype::Model;
+        return PropertiesTypes::String;
+    }
     else
         m_iSpecialId = PropertyMetatype::None;
 
@@ -108,7 +113,7 @@ size_t BSPEntityProperty::CalcHash(const std::string &val)
     return std::hash<std::string>{}(val);
 }
 
-void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
+void BSPEntityProperty::ParseValue(const std::string &value)
 {
     switch (m_iSpecialId)
     {
@@ -129,6 +134,9 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         break;
     case PropertyMetatype::Classname:
         ParseClassname(value);
+        break;
+    case PropertyMetatype::Model:
+        ParseModel(value);
         break;
     default:
         SetString(value);
@@ -368,6 +376,15 @@ void BSPEntityProperty::ParseWad(const std::string &value)
     }
 }
 
+void BSPEntityProperty::ParseModel(const std::string &value)
+{
+    auto model = ModelsManager::Instance()->LookupModel(value.c_str(), false);
+    m_pOwner->SetModel(model);
+
+    SetString(value);
+    m_bInitialized = true;
+}
+
 size_t SpecialKeys::KeyWad()
 {
     static auto sKey = std::hash<std::string>{}("wad");
@@ -407,5 +424,11 @@ size_t SpecialKeys::KeyFlags()
 size_t SpecialKeys::KeyClassname()
 {
     static auto sKey = std::hash<std::string>{}("classname");
+    return sKey;
+}
+
+size_t SpecialKeys::KeyModel()
+{
+    static auto sKey = std::hash<std::string>{}("model");
     return sKey;
 }

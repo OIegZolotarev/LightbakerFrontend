@@ -5,6 +5,7 @@
 
 #include "scene.h"
 #include "application.h"
+#include "gl_backend.h"
 #include "goldsource_bsp_world.h"
 #include "mod_mdlv10.h"
 #include "mod_obj_asynch_exporter.h"
@@ -12,7 +13,6 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "r_camera.h"
-#include "gl_backend.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -44,7 +44,7 @@ Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
 
-    pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
+    //    pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
 }
 
 Scene::~Scene()
@@ -172,9 +172,9 @@ void Scene::RenderLightShaded()
     auto selectionManager = SelectionManager::Instance();
     auto frustum          = sr->GetCamera()->GetFrustum();
 
-    renderStats_s* stats = GLBackend::Instance()->RenderStats();
+    renderStats_s *stats = GLBackend::Instance()->RenderStats();
 
-    stats->nEntitiesTotal = m_SceneEntities.size();
+    stats->nEntitiesTotal    = m_SceneEntities.size();
     stats->nEntitiesRendered = 0;
 
     for (auto &it : m_SceneEntities)
@@ -196,7 +196,6 @@ void Scene::RenderLightShaded()
         }
         else
         {
-            
             it->RenderLightshaded();
         }
     }
@@ -311,7 +310,7 @@ void Scene::Reload(int loadFlags)
 {
     if (loadFlags & LRF_RELOAD_LIGHTMAPS)
     {
-        auto           it     = m_SceneEntities.begin();
+        auto          it     = m_SceneEntities.begin();
         IWorldEntity *entity = (IWorldEntity *)(*it).get();
 
         entity->ReloadLightmaps();
@@ -451,4 +450,15 @@ GameConfigurationWeakPtr Scene::UsedGameConfiguration()
 uint32_t Scene::AllocSerialNumber()
 {
     return m_ObjectsCounter.Allocate();
+}
+
+IWorldEntity *Scene::GetWorldEntity()
+{
+    assert(m_SceneEntities.size() > 0);
+    auto it = m_SceneEntities.begin();
+
+    SceneEntity *ptr = (*it).get();
+
+    assert(instanceof <IWorldEntity>(ptr));
+    return (IWorldEntity *)ptr;
 }

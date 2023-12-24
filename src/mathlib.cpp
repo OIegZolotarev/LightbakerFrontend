@@ -168,8 +168,20 @@ BoundingBox::BoundingBox(const float scale)
      m_Maxs = {(float)minsmaxs[3], (float)minsmaxs[4], (float)minsmaxs[5]}; 
  }
 
-const glm::vec3 &BoundingBox::Mins() const
-{
+ BoundingBox::BoundingBox(const short *mins, const short *maxs)
+ {
+     m_Mins = {(float)mins[0], (float)mins[1], (float)mins[2]};
+     m_Maxs = {(float)maxs[0], (float)maxs[1], (float)maxs[2]}; 
+ }
+
+ BoundingBox::BoundingBox(const float *mins, const float *maxs)
+ {
+     m_Mins = {(float)mins[0], (float)mins[1], (float)mins[2]};
+     m_Maxs = {(float)maxs[0], (float)maxs[1], (float)maxs[2]}; 
+ }
+
+ const glm::vec3 &BoundingBox::Mins() const
+ {
     return m_Mins;
 }
 

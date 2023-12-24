@@ -592,7 +592,7 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
     {
         auto chainEnd = m_pTransparentChainEnd.lock();
 
-        // Bail out, chain will be rebuilt next frame
+        // Bail out, chain will rebuild next frame
         if (!chainEnd)
             return;
 
@@ -610,7 +610,7 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
     {
         auto chainStart = m_pTransparentChainStart.lock();
 
-        // Bail out, chain will be rebuilt next frame
+        // Bail out, chain will rebuild next frame
         if (!chainStart)
             return;
 

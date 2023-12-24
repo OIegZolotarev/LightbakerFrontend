@@ -28,6 +28,7 @@ class BSPWorld: public IWorldEntity
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions) override;
     void        OnLevelLoaded();
+    GoldSource::BSPModelRenderCookiePtr GetBSPModelRenderCookie(size_t idx);
 };
 }
 

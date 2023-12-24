@@ -92,7 +92,7 @@ void BSPEntity::PopulateScene()
     {
         auto ch = classPtr->ClassName().c_str();
 
-        const BoundingBox &  bbox = classPtr->GetBoundingBox();
+        const BoundingBox &bbox = classPtr->GetBoundingBox();
 
         if (glm::length2(bbox.Size()) == 0)
             SetBoundingBox(BoundingBox(8));
@@ -102,16 +102,31 @@ void BSPEntity::PopulateScene()
         // if (!m_bIsSetColor)
         SetRenderColor(classPtr->GetColor());
 
-        m_pEditorSprite = classPtr->GetEditorSpite();
+        auto model = GetModel();
 
-        auto &studioModel = classPtr->GetModel();
-
-        if (!studioModel.empty())
+        if (model.expired())
         {
-            IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
-            if (!model.expired())
+            m_pEditorSprite = classPtr->GetEditorSpite();
+
+            auto &studioModel = classPtr->GetModel();
+
+            if (!studioModel.empty())
             {
-                SetModel(model);
+                IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
+                if (!model.expired())
+                {
+                    SetModel(model);
+                }
+            }
+        }
+        else
+        {
+            auto ptr         = model.lock();
+            auto boundingBox = ptr->GetBoundingBox();
+
+            if (boundingBox.has_value())
+            {
+                SetBoundingBox(boundingBox.value());                
             }
         }
     }

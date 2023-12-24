@@ -96,11 +96,14 @@
     <Filter Include="Исходные файлы\sdl-event-to-string">
       <UniqueIdentifier>{7c270831-8f2d-41ef-8625-be10bd97898a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\GoldSource\MDL">
-      <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Filesystem">
       <UniqueIdentifier>{8833e7a8-eeaf-4339-97a9-24f19c1d89b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Models">
+      <UniqueIdentifier>{d5b49558-6c4c-46e1-99f5-8ffc00cac228}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Models\Goldsource MDL">
+      <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -390,16 +393,13 @@
       <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClCompile>
     <ClCompile Include="mod_mdlv10.cpp">
-      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+      <Filter>Исходные файлы\Models\Goldsource MDL</Filter>
     </ClCompile>
     <ClCompile Include="gl_draw_mesh.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
     <ClCompile Include="img_indexed_from_memory.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
-    </ClCompile>
-    <ClCompile Include="mod_manager.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="fs_core.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
@@ -415,6 +415,12 @@
     </ClCompile>
     <ClCompile Include="fs_folder_mount.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_manager.cpp">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_bsp.cpp">
+      <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -728,19 +734,16 @@
       <Filter>Исходные файлы\sdl-event-to-string</Filter>
     </ClInclude>
     <ClInclude Include="mod_mdlv10_disk_structs.h">
-      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+      <Filter>Исходные файлы\Models\Goldsource MDL</Filter>
     </ClInclude>
     <ClInclude Include="mod_mdlv10.h">
-      <Filter>Исходные файлы\GoldSource\MDL</Filter>
+      <Filter>Исходные файлы\Models\Goldsource MDL</Filter>
     </ClInclude>
     <ClInclude Include="gl_draw_mesh.h">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClInclude>
     <ClInclude Include="img_indexed_from_memory.h">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
-    </ClInclude>
-    <ClInclude Include="mod_manager.h">
-      <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="fs_core.h">
       <Filter>Исходные файлы\Filesystem</Filter>
@@ -759,6 +762,12 @@
     </ClInclude>
     <ClInclude Include="color.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_manager.h">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_bsp.h">
+      <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

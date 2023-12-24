@@ -8,11 +8,13 @@
 #include "application.h"
 #include "common.h"
 
-#include "goldsource_bsp_level.h"
+
 #include "byteorder.h"
 #include "wad_textures.h"
 #include "goldsource_lightmap_atlas.h"
 #include "bsp_entity.h"
+
+#include "goldsource_bsp_level.h"
 
 using namespace GoldSource;
 
@@ -1083,7 +1085,7 @@ std::vector<GoldSource::msurface_t> & BSPLevel::GetFaces()
     return m_vFaces;
 }
 
-void GoldSource::BSPLevel::PopulateScene(Scene * pScene)
+void BSPLevel::PopulateScene(Scene * pScene)
 {
 	// TODO: design a proper way to link worldspawn and BSPWorld 
 	//

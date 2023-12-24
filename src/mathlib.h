@@ -58,6 +58,8 @@ public:
     BoundingBox(const short *bspminsmaxs);
     BoundingBox(const glm::vec3 pos, const BoundingBox &other);
     BoundingBox(const glm::vec3 &mins, const glm::vec3 &maxs);
+    BoundingBox(const short* mins, const short*maxs);
+    BoundingBox(const float* mins, const float*maxs);
     BoundingBox(const glm::vec3 size);
     BoundingBox(const float scale);
 
