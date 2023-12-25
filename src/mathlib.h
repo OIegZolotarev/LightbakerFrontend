@@ -41,5 +41,33 @@ typedef struct plane_s
 } plane_t;
 
 bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out);
-
 float AngleMod(float val);
+
+class BoundingBox
+{
+    glm::vec3 m_Mins = {0,0,0};
+    glm::vec3 m_Maxs = {0, 0, 0};
+
+public:
+
+    BoundingBox()
+    {
+        
+    }
+
+    BoundingBox(const short *bspminsmaxs);
+    BoundingBox(const glm::vec3 pos, const BoundingBox &other);
+    BoundingBox(const glm::vec3 &mins, const glm::vec3 &maxs);
+    BoundingBox(const short* mins, const short*maxs);
+    BoundingBox(const float* mins, const float*maxs);
+    BoundingBox(const glm::vec3 size);
+    BoundingBox(const float scale);
+
+    const glm::vec3 &Mins() const;
+    const glm::vec3 &Maxs() const;
+
+    const glm::vec3 Size() const
+    {
+        return m_Maxs - m_Mins;
+    }
+};

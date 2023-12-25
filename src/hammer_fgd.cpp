@@ -88,16 +88,19 @@ void FGDEntityClass::SetColor(glm::vec3 color)
     m_Color = color;
 }
 
-void FGDEntityClass::SetBBox(glm::vec3 size)
+void FGDEntityClass::SetBBox(const glm::vec3 size)
 {
-    m_Mins = size * -0.5f;
-    m_Maxs = size * -0.5f;
+    m_BoundingBox = BoundingBox(size);
 }
 
-void FGDEntityClass::SetBBox(glm::vec3 min, glm::vec3 max)
+void FGDEntityClass::SetBBox(const glm::vec3 min, const glm::vec3 max)
 {
-    m_Mins = min;
-    m_Maxs = max;
+    m_BoundingBox = BoundingBox(min, max);
+}
+
+void FGDEntityClass::SetBBox(const BoundingBox &other)
+{
+    m_BoundingBox = other;
 }
 
 void FGDEntityClass::SetModel(std::string model)
@@ -146,7 +149,7 @@ void FGDEntityClass::RelinkInheritedProperties(HammerFGDFile *pOwner)
         if (!(m_CtorDefinitionFlags & FL_SET_COLOR) && baseClass->m_CtorDefinitionFlags & FL_SET_COLOR)
             SetColor(baseClass->m_Color);
         if (!(m_CtorDefinitionFlags & FL_SET_SIZE) && baseClass->m_CtorDefinitionFlags & FL_SET_SIZE)
-            SetBBox(baseClass->m_Mins, baseClass->m_Maxs);
+            SetBBox(baseClass->GetBoundingBox());
         if (!(m_CtorDefinitionFlags & FL_SET_MODEL) && baseClass->m_CtorDefinitionFlags & FL_SET_MODEL)
             SetModel(baseClass->m_Model);
         if (!(m_CtorDefinitionFlags & FL_SET_SPRITE) && baseClass->m_CtorDefinitionFlags & FL_SET_SPRITE)
@@ -201,22 +204,12 @@ FGDPropertyDescriptor *FGDEntityClass::FindProperty(const std::string &propertyN
     return nullptr;
 }
 
-glm::vec3 FGDEntityClass::GetMins()
+glm::vec4 GoldSource::FGDEntityClass::GetColor()
 {
-    return m_Mins;
+    return glm::vec4(m_Color,1);
 }
 
-glm::vec3 FGDEntityClass::GetMaxs()
-{
-    return m_Maxs;
-}
-
-glm::vec3 FGDEntityClass::GetColor()
-{
-    return m_Color;
-}
-
-void FGDEntityClass::SetBBoxOffset(glm::vec3 offset)
+void FGDEntityClass::SetBBoxOffset(const glm::vec3 offset)
 {
     m_BboxOffset = offset;
 }
@@ -263,6 +256,11 @@ const GoldSource::FGDPropertiesList &FGDEntityClass::GetProperties() const
 const std::string &FGDEntityClass::GetModel() const
 {
     return m_Model;
+}
+
+const BoundingBox &FGDEntityClass::GetBoundingBox() const
+{
+    return m_BoundingBox;
 }
 
 FGDFlagsEnumProperty::FGDFlagsEnumProperty(std::string name, std::string desc, FGDFlagsList &values,

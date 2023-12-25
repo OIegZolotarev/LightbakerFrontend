@@ -11,7 +11,9 @@
 #include "goldsource_bsp_level.h"
 #include "goldsource_bsp_world.h"
 
-GoldSource::BSPAsynchLoader::BSPAsynchLoader(BSPWorld *pWorld, BSPLevel *level)
+using namespace GoldSource;
+
+BSPAsynchLoader::BSPAsynchLoader(BSPWorld *pWorld, BSPLevel *level)
 {
     m_pLevel = level;
     m_pWorld = pWorld;
@@ -21,7 +23,7 @@ GoldSource::BSPAsynchLoader::BSPAsynchLoader(BSPWorld *pWorld, BSPLevel *level)
     m_nPerformedSteps = 0;
 }
 
-ITaskStepResult *GoldSource::BSPAsynchLoader::ExecuteStep(LoaderThread *loaderThread)
+ITaskStepResult *BSPAsynchLoader::ExecuteStep(LoaderThread *loaderThread)
 {
     // Lumps not located in load order, so we need to reorder them in order to load in loop
 
@@ -93,12 +95,12 @@ ITaskStepResult *GoldSource::BSPAsynchLoader::ExecuteStep(LoaderThread *loaderTh
     return new BSPLoaderTaskStepResult(m_nPerformedSteps, HEADER_LUMPS);
 }
 
-void GoldSource::BSPAsynchLoader::OnCompletion()
+void BSPAsynchLoader::OnCompletion()
 {
     return;
 }
 
-GoldSource::BSPLoaderTaskStepResult::BSPLoaderTaskStepResult(size_t nCurrentSteps, size_t nTotalSteps)
+BSPLoaderTaskStepResult::BSPLoaderTaskStepResult(size_t nCurrentSteps, size_t nTotalSteps)
     : ITaskStepResult(TaskStepResultType::StepPerformed)
 {
     const char *lumps[] = {"LUMP_ENTITIES",   "LUMP_VERTEXES", "LUMP_EDGES",   "LUMP_SURFEDGES", "LUMP_TEXTURES",
@@ -108,22 +110,22 @@ GoldSource::BSPLoaderTaskStepResult::BSPLoaderTaskStepResult(size_t nCurrentStep
     m_strElementDescription = std::format("Step {0} of {1} ({2})", nCurrentSteps, nTotalSteps, lumps[nCurrentSteps]);
 }
 
-GoldSource::BSPLoaderTaskStepResult::~BSPLoaderTaskStepResult()
+BSPLoaderTaskStepResult::~BSPLoaderTaskStepResult()
 {
 }
 
-GoldSource::BSPLoaderCompletionStep::BSPLoaderCompletionStep(BSPWorld *pLevel)
+BSPLoaderCompletionStep::BSPLoaderCompletionStep(BSPWorld *pLevel)
     : ITaskStepResult(TaskStepResultType::FinishedSuccesfully)
 {
     m_pLevel = pLevel;
 }
 
-void GoldSource::BSPLoaderCompletionStep::ExecuteOnCompletion()
+void BSPLoaderCompletionStep::ExecuteOnCompletion()
 {
     m_pLevel->OnLevelLoaded();
 }
 
-bool GoldSource::BSPLoaderCompletionStep::NeedEndCallback()
+bool BSPLoaderCompletionStep::NeedEndCallback()
 {
     return true;
 }

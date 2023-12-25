@@ -19,6 +19,10 @@ typedef struct renderStats_s
 {
     size_t nDrawCalls = 0;
     size_t nTriangles = 0;
+
+    size_t nEntitiesRendered = 0;
+    size_t nEntitiesTotal = 0;
+
 } renderStats_t;
 
 typedef struct textureUnitState_s

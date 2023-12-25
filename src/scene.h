@@ -25,6 +25,7 @@ namespace GoldSource
 class StudioModelV10;
 };
 
+class IWorldEntity;
 
 class Scene
 {
@@ -101,4 +102,5 @@ public:
 
     GameConfigurationWeakPtr UsedGameConfiguration();
     uint32_t                 AllocSerialNumber();
+    IWorldEntity* GetWorldEntity();
 };

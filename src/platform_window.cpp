@@ -147,7 +147,9 @@ void IPlatformWindow::HandleDropfileEvent(SDL_Event &event)
     dropped_filedir = event.drop.file;
     // Shows directory of dropped file
 
-    // m_pSceneRenderer->LoadModel(dropped_filedir, LRF_LOAD_ALL);
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
+    sr->LoadModel(dropped_filedir, LRF_LOAD_ALL);
 
     SDL_free(dropped_filedir); // Free dropped_filedir memory
 }

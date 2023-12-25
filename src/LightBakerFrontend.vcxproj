@@ -213,7 +213,8 @@ build.bat
     <ClCompile Include="gl_draw_mesh.cpp" />
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
     <ClCompile Include="img_indexed_from_memory.cpp" />
-    <ClCompile Include="mdl_v10_goldsource.cpp" />
+    <ClCompile Include="mod_bsp.cpp" />
+    <ClCompile Include="mod_mdlv10.cpp" />
     <ClCompile Include="mod_manager.cpp" />
     <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
@@ -320,8 +321,9 @@ build.bat
     <ClInclude Include="gl_draw_mesh.h" />
     <ClInclude Include="goldsource_bsp_asynch_loader.h" />
     <ClInclude Include="img_indexed_from_memory.h" />
-    <ClInclude Include="mdl_v10_goldsource.h" />
-    <ClInclude Include="mdl_v10_disk_structs_goldsource.h" />
+    <ClInclude Include="mod_bsp.h" />
+    <ClInclude Include="mod_mdlv10.h" />
+    <ClInclude Include="mod_mdlv10_disk_structs.h" />
     <ClInclude Include="mod_manager.h" />
     <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />

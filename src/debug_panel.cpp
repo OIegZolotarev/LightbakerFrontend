@@ -33,11 +33,11 @@ void DebugPanel::Render()
 
         ImGui::Text("DrawCalls: %d\n", stats->nDrawCalls);
         ImGui::Text("Triangles: %d\n", stats->nTriangles);
+        
+        ImGui::Text("Entities rendered/total: %d/%d\n", stats->nEntitiesRendered, stats->nEntitiesTotal);
+        
 
-        if (pViewport1)
-            pViewport1->OutputDebug();
-        if (pViewport2)
-            pViewport2->OutputDebug();                
+        
     }
     ImGui::End();
 }

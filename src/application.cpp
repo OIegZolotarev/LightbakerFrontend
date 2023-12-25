@@ -157,6 +157,9 @@ void Application::Run()
                         }
                     }
                     break;
+                case SDL_DROPFILE:
+                    pTarget = m_pMainWindow;
+                    break;
 
                 default:
                     // TODO: windowId not present in all event types, some events should be handled by application class

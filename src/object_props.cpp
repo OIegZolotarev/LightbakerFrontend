@@ -121,6 +121,11 @@ const char* VariantValue::GetString() const
 	return m_StringValue.c_str();
 }
 
+std::string VariantValue::GetStringStd() const
+{
+    return m_StringValue;
+}
+
 void VariantValue::SetEnumValue(int val)
 {
 	m_bInitialized = true;
@@ -195,11 +200,13 @@ void VariantValue::SetBool(bool val)
 
 void VariantValue::SetString(const char* value)
 {
+    m_bInitialized = true;
 	m_StringValue = value;
 }
 
 void VariantValue::SetString(std::string val)
 {
+    m_bInitialized = true;
     m_StringValue = val;
 }
 

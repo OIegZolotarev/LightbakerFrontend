@@ -71,7 +71,7 @@ void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
 
     ImGuizmo::BeginFrame();
 
-    EditTransform(pViewport, &m_matGuizmo[0][0], false);
+    EditTransform(pViewport, &m_matGuizmo[0][0], true);
 }
 
 void ObjectPropertiesEditor::UnloadObject()

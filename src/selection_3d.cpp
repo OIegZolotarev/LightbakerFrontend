@@ -6,11 +6,13 @@
 #include "common.h"
 #include "selection_3d.h"
 #include "application.h"
+#include "properties_editor.h"
 
 bool SelectionManager::m_bGizmoEnabled = false;	
  
 void SelectionManager::EnableGizmo(bool status)
 {
+	
     m_bGizmoEnabled = status;
     ImGuizmo::Enable(status);
 }
@@ -190,14 +192,16 @@ bool SelectionManager::SelectHoveredObject()
 
 void SelectionManager::UnSelect()
 {
-	if (auto ptr = m_pLastSelectedObject.lock())
-	{
-		ptr->SetSelected(false);
-		ptr->SetHovered(false);
-		ptr->OnUnSelect();
+    ObjectPropertiesEditor::Instance()->UnloadObject();
 
-		m_pLastSelectedObject.reset();
-	}
+// 	if (auto ptr = m_pLastSelectedObject.lock())
+// 	{
+// 		ptr->SetSelected(false);
+// 		ptr->SetHovered(false);
+// 		ptr->OnUnSelect();
+// 
+// 		m_pLastSelectedObject.reset();
+// 	}
 
 	
 

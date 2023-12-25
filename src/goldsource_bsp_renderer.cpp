@@ -35,11 +35,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
  ****/
 
-
 #include "application.h"
+
 #include "goldsource_bsp_disk_structs.h"
-#include "goldsource_bsp_mem_structs.h"
 #include "goldsource_bsp_level.h"
+#include "goldsource_bsp_mem_structs.h"
+
 #include "goldsource_bsp_renderer.h"
 
 #define BACKFACE_EPSILON 0.01
@@ -49,13 +50,13 @@ using namespace GoldSource;
 void BSPRenderer::RecursiveWorldNode(mnode_t *node)
 {
     int c, side;
-//    glm::vec3 acceptpt, rejectpt;
-    mplane_t *plane;
+    //    glm::vec3 acceptpt, rejectpt;
+    mplane_t *  plane;
     msurface_t *surf, **mark;
-    mleaf_t *pleaf;
-    double dot;
+    mleaf_t *   pleaf;
+    double      dot;
 
-  //  glm::vec3 mins, maxs;
+    //  glm::vec3 mins, maxs;
 
     if (!node)
         return;
@@ -168,94 +169,86 @@ BSPRenderer::BSPRenderer(BSPLevel *world)
 {
     m_pLevel = world;
 
-    
-    auto & modelList = world->GetSubmodels();
+    auto &modelList = world->GetSubmodels();
 
-    for (auto & it: modelList)
+    for (auto &it : modelList)
     {
         auto renderCookie = BuildDisplayMesh(&it);
-        m_RenderInfos.push_back(renderCookie);
+        m_RenderInfos.push_back(BSPModelRenderCookiePtr(renderCookie));
     }
 
     constexpr float ang = glm::radians(90.f);
     m_Transform         = glm::mat4(1);
-    //m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
-    //m_Transform *= glm::rotate(glm::mat4(1), ang, {0.f, 0.f, 1.f});
+    // m_Transform = glm::rotate(glm::mat4(1), -ang, {1.f, 0.f, 0.f});
+    // m_Transform *= glm::rotate(glm::mat4(1), ang, {0.f, 0.f, 1.f});
 }
 
 BSPRenderer::~BSPRenderer()
 {
-    ClearPointersVector(m_RenderInfos);
+    m_RenderInfos.clear();
 }
 
 void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
 {
     // Make Z-Axis look up
     m_vecEyesPosition = cameraPosition.xyz;
-    auto shader = GLBackend::Instance()->LightMappedSceneShader();
-
-
+    auto shader       = GLBackend::Instance()->LightMappedSceneShader();
+    
     shader->Bind();
     shader->SetDefaultCamera();
     shader->SetTransform(m_Transform);
     shader->SetScale(1);
-    
+
     auto inf = m_RenderInfos[0];
 
     auto pMesh = inf->GetDrawMesh();
     pMesh->Bind();
 
-    auto & lists = inf->GetDisplayList();
+    auto &lists = inf->GetDisplayList();
 
-    //glDisable(GL_CULL_FACE);
-    
-    
-   //for (int i = 0; i < 100; i++)
     {
-        
         shader->SetTransform(m_Transform);
-
 
         for (auto &it : lists)
         {
             GLBackend::BindTexture(1, it.lm);
             GLBackend::BindTexture(0, it.diffuse);
 
-            pMesh->Draw(it.first, it.count);
+            pMesh->Draw((uint32_t)it.first, (uint32_t)it.count);
         }
     }
 
-    //RecursiveWorldNode(m_pWorld->GetNodes(0));
-
     pMesh->Unbind();
+
     shader->Unbind();
+
     
 }
 
 void BSPRenderer::RenderBrushPoly(msurface_t *fa)
 {
-//     GLBackend::BindTexture(1, fa->lightmaptexturenum);
-//     GLBackend::BindTexture(0, fa->diffuseTexture);
-//                        
-//     pMesh->Draw(fa->meshOffset, fa->meshLength);                  
+    //     GLBackend::BindTexture(1, fa->lightmaptexturenum);
+    //     GLBackend::BindTexture(0, fa->diffuseTexture);
+    //
+    //     pMesh->Draw(fa->meshOffset, fa->meshLength);
 }
 
 void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
 {
-    int i, lindex, lnumverts;
+    int            i, lindex, lnumverts;
     const medge_t *pedges, *r_pedge;
-    int vertpage;
-    glm::vec3 vec;
-    float s = 0, t = 0;
-    
+    int            vertpage;
+    glm::vec3      vec;
+    float          s = 0, t = 0;
+
     // reconstruct the polygon
-    pedges = m_pLevel->GetEdges().data();
+    pedges    = m_pLevel->GetEdges().data();
     lnumverts = fa->numedges;
     vertpage  = 0;
 
-    auto & surfEdges = m_pLevel->GetSurfEdges();
-    auto & vertices  = m_pLevel->GetVertices();
-    auto lmState   = m_pLevel->GetLightmapState();
+    auto &surfEdges = m_pLevel->GetSurfEdges();
+    auto &vertices  = m_pLevel->GetVertices();
+    auto  lmState   = m_pLevel->GetLightmapState();
 
     std::vector<drawVert_t> m_verts;
     m_verts.reserve(lnumverts);
@@ -287,7 +280,7 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
 
         dw.uv = {s, t, 0};
 
-        //m_pMesh->TexCoord2f(s, t);
+        // m_pMesh->TexCoord2f(s, t);
 
         //
         // lightmap texture coordinates
@@ -307,13 +300,12 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
         t += 8;
         t /= lmState->BlockHeight() * 16; // fa->texinfo->texture->height;
 
-
-        dw.ext.color = {s, t, 0,0};
+        dw.ext.color = {s, t, 0, 0};
 
         dw.xyz = {vec};
 
-        //m_pMesh->Color3f(s, t, 0);
-        //m_pMesh->Vertex3fv(&vec.x);
+        // m_pMesh->Color3f(s, t, 0);
+        // m_pMesh->Vertex3fv(&vec.x);
 
         m_verts.push_back(dw);
     }
@@ -322,14 +314,12 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
 
     if (fa->texinfo->texture->loadedTexture)
         fa->diffuseTexture = fa->texinfo->texture->loadedTexture;
-    
 
     for (size_t i = 0; i < m_verts.size() - 2; i++)
     {
-
-        auto & v1 = m_verts[0];
-        auto & v2 = m_verts[i + 1];
-        auto & v3 = m_verts[i + 2];
+        auto &v1 = m_verts[0];
+        auto &v2 = m_verts[i + 1];
+        auto &v3 = m_verts[i + 2];
 
         pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
         pMesh->Color3f(v3.ext.color.r, v3.ext.color.g, v3.ext.color.b);
@@ -342,32 +332,28 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
         pMesh->TexCoord2f(v1.uv.x, v1.uv.y);
         pMesh->Color3f(v1.ext.color.r, v1.ext.color.g, v1.ext.color.b);
         pMesh->Vertex3fv((float *)&v1.xyz);
-
     }
 
     fa->meshLength = pMesh->CurrentElement() - fa->meshOffset;
-
 }
 
-template<class T>
-inline int sortCmp(T a, T b)
+template <class T> inline int sortCmp(T a, T b)
 {
     if (a == b)
         return 0;
 
-
     if (a > b)
         return 1;
-    
+
     return -1;
 }
 
-GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *mod)
+BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *mod)
 {
     std::vector<msurface_t *> m_SortedFaces;
-    std::vector<msurface_t> &surfaces = m_pLevel->GetFaces();
-    
-    for (int i = mod->firstface; i < mod->numfaces; i++)
+    std::vector<msurface_t> & surfaces = m_pLevel->GetFaces();
+
+    for (int i = mod->firstface; i < (mod->firstface + mod->numfaces); i++)
     {
         auto s = &surfaces[i];
 
@@ -376,47 +362,47 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
 
         if (!s->texinfo->texture->loadedTexture)
             s->texinfo->texture->loadedTexture = TextureManager::GetFallbackTexture();
-        
+
         m_SortedFaces.push_back(s);
     }
-    
+
     std::qsort(m_SortedFaces.data(), m_SortedFaces.size(), sizeof(msurface_t *),
                [](const void *pa, const void *pb) -> int {
-        const msurface_t *faceA = *(msurface_t **)(pa);
-        const msurface_t *faceB = *(msurface_t **)(pb);
+                   const msurface_t *faceA = *(msurface_t **)(pa);
+                   const msurface_t *faceB = *(msurface_t **)(pb);
 
-        GLuint texA = 0;
-        GLuint texB = 0;
+                   GLuint texA = 0;
+                   GLuint texB = 0;
 
-        if (faceA->texinfo->texture->loadedTexture)
-            texA = faceA->texinfo->texture->loadedTexture->Index();
+                   if (faceA->texinfo->texture->loadedTexture)
+                       texA = faceA->texinfo->texture->loadedTexture->Index();
 
-        if (faceB->texinfo->texture->loadedTexture)
-            texB = faceB->texinfo->texture->loadedTexture->Index();
+                   if (faceB->texinfo->texture->loadedTexture)
+                       texB = faceB->texinfo->texture->loadedTexture->Index();
 
-        GLuint lmA = faceA->lightmaptexturenum;
-        GLuint lmB = faceB->lightmaptexturenum;
+                   GLuint lmA = faceA->lightmaptexturenum;
+                   GLuint lmB = faceB->lightmaptexturenum;
 
-        int cmp = sortCmp(texA, texB);
-        int lmCmp = sortCmp(lmA, lmB);
+                   int cmp   = sortCmp(texA, texB);
+                   int lmCmp = sortCmp(lmA, lmB);
 
-        if (cmp == 0)
-        {
-            return lmCmp;
-        }
+                   if (cmp == 0)
+                   {
+                       return lmCmp;
+                   }
 
-        return cmp;
-    });
+                   return cmp;
+               });
 
     displayList_t lists;
-    DrawMesh *pMesh = new DrawMesh;
+    DrawMesh *    pMesh = new DrawMesh;
 
     pMesh->Begin(GL_TRIANGLES);
 
-    displayMesh_t mesh = {0,0,0,0};
+    displayMesh_t mesh = {0, 0, 0, 0};
 
-    GLTexture* diffuseTexture = 0;
-    GLuint lmTexture = 0;
+    GLTexture *diffuseTexture = 0;
+    GLuint     lmTexture      = 0;
 
     for (auto &surf : m_SortedFaces)
     {
@@ -425,7 +411,7 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
 
         if (diffuseTexture != surf->diffuseTexture || lmTexture != surf->lightmaptexturenum)
         {
-            if (diffuseTexture !=0)
+            if (diffuseTexture != 0)
             {
                 lists.push_back(mesh);
             }
@@ -433,10 +419,9 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
             diffuseTexture = surf->diffuseTexture;
             lmTexture      = surf->lightmaptexturenum;
 
-            mesh.first  = surf->meshOffset;            
+            mesh.first   = surf->meshOffset;
             mesh.diffuse = diffuseTexture;
-            mesh.lm      = surf->lightmaptexturenum;              
-
+            mesh.lm      = surf->lightmaptexturenum;
         }
 
         mesh.count = (surf->meshOffset + surf->meshLength) - mesh.first;
@@ -447,23 +432,49 @@ GoldSource::BSPModelRenderCookie * GoldSource::BSPRenderer::BuildDisplayMesh(con
 
     pMesh->End();
 
-    
     auto lmState = m_pLevel->GetLightmapState();
     lmState->UploadBlock(false);
 
-    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists);
+    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists, mod);
 
     return pResult;
 }
 
-BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl)
+GoldSource::BSPModelRenderCookiePtr BSPRenderer::GetBSPModelRenderCookie(size_t idx)
+{
+    return m_RenderInfos[idx];
+}
+
+void BSPRenderer::ReloadLightmaps()
+{
+    m_RenderInfos.clear();
+
+    auto &modelList = m_pLevel->GetSubmodels();
+
+    for (auto &it : modelList)
+    {
+        auto renderCookie = BuildDisplayMesh(&it);
+        m_RenderInfos.push_back(BSPModelRenderCookiePtr(renderCookie));
+    }
+}
+
+BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t * model)
 {
     m_pMesh       = pMesh;
     m_DisplayList = std::move(dl);
+    m_pBSPModel   = model;
+    
+
+    m_BoundingBox = BoundingBox(model->mins, model->maxs);
 }
 
 BSPModelRenderCookie::~BSPModelRenderCookie()
 {
     delete m_pMesh;
     m_DisplayList.clear();
+}
+
+const BoundingBox BSPModelRenderCookie::GetBoundingBox() const
+{
+    return m_BoundingBox;
 }

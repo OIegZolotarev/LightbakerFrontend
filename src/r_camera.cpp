@@ -364,9 +364,13 @@ void Camera::UpdateOrientation(float flFrameDelta)
 
         // SDL_WarpMouseInWindow(Application::GetMainWindow()->Handle(), winWidth / 2, winHeight / 2);
 
+        glm::vec3 old = m_Origin;
         m_Origin += (m_CurrentMoveSpeeds[0] * flFrameDelta) * m_vForward +
                     (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
                     (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
+
+        if (glm::length2(old-m_Origin) > 1.f)
+            recalcPosition = true;
     }
     else
     {
@@ -377,7 +381,10 @@ void Camera::UpdateOrientation(float flFrameDelta)
     }
 
     if (recalcPosition)
+    {
+        m_pViewport->FlagUpdate();
         Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::Position);
+    }
 }
 
 bool Camera::CalcMovementSpeeds(float flFrameDelta)
@@ -498,7 +505,7 @@ Frustum *Camera::GetFrustum()
 
 glm::vec3 Camera::GetMoveSpeed()
 {
-    return *(glm::vec3 *)(m_IdealMoveSpeeds);
+    return (m_IdealMoveSpeeds);
 }
 
 bool Camera::IsFPSNavigationEngaged()
@@ -590,6 +597,11 @@ int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
 
     // Con_Printf("MouseMotion: %d %d [%d]\n", event.xrel, event.yrel, m_Mode);
 
+    if (m_bFPSNavigation || m_Mode != CameraMouseModes::None)
+    {
+        m_pViewport->FlagUpdate();
+    }
+
     switch (m_Mode)
     {
     case CameraMouseModes::Pan: {
@@ -627,6 +639,8 @@ int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
     default:
         break;
     }
+
+    
 
     return 0;
 }

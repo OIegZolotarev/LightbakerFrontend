@@ -56,7 +56,7 @@ void ModObjAsynchExporter::ExportLightDefs() const
 		if (it->flags & LF_RECT)		lightBaseType += "_rect";
 
 		auto pos = it->GetPosition();
-		auto color = it->GetColor();
+		auto color = it->GetRenderColor();
 
 		fprintf(m_pFPOut, "%s\t%.6f %.6f %.6f\t%.6f %.6f %.6f\t%.6f\t%.6f %.3f %.6f\t%.6f %.6f\t%d\t",
 			lightBaseType.c_str(),

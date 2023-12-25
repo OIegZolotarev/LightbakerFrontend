@@ -37,26 +37,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #pragma once
 
+// Forward declarations
+class GLTexture;
+class DrawMesh;
+
 namespace GoldSource
 {
+class BSPLevel;
 
 typedef struct
 {
     size_t first;
     size_t count;
 
-    GLTexture* diffuse;
-    GLuint lm;
+    GLTexture *diffuse;
+    GLuint     lm;
 } displayMesh_t;
 
 typedef std::list<displayMesh_t> displayList_t;
 
 class BSPModelRenderCookie
 {
-    DrawMesh * m_pMesh;
+    DrawMesh *    m_pMesh;
     displayList_t m_DisplayList;
+
+    const dmodel_t *m_pBSPModel;
+
 public:
-    BSPModelRenderCookie(DrawMesh * pMesh, displayList_t dl);
+    BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t *mod);
     ~BSPModelRenderCookie();
 
     DrawMesh *GetDrawMesh()
@@ -67,32 +75,42 @@ public:
     {
         return m_DisplayList;
     }
+    const BoundingBox GetBoundingBox() const;
+
+private:
+    BoundingBox m_BoundingBox;
 };
+
+typedef std::shared_ptr<BSPModelRenderCookie> BSPModelRenderCookiePtr;
+typedef std::weak_ptr<BSPModelRenderCookie>   BSPModelRenderCookieWeakPtr;
 
 class BSPRenderer
 {
     glm::vec3 m_vecEyesPosition;
-    size_t m_visFrameCount = 0;
+    size_t    m_visFrameCount = 0;
     BSPLevel *m_pLevel;
-    
-    
-    
+
     void RenderBrushPoly(msurface_t *fa);
     void RecursiveWorldNode(mnode_t *node);
 
-    void BuildSurfaceDisplayList(msurface_t *fa, DrawMesh * pMesh);
-    
-    std::vector<BSPModelRenderCookie *> m_RenderInfos;
-    BSPModelRenderCookie *BuildDisplayMesh(const dmodel_t *mod);
+    void BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh);
 
-  public:
+    std::vector<BSPModelRenderCookiePtr> m_RenderInfos;
+    BSPModelRenderCookie *               BuildDisplayMesh(const dmodel_t *mod);
+
+public:
     BSPRenderer(BSPLevel *world);
     ~BSPRenderer();
 
     void RenderWorld(glm::vec3 cameraPosition);
 
-  private:
+    GoldSource::BSPModelRenderCookiePtr GetBSPModelRenderCookie(size_t idx);
+
+private:
     glm::mat4 m_Transform;
+
+public:
+    void ReloadLightmaps();
 };
 
 } // namespace GoldSource

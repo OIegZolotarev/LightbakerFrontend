@@ -25,6 +25,7 @@ public:
     static size_t KeyAngles();
     static size_t KeyFlags();
     static size_t KeyClassname();
+    static size_t KeyModel();
 };
 
 enum class PropertyMetatype
@@ -35,6 +36,7 @@ enum class PropertyMetatype
     Flags,
     Light,
     Wad,
+    Model,
     None
 };
 
@@ -88,6 +90,9 @@ private:
     void RebuildFlagsList();
 
 
+void ParseAngles(const std::string &value);
+    std::string SerializeValue();
+void ParseModel(const std::string &value);
 };
 
 } // namespace GoldSource

@@ -243,11 +243,12 @@ void ModObjAsynchLoader::ParseLightDef(std::string& buffer)
 	pos[2] = stof(tokens[3]) * m_Data->sceneScale;
 	newLight->SetPosition(pos);
 
-	glm::vec3 color;
+	glm::vec4 color;
 	color[0] = stof(tokens[4]);
 	color[1] = stof(tokens[5]);
 	color[2] = stof(tokens[6]);
-	newLight->SetColor(color);
+    color[3] = 1;
+	newLight->SetRenderColor(color);
 
 	newLight->intensity = stof(tokens[7]) * m_Data->sceneScale;
 

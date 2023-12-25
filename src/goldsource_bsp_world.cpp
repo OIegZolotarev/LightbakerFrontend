@@ -6,8 +6,8 @@
 #include "application.h"
 #include "common.h"
 
-#include "goldsource_bsp_world.h"
 #include "goldsource_bsp_asynch_loader.h"
+#include "goldsource_bsp_world.h"
 #include "r_camera.h"
 #include "scene_renderer.h"
 
@@ -16,6 +16,7 @@ using namespace GoldSource;
 void BSPWorld::ReloadLightmaps()
 {
     m_pLevel->ReloadLightmaps();
+    m_pRenderer->ReloadLightmaps();
 }
 
 void BSPWorld::OnAdditionToScene(Scene *pScene)
@@ -73,9 +74,17 @@ void BSPWorld::OnLevelLoaded()
     }
 
     short *minsmaxs = m_pLevel->GetNodes(0)->minmaxs;
-    SetMins({(float)minsmaxs[0], (float)minsmaxs[1], (float)minsmaxs[2]});
 
-    SetMaxs({(float)minsmaxs[3], (float)minsmaxs[4], (float)minsmaxs[5]});
+    SetBoundingBox(BoundingBox(minsmaxs));
+    SetPosition(glm::vec3{0, 0, 0});
+
+    ModelsManager::Instance()->OnSceneLoaded(m_pScene); 
 
     m_pLevel->PopulateScene(m_pScene);
+    
+}
+
+GoldSource::BSPModelRenderCookiePtr BSPWorld::GetBSPModelRenderCookie(size_t idx)
+{
+    return m_pRenderer->GetBSPModelRenderCookie(idx);
 }

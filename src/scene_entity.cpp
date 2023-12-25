@@ -7,10 +7,25 @@
 #include "scene_entity.h"
 #include "properties_editor.h"
 
+void SceneEntity::RecalcAbsBBox()
+{
+    m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+}
+
+const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
+{
+    return m_EntVars.bboxRelative;
+}
+
+const BoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
+{
+    return m_EntVars.bboxAbsolute;
+}
+
 void SceneEntity::SetClassName(const char *name)
 {
-    m_ClassName     = std::string(name);
-    m_ClassNameHash = std::hash<const char *>{}(name);
+    m_EntVars.classname = std::string(name);
+    m_EntVars.classname_hash = std::hash<const char *>{}(name);
 }
 
 void SceneEntity::FlagDataLoaded()
@@ -27,9 +42,9 @@ void SceneEntity::InvokeSelect()
     SelectionManager::Instance()->UnSelectEverythingBut(this);
 }
 
-std::string &SceneEntity::GetClassName()
+const std::string &SceneEntity::GetClassName() const
 {
-    return m_ClassName;
+    return m_EntVars.classname;
 }
 
 bool SceneEntity::IsTransparent()
@@ -54,6 +69,21 @@ void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
     m_pNext = pOther;
 }
 
+const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
+{
+    return m_EntVars.bboxAbsolute;
+}
+
+const glm::vec3 SceneEntity::GetAngles() const
+{
+    return m_EntVars.angles;
+}
+
+void SceneEntity::SetAngles(const glm::vec3 &angles)
+{
+    m_EntVars.angles = angles;
+}
+
 void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 {
     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
@@ -68,27 +98,25 @@ void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 SceneEntity::SceneEntity(Scene *pScene)
 {
     m_pScene = pScene;
+    
 
-    m_SerialNumber = 0;
-    m_Position     = {0, 0, 0};
+    // m_Color      = {0, 0, 0};
+    // m_EditorIcon = nullptr;
 
-    m_Mins = {-4, -4, -4};
-    m_Maxs = {4, 4, 4};
-
-    m_Color      = {0, 0, 0};
-    m_EditorIcon = nullptr;
+    SetEditorIcon(nullptr);
+    SetRenderColor({1, 1, 1, 1});
 }
 
 SceneEntity::SceneEntity(SceneEntity &other)
 {
     m_pScene   = other.m_pScene;
-    m_Position = other.m_Position;
+    
+    m_EntVars.bboxRelative = other.m_EntVars.bboxRelative;
+    m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
+    
+    m_EntVars.rendercolor = other.m_EntVars.rendercolor;
+    m_EntVars.editor_icon = other.m_EntVars.editor_icon;
 
-    m_Mins = other.m_Mins;
-    m_Maxs = other.m_Maxs;
-
-    m_Color      = other.m_Color;
-    m_EditorIcon = other.m_EditorIcon;
 }
 
 void SceneEntity::RenderLightshaded()
@@ -118,6 +146,73 @@ bool SceneEntity::IsDataLoaded()
     return m_bDataLoaded;
 }
 
+void SceneEntity::SetSerialNumber(const uint32_t newNum)
+{
+    m_EntVars.serialNumber = newNum;
+}
+
+const uint32_t SceneEntity::GetSerialNumber() const
+{
+    return m_EntVars.serialNumber;
+}
+
+void SceneEntity::SetPosition(const glm::vec3 &pos)
+{
+    m_EntVars.origin = pos;
+    RecalcAbsBBox();
+}
+
+const glm::vec3 SceneEntity::GetPosition() const
+{
+    return m_EntVars.origin;
+}
+
+void SceneEntity::SetBoundingBox(const BoundingBox &bbox)
+{
+    m_EntVars.bboxRelative = bbox;
+    RecalcAbsBBox();
+}
+
+void SceneEntity::SetRenderColor(const ColorRGBA &color)
+{
+    m_EntVars.rendercolor = color;
+}
+
+const ColorRGBA SceneEntity::GetRenderColor() const
+{
+    return m_EntVars.rendercolor;
+}
+
+const GLTexture *SceneEntity::GetEditorIcon() const
+{
+    return m_EntVars.editor_icon;
+}
+
+void SceneEntity::SetEditorIcon(GLTexture *pTexture)
+{
+    m_EntVars.editor_icon = pTexture;
+}
+
+IModelWeakPtr SceneEntity::GetModel() const
+{
+    return m_EntVars.model;
+}
+
+void SceneEntity::SetModel(IModelWeakPtr &model)
+{
+    m_EntVars.model = model;
+}
+
+void SceneEntity::SetFrame(const float newVal)
+{
+    m_EntVars.frame = newVal;
+}
+
+const float SceneEntity::GetFrame() const
+{
+    return m_EntVars.frame;
+}
+
 void SceneEntity::OnHovered()
 {
 }
@@ -128,6 +223,7 @@ void SceneEntity::OnMouseMove(glm::vec2 delta)
 
 void SceneEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
+    ObjectPropertiesEditor::Instance()->UnloadObject();
 }
 
 void SceneEntity::OnUnSelect()
@@ -140,12 +236,16 @@ void SceneEntity::OnUnhovered()
 
 const char *SceneEntity::Description()
 {
-    return m_ClassName.c_str();
+    return m_EntVars.classname.c_str();
 }
 
 bool SceneEntity::IsLightEntity()
 {
     return false;
+}
+
+void SceneEntity::OnAdditionToScene(class Scene *pScene)
+{
 }
 
 EntityClasses SceneEntity::EntityClass()

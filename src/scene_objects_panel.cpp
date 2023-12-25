@@ -49,7 +49,7 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 
 					ImGui::PushID((void*)it.get());
 
-					auto col = it->GetColor();
+					auto col = it->GetRenderColor();
 
 					//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
 

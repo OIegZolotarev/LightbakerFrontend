@@ -4,18 +4,20 @@
 */
 
 #include "application.h"
+
+#include "bsp_entities_properties_binding.h"
 #include "bsp_entity.h"
+#include "bsp_entity_property.h"
+
 #include "common.h"
 #include "goldsource_game_configuration.h"
+#include "properties_editor.h"
 #include "text_utils.h"
 #include "wad_textures.h"
-#include "bsp_entity_property.h"
-#include "bsp_entities_properties_binding.h"
-#include "properties_editor.h"
 
 using namespace GoldSource;
 
-BSPEntity::BSPEntity(Scene *pScene): SceneEntity(pScene)
+BSPEntity::BSPEntity(Scene *pScene) : SceneEntity(pScene)
 {
 }
 
@@ -28,11 +30,11 @@ BSPEntity::~BSPEntity()
 }
 
 void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
-{   
+{
     FGDPropertyDescriptor *propDescr = nullptr;
 
     auto fgdClassPtr = m_pFGDClass.lock();
-    
+
     if (fgdClassPtr)
     {
         propDescr = fgdClassPtr->FindProperty(key);
@@ -45,11 +47,14 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     if (existingProp)
     {
         existingProp->ParseValue(value);
+        assert(existingProp->IsInitialized());
     }
     else
     {
         BSPEntityProperty *pProperty = new BSPEntityProperty(this, key, value, propDescr);
         m_lstProperties.push_back(pProperty);
+
+        assert(pProperty->IsInitialized());
     }
 }
 
@@ -70,7 +75,7 @@ void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
 
 BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
 {
-    for(auto & it: m_lstProperties)
+    for (auto &it : m_lstProperties)
     {
         if (it->Hash() == prophash)
             return it;
@@ -79,43 +84,60 @@ BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
     return nullptr;
 }
 
-
 void BSPEntity::PopulateScene()
 {
     auto classPtr = m_pFGDClass.lock();
 
     if (classPtr)
     {
-        SetMins(classPtr->GetMins());
-        SetMaxs(classPtr->GetMaxs());
-        
-        if (!m_bIsSetColor)
-            SetColor(classPtr->GetColor());
-        
-        m_pEditorSprite = classPtr->GetEditorSpite();
+        auto ch = classPtr->ClassName().c_str();
 
-        auto & studioModel = classPtr->GetModel();
+        const BoundingBox &bbox = classPtr->GetBoundingBox();
 
+        if (glm::length2(bbox.Size()) == 0)
+            SetBoundingBox(BoundingBox(8));
+        else
+            SetBoundingBox(bbox);
 
-        if (!studioModel.empty())
+        // if (!m_bIsSetColor)
+        SetRenderColor(classPtr->GetColor());
+
+        auto model = GetModel();
+
+        if (model.expired())
         {
-            IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
-            if (!model.expired())
+            m_pEditorSprite = classPtr->GetEditorSpite();
+
+            auto &studioModel = classPtr->GetModel();
+
+            if (!studioModel.empty())
             {
-                SetModel(model);
+                IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
+                if (!model.expired())
+                {
+                    SetModel(model);
+                }
             }
         }
+        else
+        {
+            auto ptr         = model.lock();
+            auto boundingBox = ptr->GetBoundingBox();
 
+            if (boundingBox.has_value())
+            {
+                SetBoundingBox(boundingBox.value());                
+            }
+        }
     }
     else
     {
-        SetMins({-4, -4, -4});
-        SetMaxs({4, 4, 4});
-        
-        if (!m_bIsSetColor) 
-            SetColor({1, 0, 1});
+        SetBoundingBox(BoundingBox(8));
+
+        // if (!m_bIsSetColor)
+        SetRenderColor({1, 0, 1, 1});
     }
-      
+
     std::shared_ptr<SceneEntity> ptr(this);
     m_pScene->AddNewSceneEntity(ptr);
 }
@@ -123,14 +145,14 @@ void BSPEntity::PopulateScene()
 void BSPEntity::Export(FILE *fp)
 {
     fprintf(fp, "{\n");
-   
+
     for (auto &it : m_lstProperties)
     {
         if (it->IsInitialized())
             it->SerializeAsKeyValue(fp);
     }
-   
-   fprintf(fp, "}\n");
+
+    fprintf(fp, "}\n");
 }
 
 std::list<BSPEntityProperty *> &BSPEntity::GetBSPProperties()
@@ -140,7 +162,7 @@ std::list<BSPEntityProperty *> &BSPEntity::GetBSPProperties()
 
 bool BSPEntity::HasProperty(size_t hash)
 {
-    for (auto & it: m_lstProperties)
+    for (auto &it : m_lstProperties)
     {
         if (it->Hash() == hash)
             return true;
@@ -150,26 +172,25 @@ bool BSPEntity::HasProperty(size_t hash)
 }
 
 void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
-{    
+{
     auto ptr = myWeakRef.lock();
-    
+
     if (ptr)
     {
         SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
         m_pScene->HintSelected(weakRef);
 
         // TODO: make binder singletons?
-        BSPEntitiesPropertiesBinder *pBinder  = new BSPEntitiesPropertiesBinder();
-        pBinder->SelectEntity(weakRef);        
+        BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
+        pBinder->SelectEntity(weakRef);
         ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
     }
-    
 }
 
 void BSPEntity::RenderUnshaded()
 {
-    auto &model = GetModel();
-        
+    const IModelWeakPtr model = GetModel();
+
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
 
     if (auto ptr = model.lock())
@@ -177,6 +198,8 @@ void BSPEntity::RenderUnshaded()
         ptr->Render(this, RenderMode::Unshaded);
         return;
     }
+
+    const BoundingBox &relativeBbox = GetRelativeBoundingBox();
 
     if (m_pEditorSprite)
     {
@@ -188,10 +211,15 @@ void BSPEntity::RenderUnshaded()
         if (prop)
             tint = prop->GetColorRGB();
 
-        sr->DrawBillboard(m_Position, (m_Maxs - m_Mins).xy, m_pEditorSprite, tint, GetSerialNumber());
+        const glm::vec3 size = relativeBbox.Size();
+
+        sr->DrawBillboard(GetPosition(), size.xy, m_pEditorSprite, tint, GetSerialNumber());
     }
     else
-        sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, m_Color, GetSerialNumber());
+    {
+        sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), GetRenderColor(),
+                                     GetSerialNumber());
+    }
 }
 
 void BSPEntity::RenderLightshaded()
@@ -210,7 +238,7 @@ void BSPEntity::RenderBoundingBox()
 
 glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
 {
-    auto color     = pEntity->GetColor() * 255.f;
+    auto color     = pEntity->GetRenderColor() * 255.f;
     auto intensity = pEntity->GetIntensity();
 
     return glm::vec4(color.r, color.g, color.b, intensity);
@@ -225,13 +253,13 @@ void BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
     if (!classPtr)
         return;
 
-    for (auto & it: m_lstProperties)        
+    for (auto &it : m_lstProperties)
     {
         if (it->PropertyDescriptor())
             continue;
 
         auto descr = classPtr->FindProperty(it->Name());
-        it->SetDescriptor(descr);       
+        it->SetDescriptor(descr);
     }
 
     for (auto &fgdProp : classPtr->GetProperties())
@@ -243,9 +271,7 @@ void BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
 
         BSPEntityProperty *pProperty = new BSPEntityProperty(this, fgdProp);
         m_lstProperties.push_back(pProperty);
-
     }
-
 }
 
 GoldSource::FGDEntityClassWeakPtr BSPEntity::GetFGDClass()

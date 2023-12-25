@@ -102,6 +102,10 @@ void LightmapAtlas::UploadBlock(bool dynamic)
 
 	m_CurrentLightmapTexture++;
 	
+// 	FILE *fp = fopen("test.raw", "wb");
+//     fwrite(lightmap_buffer, m_BlockHeight * m_BlockWidth, 4, fp);
+//     fclose(fp);
+
 }
 
 void LightmapAtlas::InitBlock()
@@ -125,7 +129,7 @@ void LightmapAtlas::Reset()
 	InitBlock();
 }
 
-const size_t GoldSource::LightmapAtlas::BlockHeight() const
+const size_t LightmapAtlas::BlockHeight() const
 {
 	return m_BlockHeight;
 }

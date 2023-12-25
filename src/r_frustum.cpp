@@ -82,6 +82,11 @@ bool Frustum::CullBox(const glm::vec3 &mins, const glm::vec3 &maxs)
     return false;
 }
 
+bool Frustum::CullBox(const BoundingBox &bbox)
+{
+    return CullBox(bbox.Mins(), bbox.Maxs());
+}
+
 // Based on void CFrustum :: DrawFrustumDebug( void )
 // From PrimeXT's gl_frustum.cpp https://github.com/SNMetamorph/PrimeXT/blob/master/client/render/gl_frustum.cpp
 void Frustum::DrawDebug()

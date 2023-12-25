@@ -59,6 +59,9 @@ public:
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
     bool IsTransparent() override;
+
+
+
 };
 
 } // namespace GoldSource

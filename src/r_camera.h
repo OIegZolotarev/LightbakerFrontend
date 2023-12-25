@@ -141,8 +141,8 @@ class Camera : public IEventHandler
 
     Frustum m_Frustum;
 
-    float m_IdealMoveSpeeds[3]   = {0};
-    float m_CurrentMoveSpeeds[3] = {0};
+    glm::vec3 m_IdealMoveSpeeds   = {0.f,0.f,0.f};
+    glm::vec3 m_CurrentMoveSpeeds = {0.f,0.f,0.f};
 
     void SetupPerspectiveMatrix();
     void SetupModelViewMatrix();

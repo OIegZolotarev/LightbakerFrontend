@@ -43,7 +43,7 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
     // TODO: fix later
     static int counter = 0;
 
-    AttachmentTypes fboTypes[] = {AttachmentTypes::RGBA, AttachmentTypes::R32UI};
+    AttachmentTypes fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
 
     // TODO: FBO pool for reusing by viewports
     m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
@@ -66,8 +66,13 @@ Viewport::~Viewport()
 
 void Viewport::RenderFrame(float flFrameDelta)
 {
-    m_pFBO->Enable();
     m_pCamera->Apply(flFrameDelta);
+
+    if (!m_bNeedUpdate)
+        return;
+
+    m_pFBO->Enable();
+    
 
 // Debug FBO usage
 #if DEBUG_FBO_AREA_USAGE
@@ -84,6 +89,8 @@ void Viewport::RenderFrame(float flFrameDelta)
     // RenderGuizmo();
 
     m_pFBO->Disable();
+
+    m_bNeedUpdate = false;
 }
 
 void Viewport::RenderGuizmo()
@@ -91,27 +98,9 @@ void Viewport::RenderGuizmo()
     if (!SelectionManager::IsGizmoEnabled())
         return;
 
-    //     auto mousePos = CalcRelativeMousePos();
-    //
-    //
-    //     ImGui::SetCurrentContext(m_pImGUIContext);
-    //     ImGui_ImplOpenGL3_NewFrame();
-    //     ImGui_ImplSDL2_NewFrame();
-
-    // ImGui_ImplSDL2 changes viewport area to full area of main window
-
-    //     auto &io       = ImGui::GetIO();
-    //     io.DisplaySize = {m_ClientAreaSize.x, m_ClientAreaSize.y};
-
-    // ImGui::GetMainViewport()->Size = {m_ClientAreaSize.x, m_ClientAreaSize.y};
-    // ImGui::GetMainViewport()->Pos  = {-m_DisplayWidgetPosition.x, -m_DisplayWidgetPosition.y};
-
-    // ImGui::NewFrame();
 
     ObjectPropertiesEditor::Instance()->RenderGuizmo(this);
 
-    //     ImGui::Render();
-    //     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
 
 void Viewport::DisplayRenderedFrame()
@@ -172,7 +161,7 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
-        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0));
+        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
 
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
@@ -197,8 +186,14 @@ void Viewport::HandlePicker()
     {
         m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
 
-        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
+
+        
+        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
+            
+            FlagUpdate();
+
             auto sr    = Application::GetMainWindow()->GetSceneRenderer();
             auto scene = sr->GetScene();
 
@@ -209,6 +204,11 @@ void Viewport::HandlePicker()
             {
                 ptr->OnSelect(obj);
             }
+            else
+            {
+                ObjectPropertiesEditor::Instance()->UnloadObject();
+            }
+                
         }
     }
 }
@@ -303,7 +303,9 @@ int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
 {
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
+    {
         m_pCamera->HandleEvent(bWasHandled, e, flFrameDelta);
+    }
 
     return 0;
 }

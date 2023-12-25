@@ -70,7 +70,7 @@ class GLTexture
     friend class TextureManager;
 
 public:
-    GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames = 1);
+    GLTexture(const char *fileName, TextureSource source, bool fallback, int nFrames = 1);
     ~GLTexture();
 
     bool IsLoaded() const;
@@ -95,7 +95,7 @@ public:
     void UploadPixels(void *pixels, GLint internalFormat, GLenum format);
 
     void GenerateGLHandle();
-    void Bind(size_t unit, size_t frame = 0);
+    void Bind(int unit, size_t frame = 0);
 
     void Ref();
     void Unref();

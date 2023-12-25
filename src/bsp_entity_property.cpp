@@ -25,8 +25,8 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const std::string 
 
     SetDescriptor(pDescr);
 
-    m_Type = AdaptPropertyType();
-    m_pOwner = (BSPEntity*)pOwner;
+    m_Type   = AdaptPropertyType();
+    m_pOwner = (BSPEntity *)pOwner;
 
     ParseValue(value);
 }
@@ -62,7 +62,12 @@ PropertiesTypes BSPEntityProperty::AdaptPropertyType()
         m_iSpecialId = PropertyMetatype::Light;
         return PropertiesTypes::ColorRGBA;
     }
-    else 
+    else if (m_Hash == SpecialKeys::KeyModel())
+    {
+        m_iSpecialId = PropertyMetatype::Model;
+        return PropertiesTypes::String;
+    }
+    else
         m_iSpecialId = PropertyMetatype::None;
 
     return PropertiesTypes::String;
@@ -83,32 +88,32 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther) : VariantV
     m_Name   = pOther->m_Name;
     m_pOwner = nullptr;
     m_Hash   = pOther->m_Hash;
-    
+
     // TODO: check if this is enough
     m_iSpecialId = pOther->m_iSpecialId;
 
     SetDescriptor(pOther->m_pDescriptor);
 }
 
- BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr)
+BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr)
 {
-     m_pOwner = (BSPEntity *)pOwner;
+    m_pOwner = (BSPEntity *)pOwner;
 
-     m_Name   = pDescr->GetName();
-     m_Hash   = CalcHash(m_Name);
+    m_Name = pDescr->GetName();
+    m_Hash = CalcHash(m_Name);
 
-     m_bInitialized = false;
-     SetDescriptor(pDescr);
-     
-     m_Type = AdaptPropertyType();
- }
+    m_bInitialized = false;
+    SetDescriptor(pDescr);
+
+    m_Type = AdaptPropertyType();
+}
 
 size_t BSPEntityProperty::CalcHash(const std::string &val)
 {
     return std::hash<std::string>{}(val);
 }
 
-void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
+void BSPEntityProperty::ParseValue(const std::string &value)
 {
     switch (m_iSpecialId)
     {
@@ -116,7 +121,7 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
         ParseOrigin(value);
         break;
     case PropertyMetatype::Angles:
-        // ParseAngles(value);
+        ParseAngles(value);
         break;
     case PropertyMetatype::Wad:
         ParseWad(value);
@@ -130,11 +135,62 @@ void GoldSource::BSPEntityProperty::ParseValue(const std::string &value)
     case PropertyMetatype::Classname:
         ParseClassname(value);
         break;
+    case PropertyMetatype::Model:
+        ParseModel(value);
+        break;
     default:
+        SetString(value);
         break;
     }
 }
 
+std::string BSPEntityProperty::SerializeValue()
+{
+    switch (m_iSpecialId)
+    {
+    case PropertyMetatype::Classname:
+        return GetStringStd();
+    case PropertyMetatype::Origin: {
+        glm::vec3 pos = GetPosition();
+        return std::format("{0} {1} {2}", pos[0], pos[1], pos[2]);
+    }
+    case PropertyMetatype::Angles: {
+        glm::vec3 ang = GetAngles();
+        return std::format("{0} {1} {2}", ang[0], ang[1], ang[2]);
+    }
+    case PropertyMetatype::Flags:
+        return std::format("{0}", GetFlags());
+    case PropertyMetatype::Light: {
+        glm::vec4 val = GetColorRGBA();
+        return std::format("{0} {1} {2} {3}", val[0] * 255, val[1] * 255, val[2] * 255, val[3]);
+    }
+    default:
+        return GetStringStd();
+        break;
+    }
+}
+
+void BSPEntityProperty::ParseAngles(const std::string &value)
+{
+    auto digits = TextUtils::SplitTextWhitespaces(value.c_str(), value.size());
+
+    glm::vec3 angles = {0, 0, 0};
+
+    if (digits.size() == 3)
+    {
+        int i = 0;
+        for (auto it = digits.begin(); it != digits.end(); it++, i++)
+        {
+            angles[i] = std::stof(*it);
+
+            if (isnan(angles[i]))
+                angles[i] = 0;
+        }
+
+        SetAngles(angles);
+        m_pOwner->SetAngles(GetAngles());
+    }
+}
 
 void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
 {
@@ -148,6 +204,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         m_pOwner->SetPosition(GetPosition());
         break;
     case PropertyMetatype::Angles:
+        m_pOwner->SetAngles(GetAngles());
         break;
     case PropertyMetatype::Flags:
         break;
@@ -159,9 +216,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         break;
     default:
         break;
-    
     }
-
 }
 
 void BSPEntityProperty::RebuildFlagsList()
@@ -169,9 +224,8 @@ void BSPEntityProperty::RebuildFlagsList()
     if (!m_pDescriptor)
         return;
 
-
-     if (! instanceof <FGDFlagsEnumProperty>(m_pDescriptor))
-         return;
+    if (! instanceof <FGDFlagsEnumProperty>(m_pDescriptor))
+        return;
 
     m_EnumOrFlagsValues.clear();
 
@@ -181,7 +235,6 @@ void BSPEntityProperty::RebuildFlagsList()
     {
         AddEnumValue(it.description.c_str(), it.value);
     }
-
 }
 
 void BSPEntityProperty::ParseFlags(const std::string &value)
@@ -190,6 +243,9 @@ void BSPEntityProperty::ParseFlags(const std::string &value)
 
     if (m_pDescriptor)
         RebuildFlagsList();
+
+
+    SetFlags(std::stoi(value));
 }
 
 void BSPEntityProperty::ParseOrigin(const std::string &value)
@@ -242,11 +298,10 @@ GoldSource::FGDPropertyDescriptor *BSPEntityProperty::PropertyDescriptor()
 
 void BSPEntityProperty::SetDescriptor(const FGDPropertyDescriptor *descr)
 {
-    m_pDescriptor = (FGDPropertyDescriptor*)descr;
+    m_pDescriptor = (FGDPropertyDescriptor *)descr;
 
     if (m_pDescriptor)
     {
-
         SetHelp(m_pDescriptor->GetHelp());
 
         if (m_iSpecialId == PropertyMetatype::Flags)
@@ -283,7 +338,10 @@ void BSPEntityProperty::ParseLight(const std::string &value)
 
 void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    std::string stringValue = SerializeValue();
+
+    // Con_Printf("\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
+    fprintf(fp, "\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
 }
 
 void BSPEntityProperty::ParseClassname(const std::string &value)
@@ -316,6 +374,15 @@ void BSPEntityProperty::ParseWad(const std::string &value)
         auto baseName = FileSystem::Instance()->ExtractFileBase(it.c_str()) + ".wad ";
         TextureManager::Instance()->RegisterWAD(baseName.c_str(), false);
     }
+}
+
+void BSPEntityProperty::ParseModel(const std::string &value)
+{
+    auto model = ModelsManager::Instance()->LookupModel(value.c_str(), false);
+    m_pOwner->SetModel(model);
+
+    SetString(value);
+    m_bInitialized = true;
 }
 
 size_t SpecialKeys::KeyWad()
@@ -357,5 +424,11 @@ size_t SpecialKeys::KeyFlags()
 size_t SpecialKeys::KeyClassname()
 {
     static auto sKey = std::hash<std::string>{}("classname");
+    return sKey;
+}
+
+size_t SpecialKeys::KeyModel()
+{
+    static auto sKey = std::hash<std::string>{}("model");
     return sKey;
 }

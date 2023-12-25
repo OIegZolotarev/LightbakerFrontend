@@ -360,7 +360,7 @@ void GLTexture::UploadPixels(void *pixels, GLint internalFormat, GLenum format)
     // stbi_image_free(m_pPixels);
 }
 
-GLTexture::GLTexture(const char *fileName, TextureSource source, bool fallback, size_t nFrames /*= 1*/)
+GLTexture::GLTexture(const char *fileName, TextureSource source, bool fallback, int nFrames /*= 1*/)
 {
     m_strFileName = fileName;
     m_Source      = source;
@@ -392,7 +392,7 @@ void GLTexture::GenerateGLHandle()
     }
 }
 
-void GLTexture::Bind(size_t unit, size_t frame)
+void GLTexture::Bind(int unit, size_t frame /*= 0*/)
 {
     GLBackend::BindTexture(unit, m_uiGLTexnum[frame]);
 }

@@ -30,6 +30,7 @@ public:
                          const float fovY);
 
     bool CullBox(const glm::vec3 & mins, const glm::vec3 & maxs);
+    bool CullBox(const BoundingBox & bbox);
     
 
     void DrawDebug();

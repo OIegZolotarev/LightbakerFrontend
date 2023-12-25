@@ -16,3 +16,4 @@ typedef struct
     byte r, g, b, a;
 } color32_t;
 
+typedef glm::vec4 ColorRGBA;
