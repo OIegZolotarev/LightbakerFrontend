@@ -440,7 +440,7 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
     return pResult;
 }
 
-GoldSource::BSPModelRenderCookiePtr BSPRenderer::GetBSPModelRenderCookie(size_t idx)
+BSPModelRenderCookiePtr BSPRenderer::GetBSPModelRenderCookie(size_t idx)
 {
     return m_RenderInfos[idx];
 }
