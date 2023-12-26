@@ -24,6 +24,8 @@ enum class PropertiesTypes
 
 typedef std::pair<std::string, int> enumValuePair_t;
 
+
+
 class VariantValue
 {
 protected:
@@ -95,6 +97,7 @@ public:
     void SetColorRGBA(glm::vec4 val);
     void SetFloat(float val);
     void SetAngles(glm::vec3 val);
+    void SetDeltaAngles(glm::vec3 val);
     void SetInt(int val);
     void SetSizeX(float val);
     void SetBool(bool val);
@@ -127,6 +130,8 @@ public:
 
     void SetDisplayName(const std::string & dispName, bool updateIfSet = true);
 };
+
+class SceneEntity;
 
 class IObjectPropertiesBinding
 {
@@ -161,4 +166,5 @@ public:
     }
 
     virtual void RenderFooter();
+    virtual SceneEntity *GetEntity(int param1);
 };

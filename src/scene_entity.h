@@ -22,8 +22,9 @@ typedef struct sentvars_s
     // Transformation
     glm::vec3 origin;
     glm::vec3 angles;
-
     glm::vec3 scale;
+
+    glm::mat4 transform;
 
     // Bounding boxes
     BoundingBox bboxRelative;
@@ -83,6 +84,8 @@ typedef struct sentvars_s
 
         classname_hash = 0;
         classname      = "";
+
+        transform = glm::mat4(1);
     }
 
 } sentvars_t;
@@ -132,6 +135,8 @@ public:
     void SetPosition(const glm::vec3 &pos);
     const glm::vec3 GetPosition() const;
 
+    const glm::mat4 GetTransform();
+
     void SetBoundingBox(const BoundingBox &bbox);
     
     void SetRenderColor(const ColorRGBA &color);
@@ -170,6 +175,7 @@ public:
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
     
+void SetTransform(glm::mat4 m_matGuizmo);
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

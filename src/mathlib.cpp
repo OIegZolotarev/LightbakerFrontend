@@ -58,6 +58,24 @@ float AngleMod(float val)
     return val;
 }
 
+glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles)
+{
+    glm::mat4 transform(1);
+    transform = glm::translate(transform, pos);
+
+    auto concatRotate = [&](float deg, float x, float y, float z) {
+        glm::mat4 ident = glm::mat4(1);
+        ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
+        transform *= ident;
+    };
+
+    concatRotate(angles[1], 0, 0, 1);
+    concatRotate(-angles[0], 0, 1, 0);
+    concatRotate(angles[2], 1, 0, 0);
+
+    return transform;
+}
+
 void plane_s::CalcSignBits()
 {
     signbits = 0;

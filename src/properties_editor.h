@@ -29,15 +29,17 @@ class ObjectPropertiesEditor : public IGUIPanel
     void RenderPropertyControl(VariantValue *it);
 
     // Gizmo
-    int           m_GizmoMode;
-    bool          m_bGuizmoEdited           = false;
-    glm::mat4     m_matGuizmo               = glm::mat4(1);
+    int       m_GizmoMode;
+    bool      m_bGuizmoEdited  = false;
+    glm::mat4 m_matGuizmo      = glm::mat4(1);
+    glm::mat4 m_matDeltaGuizmo = glm::mat4(1);
+
     VariantValue *m_pGuizmoPropertyPosition = nullptr;
     VariantValue *m_pGuizmoPropertyRotation = nullptr;
     void          SetupGuizmo();
-    void EditTransform(Viewport * pViewport, float *matrix, bool editTransformDecomposition);
+    void EditTransform(Viewport *pViewport, bool editTransformDecomposition);
 
-    void HandleGizmoChange(float *matrix);
+    void HandleGizmoChange();
 
     bool CheckObjectValidity();
 
@@ -61,6 +63,6 @@ public:
 
     DockPanels GetDockSide() override;
 
-    void RenderGuizmo(Viewport * pViewport);
+    void RenderGuizmo(Viewport *pViewport);
     void Render() override;
 };

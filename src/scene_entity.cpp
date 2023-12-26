@@ -74,6 +74,11 @@ const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
     return m_EntVars.bboxAbsolute;
 }
 
+void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
+{
+    m_EntVars.transform = m_matGuizmo;
+}
+
 const glm::vec3 SceneEntity::GetAngles() const
 {
     return m_EntVars.angles;
@@ -82,6 +87,7 @@ const glm::vec3 SceneEntity::GetAngles() const
 void SceneEntity::SetAngles(const glm::vec3 &angles)
 {
     m_EntVars.angles = angles;
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
 void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
@@ -160,11 +166,18 @@ void SceneEntity::SetPosition(const glm::vec3 &pos)
 {
     m_EntVars.origin = pos;
     RecalcAbsBBox();
+
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
 const glm::vec3 SceneEntity::GetPosition() const
 {
     return m_EntVars.origin;
+}
+
+const glm::mat4 SceneEntity::GetTransform()
+{
+    return m_EntVars.transform;
 }
 
 void SceneEntity::SetBoundingBox(const BoundingBox &bbox)

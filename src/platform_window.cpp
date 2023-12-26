@@ -162,7 +162,7 @@ bool IPlatformWindow::PropagateControlsEvent(SDL_Event &event)
     {
         int result = it->HandleEvent(bWasHandled, event, m_TimersData.frame_delta / 1000);
 
-        bWasHandled = bWasHandled | result & EVENT_HANDLED;
+        bWasHandled = bWasHandled || result & EVENT_HANDLED;
 
         if (result & EVENT_CONSUMED)
             break;

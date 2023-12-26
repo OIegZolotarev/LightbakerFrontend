@@ -8,6 +8,8 @@
 #include "scene_entity.h"
 #include "hammer_fgd.h"
 
+class SceneEntity;
+
 namespace GoldSource
 {
 
@@ -40,6 +42,8 @@ public:
     ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
 
     void UpdateProperty(VariantValue *prop) override;
+
+    SceneEntity *GetEntity(int param1) override;
 };
 
 } // namespace GoldSource

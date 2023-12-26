@@ -67,6 +67,19 @@ void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantVa
     }
 }
 
+SceneEntity *BSPEntitiesPropertiesBinder::GetEntity(int param1)
+{
+    auto it = m_lstSelectedObjects.begin();
+    std::advance(it, param1);
+
+    auto ptr = it->lock();
+
+    if (!ptr)
+        return nullptr;
+
+    return ptr.get();
+}
+
 void BSPEntitiesPropertiesBinder::UpdateProperty(VariantValue *prop)
 {
     if (! instanceof <BSPEntityProperty>(prop))
@@ -89,7 +102,7 @@ void BSPEntitiesPropertiesBinder::UpdateProperty(VariantValue *prop)
 
 ImGuizmo::OPERATION BSPEntitiesPropertiesBinder::GetMeaningfulGizmoOperationMode()
 {
-    return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE;
+    return ImGuizmo::TRANSLATE | (ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z);
 }
 
 void BSPEntitiesPropertiesBinder::RenderFooter()

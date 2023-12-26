@@ -145,7 +145,7 @@ void StudioModelV10::DebugRender()
 
     m_EntityState = &state;
 
-    AdvanceFrame(Application::GetMainWindow()->FrameDelta());
+    //AdvanceFrame(Application::GetMainWindow()->FrameDelta());
     glCullFace(GL_FRONT);
 
     SetupBones();
@@ -527,27 +527,74 @@ void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
     m_EntityState->serialNumber = pEntity->GetSerialNumber();
     m_EntityState->angles       = pEntity->GetAngles();
 
-    // glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+    /*
+     glm::mat4 transform = glm::mat4(1);
+ 
+     auto concatRotate = [&](float deg, float x, float y, float z) {
+         glm::mat4 ident = glm::mat4(1);
+         ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
+         transform *= ident;
+     };
+ 
+     // same order as R_RotateForEntity from Quake
+ 
+     transform = glm::translate(transform, m_EntityState->origin);
+ 
+     concatRotate(m_EntityState->angles[1], 0, 0, 1);
+     concatRotate(-m_EntityState->angles[0], 0, 1, 0);
+     concatRotate(m_EntityState->angles[2], 1, 0, 0);
+     */
 
-    glm::mat4 transform = glm::mat4(1);
-
-    auto concatRotate = [&](float deg, float x, float y, float z) {
-        glm::mat4 ident = glm::mat4(1);
-        ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
-        transform *= ident;
-    };
-
-    // same order as R_RotateForEntity from Quake
-
-    transform = glm::translate(transform, m_EntityState->origin);
-
-    concatRotate(m_EntityState->angles[1], 0, 0, 1);
-    concatRotate(-m_EntityState->angles[0], 0, 1, 0);
-    concatRotate(m_EntityState->angles[2], 1, 0, 0);
-
-    m_EntityState->worldTransform = transform;
+     m_EntityState->worldTransform = pEntity->GetTransform();
+     
 
     DebugRender();
+
+    auto drawAxis = [](glm::vec3 pos, glm::vec3 dir, float size, glm::vec4 color) {
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4(color);
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4(1));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(0);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        mesh.Begin(GL_LINES);
+
+        auto p2 = (pos + dir * size);
+
+        mesh.Vertex3fv(&pos.x);
+        mesh.Vertex3fv(&p2.x);
+
+        mesh.End();
+        mesh.BindAndDraw();
+
+        shader->Unbind();
+    };
+
+    glm::vec3 forward = m_EntityState->worldTransform[0];
+    glm::vec3 right   = m_EntityState->worldTransform[2];
+    glm::vec3 up      = m_EntityState->worldTransform[1];
+
+    drawAxis(m_EntityState->origin, forward, 100, {1, 0, 0, 1});
+    drawAxis(m_EntityState->origin, right, 100, {0, 1, 0, 1});
+    drawAxis(m_EntityState->origin, up, 100, {0, 0, 1, 1});
 }
 
 void StudioModelV10::AdvanceFrame(float dt)

@@ -407,20 +407,20 @@
     <ClCompile Include="fs_file_handle.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="fs_file_data.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="fs_quake1_pak.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
-    </ClCompile>
-    <ClCompile Include="fs_folder_mount.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="mod_manager.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
     <ClCompile Include="mod_bsp.cpp">
       <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_data.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_folder_mount.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

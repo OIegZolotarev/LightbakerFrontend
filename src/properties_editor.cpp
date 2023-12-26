@@ -9,6 +9,7 @@
 #include "object_props.h"
 #include "r_camera.h"
 #include "ui_common.h"
+#include "viewports_orchestrator.h"
 
 ObjectPropertiesEditor::ObjectPropertiesEditor() : IGUIPanel(PanelsId::ObjectProperties, (char *)"Object properties")
 {
@@ -57,8 +58,9 @@ void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding *pBindings)
 
 void ObjectPropertiesEditor::UpdateProperty(VariantValue *it)
 {
-    //m_pPropertiesBinding->UpdateObjectProperties(it, 1);
+    // m_pPropertiesBinding->UpdateObjectProperties(it, 1);
     m_pPropertiesBinding->UpdateProperty(it);
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
@@ -71,7 +73,7 @@ void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
 
     ImGuizmo::BeginFrame();
 
-    EditTransform(pViewport, &m_matGuizmo[0][0], true);
+    EditTransform(pViewport, true);
 }
 
 void ObjectPropertiesEditor::UnloadObject()
@@ -157,9 +159,11 @@ void ObjectPropertiesEditor::SetupGuizmo()
     if (m_pGuizmoPropertyRotation)
         ang = m_pGuizmoPropertyRotation->GetAngles();
 
-    glm::vec3 scale = glm::vec3(1.f);
+    glm::vec3 scale     = glm::vec3(1.f);
+    glm::mat4 transform = R_RotateForEntity(pos, ang);
 
-    ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang.x, &scale.x, &m_matGuizmo[0][0]);
+    memcpy(&m_matGuizmo, &transform, sizeof(float) * 16);
+    // ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang2.x, &scale.x, &m_matGuizmo[0][0]);
 }
 
 VariantValue *ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
@@ -382,8 +386,11 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
     }
 }
 
-void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, bool editTransformDecomposition)
+void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransformDecomposition)
 {
+    float *matrix      = (float *)&m_matGuizmo;
+    float *deltaMatrix = (float *)&m_matDeltaGuizmo;
+
     auto   cam              = pViewport->GetCamera();
     float *cameraProjection = cam->GetProjectionMatrixPtr();
     float *cameraView       = cam->GetViewMatrixPtr();
@@ -400,6 +407,7 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
 
     if (editTransformDecomposition)
     {
+        ImGui::Begin("Edit transform");
         if (ImGui::IsKeyPressed(ImGuiKey_T))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(ImGuiKey_R))
@@ -457,6 +465,13 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
             ImGui::InputFloat3("Snap", boundsSnap);
             ImGui::PopID();
         }
+
+        if (ImGui::Button("Reset transform"))
+        {
+            m_matGuizmo = glm::mat4(1);
+        }
+
+        ImGui::End();
     }
 
     ImGuiIO &io                  = ImGui::GetIO();
@@ -465,36 +480,39 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
 
     glm::vec2 viewportPos        = pViewport->GetClientAreaPosAbs();
     glm::vec2 viewportClientArea = pViewport->GetClientArea();
-    float       win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
+    float     win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
 
     // TODO: check this,
     auto h = 0;
 
     ImGuizmo::AllowAxisFlip(false);
 
-    //ImGuizmo::SetRect(win[0], win[3] - (win[3] - win[1]), win[2], win[3]);
+    // ImGuizmo::SetRect(win[0], win[3] - (win[3] - win[1]), win[2], win[3]);
     ImGuizmo::SetDrawlist();
-    
+
     ImGuizmo::SetRect(win[0], win[1], win[2], win[3]);
-    
 
     bool bChanged = ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode,
-                                         matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL,
+                                         matrix, deltaMatrix, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL,
                                          boundSizingSnap ? boundsSnap : NULL);
 
     if (bChanged)
     {
-        HandleGizmoChange(matrix);
+        HandleGizmoChange();
+        pViewport->FlagUpdate();
         return;
     }
 }
 
-void ObjectPropertiesEditor::HandleGizmoChange(float *matrix)
+void ObjectPropertiesEditor::HandleGizmoChange()
 {
-    float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-    ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+    glm::vec3 pos, matrixScale;
 
-    m_pGuizmoPropertyPosition->SetPosition(*(glm::vec3 *)matrixTranslation);
+    glm::vec3 matrixRotation;
+
+    ImGuizmo::DecomposeMatrixToComponents(&m_matDeltaGuizmo[0][0], &pos.x, &matrixRotation.x, &matrixScale.x);
+
+    // m_pGuizmoPropertyPosition->SetPosition(*(glm::vec3 *)matrixTranslation);
 
     if (m_pGuizmoPropertyRotation)
     {
@@ -506,11 +524,62 @@ void ObjectPropertiesEditor::HandleGizmoChange(float *matrix)
             return f;
         };
 
+        //          for (int i = 0; i < 3; i++)
+        //             matrixRotation[i] = angleMod(matrixRotation[i]);
+
+        static glm ::mat4 test = glm::mat4(1);
+
+        glm::vec4 forward = test[0];
+        glm::vec4 right   = test[2];
+        glm::vec4 up      = test[1];
+
+        // forward - 1 -é
+        // right - 2
+        // up  - 3
+
+        glm::vec4 vecs[] = {forward, right, up};
+
+        // Con_Printf("%f %f %f \n", matrixRotation[0], matrixRotation[1], matrixRotation[2]);
+
+        // Con_Printf("Starting rotation\n ");
+
         for (int i = 0; i < 3; i++)
-            matrixRotation[i] = angleMod(matrixRotation[i]);
+        {
+            if (abs(matrixRotation[i]) < 0.001f)
+                continue;
 
-        m_pGuizmoPropertyRotation->SetAngles(*(glm::vec3 *)matrixRotation);
+            // Con_Printf("Rotate!\n");
 
+            auto r = glm::rotate(glm::mat4(1.0f), glm::radians(matrixRotation[i]), (glm::vec3)vecs[i].xyz);
+            test   = r * test;
+        }
+
+        // Con_Printf("Finished rotation\n");
+
+        glm::vec3 new_right = test[2];
+        glm::vec3 new_up    = test[1];
+        glm::vec3 new_fwd   = test[0];
+
+        // m_matGuizmo = glm::translate(m_matGuizmo, -pos);
+
+        //
+        //         glm::quat quatDelta = glm::quat(glm::radians(1.f) , glm::vec3(0.f, 0.f, 1.f));
+        //
+        //         static glm::quat quatMain = glm::toQuat(glm::mat4(1));
+        //
+        //         quatMain       = quatDelta * quatMain;
+        //         quatMain       = glm::normalize(quatMain);
+        //         auto eulerTest = glm::eulerAngles(quatMain);
+        //
+
+
+        glm::vec3 eulerTest = glm::vec3();
+
+        glm::extractEulerAngleXYZ(test, eulerTest.x, eulerTest.y, eulerTest.z);
+
+        eulerTest           = glm::degrees(eulerTest);
+
+        m_pGuizmoPropertyRotation->SetAngles(eulerTest.xyz);
         UpdateProperty(m_pGuizmoPropertyRotation);
     }
 

@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
 #include <glm/mat4x4.hpp>
 #include "helpers.h"
 
@@ -71,3 +72,5 @@ public:
         return m_Maxs - m_Mins;
     }
 };
+
+glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles);
