@@ -16,6 +16,7 @@
 #include "text_utils.h"
 #include <algorithm>
 #include <intsafe.h>
+#include "world_entity.h"
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
@@ -143,6 +144,9 @@ void ModelOBJ::BuildDrawMesh()
 
     pMaterial->first_face = mesh.CurrentElement();
 
+    BoundingBox bbox(4);
+
+
     mesh.Begin(GL_TRIANGLES);
     mesh.Color4f(1, 1, 1, 1);
 
@@ -201,12 +205,20 @@ void ModelOBJ::BuildDrawMesh()
         float *p = &m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize];
         // Con_Printf("%f %f %f\n", p[0], p[1], p[2]);
 
-        mesh.Vertex3fv(&m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize]);
+        float *v = &m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize];
+        mesh.Vertex3f(v[0], v[2], v[1]);
+        bbox.AddPoint(glm::vec3(v[0], v[2], v[1]));
+        
     }
 
     pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
 
     mesh.End();
+
+    SetBoundingBox(bbox);
+
+    IWorldEntity* ent = m_pScene->GetWorldEntity();
+    ent->SetBoundingBox(bbox);
 
     FlagDataLoaded();
 }

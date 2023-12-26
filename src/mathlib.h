@@ -71,6 +71,8 @@ public:
     {
         return m_Maxs - m_Mins;
     }
+
+    void AddPoint(const glm::vec3 pt);
 };
 
 glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles);

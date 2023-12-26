@@ -374,9 +374,11 @@ void ModObjAsynchLoader::ParseFace(std::string& buffer)
 	
 	for (size_t i = 0; i < parsed.size() - 2; i++)
 	{
-		m_Data->faces.push_back(parsed[0]);
-		m_Data->faces.push_back(parsed[i + 1]);
+		
+		
 		m_Data->faces.push_back(parsed[i + 2]);
+        m_Data->faces.push_back(parsed[i + 1]);
+		m_Data->faces.push_back(parsed[0]);
 	}
 }
 
