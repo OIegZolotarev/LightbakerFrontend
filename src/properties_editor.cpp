@@ -388,7 +388,9 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 
 void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransformDecomposition)
 {
-    float *matrix      = (float *)&m_matGuizmo;
+    glm::mat4 copyOfMain        = m_matGuizmo;
+
+    float *matrix      = (float *)&copyOfMain;
     float *deltaMatrix = (float *)&m_matDeltaGuizmo;
 
     auto   cam              = pViewport->GetCamera();
@@ -504,6 +506,36 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransfo
     }
 }
 
+// Calculates rotation matrix to euler angles
+// The result is the same as MATLAB except the order
+// of the euler angles ( x and z are swapped ).
+glm::vec3 rotationMatrixToEulerAngles(glm::mat4 in2)
+{
+    glm::vec3 angles;
+
+    glm::mat4 in = glm::transpose(in2);
+
+    float xyDist = sqrt(in[0][0] * in[0][0] + in[0][1] * in[0][1]);
+
+    if (xyDist > 0.001f)
+    {
+        // enough here to get angles?
+        angles[0] = atan2(-in[0][2], xyDist);
+        angles[1] = atan2(in[0][1], in[0][0]);
+        angles[2] = atan2(in[1][2], in[2][2]);
+    }
+    else
+    {
+        // forward is mostly Z, gimbal lock
+        angles[0] = atan2(-in[0][2], xyDist);
+        angles[1] = atan2(-in[1][0], in[1][1]);
+        angles[2] = 0.0f;
+    }
+
+
+    return angles;
+}
+
 void ObjectPropertiesEditor::HandleGizmoChange()
 {
     glm::vec3 pos, matrixScale;
@@ -512,76 +544,43 @@ void ObjectPropertiesEditor::HandleGizmoChange()
 
     ImGuizmo::DecomposeMatrixToComponents(&m_matDeltaGuizmo[0][0], &pos.x, &matrixRotation.x, &matrixScale.x);
 
-    // m_pGuizmoPropertyPosition->SetPosition(*(glm::vec3 *)matrixTranslation);
-
     if (m_pGuizmoPropertyRotation)
     {
-        auto angleMod = [](float f) -> float {
-            if (f < 0)
-                return f + 360;
-            else if (f > 360)
-                return f - 360;
-            return f;
-        };
-
-        //          for (int i = 0; i < 3; i++)
-        //             matrixRotation[i] = angleMod(matrixRotation[i]);
-
-        static glm ::mat4 test = glm::mat4(1);
+       
+        static glm ::mat4 test = m_matGuizmo;
 
         glm::vec4 forward = test[0];
         glm::vec4 right   = test[2];
         glm::vec4 up      = test[1];
+        glm::vec4 pos4     = test[3];
 
-        // forward - 1 -é
-        // right - 2
-        // up  - 3
-
+        test[3] = {0, 0, 0, 1};
+               
         glm::vec4 vecs[] = {forward, right, up};
-
-        // Con_Printf("%f %f %f \n", matrixRotation[0], matrixRotation[1], matrixRotation[2]);
-
-        // Con_Printf("Starting rotation\n ");
 
         for (int i = 0; i < 3; i++)
         {
             if (abs(matrixRotation[i]) < 0.001f)
                 continue;
 
-            // Con_Printf("Rotate!\n");
-
             auto r = glm::rotate(glm::mat4(1.0f), glm::radians(matrixRotation[i]), (glm::vec3)vecs[i].xyz);
             test   = r * test;
         }
 
-        // Con_Printf("Finished rotation\n");
-
-        glm::vec3 new_right = test[2];
-        glm::vec3 new_up    = test[1];
-        glm::vec3 new_fwd   = test[0];
-
-        // m_matGuizmo = glm::translate(m_matGuizmo, -pos);
-
-        //
-        //         glm::quat quatDelta = glm::quat(glm::radians(1.f) , glm::vec3(0.f, 0.f, 1.f));
-        //
-        //         static glm::quat quatMain = glm::toQuat(glm::mat4(1));
-        //
-        //         quatMain       = quatDelta * quatMain;
-        //         quatMain       = glm::normalize(quatMain);
-        //         auto eulerTest = glm::eulerAngles(quatMain);
-        //
-
+        test[3] = pos4;
 
         glm::vec3 eulerTest = glm::vec3();
-
-        glm::extractEulerAngleXYZ(test, eulerTest.x, eulerTest.y, eulerTest.z);
-
+        eulerTest = rotationMatrixToEulerAngles(m_matGuizmo);
         eulerTest           = glm::degrees(eulerTest);
 
-        m_pGuizmoPropertyRotation->SetAngles(eulerTest.xyz);
-        UpdateProperty(m_pGuizmoPropertyRotation);
+        //m_pGuizmoPropertyRotation->SetAngles(eulerTest.xyz);
+        //UpdateProperty(m_pGuizmoPropertyRotation);
+
+        SceneEntity *pEntity = m_pPropertiesBinding->GetEntity(0);
+        if (pEntity)
+            pEntity->SetTransform(test);
     }
 
-    UpdateProperty(m_pGuizmoPropertyPosition);
+    //m_pGuizmoPropertyPosition->SetPosition(m_matGuizmo[3].xyz);
+    //UpdateProperty(m_pGuizmoPropertyPosition);
 }
