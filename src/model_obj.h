@@ -55,14 +55,11 @@ public:
 	void OnUnhovered() override;
 	
 	// Scene entity
-	void RenderBoundingBox() override;
-	void RenderDebug() override;
-	void RenderLightshaded() override;
+    void Render(RenderMode mode) override;
 
 	void CommonDrawGeometryWithShader(const ISceneShader* shader);
 
-	void RenderUnshaded() override;
-	void RenderGroupShaded() override;
+
 	
 	const char* Description() override;
 

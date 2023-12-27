@@ -52,16 +52,17 @@ bool SceneEntity::IsTransparent()
     return false;
 }
 
-SceneEntityWeakPtr SceneEntity::Next()
+std::weak_ptr<SceneEntity> SceneEntity::Next()
 {
     return m_pNext;
 }
 
 void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
 {
-    auto ptr = pOther.lock();
 
 #ifdef PARANOID
+    auto ptr = pOther.lock();
+
     if (ptr.get() == this)
         __debugbreak();
 #endif
@@ -125,27 +126,27 @@ SceneEntity::SceneEntity(SceneEntity &other)
 
 }
 
-void SceneEntity::RenderLightshaded()
-{
-    auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
-    sceneRenderer->RenderGenericEntity(this);
-}
-
-void SceneEntity::RenderUnshaded()
-{
-}
-
-void SceneEntity::RenderBoundingBox()
-{
-}
-
-void SceneEntity::RenderDebug()
-{
-}
-
-void SceneEntity::RenderGroupShaded()
-{
-}
+// void SceneEntity::RenderLightshaded()
+// {
+//     auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
+//     sceneRenderer->RenderGenericEntity(this);
+// }
+// 
+// void SceneEntity::RenderUnshaded()
+// {
+// }
+// 
+// void SceneEntity::RenderBoundingBox()
+// {
+// }
+// 
+// void SceneEntity::RenderDebug()
+// {
+// }
+// 
+// void SceneEntity::RenderGroupShaded()
+// {
+// }
 
 bool SceneEntity::IsDataLoaded()
 {

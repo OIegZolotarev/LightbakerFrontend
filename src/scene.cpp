@@ -155,52 +155,6 @@ SceneEntityWeakPtr Scene::GetSelection()
     return m_pCurrentSelection;
 }
 
-void Scene::RenderObjectsFor3DSelection()
-{
-    auto selectionManager = SelectionManager::Instance();
-
-    for (SceneEntityPtr &it : m_SceneEntities)
-    {
-        selectionManager->PushObject(it);
-    }
-}
-
-void Scene::RenderLightShaded()
-{
-    auto sr = Application::GetMainWindow()->GetSceneRenderer();
-
-    auto selectionManager = SelectionManager::Instance();
-    auto frustum          = sr->GetCamera()->GetFrustum();
-
-    renderStats_s *stats = GLBackend::Instance()->RenderStats();
-
-    stats->nEntitiesTotal    = m_SceneEntities.size();
-    stats->nEntitiesRendered = 0;
-
-    for (auto &it : m_SceneEntities)
-    {
-        if (!it)
-            continue;
-
-        if (!it->IsDataLoaded())
-            continue;
-
-        if (frustum->CullBox(it->AbsoulteBoundingBox()))
-            continue;
-
-        stats->nEntitiesRendered++;
-
-        if (it->IsTransparent())
-        {
-            sr->AddTransparentEntity(it);
-        }
-        else
-        {
-            it->RenderLightshaded();
-        }
-    }
-}
-
 std::list<SceneEntityPtr> &Scene::GetLightDefs()
 {
     return m_SceneEntities;
@@ -287,23 +241,6 @@ SceneEntityWeakPtr Scene::GetEntityWeakRef(SceneEntity *pEntity)
     }
 
     return SceneEntityWeakPtr();
-}
-
-void Scene::RenderUnshaded()
-{
-    auto selectionManager = SelectionManager::Instance();
-
-    for (auto &it : m_SceneEntities)
-    {
-        if (!it)
-            continue;
-
-        if (!it->IsDataLoaded())
-            continue;
-
-        it->RenderUnshaded();
-        selectionManager->PushObject(it);
-    }
 }
 
 void Scene::Reload(int loadFlags)
@@ -398,23 +335,6 @@ std::string Scene::ExportForCompiling(const char *newPath, lightBakerSettings_t 
     return "";
 }
 
-void Scene::RenderGroupsShaded()
-{
-    auto selectionManager = SelectionManager::Instance();
-
-    for (auto &it : m_SceneEntities)
-    {
-        if (!it)
-            continue;
-
-        if (!it->IsDataLoaded())
-            continue;
-
-        it->RenderGroupShaded();
-        selectionManager->PushObject(it);
-    }
-}
-
 void Scene::DumpLightmapMesh()
 {
     // 	// TODO: fixme
@@ -461,4 +381,36 @@ IWorldEntity *Scene::GetWorldEntity()
 
     assert(instanceof <IWorldEntity>(ptr));
     return (IWorldEntity *)ptr;
+}
+
+void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
+{
+    auto           frustum = sr->GetCamera()->GetFrustum();
+    renderStats_s *stats   = GLBackend::Instance()->RenderStats();
+
+    stats->nEntitiesTotal    = m_SceneEntities.size();
+    stats->nEntitiesRendered = 0;
+
+    for (auto &it : m_SceneEntities)
+    {
+        if (!it)
+            continue;
+
+        if (!it->IsDataLoaded())
+            continue;
+
+        if (frustum->CullBox(it->AbsoulteBoundingBox()))
+            continue;
+
+        stats->nEntitiesRendered++;
+
+        if (it->IsTransparent())
+            sr->AddTransparentEntity(it);        
+        else
+        {
+            sr->SetEntityTransform(it);
+            it->Render(mode);
+        }
+        
+    }
 }

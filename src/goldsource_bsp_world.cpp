@@ -44,7 +44,7 @@ BSPWorld::~BSPWorld()
 {
 }
 
-void BSPWorld::RenderLightshaded()
+void BSPWorld::Render(RenderMode mode)
 {
     if (!m_pRenderer)
         return;

@@ -72,9 +72,6 @@ public:
     void               HintSelected(SceneEntityWeakPtr weakRef);
     SceneEntityWeakPtr GetSelection();
 
-    void RenderObjectsFor3DSelection();
-    void RenderLightShaded();
-
     bool IsModelLoaded();
 
     std::string GetModelFileName();
@@ -92,15 +89,21 @@ public:
     void  RescaleLightPositions(float m_flScaleOriginal, float m_flScale);
 
     SceneEntityWeakPtr GetEntityWeakRef(SceneEntity *pEntity);
-    void               RenderUnshaded();
     void               Reload(int loadFlags);
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions);
-    void        RenderGroupsShaded();
+    
     void        DumpLightmapMesh();
     void        DumpLightmapUV();
 
     GameConfigurationWeakPtr UsedGameConfiguration();
     uint32_t                 AllocSerialNumber();
     IWorldEntity* GetWorldEntity();
+  
+
+    void RenderEntities(RenderMode mode, SceneRenderer* pRenderer);
+
+//     void RenderGroupsShaded();
+//     void RenderUnshaded();
+//     void RenderLightShaded();
 };

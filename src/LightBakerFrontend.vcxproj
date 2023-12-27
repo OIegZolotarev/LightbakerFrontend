@@ -325,6 +325,7 @@ build.bat
     <ClInclude Include="mod_mdlv10.h" />
     <ClInclude Include="mod_mdlv10_disk_structs.h" />
     <ClInclude Include="mod_manager.h" />
+    <ClInclude Include="r_chain.h" />
     <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />
     <ClInclude Include="gl_framebuffer_object.h" />

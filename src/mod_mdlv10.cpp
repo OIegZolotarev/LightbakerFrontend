@@ -1002,7 +1002,7 @@ void StudioMeshV10::BuildDrawMesh()
     auto &verts   = m_pSubmodel->GetVertices();
     auto &normals = m_pSubmodel->GetNormals();
 
-    size_t numVerts = 0;
+    uint32_t numVerts = 0;
 
     while (i = *triCmds++)
     {

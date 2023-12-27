@@ -10,8 +10,7 @@ enum class RenderMode
 {
     Unshaded = 0,
     Lightshaded,
-    Groups,
-    WireframeUnshaded,
-    WireframeShaded
+    Flatshaded,
+    Wireframe
 };
 

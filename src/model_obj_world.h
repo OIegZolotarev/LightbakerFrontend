@@ -43,11 +43,7 @@ public:
 	void        OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions) override;
 
-	void RenderBoundingBox() override;
-	void RenderDebug() override;
-	void RenderGroupShaded() override;
-	void RenderLightshaded() override;
-	void RenderUnshaded() override;
+	void Render(RenderMode mode) override;
 
 
 	bool IsDataLoaded() override;
@@ -55,10 +51,7 @@ public:
 	virtual void ReloadLightmaps();
 
 	void OnAdditionToScene(Scene * pScene) override;
-
-
 	EntityClasses EntityClass() override;
-
 };
 
 

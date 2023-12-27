@@ -42,33 +42,33 @@ std::string ModelObjWorld::ExportForCompiling(const char* newPath, lightBakerSet
 	return "none";
 }
 
-void ModelObjWorld::RenderBoundingBox()
-{
-
-}
-
-void ModelObjWorld::RenderDebug()
-{
-	
-}
-
-void ModelObjWorld::RenderGroupShaded()
-{
-	if (m_pObjWorld)
-		m_pObjWorld->RenderGroupShaded();
-}
-
-void ModelObjWorld::RenderLightshaded()
-{
-	if (m_pObjWorld)
-		m_pObjWorld->RenderLightshaded();
-}
-
-void ModelObjWorld::RenderUnshaded()
-{
-	if (m_pObjWorld)
-		m_pObjWorld->RenderUnshaded();
-}
+// void ModelObjWorld::RenderBoundingBox()
+// {
+// 
+// }
+// 
+// void ModelObjWorld::RenderDebug()
+// {
+// 	
+// }
+// 
+// void ModelObjWorld::RenderGroupShaded()
+// {
+// 	if (m_pObjWorld)
+// 		m_pObjWorld->RenderGroupShaded();
+// }
+// 
+// void ModelObjWorld::RenderLightshaded()
+// {
+// 	if (m_pObjWorld)
+// 		m_pObjWorld->RenderLightshaded();
+// }
+// 
+// void ModelObjWorld::RenderUnshaded()
+// {
+// 	if (m_pObjWorld)
+// 		m_pObjWorld->RenderUnshaded();
+// }
 
 bool ModelObjWorld::IsDataLoaded()
 {
@@ -91,6 +91,11 @@ void ModelObjWorld::OnAdditionToScene(Scene * pScene)
 EntityClasses ModelObjWorld::EntityClass()
 {
 	return EntityClasses::World;
+}
+
+void ModelObjWorld::Render(RenderMode mode)
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }
 
 void WorldspawnPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)

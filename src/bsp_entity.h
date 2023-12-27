@@ -43,11 +43,6 @@ public:
 
     void Export(FILE *fp);
 
-    void RenderBoundingBox() override;
-    void RenderGroupShaded() override;
-    void RenderLightshaded() override;
-    void RenderUnshaded() override;
-
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
     bool                            HasProperty(size_t hash);
@@ -62,6 +57,8 @@ public:
 
 
 
+
+ void Render(RenderMode mode) override;
 };
 
 } // namespace GoldSource

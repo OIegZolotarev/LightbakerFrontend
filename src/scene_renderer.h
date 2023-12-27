@@ -25,6 +25,7 @@
 class Camera;
 class MainWindow;
 
+
 class SceneRenderer : public IEventHandler
 {
 public:
@@ -88,6 +89,8 @@ private:
     MainWindow *m_pTargetWindow;
     Scene *     m_pScene;
 
+    VariantValue* m_pShowGround;
+
     // Helper meshes
     DrawMesh *m_pBillBoard;
     DrawMesh *m_pSolidCube;
@@ -97,7 +100,7 @@ private:
 
     // Shaders
     ShaderProgram *m_pBillBoardsShader    = nullptr;
-    ShaderProgram *m_pBillBoardsShaderSel = nullptr;
+    ShaderProgram *m_pSceneShader = nullptr;
 
     void           DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;
@@ -106,4 +109,7 @@ private:
     void DumpLightmapUV();
 
     void RenderTransparentChain();
+
+public:
+    void SetEntityTransform(SceneEntityPtr &it);
 };

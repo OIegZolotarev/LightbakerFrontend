@@ -769,6 +769,7 @@
     <ClInclude Include="mod_bsp.h">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
+    <ClInclude Include="r_chain.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

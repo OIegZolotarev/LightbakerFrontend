@@ -36,7 +36,8 @@ static uniformDecl_t g_UniformDecl[]{
     {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::Int            , FL_TEXTURE_UNIT1},
     {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4        , 0},
     {"u_ObjectSerialNumber"  , UniformKind::ObjectSerialNumber  , UniformDataType::Int            , 0},
-    {"u_BonesTransform"      , UniformKind::BonesTransform      , UniformDataType::FloatMat4Array , 0}
+    {"u_BonesTransform"      , UniformKind::BonesTransform      , UniformDataType::FloatMat4Array , 0},
+    {"u_RenderMode"          , UniformKind::RenderMode          , UniformDataType::Int            , 0}
     // clang-format on
 };
 
@@ -217,17 +218,32 @@ GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::lis
 
     size_t idx = 2;
 
+    
+    GLuint result = glCreateShader(gl_type);
+
     for (auto it : defines)
     {
         definesText[idx - 2] = std::format("#define {0}\n", it);
         ptrs[idx]            = definesText[idx - 2].c_str();
         idx++;
     }
+    
+ptrs[idx] = source.c_str();
 
-    ptrs[idx] = source.c_str();
-
-    GLuint result = glCreateShader(gl_type);
+#ifdef SEPARATE_BLOCK
     glShaderSource(result, num_blocks, ptrs, NULL);
+#else
+    std::string combined;
+
+    for (int i = 0 ; i < num_blocks; i++)
+    {
+        combined += std::string(ptrs[i]) + "\n";
+    }
+
+    const char *s = combined.c_str();
+    glShaderSource(result, 1, &s, NULL);
+
+#endif    
     glCompileShader(result);
 
     int success;

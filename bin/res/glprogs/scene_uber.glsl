@@ -60,7 +60,7 @@ void main()
 		}							
 		break;
 		case RM_FLATSHADED:		
-			oFragColor = oNormal;						
+			oFragColor = vec4(oNormal,1);						
 		break;
 		case RM_SOLID_COLOR:
 			oFragColor = u_Color;
