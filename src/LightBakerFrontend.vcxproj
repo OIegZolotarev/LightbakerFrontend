@@ -216,6 +216,7 @@ build.bat
     <ClCompile Include="mod_bsp.cpp" />
     <ClCompile Include="mod_mdlv10.cpp" />
     <ClCompile Include="mod_manager.cpp" />
+    <ClCompile Include="r_chain.cpp" />
     <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
     <ClCompile Include="gl_framebuffer_object.cpp" />

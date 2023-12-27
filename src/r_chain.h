@@ -8,8 +8,13 @@
 
 class RenderChain
 {
-    SceneEntity* m_pChainStart;
-    SceneEntity *m_pChainEnd;
+    SceneEntityWeakPtr m_ChainStart;
+    SceneEntityWeakPtr m_ChainEnd;
+
+    float m_flClosestEntity  = 0;
+    float m_flFarthestEntity = 0;
+
+    glm::vec3 m_EyePos;
 
 public:
     RenderChain();
@@ -17,8 +22,12 @@ public:
 
     void Reset(glm::vec3 eyePos);
 
-    void AddDistanceSorted(SceneEntity *pEntity);
+    void AddDistanceSorted(SceneEntityWeakPtr &pEntity);
 
+    SceneEntityWeakPtr &Start()
+    {
+        return m_ChainStart;
+    }
 };
 
 

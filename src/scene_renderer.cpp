@@ -152,9 +152,7 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
 void SceneRenderer::ResetTransparentChain()
 {
-    m_pTransparentChainStart = SceneEntityWeakPtr();
-    m_pTransparentChainEnd   = SceneEntityWeakPtr();
-    m_flClosestEntity = m_flFarthestEntity = 0;
+    m_TransparentEntitiesChain.Reset(m_pCamera->GetOrigin());
 }
 
 void SceneRenderer::RenderHelperGeometry()
@@ -411,7 +409,7 @@ void SceneRenderer::DumpLightmapUV()
 
 void SceneRenderer::RenderTransparentChain()
 {
-    SceneEntityWeakPtr ptr = m_pTransparentChainStart;
+    SceneEntityWeakPtr ptr = m_TransparentEntitiesChain.Start();
 
     size_t chainLength = 0;
 
@@ -424,8 +422,6 @@ void SceneRenderer::RenderTransparentChain()
         chainLength++;
         ptr = lockPtr->Next();
     }
-
-    // Con_Printf("Chain length: %d\n", chainLength);
 }
 
 void SceneRenderer::SetEntityTransform(SceneEntityPtr &it)
@@ -485,131 +481,7 @@ glm::vec3 SceneRenderer::GetRenderPos()
 
 void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
 {
-#ifdef PARANOID
-    auto printChain = [&](SceneEntityWeakPtr head) {
-        Con_Printf("\n[Chain start]->");
-
-        SceneEntityWeakPtr p = head;
-
-        while (!p.expired())
-        {
-            auto ptr = p.lock();
-
-            if (ptr)
-                Con_Printf("%d->", ptr->GetSerialNumber());
-
-            p = ptr->Next();
-        }
-        Con_Printf("[Chain end]\n");
-    };
-
-    auto dbg_loops = [&](SceneEntityWeakPtr h) -> bool {
-        std::unordered_set<SceneEntity *> s;
-
-        // Con_Printf("\n====================================\n");
-
-        while (!h.expired())
-        {
-            auto ptr = h.lock();
-            auto raw = ptr.get();
-
-            //  Con_Printf("%d->", raw->GetSerialNumber());
-
-            // If this node is already present
-            // in hashmap it means there is a cycle
-            // (Because you will be encountering the
-            // node for the second time).
-            if (s.find(raw) != s.end())
-                return true;
-
-            // If we are seeing the node for
-            // the first time, insert it in hash
-            s.insert(raw);
-
-            h = ptr->Next();
-        }
-
-        return false;
-    };
-#endif
-
-    auto ptr = pEntity.lock();
-
-    if (!ptr)
-        return;
-
-    if (!ptr->Next().expired())
-    {
-        SceneEntityWeakPtr w;
-        ptr->SetNext(w);
-    }
-
-    auto &pos = m_pCamera->GetOrigin();
-
-    if (m_pTransparentChainStart.expired())
-    {
-        m_pTransparentChainStart = pEntity;
-        m_pTransparentChainEnd   = pEntity;
-        m_flClosestEntity        = glm::distance2(pos, ptr->GetPosition());
-        m_flFarthestEntity       = m_flClosestEntity;
-
-#ifdef PARANOID
-        printChain(m_pTransparentChainStart);
-#endif
-        return;
-    }
-
-    float flDist = glm::distance2(pos, ptr->GetPosition());
-
-    if (flDist < m_flClosestEntity)
-    {
-        auto chainEnd = m_pTransparentChainEnd.lock();
-
-        // Bail out, chain will rebuild next frame
-        if (!chainEnd)
-            return;
-
-        chainEnd->SetNext(pEntity);
-
-        m_pTransparentChainEnd = pEntity.lock();
-        m_flClosestEntity      = flDist;
-
-#ifdef PARANOID
-        if (dbg_loops(m_pTransparentChainStart))
-            __debugbreak();
-#endif
-    }
-    else
-    {
-        auto chainStart = m_pTransparentChainStart.lock();
-
-        // Bail out, chain will rebuild next frame
-        if (!chainStart)
-            return;
-
-        auto oldSn = chainStart->GetSerialNumber();
-        auto newSn = ptr->GetSerialNumber();
-
-        ptr->SetNext(m_pTransparentChainStart);
-        m_pTransparentChainStart = pEntity;
-
-#ifdef PARANOID
-
-        if (SceneEntity::GetRawSafest<SceneEntity>(pEntity) ==
-            SceneEntity::GetRawSafest<SceneEntity>(m_pTransparentChainStart))
-            __debugbreak();
-
-        if (pEntity.expired())
-            __debugbreak();
-
-        if (dbg_loops(m_pTransparentChainStart))
-            __debugbreak();
-#endif
-    }
-
-#ifdef PARANOID
-    printChain(m_pTransparentChainStart);
-#endif
+    m_TransparentEntitiesChain.AddDistanceSorted(pEntity);
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)

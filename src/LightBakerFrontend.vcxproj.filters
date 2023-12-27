@@ -422,6 +422,9 @@
     <ClCompile Include="fs_folder_mount.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
+    <ClCompile Include="r_chain.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -769,7 +772,9 @@
     <ClInclude Include="mod_bsp.h">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
-    <ClInclude Include="r_chain.h" />
+    <ClInclude Include="r_chain.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

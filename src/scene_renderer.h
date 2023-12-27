@@ -14,6 +14,7 @@
 #include "scene.h"
 #include "viewport.h"
 #include "viewport_rendermodes.h"
+#include "r_chain.h"
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -70,14 +71,11 @@ public:
     glm::vec3 GetRenderPos();
 
     void AddTransparentEntity(SceneEntityWeakPtr pEntity);
+    void SetEntityTransform(SceneEntityPtr &it);
 
 private:
     
-    SceneEntityWeakPtr m_pTransparentChainStart;
-    SceneEntityWeakPtr m_pTransparentChainEnd;
-
-    float        m_flClosestEntity = 0;
-    float        m_flFarthestEntity = 0;
+    RenderChain m_TransparentEntitiesChain;
     
     
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
@@ -110,6 +108,5 @@ private:
 
     void RenderTransparentChain();
 
-public:
-    void SetEntityTransform(SceneEntityPtr &it);
+
 };
