@@ -111,6 +111,7 @@ void GLBackend::ReloadAllShaders()
 
 void GLBackend::NewFrame()
 {
+
     m_RenderStats.nDrawCalls = 0;
     m_RenderStats.nTriangles = 0;
 }

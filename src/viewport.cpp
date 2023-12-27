@@ -66,6 +66,8 @@ Viewport::~Viewport()
 
 void Viewport::RenderFrame(float flFrameDelta)
 {
+    BT_PROFILE("Viewport::RenderFrame()");
+
     m_pCamera->Apply(flFrameDelta);
 
     if (!m_bNeedUpdate)
@@ -180,6 +182,8 @@ void Viewport::DisplayRenderedFrame()
 
 void Viewport::HandlePicker()
 {
+    BT_PROFILE("Viewport::HandlePicker()");
+
     auto ratPos = CalcRelativeMousePos();
 
     if (PointInClientRect(ratPos))

@@ -409,6 +409,8 @@ void SceneRenderer::DumpLightmapUV()
 
 void SceneRenderer::RenderTransparentChain()
 {
+    BT_PROFILE("SceneRenderer::RenderTransparentChain()");
+
     SceneEntityWeakPtr ptr = m_TransparentEntitiesChain.Start();
 
     size_t chainLength = 0;

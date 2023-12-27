@@ -64,6 +64,8 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
 void MainWindow::InitStuff()
 {
+    
+
     InitBackend();
 
     m_pSceneRenderer = new SceneRenderer(this);
@@ -421,6 +423,8 @@ int MainWindow::GetFPS()
 
 void MainWindow::IterateUpdate()
 {
+    BT_PROFILE("MainWindow::IterateUpdate()");
+
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
 
     GLBackend::Instance()->NewFrame();
@@ -718,6 +722,8 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
 void MainWindow::RenderGUI()
 {
+    BT_PROFILE("MainWindow::RenderGUI()");
+
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
     // start the Dear ImGui frame

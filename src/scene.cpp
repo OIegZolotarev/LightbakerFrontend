@@ -385,6 +385,8 @@ IWorldEntity *Scene::GetWorldEntity()
 
 void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
 {
+    BT_PROFILE("Scene::RenderEntities()");
+
     auto           frustum = sr->GetCamera()->GetFrustum();
     renderStats_s *stats   = GLBackend::Instance()->RenderStats();
 

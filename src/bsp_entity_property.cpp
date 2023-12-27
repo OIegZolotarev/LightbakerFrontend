@@ -341,7 +341,7 @@ void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
     std::string stringValue = SerializeValue();
 
     // Con_Printf("\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
-    fprintf(fp, "\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
+    fprintf(fp, "\"%s\" \"%s\"\n", m_Name.c_str(), stringValue.c_str());
 }
 
 void BSPEntityProperty::ParseClassname(const std::string &value)

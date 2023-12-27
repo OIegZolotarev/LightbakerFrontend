@@ -38,6 +38,8 @@ void ViewportsOrchestrator::FlagRepaintAll()
 
 void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFrameDelta)
 {
+    BT_PROFILE("ViewportsOrchestrator::RenderViewports()");
+
     for (auto &it : m_lstViewports)
     {
         if (!it->IsVisible())
@@ -52,6 +54,8 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 
 void ViewportsOrchestrator::DisplayViewports(IPlatformWindow *pWindow)
 {
+    BT_PROFILE("ViewportsOrchestrator::DisplayViewports()");
+
     for (auto &it : m_lstViewports)
     {
         if (it->GetPlatformWindow() != pWindow)

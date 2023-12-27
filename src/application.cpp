@@ -114,7 +114,9 @@ Application::~Application()
 #include <sdl-event-to-string\sdl_event_to_string.h>
 
 void Application::Run()
-{
+{    
+    CProfileManager::Reset();
+
     bool loop = false;
 
     do
@@ -191,6 +193,8 @@ void Application::Run()
             if (!it->IsTerminated())
                 it->IterateUpdate();
         }
+
+        CProfileManager::Increment_Frame_Counter();
 
     } while (loop && !m_bTerminated);
 }

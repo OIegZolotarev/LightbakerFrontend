@@ -105,6 +105,9 @@
     <Filter Include="Исходные файлы\Models\Goldsource MDL">
       <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Bullet Profiler">
+      <UniqueIdentifier>{e7d48034-89f9-492f-bc55-ce6ac9a1982f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -423,6 +426,9 @@
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
     <ClCompile Include="r_chain.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="btQuickProf.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -774,6 +780,9 @@
     </ClInclude>
     <ClInclude Include="r_chain.h">
       <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="btQuickProf.h">
+      <Filter>Исходные файлы\Bullet Profiler</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
