@@ -279,21 +279,11 @@ void ModelOBJ::OnUnhovered()
 {
 }
 
-void ModelOBJ::RenderBoundingBox()
+void ModelOBJ::Render(RenderMode mode)
 {
-    // throw std::logic_error("The method or operation is not implemented.");
 }
 
-void ModelOBJ::RenderDebug()
-{
-    DrawDebug();
-}
 
-void ModelOBJ::RenderLightshaded()
-{
-    auto shader = GLBackend::Instance()->LightMappedSceneShader();
-    CommonDrawGeometryWithShader(shader);
-}
 
 void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader *shader)
 {
@@ -345,62 +335,62 @@ void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader *shader)
     mesh.Unbind();
 }
 
-void ModelOBJ::RenderUnshaded()
-{
-    auto shader = GLBackend::Instance()->DiffuseSceneShader();
-    CommonDrawGeometryWithShader(shader);
-}
-
-void ModelOBJ::RenderGroupShaded()
-{
-    auto shader = GLBackend::Instance()->GroupShadedSceneShader();
-
-    mesh.Bind();
-
-    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene         = sceneRenderer->GetScene();
-
-    shader->Bind();
-    shader->SetScale(scene->GetSceneScale());
-    shader->SetDefaultCamera();
-    shader->SetTransformIdentity();
-
-    shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
-
-    size_t index = 0;
-
-    for (auto &it : m_ModelData.meshes)
-    {
-        // auto it = m_ModelData.meshes[i];
-
-        if (it.num_faces == 0)
-        {
-            continue;
-        }
-
-        int hash = (it.num_faces * it.first_face * index * (int)&it) % 360;
-
-        float hue = (float)hash / 360.f;
-
-        glm::vec3 rgb;
-
-        ImGui::ColorConvertHSVtoRGB(hue, 1, 1, rgb[0], rgb[1], rgb[2]);
-
-        shader->SetObjectColor(glm::vec4(rgb, 1));
-
-        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
-        index++;
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    shader->Unbind();
-    mesh.Unbind();
-}
+// void ModelOBJ::RenderUnshaded()
+// {
+//     auto shader = GLBackend::Instance()->DiffuseSceneShader();
+//     CommonDrawGeometryWithShader(shader);
+// }
+// 
+// void ModelOBJ::RenderGroupShaded()
+// {
+//     auto shader = GLBackend::Instance()->GroupShadedSceneShader();
+// 
+//     mesh.Bind();
+// 
+//     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+//     auto scene         = sceneRenderer->GetScene();
+// 
+//     shader->Bind();
+//     shader->SetScale(scene->GetSceneScale());
+//     shader->SetDefaultCamera();
+//     shader->SetTransformIdentity();
+// 
+//     shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
+// 
+//     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+// 
+//     // for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
+// 
+//     size_t index = 0;
+// 
+//     for (auto &it : m_ModelData.meshes)
+//     {
+//         // auto it = m_ModelData.meshes[i];
+// 
+//         if (it.num_faces == 0)
+//         {
+//             continue;
+//         }
+// 
+//         int hash = (it.num_faces * it.first_face * index * (int)&it) % 360;
+// 
+//         float hue = (float)hash / 360.f;
+// 
+//         glm::vec3 rgb;
+// 
+//         ImGui::ColorConvertHSVtoRGB(hue, 1, 1, rgb[0], rgb[1], rgb[2]);
+// 
+//         shader->SetObjectColor(glm::vec4(rgb, 1));
+// 
+//         mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
+//         index++;
+//     }
+// 
+//     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+// 
+//     shader->Unbind();
+//     mesh.Unbind();
+// }
 
 mobjdata_t *ModelOBJ::GetModelData()
 {

@@ -8,6 +8,7 @@
 #include "mod_manager.h"
 #include "object_props.h"
 #include "selection_3d.h"
+#include "viewport_rendermodes.h"
 
 enum class EntityClasses
 {
@@ -116,39 +117,35 @@ public:
     SceneEntity(Scene *pScene);
     SceneEntity(SceneEntity &other);
 
-    virtual void RenderLightshaded(); // С лайтмапой
-    virtual void RenderUnshaded();    // Без лайтмапы
-    virtual void RenderBoundingBox(); //
-    virtual void RenderDebug();       // Отладочная отрисовка
-    virtual void RenderGroupShaded();
+    virtual void Render(RenderMode mode){};
 
     virtual bool IsDataLoaded();
 
     // DECLARE_PROPERTY(uint32_t      , SerialNumber);
 
-    void SetSerialNumber(const uint32_t newNum);
+    void           SetSerialNumber(const uint32_t newNum);
     const uint32_t GetSerialNumber() const;
 
     const glm::vec3 GetAngles() const;
     void            SetAngles(const glm::vec3 &angles);
 
-    void SetPosition(const glm::vec3 &pos);
+    void            SetPosition(const glm::vec3 &pos);
     const glm::vec3 GetPosition() const;
 
     const glm::mat4 GetTransform();
 
     void SetBoundingBox(const BoundingBox &bbox);
-    
-    void SetRenderColor(const ColorRGBA &color);
+
+    void            SetRenderColor(const ColorRGBA &color);
     const ColorRGBA GetRenderColor() const;
-    
+
     const GLTexture *GetEditorIcon() const;
-    void SetEditorIcon(GLTexture *pTexture);
+    void             SetEditorIcon(GLTexture *pTexture);
 
     IModelWeakPtr GetModel() const;
-    void SetModel(IModelWeakPtr &model);
+    void          SetModel(IModelWeakPtr &model);
 
-    void SetFrame(const float newVal);
+    void        SetFrame(const float newVal);
     const float GetFrame() const;
 
     void OnHovered() override;
@@ -159,7 +156,7 @@ public:
 
     virtual const char *Description();
     virtual bool        IsLightEntity();
-    virtual void        OnAdditionToScene(class Scene *pScene);;
+    virtual void        OnAdditionToScene(class Scene *pScene);
 
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
@@ -174,8 +171,8 @@ public:
     std::weak_ptr<SceneEntity> Next();
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
-    
-void SetTransform(glm::mat4 m_matGuizmo);
+
+    void SetTransform(glm::mat4 m_matGuizmo);
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
@@ -195,4 +192,3 @@ template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weak
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
 typedef std::weak_ptr<SceneEntity>   SceneEntityWeakPtr;
-

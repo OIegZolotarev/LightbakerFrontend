@@ -228,9 +228,8 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
         std::pair<RenderMode, const char *> menuItems[] = {{RenderMode::Lightshaded, "Lightshaded"},
                                                            {RenderMode::Unshaded, "Unshaded"},
-                                                           {RenderMode::Groups, "Groups shaded"},
-                                                           {RenderMode::WireframeShaded, "Wireframe shaded"},
-                                                           {RenderMode::WireframeUnshaded, "Wireframe unshaded"}};
+                                                           {RenderMode::Flatshaded, "Flatshaded"},
+                                                           {RenderMode::Wireframe, "Wireframe shaded"}};                                                           
 
         for (auto &it : menuItems)
         {

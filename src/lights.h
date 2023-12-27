@@ -65,6 +65,8 @@ class Lb3kLightEntity : public SceneEntity
     EntityClasses EntityClass() override;
 
     float GetIntensity();
+
+    void Render(RenderMode mode) override;
 };
 
 enum LightProperties

@@ -388,7 +388,7 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 
 void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransformDecomposition)
 {
-    glm::mat4 copyOfMain = m_matGuizmo;
+    glm::mat4 & copyOfMain = m_matGuizmo;
 
     float *matrix      = (float *)&copyOfMain;
     float *deltaMatrix = (float *)&m_matDeltaGuizmo;

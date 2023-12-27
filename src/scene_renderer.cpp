@@ -29,10 +29,14 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
     m_pSolidCube       = DrawUtils::MakeCube(1);
 
     SetupBuildboardsRenderer();
-
     RegisterRendermodesCommands();
 
     GridRenderer::Instance()->Init();
+
+    auto pers     = Application::Instance()->GetPersistentStorage();
+    m_pShowGround = pers->GetSetting(ApplicationSettings::ShowGround);
+
+    m_pSceneShader = GLBackend::Instance()->QueryShader("res/glprogs/scene_uber.glsl", {});
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -69,10 +73,6 @@ void SceneRenderer::SetupBuildboardsRenderer()
     m_pBillBoard->End();
 
     m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", {});
-
-    std::list<const char *> defs;
-    defs.push_back("SELECTION");
-    m_pBillBoardsShaderSel = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", defs);
 }
 
 void SceneRenderer::RegisterRendermodesCommands()
@@ -114,31 +114,37 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     // Render visible stuff
 
-    auto pers       = Application::Instance()->GetPersistentStorage();
-    auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
-
     if (m_pScene)
     {
-        switch (m_RenderMode)
+        m_pSceneShader->Bind();
+
+        for (auto &it : m_pSceneShader->Uniforms())
         {
-        case RenderMode::Unshaded:
-            m_pScene->RenderUnshaded();
-            break;
-        case RenderMode::Lightshaded:
-            m_pScene->RenderLightShaded();
-            break;
-        case RenderMode::WireframeUnshaded:
-            break;
-        case RenderMode::WireframeShaded:
-            break;
-        case RenderMode::Groups:
-            m_pScene->RenderGroupsShaded();
+            switch (it->Kind())
+            {
+            case UniformKind::ProjectionMatrix:
+                it->SetMat4(m_pCamera->GetProjectionMatrix());
+                break;
+            case UniformKind::ModelViewMatrix:
+                it->SetMat4(m_pCamera->GetViewMatrix());
+                break;
+            case UniformKind::Scale:
+                it->SetFloat3({1.0f, 1.0f, 1.0f});
+                break;
+            case UniformKind::RenderMode:
+                it->SetInt((int)m_RenderMode);
+                break;
+            default:
+                break;
+            }
         }
+
+        m_pScene->RenderEntities(m_RenderMode, this);
     }
 
     RenderTransparentChain();
 
-    if (showGround->GetAsBool())
+    if (m_pShowGround->GetAsBool())
     {
         GridRenderer::Instance()->Render();
     }
@@ -193,7 +199,8 @@ void SceneRenderer::RenderHelperGeometry()
         if (!it->IsLightEntity())
             continue;
 
-        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(), it->GetSerialNumber());
+        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+                      it->GetSerialNumber());
 
         if (it->IsSelected())
         {
@@ -238,9 +245,6 @@ void SceneRenderer::LoadModel(const char *dropped_filedir, int loadFlags)
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture,
                                   const glm::vec3 tint, const uint32_t objectSerialNumber)
 {
-#ifdef FAST_BB
-
-    // TODO: make render-chains for transparent, billboards, etc
     m_pBillBoardsShader->Bind();
     m_pBillBoard->Bind();
 
@@ -287,34 +291,6 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
     GLBackend::BindTexture(0, texture);
     GLBackend::BindTexture(1, nullptr);
     m_pBillBoard->Draw();
-#else
-
-    auto right = GetCamera()->GetRightVector();
-    auto up    = GetCamera()->GetUpVector();
-
-    glm::vec3 pt;
-
-    int pointDef[4][2] = {
-        {-1, -1},
-        {1, -1},
-        {1, 1},
-        {-1, 1},
-    };
-
-    glBindTexture(GL_TEXTURE_2D, texture->GLTextureNum());
-    glColor3f(tint.x, tint.y, tint.z);
-    glBegin(GL_QUADS);
-
-    for (int i = 0; i < 4; i++)
-    {
-        pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
-        glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
-        glVertex3f(pt.x, pt.y, pt.z);
-    }
-
-    glEnd();
-
-#endif
 }
 
 Camera *SceneRenderer::GetCamera()
@@ -353,7 +329,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
             switch (it->Kind())
             {
             case UniformKind::Color:
-                it->SetFloat4(glm::vec4(1, 1, 1,1) - ptr->GetRenderColor());
+                it->SetFloat4(glm::vec4(1, 1, 1, 1) - ptr->GetRenderColor());
                 break;
             case UniformKind::TransformMatrix: {
                 glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
@@ -383,7 +359,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
         shader->Bind();
         shader->SetDefaultCamera();
-        shader->SetColor(glm::vec4(1,1,1,1) - ptr->GetRenderColor());
+        shader->SetColor(glm::vec4(1, 1, 1, 1) - ptr->GetRenderColor());
 
         glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 
@@ -443,23 +419,20 @@ void SceneRenderer::RenderTransparentChain()
     {
         auto lockPtr = ptr.lock();
 
-        switch (m_RenderMode)
-        {
-        case RenderMode::Unshaded:
-            lockPtr->RenderUnshaded();
-            break;
-        case RenderMode::Lightshaded:
-            lockPtr->RenderLightshaded();
-            break;
-        case RenderMode::Groups:
-            m_pScene->RenderGroupsShaded();
-        }
+        lockPtr->Render(m_RenderMode);
 
         chainLength++;
         ptr = lockPtr->Next();
     }
 
     // Con_Printf("Chain length: %d\n", chainLength);
+}
+
+void SceneRenderer::SetEntityTransform(SceneEntityPtr &it)
+{
+    auto uniform = m_pSceneShader->UniformByKind(UniformKind::TransformMatrix);
+    if (uniform)
+        uniform->SetMat4(it->GetTransform());
 }
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
@@ -580,9 +553,9 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
         m_flClosestEntity        = glm::distance2(pos, ptr->GetPosition());
         m_flFarthestEntity       = m_flClosestEntity;
 
-        #ifdef PARANOID
+#ifdef PARANOID
         printChain(m_pTransparentChainStart);
-        #endif
+#endif
         return;
     }
 
@@ -601,10 +574,10 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
         m_pTransparentChainEnd = pEntity.lock();
         m_flClosestEntity      = flDist;
 
-        #ifdef PARANOID
+#ifdef PARANOID
         if (dbg_loops(m_pTransparentChainStart))
             __debugbreak();
-        #endif
+#endif
     }
     else
     {
@@ -614,7 +587,6 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
         if (!chainStart)
             return;
 
-
         auto oldSn = chainStart->GetSerialNumber();
         auto newSn = ptr->GetSerialNumber();
 
@@ -622,7 +594,7 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
         m_pTransparentChainStart = pEntity;
 
 #ifdef PARANOID
-               
+
         if (SceneEntity::GetRawSafest<SceneEntity>(pEntity) ==
             SceneEntity::GetRawSafest<SceneEntity>(m_pTransparentChainStart))
             __debugbreak();
@@ -637,7 +609,7 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
 
 #ifdef PARANOID
     printChain(m_pTransparentChainStart);
-    #endif
+#endif
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)

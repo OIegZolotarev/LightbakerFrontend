@@ -44,6 +44,7 @@ enum class UniformKind
     Viewport,
     ObjectSerialNumber,
     BonesTransform,
+    RenderMode,
 };
 
 enum class UniformDataType

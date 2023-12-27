@@ -21,14 +21,14 @@ class BSPWorld: public IWorldEntity
 
     void ReloadLightmaps() override;
     void OnAdditionToScene(Scene * pScene) override;
-
-    void RenderLightshaded() override;
-
+    
     bool IsDataLoaded() override;
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions) override;
     void        OnLevelLoaded();
     GoldSource::BSPModelRenderCookiePtr GetBSPModelRenderCookie(size_t idx);
+
+    void Render(RenderMode mode) override;
 };
 }
 
