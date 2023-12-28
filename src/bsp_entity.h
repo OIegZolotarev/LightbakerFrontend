@@ -58,7 +58,7 @@ public:
 
 
 
- void Render(RenderMode mode) override;
+ void Render(RenderMode mode, ShaderProgram* shader) override;
 };
 
 } // namespace GoldSource

@@ -58,7 +58,7 @@ void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
     }
 }
 
-void BSPEntity::Render(RenderMode mode)
+void GoldSource::BSPEntity::Render(RenderMode mode, ShaderProgram* shader)
 {
     const IModelWeakPtr model = GetModel();
 

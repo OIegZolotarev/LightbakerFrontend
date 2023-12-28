@@ -55,7 +55,7 @@ public:
 	void OnUnhovered() override;
 	
 	// Scene entity
-    void Render(RenderMode mode) override;
+    void Render(RenderMode mode, ShaderProgram* shader) override;
 
 	void CommonDrawGeometryWithShader(const ISceneShader* shader);
 

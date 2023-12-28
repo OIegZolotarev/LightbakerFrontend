@@ -279,7 +279,7 @@ void ModelOBJ::OnUnhovered()
 {
 }
 
-void ModelOBJ::Render(RenderMode mode)
+void ModelOBJ::Render(RenderMode mode, ShaderProgram* shader)
 {
 }
 

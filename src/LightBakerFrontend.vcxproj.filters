@@ -425,11 +425,14 @@
     <ClCompile Include="fs_folder_mount.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="r_chain.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="btQuickProf.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="r_chain.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_sprite.cpp">
+      <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -783,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="btQuickProf.h">
       <Filter>Исходные файлы\Bullet Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_sprite.h">
+      <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

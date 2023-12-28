@@ -29,6 +29,8 @@ void RenderChain::Reset(glm::vec3 eyePos)
 
 void RenderChain::AddDistanceSorted(SceneEntityWeakPtr &pEntity)
 {
+    BT_PROFILE("RenderChain::AddDistanceSorted");
+
     auto ptr = pEntity.lock();
 
     if (!ptr)

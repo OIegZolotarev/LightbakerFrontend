@@ -261,6 +261,8 @@ void R_ConcatTransforms(const glm::mat4x4 &in1, const glm::mat4x4 &in2, glm::mat
 
 void StudioModelV10::SetupBones(void)
 {
+    BT_PROFILE("StudioModelV10::SetupBones()");
+
     static glm::vec3 pos[MAXSTUDIOBONES];
     static glm::quat q[MAXSTUDIOBONES];
 

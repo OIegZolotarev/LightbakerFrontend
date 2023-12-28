@@ -92,6 +92,7 @@ typedef struct sentvars_s
 } sentvars_t;
 
 class Scene;
+class ShaderProgram;
 
 class SceneEntity : public ISelectableObject
 {
@@ -117,7 +118,7 @@ public:
     SceneEntity(Scene *pScene);
     SceneEntity(SceneEntity &other);
 
-    virtual void Render(RenderMode mode){};
+    virtual void Render(RenderMode mode, ShaderProgram* shader){};
 
     virtual bool IsDataLoaded();
 

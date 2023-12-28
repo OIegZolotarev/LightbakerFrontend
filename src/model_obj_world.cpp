@@ -93,7 +93,7 @@ EntityClasses ModelObjWorld::EntityClass()
 	return EntityClasses::World;
 }
 
-void ModelObjWorld::Render(RenderMode mode)
+void ModelObjWorld::Render(RenderMode mode, ShaderProgram* shader)
 {
     throw std::logic_error("The method or operation is not implemented.");
 }

@@ -411,7 +411,7 @@ void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
         else
         {
             sr->SetEntityTransform(it);
-            it->Render(mode);
+            it->Render(mode, nullptr);
         }
         
     }

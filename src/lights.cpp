@@ -386,7 +386,7 @@ float Lb3kLightEntity::GetIntensity()
 	return intensity;
 }
 
-void Lb3kLightEntity::Render(RenderMode mode)
+void Lb3kLightEntity::Render(RenderMode mode, ShaderProgram* shader)
 {
     throw std::logic_error("The method or operation is not implemented.");
 }

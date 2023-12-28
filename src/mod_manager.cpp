@@ -88,6 +88,11 @@ void IModel::SetTransparent(bool flag)
     m_bTransparent = flag;
 }
 
+void IModel::SetType(ModelType type)
+{
+    m_Type = type;
+}
+
 IModel::IModel(const char *fileName)
 {
     m_Hash = StrHash(fileName);
@@ -116,4 +121,13 @@ void IModel::SetHash(size_t hash)
 const std::optional<BoundingBox> IModel::GetBoundingBox() const
 {
     return std::optional<BoundingBox>();
+}
+
+void IModel::OnSceneLoaded(Scene *pScene)
+{
+}
+
+const ModelType IModel::GetType() const
+{
+    return m_Type;
 }

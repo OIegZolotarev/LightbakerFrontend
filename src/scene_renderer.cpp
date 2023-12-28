@@ -419,7 +419,7 @@ void SceneRenderer::RenderTransparentChain()
     {
         auto lockPtr = ptr.lock();
 
-        lockPtr->Render(m_RenderMode);
+        lockPtr->Render(m_RenderMode, nullptr);
 
         chainLength++;
         ptr = lockPtr->Next();

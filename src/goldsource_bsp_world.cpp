@@ -44,7 +44,7 @@ BSPWorld::~BSPWorld()
 {
 }
 
-void BSPWorld::Render(RenderMode mode)
+void GoldSource::BSPWorld::Render(RenderMode mode, ShaderProgram* shader)
 {
     if (!m_pRenderer)
         return;
