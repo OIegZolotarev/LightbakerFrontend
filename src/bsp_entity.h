@@ -23,10 +23,9 @@ class BSPEntity : public SceneEntity
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
-
     std::list<BSPEntityProperty *> m_lstProperties;
 
-    GLTexture *m_pEditorSprite = nullptr;
+    bool m_bIsTransparent = false;
 
     friend class BSPEntityProperty;
 
@@ -48,17 +47,14 @@ public:
     bool                            HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
-    void SetFGDClass(FGDEntityClassWeakPtr pClass);
+    void                  SetFGDClass(FGDEntityClassWeakPtr pClass);
     FGDEntityClassWeakPtr GetFGDClass();
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
     bool IsTransparent() override;
 
-
-
-
- void Render(RenderMode mode, ShaderProgram* shader) override;
+    void Render(RenderMode mode, ShaderProgram *shader) override;
 };
 
 } // namespace GoldSource

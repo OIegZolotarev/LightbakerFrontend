@@ -434,6 +434,9 @@
     <ClCompile Include="mod_sprite.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
+    <ClCompile Include="mod_primitive.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -788,6 +791,9 @@
       <Filter>Исходные файлы\Bullet Profiler</Filter>
     </ClInclude>
     <ClInclude Include="mod_sprite.h">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_primitive.h">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
   </ItemGroup>

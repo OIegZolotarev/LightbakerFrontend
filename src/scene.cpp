@@ -130,9 +130,9 @@ SceneEntityPtr Scene::AddNewGenericEntity()
     return newEntity;
 }
 
-void Scene::AddNewSceneEntity(SceneEntityPtr entity)
+void Scene::AddNewSceneEntity(SceneEntity * entity)
 {
-    m_SceneEntities.push_back(entity);
+    m_SceneEntities.push_back(SceneEntityPtr(entity));
 }
 
 std::list<SceneEntityPtr> &Scene::GetSceneObjects()

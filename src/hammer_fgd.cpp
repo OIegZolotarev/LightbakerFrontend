@@ -6,6 +6,7 @@
 #include "application.h"
 #include "hammer_fgd.h"
 #include "common.h"
+#include "mod_manager.h"
 
 using namespace GoldSource;
 extern void ParseFGD(GoldSource::HammerFGDFile *file);
@@ -214,15 +215,15 @@ void FGDEntityClass::SetBBoxOffset(const glm::vec3 offset)
     m_BboxOffset = offset;
 }
 
-GLTexture *FGDEntityClass::GetEditorSpite()
+IModelWeakPtr FGDEntityClass::GetEditorSpite()
 {
     if (m_EditorSprite.empty())
-        return nullptr;
+        return IModelWeakPtr();
 
-    if (!m_pEditorSprite)
+    if (m_pEditorSprite.expired())
     {
         std::string path = m_pOwner->AbsoluteResourcePath(m_EditorSprite);
-        m_pEditorSprite  = TextureManager::LoadTextureSynch(path.c_str());
+        m_pEditorSprite  = ModelsManager::Instance()->LookupModel(path.c_str(), false);
     }
 
     return m_pEditorSprite;
@@ -253,7 +254,7 @@ const GoldSource::FGDPropertiesList &FGDEntityClass::GetProperties() const
     return m_Properties;
 }
 
-const std::string &FGDEntityClass::GetModel() const
+const std::string &FGDEntityClass::GetModelName() const
 {
     return m_Model;
 }

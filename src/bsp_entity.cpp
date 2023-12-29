@@ -14,6 +14,7 @@
 #include "properties_editor.h"
 #include "text_utils.h"
 #include "wad_textures.h"
+#include "mod_primitive.h"
 
 using namespace GoldSource;
 
@@ -58,44 +59,26 @@ void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
     }
 }
 
-void GoldSource::BSPEntity::Render(RenderMode mode, ShaderProgram* shader)
+void BSPEntity::Render(RenderMode mode, ShaderProgram *shader)
 {
     const IModelWeakPtr model = GetModel();
 
     auto sr = Application::GetMainWindow()->GetSceneRenderer();
+     
+    // TODO: move this somewhere to BSPEntityProperty::Update
+    auto prop = FindProperty(SpecialKeys::Key_Light());
+    if (prop)
+        SetRenderColor(prop->GetColorRGBA());
 
-    if (auto ptr = model.lock())
-    {
-        ptr->Render(this, RenderMode::Unshaded);
-        return;
-    }
+    auto ptr = model.lock();
 
-    const BoundingBox &relativeBbox = GetRelativeBoundingBox();
-
-    if (m_pEditorSprite)
-    {
-        // TODO: cache this?
-        auto prop = FindProperty(SpecialKeys::Key_Light());
-
-        glm::vec3 tint = {1, 1, 1};
-
-        if (prop)
-            tint = prop->GetColorRGB();
-
-        const glm::vec3 size = relativeBbox.Size();
-
-        sr->DrawBillboard(GetPosition(), size.xy, m_pEditorSprite, tint, GetSerialNumber());
-    }
-    else
-    {
-        sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), GetRenderColor(),
-                                     GetSerialNumber());
-    }
+    assert(ptr && "Should always have a model for an entity");
+    ptr->Render(this, sr, mode);    
 }
 
 bool BSPEntity::IsTransparent()
 {
-    return m_pEditorSprite != nullptr;
+    return m_bIsTransparent;
 }
 
 void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
@@ -121,6 +104,8 @@ BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
 
 void BSPEntity::PopulateScene()
 {
+
+
     auto classPtr = m_pFGDClass.lock();
 
     if (classPtr)
@@ -134,24 +119,35 @@ void BSPEntity::PopulateScene()
         else
             SetBoundingBox(bbox);
 
-        // if (!m_bIsSetColor)
         SetRenderColor(classPtr->GetColor());
 
         auto model = GetModel();
 
         if (model.expired())
         {
-            m_pEditorSprite = classPtr->GetEditorSpite();
-
-            auto &studioModel = classPtr->GetModel();
+            auto  editorSprite = classPtr->GetEditorSpite();
+            auto &studioModel  = classPtr->GetModelName();
 
             if (!studioModel.empty())
             {
                 IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
                 if (!model.expired())
+                    SetModel(model);
+                else
                 {
+                    auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
                     SetModel(model);
                 }
+            }
+            else if (!editorSprite.expired())
+            {
+                SetModel(editorSprite);
+                SetRenderColor({1, 1, 1, 1});
+            }
+            else
+            {
+                auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
+                SetModel(model);
             }
         }
         else
@@ -168,13 +164,15 @@ void BSPEntity::PopulateScene()
     else
     {
         SetBoundingBox(BoundingBox(8));
-
-        // if (!m_bIsSetColor)
         SetRenderColor({1, 0, 1, 1});
+
+        auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
+        SetModel(model);
     }
 
-    std::shared_ptr<SceneEntity> ptr(this);
-    m_pScene->AddNewSceneEntity(ptr);
+    assert(!GetModel().expired());
+
+    m_pScene->AddNewSceneEntity(this);
 }
 
 void BSPEntity::Export(FILE *fp)

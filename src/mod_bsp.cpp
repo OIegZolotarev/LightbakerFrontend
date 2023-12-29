@@ -22,7 +22,7 @@ BSPModelAdapter::~BSPModelAdapter()
 {
 }
 
-void BSPModelAdapter::Render(SceneEntity *pEntity, RenderMode mode)
+void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode)
 {
     auto model = m_Model.lock();
 

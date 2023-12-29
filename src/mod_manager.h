@@ -13,11 +13,13 @@ enum class ModelType
     StaticLightmapped = 0,
     Dynamic,
     Sprite,
-    Unset
+    HelperPrimitive,
+    Unset,
 };
 
 class Scene;
 class SceneEntity;
+class SceneRenderer;
 
 class IModel
 {
@@ -39,7 +41,7 @@ public:
     ;
 
     bool         IsTransparent();
-    virtual void Render(SceneEntity *pEntity, RenderMode mode) = 0;
+    virtual void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode) = 0;
 
     size_t Hash();
     void   SetHash(size_t hash);

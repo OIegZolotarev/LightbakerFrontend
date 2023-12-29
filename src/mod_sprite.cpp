@@ -15,14 +15,21 @@
 
  SpriteModel::SpriteModel(const char *modelName) : IModel(modelName)
 {
-}
+     SetType(ModelType::Sprite);
+     m_pTexture = TextureManager::LoadTextureAsynch(modelName);
+ }
 
 SpriteModel::~SpriteModel()
 {
 }
 
-void SpriteModel::Render(SceneEntity *pEntity, RenderMode mode)
+void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode)
 {
+    const BoundingBox &relativeBbox = pEntity->GetRelativeBoundingBox();
+
+    const glm::vec3 size = relativeBbox.Size();
+    sr->DrawBillboard(pEntity->GetPosition(), size.xy, m_pTexture, pEntity->GetRenderColor(),
+                      pEntity->GetSerialNumber());
 }
 
 void SpriteModel::OnSceneLoaded(Scene *pScene)

@@ -522,7 +522,7 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
     return bodyPart->SubModel(index);
 }
 
-void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
+void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode)
 {
     m_EntityState               = &state;
     m_EntityState->origin       = pEntity->GetPosition();

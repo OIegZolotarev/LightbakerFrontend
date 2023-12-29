@@ -6,6 +6,7 @@
 #pragma once
 
 #include "fs_core.h"
+#include "mod_manager.h"
 
 class GLTexture;
 
@@ -165,7 +166,7 @@ public:
 
     void SetBaseClasses(std::list<std::string> classes);
     
-    const std::string &GetModel() const;
+    const std::string &GetModelName() const;
     const std::string &ClassName() const;
     const std::string &Description() const;
 
@@ -173,7 +174,7 @@ public:
 
     glm::vec4 GetColor();
 
-    GLTexture *GetEditorSpite();
+    IModelWeakPtr GetEditorSpite();
 
     FGDPropertyDescriptor *  FindProperty(const std::string &propertyName) const;
     const FGDPropertiesList &GetProperties() const;
@@ -206,7 +207,7 @@ private:
 
     void RelinkInheritedProperties(class HammerFGDFile *pFile);
 
-    GLTexture *m_pEditorSprite = nullptr;
+    IModelWeakPtr m_pEditorSprite;
 
 };
 

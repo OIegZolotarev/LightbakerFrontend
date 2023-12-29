@@ -9,6 +9,8 @@
 
 class GLTexture;
 
+class SceneRenderer;
+
 class SpriteModel : public IModel
 {
     GLTexture *m_pTexture;
@@ -17,7 +19,7 @@ public:
     SpriteModel(const char *modelName);
     ~SpriteModel();
 
-    void Render(SceneEntity *pEntity, RenderMode mode) override;
+    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode) override;
     void OnSceneLoaded(Scene *pScene) override;
 
     const std::optional<BoundingBox> GetBoundingBox() const override;

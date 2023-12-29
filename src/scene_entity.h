@@ -36,8 +36,7 @@ typedef struct sentvars_s
     ColorRGBA wireframecolor;
 
     // Models
-    IModelWeakPtr model;
-    GLTexture *   editor_icon; // TODO: make sprite-models later
+    IModelWeakPtr model;    
 
     // Studio models
     int   bodynum;
@@ -66,8 +65,7 @@ typedef struct sentvars_s
         rendercolor    = {1, 1, 1, 1};
         wireframecolor = {1, 1, 1, 1};
 
-        model       = IModelWeakPtr();
-        editor_icon = nullptr;
+        model       = IModelWeakPtr();        
 
         bodynum  = 0;
         skin     = 0;
@@ -103,9 +101,6 @@ class SceneEntity : public ISelectableObject
     void RecalcAbsBBox();
 
 protected:
-    const BoundingBox &GetRelativeBoundingBox() const;
-    const BoundingBox &GetAbsoulteBoundingBox() const;
-
     void SetClassName(const char *name);
     void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
 
@@ -118,7 +113,7 @@ public:
     SceneEntity(Scene *pScene);
     SceneEntity(SceneEntity &other);
 
-    virtual void Render(RenderMode mode, ShaderProgram* shader){};
+    virtual void Render(RenderMode mode, ShaderProgram *shader){};
 
     virtual bool IsDataLoaded();
 
@@ -140,14 +135,14 @@ public:
     void            SetRenderColor(const ColorRGBA &color);
     const ColorRGBA GetRenderColor() const;
 
-    const GLTexture *GetEditorIcon() const;
-    void             SetEditorIcon(GLTexture *pTexture);
-
     IModelWeakPtr GetModel() const;
     void          SetModel(IModelWeakPtr &model);
 
     void        SetFrame(const float newVal);
     const float GetFrame() const;
+
+    const BoundingBox &GetRelativeBoundingBox() const;
+    const BoundingBox &GetAbsoulteBoundingBox() const;
 
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;

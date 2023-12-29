@@ -191,19 +191,19 @@ void SceneRenderer::RenderHelperGeometry()
 
     for (auto &it : m_pScene->GetLightDefs())
     {
-        if (!it)
-            return;
-
-        if (!it->IsLightEntity())
-            continue;
-
-        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
-                      it->GetSerialNumber());
-
-        if (it->IsSelected())
-        {
-            selection = it;
-        }
+//         if (!it)
+//             return;
+// 
+//         if (!it->IsLightEntity())
+//             continue;
+// 
+//         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+//                       it->GetSerialNumber());
+// 
+//         if (it->IsSelected())
+//         {
+//             selection = it;
+//         }
     }
 
     if (selection.lock() && false)

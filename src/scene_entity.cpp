@@ -105,12 +105,7 @@ void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
 SceneEntity::SceneEntity(Scene *pScene)
 {
     m_pScene = pScene;
-    
 
-    // m_Color      = {0, 0, 0};
-    // m_EditorIcon = nullptr;
-
-    SetEditorIcon(nullptr);
     SetRenderColor({1, 1, 1, 1});
 }
 
@@ -122,31 +117,7 @@ SceneEntity::SceneEntity(SceneEntity &other)
     m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
     
     m_EntVars.rendercolor = other.m_EntVars.rendercolor;
-    m_EntVars.editor_icon = other.m_EntVars.editor_icon;
-
 }
-
-// void SceneEntity::RenderLightshaded()
-// {
-//     auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
-//     sceneRenderer->RenderGenericEntity(this);
-// }
-// 
-// void SceneEntity::RenderUnshaded()
-// {
-// }
-// 
-// void SceneEntity::RenderBoundingBox()
-// {
-// }
-// 
-// void SceneEntity::RenderDebug()
-// {
-// }
-// 
-// void SceneEntity::RenderGroupShaded()
-// {
-// }
 
 bool SceneEntity::IsDataLoaded()
 {
@@ -195,16 +166,6 @@ void SceneEntity::SetRenderColor(const ColorRGBA &color)
 const ColorRGBA SceneEntity::GetRenderColor() const
 {
     return m_EntVars.rendercolor;
-}
-
-const GLTexture *SceneEntity::GetEditorIcon() const
-{
-    return m_EntVars.editor_icon;
-}
-
-void SceneEntity::SetEditorIcon(GLTexture *pTexture)
-{
-    m_EntVars.editor_icon = pTexture;
 }
 
 IModelWeakPtr SceneEntity::GetModel() const

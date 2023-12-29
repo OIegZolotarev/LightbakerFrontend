@@ -14,6 +14,8 @@
 
 #include "goldsource_bsp_renderer.h"
 #include "mod_manager.h"
+#include "mod_sprite.h"
+#include "mod_primitive.h"
 
 ModelsManager::~ModelsManager()
 {
@@ -48,6 +50,8 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName, bool canFallback)
     {
         auto ext = FileSystem::ExtractFileExtension(fileName);
 
+        IModel *pModel = nullptr;
+
         if (ext == "mdl")
         {
             auto fd = FileSystem::Instance()->LoadFile(fileName);
@@ -65,15 +69,24 @@ IModelWeakPtr ModelsManager::LookupModel(const char *fileName, bool canFallback)
                     return IModelWeakPtr();
             }
 
-            GoldSource::StudioModelV10 *pModel = new GoldSource::StudioModelV10(fd);
+            pModel = new GoldSource::StudioModelV10(fd);
             fd->UnRef();
-
-            pModel->SetHash(hash);
-            IModelSharedPtr pResult = IModelSharedPtr(pModel);
-            m_lstModels.push_back(pResult);
-            return pResult;
         }
+        else if (ext == "spr")        
+            pModel = new SpriteModel(fileName);                   
+        else if (ext == "prim")
+            pModel = new PrimitiveModel(fileName);
+
+
+        assert(pModel && "ModelsManager::LookupModel(): format lookup failed");    
+
+        pModel->SetHash(hash);
+        IModelSharedPtr pResult = IModelSharedPtr(pModel);
+        m_lstModels.push_back(pResult);
+        return pResult;
     }
+
+    return IModelSharedPtr();
 }
 
 void ModelsManager::OnSceneLoaded(Scene *pScene)
