@@ -116,6 +116,11 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     if (m_pScene)
     {
+        if (m_RenderMode == RenderMode::Wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+
         renderStats_s *stats = GLBackend::Instance()->RenderStats();
 
         stats->nEntitiesTotal    = m_pScene->TotalEntities();
@@ -127,6 +132,12 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
         GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         RenderEntitiesChain(m_vSortedTransparentEntities.data(), m_vSortedTransparentEntities.size(), true);
         GLBackend::SetBlending(false);
+
+
+        if (m_RenderMode == RenderMode::Wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
     }
 
     if (m_pShowGround->GetAsBool())
@@ -390,25 +401,6 @@ void SceneRenderer::DumpLightmapMesh()
 void SceneRenderer::DumpLightmapUV()
 {
     m_pScene->DumpLightmapUV();
-}
-
-void SceneRenderer::RenderTransparentChain()
-{
-    BT_PROFILE("SceneRenderer::RenderTransparentChain()");
-
-    SceneEntityWeakPtr ptr = m_TransparentEntitiesChain.Start();
-
-    size_t chainLength = 0;
-
-    while (!ptr.expired())
-    {
-        auto lockPtr = ptr.lock();
-
-        lockPtr->Render(m_RenderMode, nullptr);
-
-        chainLength++;
-        ptr = lockPtr->Next();
-    }
 }
 
 void SceneRenderer::SortRenderLists()

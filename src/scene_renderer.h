@@ -110,7 +110,7 @@ private:
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-    void RenderTransparentChain();
+    
 
     std::vector<sSortInfo> m_vSortedSolidEntities;
     std::vector<sSortInfo> m_vSortedTransparentEntities;
