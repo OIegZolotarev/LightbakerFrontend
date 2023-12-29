@@ -83,7 +83,7 @@ protected:
     float       m_DefaultValueFloat = 0;
     std::string m_PropertyHelp      = "";
 
-    int m_Type;
+    int m_PrimitiveKind;
 
 public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther);
@@ -182,7 +182,7 @@ public:
 private:
     HammerFGDFile *m_pOwner;
 
-    FGDEntityClassType m_Type;
+    FGDEntityClassType m_PrimitiveKind;
 
     int m_CtorDefinitionFlags;
 

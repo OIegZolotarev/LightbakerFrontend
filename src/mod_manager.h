@@ -11,7 +11,7 @@
 enum class ModelType
 {
     StaticLightmapped = 0,
-    Dynamic,
+    StudioV10,
     Sprite,
     HelperPrimitive,
     Unset,

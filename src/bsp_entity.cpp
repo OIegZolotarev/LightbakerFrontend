@@ -76,10 +76,7 @@ void BSPEntity::Render(RenderMode mode, ShaderProgram *shader)
     ptr->Render(this, sr, mode);    
 }
 
-bool BSPEntity::IsTransparent()
-{
-    return m_bIsTransparent;
-}
+
 
 void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
 {

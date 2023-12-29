@@ -15,6 +15,7 @@
 
  SpriteModel::SpriteModel(const char *modelName) : IModel(modelName)
 {
+     SetTransparent(true);
      SetType(ModelType::Sprite);
      m_pTexture = TextureManager::LoadTextureAsynch(modelName);
  }
@@ -25,6 +26,8 @@ SpriteModel::~SpriteModel()
 
 void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode)
 {
+    BT_PROFILE("SpriteModel::Render");
+
     const BoundingBox &relativeBbox = pEntity->GetRelativeBoundingBox();
 
     const glm::vec3 size = relativeBbox.Size();

@@ -130,7 +130,7 @@ SceneEntityPtr Scene::AddNewGenericEntity()
     return newEntity;
 }
 
-void Scene::AddNewSceneEntity(SceneEntity * entity)
+void Scene::AddNewSceneEntity(SceneEntity *entity)
 {
     m_SceneEntities.push_back(SceneEntityPtr(entity));
 }
@@ -387,11 +387,33 @@ void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
 {
     BT_PROFILE("Scene::RenderEntities()");
 
-    auto           frustum = sr->GetCamera()->GetFrustum();
-    renderStats_s *stats   = GLBackend::Instance()->RenderStats();
+    DebugSorting(sr);
+
+    renderStats_s *stats = GLBackend::Instance()->RenderStats();
 
     stats->nEntitiesTotal    = m_SceneEntities.size();
     stats->nEntitiesRendered = 0;
+
+    ModelType currenType = ModelType::Unset;
+
+    for (auto & it: m_vSortedEntities)
+    {
+
+
+
+        stats->nEntitiesRendered++;
+        it.pEntity->Render(mode, nullptr);
+    }
+}
+
+void Scene::DebugSorting(SceneRenderer* sr)
+{
+    BT_PROFILE("Scene::DebugSorting()");
+
+
+    auto frustum = sr->GetCamera()->GetFrustum();
+    
+    m_vSortedEntities.clear();
 
     for (auto &it : m_SceneEntities)
     {
@@ -404,15 +426,23 @@ void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
         if (frustum->CullBox(it->AbsoulteBoundingBox()))
             continue;
 
-        stats->nEntitiesRendered++;
+        // TODO: encapsulate model acquisition and fall back to box if original is unloaded? 
+        auto model = it->GetModel();        
 
-        if (it->IsTransparent())
-            sr->AddTransparentEntity(it);        
-        else
-        {
-            sr->SetEntityTransform(it);
-            it->Render(mode, nullptr);
-        }
+        if (model.expired())
+            continue;
+
+        auto ptr   = model.lock();
         
+       if (ptr->IsTransparent())
+            sr->AddTransparentEntity(it);
+       else
+           m_vSortedEntities.push_back({it.get(), ptr->GetType()});
+
     }
+
+    std::sort(m_vSortedEntities.begin(), m_vSortedEntities.end(), [](sSortInfo &a, sSortInfo &b) -> bool 
+        {
+            return a.modType > b.modType;
+        });
 }

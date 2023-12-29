@@ -435,7 +435,7 @@
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
     <ClCompile Include="mod_primitive.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

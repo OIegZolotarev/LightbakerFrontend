@@ -27,6 +27,14 @@ class StudioModelV10;
 
 class IWorldEntity;
 
+typedef struct
+{
+    SceneEntity *pEntity;
+    ModelType    modType;
+} sSortInfo;
+
+
+
 class Scene
 {
     lightBakerSettings_s        m_lightBakerParams;
@@ -106,4 +114,9 @@ public:
 //     void RenderGroupsShaded();
 //     void RenderUnshaded();
 //     void RenderLightShaded();
+private:
+    std::vector<sSortInfo> m_vSortedEntities;
+
+
+    void DebugSorting(SceneRenderer* sr);
 };

@@ -47,10 +47,6 @@ const std::string &SceneEntity::GetClassName() const
     return m_EntVars.classname;
 }
 
-bool SceneEntity::IsTransparent()
-{
-    return false;
-}
 
 std::weak_ptr<SceneEntity> SceneEntity::Next()
 {
@@ -78,6 +74,57 @@ const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
 void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
 {
     m_EntVars.transform = m_matGuizmo;
+}
+
+void SceneEntity::Debug_RenderTransform()
+{
+    BT_PROFILE("SceneEntity::Debug_RenderTransform()");
+
+    auto drawAxis = [](glm::vec3 pos, glm::vec3 dir, float size, glm::vec4 color) {
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4(color);
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4(1));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(0);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        mesh.Begin(GL_LINES);
+
+        auto p2 = (pos + dir * size);
+
+        mesh.Vertex3fv(&pos.x);
+        mesh.Vertex3fv(&p2.x);
+
+        mesh.End();
+        mesh.BindAndDraw();
+
+        shader->Unbind();
+    };
+
+    glm::vec3 forward = m_EntVars.transform[0];
+    glm::vec3 right   = m_EntVars.transform[2];
+    glm::vec3 up      = m_EntVars.transform[1];
+
+    drawAxis(m_EntVars.origin, forward, 100, {1, 0, 0, 1});
+    drawAxis(m_EntVars.origin, right, 100, {0, 1, 0, 1});
+    drawAxis(m_EntVars.origin, up, 100, {0, 0, 1, 1});
 }
 
 const glm::vec3 SceneEntity::GetAngles() const

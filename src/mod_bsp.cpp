@@ -14,8 +14,10 @@
 BSPModelAdapter::BSPModelAdapter(const char *modelName) : IModel(modelName)
 {
     m_ModelIndex = atoi(modelName + 1);
+    SetType(ModelType::StaticLightmapped);
 
-
+   
+    
 }
 
 BSPModelAdapter::~BSPModelAdapter()
@@ -68,6 +70,8 @@ void BSPModelAdapter::OnSceneLoaded(Scene *pScene)
     GoldSource::BSPModelRenderCookiePtr cookie = pBSPWorld->GetBSPModelRenderCookie(m_ModelIndex);
 
     m_Model = cookie;
+
+    SetTransparent(cookie->HasTransparentFaces());
 }
 
 

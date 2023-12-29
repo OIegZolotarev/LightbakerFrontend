@@ -13,7 +13,7 @@
 
 const char *g_PrimitiveFiles[] = {"primitive/box.prim", "primitive/sphere.prim", "primitive/cone.prim"};
 
-CommonPrimitives PrimitiveModel::GetPrimitiveType(const char *fileName)
+CommonPrimitives PrimitiveModel::GetPrimitiveKind(const char *fileName)
 {
     for (size_t i = 0; i < (int)CommonPrimitives::Total; i++)
     {
@@ -26,9 +26,10 @@ CommonPrimitives PrimitiveModel::GetPrimitiveType(const char *fileName)
 
 PrimitiveModel::PrimitiveModel(const char *fileName) : IModel(fileName)
 {
-    m_Type = GetPrimitiveType(fileName);
+    SetType(ModelType::HelperPrimitive);
+    m_PrimitiveKind = GetPrimitiveKind(fileName);
 
-    switch (m_Type)
+    switch (m_PrimitiveKind)
     {
     case CommonPrimitives::Box:
         m_pDrawMesh = DrawUtils::MakeCube(1);
@@ -57,6 +58,8 @@ const std::optional<BoundingBox> PrimitiveModel::GetBoundingBox() const
 
 void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode)
 {
+    BT_PROFILE("PrimitiveModel::Render()");
+
     auto &    bbox   = pEntity->GetRelativeBoundingBox();
     glm::vec3 scale  = bbox.Size();
     auto      shader = GLBackend::Instance()->SolidColorGeometryShader();

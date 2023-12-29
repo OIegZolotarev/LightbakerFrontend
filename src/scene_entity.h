@@ -162,13 +162,13 @@ public:
 
     template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef);
 
-    virtual bool IsTransparent();
-
     std::weak_ptr<SceneEntity> Next();
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
     const BoundingBox &        AbsoulteBoundingBox() const;
 
     void SetTransform(glm::mat4 m_matGuizmo);
+
+    void Debug_RenderTransform();
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

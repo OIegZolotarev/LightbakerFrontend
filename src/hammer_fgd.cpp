@@ -76,7 +76,7 @@ FGDEntityClass::~FGDEntityClass()
 FGDEntityClass::FGDEntityClass(HammerFGDFile *pOwner, FGDEntityClassType type, std::string className,
                                std::string description, FGDPropertiesList &props)
 {
-    m_Type        = type;
+    m_PrimitiveKind        = type;
     m_ClassName   = className;
     m_Description = description;
 
@@ -299,7 +299,7 @@ FGDPropertyDescriptor::FGDPropertyDescriptor(std::string name, std::string typeI
 
     try
     {
-        m_Type = FGDPropertyTypes::_from_string_nocase(typeId.c_str());
+        m_PrimitiveKind = FGDPropertyTypes::_from_string_nocase(typeId.c_str());
     }
     catch (std::exception &e)
     {
@@ -322,7 +322,7 @@ FGDPropertyDescriptor::FGDPropertyDescriptor(FGDPropertyDescriptor *pOther)
     m_DefaultValue      = pOther->m_DefaultValue;
     m_DefaultValueFloat = pOther->m_DefaultValueFloat;
     m_PropertyHelp      = pOther->m_PropertyHelp;
-    m_Type              = pOther->m_Type;
+    m_PrimitiveKind              = pOther->m_PrimitiveKind;
 }
 
 const std::string &FGDPropertyDescriptor::GetDescription() const

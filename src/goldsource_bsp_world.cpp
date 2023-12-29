@@ -10,6 +10,7 @@
 #include "goldsource_bsp_world.h"
 #include "r_camera.h"
 #include "scene_renderer.h"
+#include "mod_manager.h"
 
 using namespace GoldSource;
 
@@ -77,6 +78,10 @@ void BSPWorld::OnLevelLoaded()
 
     SetBoundingBox(BoundingBox(minsmaxs));
     SetPosition(glm::vec3{0, 0, 0});
+
+    auto worldModel = ModelsManager::Instance()->LookupModel("*0");
+
+    SetModel(worldModel);
 
     ModelsManager::Instance()->OnSceneLoaded(m_pScene); 
 

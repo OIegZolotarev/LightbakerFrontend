@@ -361,6 +361,7 @@ void ShaderProgram::LinkProgram()
 
 void ShaderProgram::Bind() const
 {
+    //BT_PROFILE("ShaderProgram::Bind()");
     glUseProgram(m_uiProgramId);
 }
 

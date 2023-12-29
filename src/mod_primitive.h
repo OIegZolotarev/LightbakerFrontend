@@ -21,9 +21,9 @@ enum class CommonPrimitives
 class PrimitiveModel : public IModel
 {
     DrawMesh *m_pDrawMesh = nullptr;
-    CommonPrimitives m_Type;
+    CommonPrimitives m_PrimitiveKind;
 
-    CommonPrimitives GetPrimitiveType(const char *fileName);
+    CommonPrimitives GetPrimitiveKind(const char *fileName);
 
 public:
     PrimitiveModel(const char * fileName);

@@ -52,7 +52,7 @@ public:
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
-    bool IsTransparent() override;
+    
 
     void Render(RenderMode mode, ShaderProgram *shader) override;
 };

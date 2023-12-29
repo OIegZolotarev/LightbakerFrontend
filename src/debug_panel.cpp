@@ -81,8 +81,6 @@ void DebugPanel::Render()
     {
         if (ImGui::BeginTabBar("###DebugTabs"))
         {
-            if (ImGui::BeginTabItem("General"))
-            {
                 ImGui::Text("FPS: %d\n", fps);
 
                 auto *stats = GLBackend::Instance()->RenderStats();
@@ -92,11 +90,7 @@ void DebugPanel::Render()
 
                 ImGui::Text("Entities rendered/total: %d/%d\n", stats->nEntitiesRendered, stats->nEntitiesTotal);
 
-                ImGui::EndTabItem();
-            }
 
-            if (ImGui::BeginTabItem("Profiler"))
-            {
                 auto iterator = CProfileManager::Get_Iterator();
 
                 iterator->First();
@@ -132,11 +126,6 @@ void DebugPanel::Render()
                 {
                     CProfileManager::Reset();
                 }
-
-                ImGui::Text("FPS: %d (%.3f ms.)\n", fps, (1.0f / fps) * 1000.f);
-
-                ImGui::EndTabItem();
-            }
 
             ImGui::EndTabBar();
         }

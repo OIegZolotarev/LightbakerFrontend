@@ -43,6 +43,8 @@ GLBackend::~GLBackend()
 
 ShaderProgram *GLBackend::QueryShader(std::string fileName, std::list<const char *> defines)
 {
+    //BT_PROFILE("GLBackend::QueryShader()");
+
     ShaderProgram *result = nullptr;
     size_t hashVal        = ShaderProgram::CalculateHash(fileName, defines);
 

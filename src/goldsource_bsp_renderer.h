@@ -60,13 +60,15 @@ class BSPModelRenderCookie
 {
     DrawMesh *    m_pMesh;
     displayList_t m_DisplayList;
-
+    bool            m_bHasTransparentFaces = false;
     const dmodel_t *m_pBSPModel;
 
 public:
-    BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t *mod);
+    BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t *mod, bool hasTransparentFaces);
     ~BSPModelRenderCookie();
 
+    
+    bool      HasTransparentFaces() const;
     DrawMesh *GetDrawMesh()
     {
         return m_pMesh;
@@ -79,6 +81,8 @@ public:
 
 private:
     BoundingBox m_BoundingBox;
+
+
 };
 
 typedef std::shared_ptr<BSPModelRenderCookie> BSPModelRenderCookiePtr;

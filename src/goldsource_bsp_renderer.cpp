@@ -353,6 +353,8 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
     std::vector<msurface_t *> m_SortedFaces;
     std::vector<msurface_t> & surfaces = m_pLevel->GetFaces();
 
+    bool hasTransparent = false;
+
     for (int i = mod->firstface; i < (mod->firstface + mod->numfaces); i++)
     {
         auto s = &surfaces[i];
@@ -362,6 +364,9 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
 
         if (!s->texinfo->texture->loadedTexture)
             s->texinfo->texture->loadedTexture = TextureManager::GetFallbackTexture();
+
+        if (s->texinfo->texture->name[0] == '{')
+            hasTransparent = true;
 
         m_SortedFaces.push_back(s);
     }
@@ -435,8 +440,8 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
     auto lmState = m_pLevel->GetLightmapState();
     lmState->UploadBlock(false);
 
-    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists, mod);
-
+    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists, mod, hasTransparent);
+    
     return pResult;
 }
 
@@ -458,13 +463,13 @@ void BSPRenderer::ReloadLightmaps()
     }
 }
 
-BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t * model)
+BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t * model, bool hasTransparentFaces)
 {
     m_pMesh       = pMesh;
     m_DisplayList = std::move(dl);
     m_pBSPModel   = model;
     
-
+    m_bHasTransparentFaces = hasTransparentFaces;
     m_BoundingBox = BoundingBox(model->mins, model->maxs);
 }
 
@@ -477,4 +482,9 @@ BSPModelRenderCookie::~BSPModelRenderCookie()
 const BoundingBox BSPModelRenderCookie::GetBoundingBox() const
 {
     return m_BoundingBox;
+}
+
+bool BSPModelRenderCookie::HasTransparentFaces() const
+{
+    return m_bHasTransparentFaces;
 }
