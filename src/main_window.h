@@ -70,7 +70,7 @@ public:
     float FrameDelta();
     int   GetFPS();
 
-    void      ClearBackground();
+    void ClearBackground(bool rebindShader);
     Viewport *GetViewport(int index);
     void      CloneViewport(Viewport *pViewport);
 

@@ -27,14 +27,6 @@ class StudioModelV10;
 
 class IWorldEntity;
 
-typedef struct
-{
-    SceneEntity *pEntity;
-    ModelType    modType;
-} sSortInfo;
-
-
-
 class Scene
 {
     lightBakerSettings_s        m_lightBakerParams;
@@ -58,6 +50,13 @@ class Scene
     void LoadLevel(const char *levelName);
 
      IModelWeakPtr pTestModel;
+
+     friend class SceneRenderer;
+
+     const std::list<SceneEntityPtr> & GetEntities() const
+     {
+         return m_SceneEntities;
+     }
 
 public:
     Scene();
@@ -108,15 +107,5 @@ public:
     uint32_t                 AllocSerialNumber();
     IWorldEntity* GetWorldEntity();
   
-
-    void RenderEntities(RenderMode mode, SceneRenderer* pRenderer);
-
-//     void RenderGroupsShaded();
-//     void RenderUnshaded();
-//     void RenderLightShaded();
-private:
-    std::vector<sSortInfo> m_vSortedEntities;
-
-
-    void DebugSorting(SceneRenderer* sr);
+    size_t TotalEntities();
 };

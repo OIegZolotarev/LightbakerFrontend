@@ -43,7 +43,7 @@ void SecondaryWindow::LoopStep()
     GL_BeginFrame();
 
     float flFrameDelta = Application::GetMainWindow()->FrameDelta();
-    Application::GetMainWindow()->ClearBackground();
+    Application::GetMainWindow()->ClearBackground(true);
 
     ViewportsOrchestrator::Instance()->RenderViewports(this, flFrameDelta);
 

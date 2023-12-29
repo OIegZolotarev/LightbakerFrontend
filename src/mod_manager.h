@@ -20,6 +20,7 @@ enum class ModelType
 class Scene;
 class SceneEntity;
 class SceneRenderer;
+class ShaderProgram;
 
 class IModel
 {
@@ -41,7 +42,7 @@ public:
     ;
 
     bool         IsTransparent();
-    virtual void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode) = 0;
+    virtual void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) = 0;
 
     size_t Hash();
     void   SetHash(size_t hash);

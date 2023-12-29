@@ -24,15 +24,39 @@ SpriteModel::~SpriteModel()
 {
 }
 
-void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode)
+void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     BT_PROFILE("SpriteModel::Render");
 
     const BoundingBox &relativeBbox = pEntity->GetRelativeBoundingBox();
 
     const glm::vec3 size = relativeBbox.Size();
-    sr->DrawBillboard(pEntity->GetPosition(), size.xy, m_pTexture, pEntity->GetRenderColor(),
-                      pEntity->GetSerialNumber());
+    
+    // glm::mat4 matTransform = glm::translate(glm::mat4(1), pEntity->GetPosition());
+
+    for (auto &it : currentShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color:
+            it->SetFloat4(pEntity->GetRenderColor());
+            break;
+        case UniformKind::TransformMatrix:
+            it->SetMat4(pEntity->GetTransform());
+            //it->SetMat4(matTransform);
+            break;
+        case UniformKind::Scale:
+            it->SetFloat3({size.xyy});
+            break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(pEntity->GetSerialNumber());
+            break;
+        }
+    }
+
+    GLBackend::BindTexture(0, m_pTexture);    
+    
+    sr->DrawBillboardMesh();
 }
 
 void SpriteModel::OnSceneLoaded(Scene *pScene)

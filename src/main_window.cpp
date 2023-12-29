@@ -924,14 +924,14 @@ void MainWindow::GL_BeginFrame()
 
     // glClearColor(0.25, .25, .25, 1);
 
-    ClearBackground();
+    ClearBackground(true);
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
 }
 
-void MainWindow::ClearBackground()
+void MainWindow::ClearBackground(bool rebindShader)
 {
     auto col1 = m_pBackgroudColorSetting1->GetColorRGB();
     auto col2 = m_pBackgroudColorSetting2->GetColorRGB();
@@ -943,8 +943,11 @@ void MainWindow::ClearBackground()
     {
         glDepthMask(0);
 
-        m_pBackgroundShader->Bind();
-        m_pBackgroundMesh->Bind();
+        if (rebindShader)
+        {
+            m_pBackgroundShader->Bind();
+            m_pBackgroundMesh->Bind();
+        }
 
         for (auto &it : m_pBackgroundShader->Uniforms())
         {

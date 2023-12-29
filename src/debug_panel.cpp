@@ -90,6 +90,8 @@ void DebugPanel::Render()
 
                 ImGui::Text("Entities rendered/total: %d/%d\n", stats->nEntitiesRendered, stats->nEntitiesTotal);
 
+                ImGui::Text("Shaders switches (total/unnecessary): %d/%d\n", stats->nShaderBinds, stats->nUnnecessaryShaderBinds);
+
 
                 auto iterator = CProfileManager::Get_Iterator();
 

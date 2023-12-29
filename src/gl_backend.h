@@ -15,6 +15,7 @@
 #include "gl_draw_mesh.h"
 
 
+
 typedef struct renderStats_s
 {
     size_t nDrawCalls = 0;
@@ -22,6 +23,10 @@ typedef struct renderStats_s
 
     size_t nEntitiesRendered = 0;
     size_t nEntitiesTotal = 0;
+
+    size_t nShaderBinds = 0;
+    size_t nUnnecessaryShaderBinds = 0;
+    size_t idLastShader = 0;
 
 } renderStats_t;
 

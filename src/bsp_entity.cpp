@@ -73,7 +73,7 @@ void BSPEntity::Render(RenderMode mode, ShaderProgram *shader)
     auto ptr = model.lock();
 
     assert(ptr && "Should always have a model for an entity");
-    ptr->Render(this, sr, mode);    
+    ptr->Render(this, sr, mode, shader);    
 }
 
 

@@ -194,10 +194,10 @@ void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
     m_vecEyesPosition = cameraPosition.xyz;
     auto shader       = GLBackend::Instance()->LightMappedSceneShader();
     
-    shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetTransform(m_Transform);
-    shader->SetScale(1);
+//     shader->Bind();
+//     shader->SetDefaultCamera();
+//     shader->SetTransform(m_Transform);
+//     shader->SetScale(1);
 
     auto inf = m_RenderInfos[0];
 

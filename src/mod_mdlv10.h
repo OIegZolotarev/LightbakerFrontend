@@ -216,7 +216,8 @@ class StudioMeshV10
 public:
     StudioMeshV10(StudioModelV10 *pModel, StudioSubModelV10 *pSubModel, dstudiomesh10_t *pMesh);
     ~StudioMeshV10();
-    void DrawPoints(StudioEntityState *pState);
+    
+    void DrawPoints(StudioEntityState *pState, ShaderProgram * currentShader);
 };
 
 class StudioSubModelV10
@@ -262,7 +263,7 @@ public:
     StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_t *pModel);
     ~StudioSubModelV10();
 
-    void DrawPoints(StudioEntityState *pState) const;
+    void DrawPoints(StudioEntityState *pState, ShaderProgram *currentShader) const;
 
     const std::vector<subModelVert> &GetVertices() const
     {
@@ -377,8 +378,6 @@ public:
     StudioModelV10(FileData *fd);
     ~StudioModelV10();
 
-    void DebugRender();
-
     // Entity state
     int   SetBodygroup(int iGroup, int iValue);
     int   SetSkin(int iValue);
@@ -391,7 +390,7 @@ public:
     short             GetSkinRef(int skinref);
     StudioTextureV10 *GetTexture(short textureIdx);
 
-    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode) override;
+    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
 };
 
 } // namespace GoldSource

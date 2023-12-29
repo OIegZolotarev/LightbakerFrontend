@@ -56,17 +56,16 @@ const std::optional<BoundingBox> PrimitiveModel::GetBoundingBox() const
     return BoundingBox(1);
 }
 
-void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode)
+void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     BT_PROFILE("PrimitiveModel::Render()");
 
     auto &    bbox   = pEntity->GetRelativeBoundingBox();
     glm::vec3 scale  = bbox.Size();
-    auto      shader = GLBackend::Instance()->SolidColorGeometryShader();
-
-    shader->Bind();
-
-    for (auto &it : shader->Uniforms())
+    
+    // currentShader->Bind();
+    
+    for (auto &it : currentShader->Uniforms())
     {
         switch (it->Kind())
         {
@@ -85,15 +84,10 @@ void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode 
         case UniformKind::ObjectSerialNumber:
             it->SetInt(pEntity->GetSerialNumber());
             break;
-        default:
-            GLBackend::SetUniformValue(it);
-            break;
         }
     }
 
     m_pDrawMesh->BindAndDraw();
-
-    shader->Unbind();
 }
 
 IModelWeakPtr PrimitiveModel::LookupByType(CommonPrimitives type)

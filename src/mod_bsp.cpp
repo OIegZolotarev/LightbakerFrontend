@@ -24,23 +24,12 @@ BSPModelAdapter::~BSPModelAdapter()
 {
 }
 
-void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode)
+void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     auto model = m_Model.lock();
 
     if (!model)
         return;
-
-    auto shader = GLBackend::Instance()->LightMappedSceneShader();
-
-    // TODO: draw chains
-
-    GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetTransform(glm::mat4(1));
-    shader->SetScale(1);
 
     auto pMesh = model->GetDrawMesh();
     pMesh->Bind();
@@ -57,7 +46,7 @@ void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMod
 
     pMesh->Unbind();
 
-    GLBackend::SetBlending(false);
+    
 }
 
 void BSPModelAdapter::OnSceneLoaded(Scene *pScene)

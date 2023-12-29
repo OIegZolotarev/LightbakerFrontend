@@ -30,7 +30,7 @@ public:
     ~PrimitiveModel();
 
     const std::optional<BoundingBox> GetBoundingBox() const override;
-    void                             Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode) override;
+    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
 
     static IModelWeakPtr LookupByType(CommonPrimitives type);
 };

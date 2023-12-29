@@ -186,7 +186,7 @@ void SceneEntity::SetPosition(const glm::vec3 &pos)
     m_EntVars.origin = pos;
     RecalcAbsBBox();
 
-    //m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
 const glm::vec3 SceneEntity::GetPosition() const

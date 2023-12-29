@@ -116,6 +116,11 @@ void GLBackend::NewFrame()
 
     m_RenderStats.nDrawCalls = 0;
     m_RenderStats.nTriangles = 0;
+
+
+    m_RenderStats.nShaderBinds            = 0;
+    m_RenderStats.nUnnecessaryShaderBinds = 0;
+    m_RenderStats.idLastShader            = 0;
 }
 
 renderStats_t *GLBackend::RenderStats()

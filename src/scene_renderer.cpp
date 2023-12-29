@@ -36,7 +36,7 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
     auto pers     = Application::Instance()->GetPersistentStorage();
     m_pShowGround = pers->GetSetting(ApplicationSettings::ShowGround);
 
-    m_pSceneShader = GLBackend::Instance()->QueryShader("res/glprogs/scene_uber.glsl", {});
+    m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -110,39 +110,24 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     ResetTransparentChain();
 
-    Application::GetMainWindow()->ClearBackground();
+    Application::GetMainWindow()->ClearBackground(false);
 
     // Render visible stuff
 
     if (m_pScene)
     {
-        m_pSceneShader->Bind();
+        renderStats_s *stats = GLBackend::Instance()->RenderStats();
 
-        for (auto &it : m_pSceneShader->Uniforms())
-        {
-            switch (it->Kind())
-            {
-            case UniformKind::ProjectionMatrix:
-                it->SetMat4(m_pCamera->GetProjectionMatrix());
-                break;
-            case UniformKind::ModelViewMatrix:
-                it->SetMat4(m_pCamera->GetViewMatrix());
-                break;
-            case UniformKind::Scale:
-                it->SetFloat3({1.0f, 1.0f, 1.0f});
-                break;
-            case UniformKind::RenderMode:
-                it->SetInt((int)m_RenderMode);
-                break;
-            default:
-                break;
-            }
-        }
+        stats->nEntitiesTotal    = m_pScene->TotalEntities();
+        stats->nEntitiesRendered = 0;
 
-        m_pScene->RenderEntities(m_RenderMode, this);
+        SortRenderLists();
+        RenderEntitiesChain(m_vSortedSolidEntities.data(), m_vSortedSolidEntities.size(), false);
+
+        GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        RenderEntitiesChain(m_vSortedTransparentEntities.data(), m_vSortedTransparentEntities.size(), true);
+        GLBackend::SetBlending(false);
     }
-
-    RenderTransparentChain();
 
     if (m_pShowGround->GetAsBool())
     {
@@ -191,19 +176,19 @@ void SceneRenderer::RenderHelperGeometry()
 
     for (auto &it : m_pScene->GetLightDefs())
     {
-//         if (!it)
-//             return;
-// 
-//         if (!it->IsLightEntity())
-//             continue;
-// 
-//         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
-//                       it->GetSerialNumber());
-// 
-//         if (it->IsSelected())
-//         {
-//             selection = it;
-//         }
+        //         if (!it)
+        //             return;
+        //
+        //         if (!it->IsLightEntity())
+        //             continue;
+        //
+        //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+        //                       it->GetSerialNumber());
+        //
+        //         if (it->IsSelected())
+        //         {
+        //             selection = it;
+        //         }
     }
 
     if (selection.lock() && false)
@@ -426,11 +411,170 @@ void SceneRenderer::RenderTransparentChain()
     }
 }
 
-void SceneRenderer::SetEntityTransform(SceneEntityPtr &it)
+void SceneRenderer::SortRenderLists()
 {
-    auto uniform = m_pSceneShader->UniformByKind(UniformKind::TransformMatrix);
-    if (uniform)
-        uniform->SetMat4(it->GetTransform());
+    BT_PROFILE("SceneRenderer::SortRenderLists()");
+
+    auto frustum = GetCamera()->GetFrustum();
+
+    m_vSortedSolidEntities.clear();
+    m_vSortedTransparentEntities.clear();
+
+    auto &ents = m_pScene->GetEntities();
+
+    glm::vec3 eyesPos = m_pCamera->GetOrigin();
+
+    for (auto &it : ents)
+    {
+        if (!it)
+            continue;
+
+        if (!it->IsDataLoaded())
+            continue;
+
+        if (frustum->CullBox(it->AbsoulteBoundingBox()))
+            continue;
+
+        // TODO: encapsulate model acquisition and fall back to box if original is unloaded?
+        auto model = it->GetModel();
+
+        if (model.expired())
+            continue;
+
+        auto ptr = model.lock();
+
+        if (ptr->IsTransparent())
+        {
+            float dist = glm::length2(it->GetPosition() - eyesPos);
+            m_vSortedTransparentEntities.push_back({it.get(), ptr->GetType(), dist});
+        }
+        else
+            m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
+    }
+
+    std::sort(m_vSortedSolidEntities.begin(), m_vSortedSolidEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool { return a.modType > b.modType; });
+
+    std::sort(m_vSortedTransparentEntities.begin(), m_vSortedTransparentEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool {
+                  return a.modType > b.modType && a.renderDistance > b.renderDistance;
+              });
+}
+
+void SceneRenderer::RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const
+{
+    BT_PROFILE(transparent ? "SceneRenderer::RenderEntitiesChain(transparent == true)"
+                           : "SceneRenderer::RenderEntitiesChain(transparent == false)");
+
+    renderStats_s *stats = GLBackend::Instance()->RenderStats();
+
+    ModelType      currentType   = ModelType::Unset;
+    ShaderProgram *currentShader = 0;
+
+    for (size_t i = 0; i < nEntities; i++)
+    {
+        const sSortInfo *info = &pData[i];
+
+        if (info->modType != currentType)
+        {
+            currentType   = info->modType;
+            currentShader = SetupShaderForModelType(currentType);
+        }
+
+        stats->nEntitiesRendered++;
+        info->pEntity->Render(m_RenderMode, currentShader);
+    }
+}
+
+ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentType) const
+{
+    switch (currentType)
+    {
+    case ModelType::StaticLightmapped: {
+        LightMappedSceneShaderProgram *shader =
+            (LightMappedSceneShaderProgram *)GLBackend::Instance()->LightMappedSceneShader();
+
+        shader->Bind();
+        shader->SetDefaultCamera();
+        shader->SetTransform(glm::mat4(1));
+        shader->SetScale(1);
+
+        return shader;
+    }
+    case ModelType::StudioV10: {
+        m_pStudioShader->Bind();
+
+        for (auto &it : m_pStudioShader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Diffuse:
+                it->SetInt(0);
+                break;
+            case UniformKind::ProjectionMatrix:
+                it->SetMat4(m_pCamera->GetProjectionMatrix());
+                break;
+            case UniformKind::ModelViewMatrix:
+                it->SetMat4(m_pCamera->GetViewMatrix());
+                break;
+            default:
+                break;
+            }
+        }
+
+        return m_pStudioShader;
+    }
+    break;
+    case ModelType::Sprite: {
+        m_pBillBoardsShader->Bind();
+        m_pBillBoard->Bind();
+
+        for (auto &it : m_pBillBoardsShader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::ProjectionMatrix:
+                it->SetMat4(m_pCamera->GetProjectionMatrix());
+                break;
+            case UniformKind::ModelViewMatrix:
+                it->SetMat4(m_pCamera->GetViewMatrix());
+                break;
+            }
+        }
+
+        return m_pBillBoardsShader;
+    }
+    break;
+    case ModelType::HelperPrimitive: {
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::ProjectionMatrix:
+                it->SetMat4(m_pCamera->GetProjectionMatrix());
+                break;
+            case UniformKind::ModelViewMatrix:
+                it->SetMat4(m_pCamera->GetViewMatrix());
+                break;
+            default:
+                break;
+            }
+        }
+
+        return shader;
+    }
+    break;
+    case ModelType::Unset:
+        break;
+    default:
+        break;
+    }
+
+    return nullptr;
 }
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
@@ -484,6 +628,11 @@ glm::vec3 SceneRenderer::GetRenderPos()
 void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
 {
     m_TransparentEntitiesChain.AddDistanceSorted(pEntity);
+}
+
+void SceneRenderer::DrawBillboardMesh()
+{
+    m_pBillBoard->Draw();
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)

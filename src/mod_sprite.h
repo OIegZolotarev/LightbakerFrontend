@@ -19,7 +19,7 @@ public:
     SpriteModel(const char *modelName);
     ~SpriteModel();
 
-    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode) override;
+    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
     void OnSceneLoaded(Scene *pScene) override;
 
     const std::optional<BoundingBox> GetBoundingBox() const override;

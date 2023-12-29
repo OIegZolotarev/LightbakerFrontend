@@ -361,13 +361,20 @@ void ShaderProgram::LinkProgram()
 
 void ShaderProgram::Bind() const
 {
-    //BT_PROFILE("ShaderProgram::Bind()");
+    auto rs = GLBackend::Instance()->RenderStats();
+
+    if (rs->idLastShader == m_uiProgramId)
+        rs->nUnnecessaryShaderBinds++;
+
+    rs->nShaderBinds++;
+    rs->idLastShader = m_uiProgramId;
+
     glUseProgram(m_uiProgramId);
 }
 
 void ShaderProgram::Unbind() const
 {
-    glUseProgram(0);
+    // glUseProgram(0);
 }
 
 std::vector<ShaderUniform *> &ShaderProgram::Uniforms()

@@ -11,10 +11,10 @@
 #include "lights.h"
 #include "main_window.h"
 #include "model_obj.h"
+#include "r_chain.h"
 #include "scene.h"
 #include "viewport.h"
 #include "viewport_rendermodes.h"
-#include "r_chain.h"
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -26,6 +26,12 @@
 class Camera;
 class MainWindow;
 
+typedef struct
+{
+    SceneEntity *pEntity;
+    ModelType    modType;
+    float        renderDistance;
+} sSortInfo;
 
 class SceneRenderer : public IEventHandler
 {
@@ -71,13 +77,12 @@ public:
     glm::vec3 GetRenderPos();
 
     void AddTransparentEntity(SceneEntityWeakPtr pEntity);
-    void SetEntityTransform(SceneEntityPtr &it);
+
+void DrawBillboardMesh();
 
 private:
-    
     RenderChain m_TransparentEntitiesChain;
-    
-    
+
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
     bool       m_bWireframeOverlay = false;
 
@@ -87,7 +92,7 @@ private:
     MainWindow *m_pTargetWindow;
     Scene *     m_pScene;
 
-    VariantValue* m_pShowGround;
+    VariantValue *m_pShowGround;
 
     // Helper meshes
     DrawMesh *m_pBillBoard;
@@ -97,8 +102,7 @@ private:
     DrawMesh *m_pSpotlightCone;
 
     // Shaders
-    ShaderProgram *m_pBillBoardsShader    = nullptr;
-    ShaderProgram *m_pSceneShader = nullptr;
+    ShaderProgram *m_pBillBoardsShader = nullptr;
 
     void           DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;
@@ -108,5 +112,15 @@ private:
 
     void RenderTransparentChain();
 
+    std::vector<sSortInfo> m_vSortedSolidEntities;
+    std::vector<sSortInfo> m_vSortedTransparentEntities;
 
+    void                   SortRenderLists();
+
+    ShaderProgram *m_pStudioShader;
+
+    
+
+    void RenderEntitiesChain(const sSortInfo * pData, const size_t nEntities, bool transparent) const;
+    ShaderProgram *SetupShaderForModelType(const ModelType currentType) const;
 };
