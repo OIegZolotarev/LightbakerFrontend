@@ -45,7 +45,7 @@ void DrawMesh::Draw(uint32_t first /*= 0*/, uint32_t num /*= 0*/)
 
 void DrawMesh::Unbind()
 {
-    glBindVertexArray(0);
+    // glBindVertexArray(0);
 }
 
 void DrawMesh::Begin(GLenum mode, bool draft)
@@ -64,6 +64,8 @@ void DrawMesh::Begin(GLenum mode, bool draft)
 
 void DrawMesh::End()
 {
+    GL_CheckForErrors();
+
     if (!m_vboId)
         glGenBuffers(1, &m_vboId);
 
@@ -77,32 +79,40 @@ void DrawMesh::End()
     GLenum use = GL_STATIC_DRAW;
 
     if (m_iFlags & DrawMeshFlags::Dynamic)
-        use = GL_DYNAMIC_DRAW;
+        use = GL_DYNAMIC_COPY;
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(drawVert_t) * m_Data.size(), m_Data.data(), use);
+    GL_CheckForErrors();
+    
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, xyz));
     glEnableVertexAttribArray(0);
+    GL_CheckForErrors();
 
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, normal));
     glEnableVertexAttribArray(1);
+    GL_CheckForErrors();
 
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, tangent));
     glEnableVertexAttribArray(2);
+    GL_CheckForErrors();
 
     if (m_iFlags & UsingBones)
     {
         glVertexAttribIPointer(3, 4, GL_UNSIGNED_BYTE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
         glEnableVertexAttribArray(3);
+        GL_CheckForErrors();
     }
     else 
     {
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
         glEnableVertexAttribArray(3);
+        GL_CheckForErrors();
     }
 
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, uv));
     glEnableVertexAttribArray(4);
+    GL_CheckForErrors();
 
     m_NumElements = m_Data.size();
     FreeVector(m_Data);
@@ -113,6 +123,8 @@ void DrawMesh::End()
 
         glGenBuffers(1, &m_indBuffId);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indBuffId);
+        GL_CheckForErrors();
+
 
         if (m_NumElements < 0xFFFF)
         {
@@ -132,6 +144,8 @@ void DrawMesh::End()
             glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_Indices.size() * sizeof(unsigned short), m_Indices.data(),
                          GL_STATIC_DRAW);
         }
+
+        GL_CheckForErrors();
 
         m_NumIndices = m_Indices.size();
         m_Indices.clear();

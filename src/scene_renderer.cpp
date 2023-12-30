@@ -18,18 +18,18 @@
 
 uberShaderDefs_t g_UberShaderTable[] = {
     // clang-format off
-    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"     , "DIFFUSE",}     , nullptr},
-    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"     , "DIFFUSE"}     , nullptr},
-    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "NORMAL"}      , nullptr},
-    {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"}, nullptr},
-    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr},
-    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "NORMAL"}      , nullptr},
-    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          , "DIFFUSE"}     , nullptr},
-    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          , "DIFFUSE"}     , nullptr},
-    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          , "DIFFUSE"}     , nullptr},
-    {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
-    {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
-    {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
+    {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"} , nullptr},
+    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "FLATSHADED"}  , nullptr}    ,    
+    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StaticLightmapped , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "FLATSHADED"}  , nullptr}    ,
+    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
+    {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     // clang-format on
 };
 
@@ -53,13 +53,20 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
 
     m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 
+    Con_Printf("==== Building uber shader permutations ====\n");
+
     for (auto &it : g_UberShaderTable)
     {
+        Con_Printf("Building permutation: ");
+        for (auto & it: it.defines)
+            Con_Printf(" %s", it);
 
+        Con_Printf("\n");
 
         it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
     }
 
+    Con_Printf("==== Uber shader permutations done ====\n");
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -130,10 +137,13 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     m_pCamera    = pViewport->GetCamera();
     m_RenderMode = pViewport->GetRenderMode();
+    GL_CheckForErrors();
 
     ResetTransparentChain();
+    GL_CheckForErrors();
 
-    Application::GetMainWindow()->ClearBackground(false);
+    Application::GetMainWindow()->ClearBackground(true);
+    GL_CheckForErrors();
 
     // Render visible stuff
 
@@ -150,21 +160,31 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
         stats->nEntitiesRendered = 0;
 
         SortRenderLists();
+        GL_CheckForErrors();
+
         RenderEntitiesChain(m_vSortedSolidEntities.data(), m_vSortedSolidEntities.size(), false);
+        GL_CheckForErrors();
 
         GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL_CheckForErrors();
+
         RenderEntitiesChain(m_vSortedTransparentEntities.data(), m_vSortedTransparentEntities.size(), true);
+        GL_CheckForErrors();
+
         GLBackend::SetBlending(false);
+        GL_CheckForErrors();
 
         if (m_RenderMode == RenderMode::Wireframe)
         {
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            GL_CheckForErrors();
         }
     }
 
     if (m_pShowGround->GetAsBool())
     {
         GridRenderer::Instance()->Render();
+        GL_CheckForErrors();
     }
 }
 
@@ -204,7 +224,7 @@ void SceneRenderer::RenderHelperGeometry()
     m_pBillBoard->Unbind();
 
     glDisable(GL_CULL_FACE);
-    glUseProgram(0);
+    //glUseProgram(0);
 #endif
 
     for (auto &it : m_pScene->GetLightDefs())
@@ -502,93 +522,53 @@ void SceneRenderer::RenderEntitiesChain(const sSortInfo *pData, const size_t nEn
 
 ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentType) const
 {
-    switch (currentType)
-    {
-    case ModelType::StaticLightmapped: {
-        LightMappedSceneShaderProgram *shader =
-            (LightMappedSceneShaderProgram *)GLBackend::Instance()->LightMappedSceneShader();
-
-        shader->Bind();
-        shader->SetDefaultCamera();
-        shader->SetTransform(glm::mat4(1));
-        shader->SetScale(1);
-
-        return shader;
-    }
-    case ModelType::StudioV10: {
-        m_pStudioShader->Bind();
-
-        for (auto &it : m_pStudioShader->Uniforms())
-        {
-            switch (it->Kind())
-            {
-            case UniformKind::Diffuse:
-                it->SetInt(0);
-                break;
-            case UniformKind::ProjectionMatrix:
-                it->SetMat4(m_pCamera->GetProjectionMatrix());
-                break;
-            case UniformKind::ModelViewMatrix:
-                it->SetMat4(m_pCamera->GetViewMatrix());
-                break;
-            default:
-                break;
-            }
-        }
-
-        return m_pStudioShader;
-    }
-    break;
-    case ModelType::Sprite: {
-        m_pBillBoardsShader->Bind();
+    if (currentType == ModelType::Sprite)
         m_pBillBoard->Bind();
 
-        for (auto &it : m_pBillBoardsShader->Uniforms())
+    RenderMode lookupMode = m_RenderMode;
+
+    if (lookupMode == RenderMode::Wireframe)
+        lookupMode = RenderMode::Flatshaded;
+
+    for (auto &it : g_UberShaderTable)
+    {
+        if (it.type == currentType && it.mode == lookupMode)
         {
-            switch (it->Kind())
+            it.shader->Bind();
+
+            for (auto &it : it.shader->Uniforms())
             {
-            case UniformKind::ProjectionMatrix:
-                it->SetMat4(m_pCamera->GetProjectionMatrix());
-                break;
-            case UniformKind::ModelViewMatrix:
-                it->SetMat4(m_pCamera->GetViewMatrix());
-                break;
+                switch (it->Kind())
+                {
+
+                case UniformKind::ProjectionMatrix:
+                    it->SetMat4(m_pCamera->GetProjectionMatrix());
+                    break;
+                case UniformKind::ModelViewMatrix:
+                    it->SetMat4(m_pCamera->GetViewMatrix());
+                    break;
+                case UniformKind::Scale:
+                    it->SetFloat3({1, 1, 1});
+                    break;
+                case UniformKind::TransformMatrix:
+                    it->SetMat4(glm::mat4(1));
+                    break;
+                case UniformKind::ObjectSerialNumber:
+                    it->SetInt(0);
+                    break;
+                default:
+                    break;
+                }
             }
+
+            // glFinish();
+
+            return it.shader;
         }
-
-        return m_pBillBoardsShader;
     }
-    break;
-    case ModelType::HelperPrimitive: {
-        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
-
-        shader->Bind();
-
-        for (auto &it : shader->Uniforms())
-        {
-            switch (it->Kind())
-            {
-            case UniformKind::ProjectionMatrix:
-                it->SetMat4(m_pCamera->GetProjectionMatrix());
-                break;
-            case UniformKind::ModelViewMatrix:
-                it->SetMat4(m_pCamera->GetViewMatrix());
-                break;
-            default:
-                break;
-            }
-        }
-
-        return shader;
-    }
-    break;
-    case ModelType::Unset:
-        break;
-    default:
-        break;
-    }
-
+    
     return nullptr;
+
 }
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,

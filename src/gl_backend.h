@@ -8,7 +8,7 @@
 #include "common.h"
 #include "editor_grid_shader.h"
 #include "helper_geometry_shader.h"
-#include "lightmapped_scene_shader.h"
+
 #include "gl_shader.h"
 #include "spotlight_cone_shader.h"
 #include "gl_texture.h"
@@ -40,10 +40,7 @@ class GLBackend
 {
     GLBackend();
 
-    // Scene render modes
-    LightMappedSceneShaderProgram *m_pLightmappedSceneShader   = nullptr;
-    DiffuseSceneShaderProgram *m_pDiffuseSceneShader           = nullptr;
-    GroupShadedSceneShaderProgram *m_pGroupShadedSceneShader   = nullptr;    
+    // Scene render modes    
     SpotlightConeShaderProgram *m_pSpotlightConeShader         = nullptr;    
 
     friend DrawMesh;
@@ -72,9 +69,7 @@ class GLBackend
 
     void DeleteAllShaders();
 
-    const LightMappedSceneShaderProgram *LightMappedSceneShader() const;
-    const DiffuseSceneShaderProgram *DiffuseSceneShader() const;
-    const GroupShadedSceneShaderProgram *GroupShadedSceneShader() const;
+    
     const SpotlightConeShaderProgram *SpotlightConeShader() const;
     
     ShaderProgram *                 SolidColorGeometryShader() const;
@@ -92,3 +87,13 @@ class GLBackend
     static void SetBlending(bool enable, GLenum sfactor, GLenum dfactor);
     static void SetBlending(bool enable);
 };
+
+
+
+void _GL_CheckForErrors(const char *filename, int line);
+
+#ifdef GL_DEBUG
+#define GL_CheckForErrors() _GL_CheckForErrors(__FILE__, __LINE__)
+#else
+#define GL_CheckForErrors() (void)0;
+#endif

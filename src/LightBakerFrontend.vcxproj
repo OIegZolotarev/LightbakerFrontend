@@ -276,7 +276,6 @@ build.bat
     <ClCompile Include="scene_entity.cpp" />
     <ClCompile Include="scene_shader.cpp" />
     <ClCompile Include="lb3k_wrapper.cpp" />
-    <ClCompile Include="lightmapped_scene_shader.cpp" />
     <ClCompile Include="lights.cpp" />
     <ClCompile Include="main_window.cpp" />
     <ClCompile Include="model_obj.cpp" />
@@ -394,7 +393,6 @@ build.bat
     <ClInclude Include="scene.h" />
     <ClInclude Include="scene_entity.h" />
     <ClInclude Include="scene_shader.h" />
-    <ClInclude Include="lightmapped_scene_shader.h" />
     <ClInclude Include="persistent.h" />
     <ClInclude Include="popup_lb3k_config.h" />
     <ClInclude Include="popup_loadfile_dialog.h" />
@@ -427,11 +425,7 @@ build.bat
     <None Include="..\bin\res\glprogs\editor_grid.glsl" />
     <None Include="..\bin\res\glprogs\object_selection.frag" />
     <None Include="..\bin\res\glprogs\object_selection.vert" />
-    <None Include="..\bin\res\glprogs\scene_diffuse.frag" />
     <None Include="..\bin\res\glprogs\scene_geometry.glsl" />
-    <None Include="..\bin\res\glprogs\scene_groupshaded.frag" />
-    <None Include="..\bin\res\glprogs\scene_ligtmapped.frag" />
-    <None Include="..\bin\res\glprogs\scene.vert" />
     <None Include="..\bin\res\glprogs\screenspace_2d.glsl" />
     <None Include="..\bin\res\glprogs\solidcolor_geom.glsl" />
     <None Include="..\bin\res\glprogs\spotlight_cone.frag" />

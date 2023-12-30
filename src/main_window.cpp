@@ -39,10 +39,10 @@ SDL_Cursor *g_EmptyCursor;
 char        g_IMGuiIniPath[1024];
 
 MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
-    
+
 {
     m_iWindowWidth = (defaultSize.x);
-    
+
     m_iWindowHeight = (defaultSize.y);
 
     m_strTitle = title;
@@ -64,8 +64,6 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
 void MainWindow::InitStuff()
 {
-    
-
     InitBackend();
 
     m_pSceneRenderer = new SceneRenderer(this);
@@ -74,6 +72,8 @@ void MainWindow::InitStuff()
     InitCommonResources();
     InitCommands();
     InitTimers();
+
+    GL_CheckForErrors();
 }
 
 MainWindow::~MainWindow()
@@ -83,7 +83,7 @@ MainWindow::~MainWindow()
 
     delete TextureManager::Instance();
 
-    FreeGLTextures();
+    // FreeGLTextures();
 
     delete m_pSceneRenderer;
 
@@ -98,6 +98,102 @@ MainWindow::~MainWindow()
     SDL_GL_DeleteContext(m_pGLContext);
     SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Quit();
+}
+
+void GLAPIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                     const GLchar *message, const void *userParam)
+{
+    // Convert enums into a humen readable text
+    // See: https://www.opengl.org/registry/specs/ARB/debug_output.txt
+
+    const char *sourceText = "Unknown";
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API_ARB:
+        // The GL
+        sourceText = "API";
+        break;
+        // The GLSL shader compiler or compilers for other extension - provided languages
+    case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+        sourceText = "Shader compiler";
+        break;
+        // The window system, such as WGL or GLX
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+        sourceText = "Window system";
+        break;
+        // External debuggers or third-party middleware libraries
+    case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+        sourceText = "Third party";
+        break;
+        // The application
+    case GL_DEBUG_SOURCE_APPLICATION_ARB:
+        sourceText = "Application";
+        break;
+        // Sources that do not fit to any of the ones listed above
+    case GL_DEBUG_SOURCE_OTHER_ARB:
+        sourceText = "Other";
+        break;
+    }
+
+    const char *typeText = "Unknown";
+    switch (type)
+    {
+        // Events that generated an error
+    case GL_DEBUG_TYPE_ERROR_ARB:
+        typeText = "Error";
+        break;
+        // Behavior that has been marked for deprecation
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+        typeText = "Deprecated behavior";
+        break;
+        // Behavior that is undefined according to the specification
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+        typeText = "Undefined behavior";
+        break;
+        // Implementation-dependent performance warnings
+    case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+        typeText = "Performance";
+        break;
+        // Use of extensions or shaders in a way that is highly vendor - specific
+    case GL_DEBUG_TYPE_PORTABILITY_ARB:
+        typeText = "Portability";
+        break;
+        // Types of events that do not fit any of the ones listed above
+    case GL_DEBUG_TYPE_OTHER_ARB:
+        typeText = "Other";
+        break;
+    }
+
+    const char *severityText = "Unknown";
+    switch (severity)
+    {
+        // Any GL error; dangerous undefined behavior; any GLSL or ARB shader compiler and linker errors;
+    case GL_DEBUG_SEVERITY_HIGH_ARB:
+        severityText = "High";
+        break;
+        // Severe performance warnings; GLSL or other shader compiler and linker warnings; use of currently deprecated
+        // behavior
+    case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+        severityText = "Medium";
+        break;
+        // Performance warnings from redundant state changes; trivial undefined behavior
+    case GL_DEBUG_SEVERITY_LOW_ARB:
+        severityText = "Low";
+        break;
+    }
+
+    if (severity == 33387)
+        return;
+
+    // Unused params
+    (void)id;
+    (void)length;
+    (void)userParam;
+
+    // Replace LogDebug with your logging function
+    Con_Printf("[OpenGL:source='%s', type='%s', severity='%s'] %s\n", sourceText, typeText,
+             severityText, message);
+
 }
 
 void MainWindow::InitBackend()
@@ -127,9 +223,14 @@ void MainWindow::InitBackend()
 
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 
+#ifdef GL_DEBUG
+    // Debug context
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
+
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
-    
+
     // enable VSync
     SDL_GL_SetSwapInterval(1);
 
@@ -139,6 +240,14 @@ void MainWindow::InitBackend()
     }
     else
         printf("[INFO] GLAD Initialized\n");
+
+#ifdef GL_DEBUG
+
+    #define GL_DEBUG_OUTPUT 0x92E0
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallbackARB(DebugMessageCallback, 0);
+#endif
 
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
@@ -191,6 +300,7 @@ void MainWindow::InitBackend()
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
+    GL_CheckForErrors();
 }
 
 void MainWindow::InitImGUISDL2Platform()
@@ -424,21 +534,28 @@ int MainWindow::GetFPS()
 void MainWindow::IterateUpdate()
 {
     BT_PROFILE("MainWindow::IterateUpdate()");
+    GL_CheckForErrors();
 
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
 
-    GLBackend::Instance()->NewFrame();
+    GLBackend::Instance()->NewFrame(); GL_CheckForErrors();
     Application::Instance()->CheckIfBakngFinished();
+    GL_CheckForErrors();
 
     UpdateTimers();
+    GL_CheckForErrors();
     GL_BeginFrame();
+    GL_CheckForErrors();
 
     ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
+    GL_CheckForErrors();
     LoaderThread::Instance()->ExecuteEndCallbacks(10);
+    GL_CheckForErrors();
 
     RenderGUI();
+    GL_CheckForErrors();
 
-    SDL_GL_SwapWindow(m_pSDLWindow);    
+    SDL_GL_SwapWindow(m_pSDLWindow);
 }
 
 void MainWindow::InitTimers()
@@ -479,8 +596,6 @@ SceneRenderer *MainWindow::GetSceneRenderer()
 {
     return m_pSceneRenderer;
 }
-
-
 
 void MainWindow::InitCommands()
 {
@@ -906,11 +1021,6 @@ bool MainWindow::RenderToolbarIcon(GLuint iconId)
     return ImGui::ImageButton((ImTextureID)iconId, ImVec2(16, 16));
 }
 
-
-
-
-
-
 void MainWindow::GL_BeginFrame()
 {
     glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
@@ -920,15 +1030,23 @@ void MainWindow::GL_BeginFrame()
 
     glClearDepth(1);
 
+    GL_CheckForErrors();
+
     glDisable(GL_MULTISAMPLE);
+
+    GL_CheckForErrors();
 
     // glClearColor(0.25, .25, .25, 1);
 
     ClearBackground(true);
+    GL_CheckForErrors();
+
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
+    GL_CheckForErrors();
+    
 }
 
 void MainWindow::ClearBackground(bool rebindShader)
@@ -938,10 +1056,12 @@ void MainWindow::ClearBackground(bool rebindShader)
 
     glClearColor(col1[0], col1[1], col1[2], 1);
     glClear(GL_DEPTH_BUFFER_BIT);
+    GL_CheckForErrors();
 
     if (m_pUseGradientBackground->GetAsBool())
     {
         glDepthMask(0);
+        GL_CheckForErrors();
 
         if (rebindShader)
         {
@@ -955,9 +1075,11 @@ void MainWindow::ClearBackground(bool rebindShader)
             {
             case UniformKind::Color:
                 it->SetFloat4({col1.xyz, 1});
+                GL_CheckForErrors();
                 break;
             case UniformKind::Color2:
                 it->SetFloat4({col2.xyz, 1});
+                GL_CheckForErrors();
                 break;
             default:
                 __debugbreak();
@@ -965,12 +1087,18 @@ void MainWindow::ClearBackground(bool rebindShader)
             }
         }
 
+        GL_CheckForErrors();
         m_pBackgroundMesh->Draw();
+        GL_CheckForErrors();
 
         glDepthMask(1);
+        GL_CheckForErrors();
     }
     else
+    {
         glClear(GL_COLOR_BUFFER_BIT);
+        GL_CheckForErrors();
+    }
 }
 
 void MainWindow::UpdateTimers()

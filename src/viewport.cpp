@@ -74,7 +74,7 @@ void Viewport::RenderFrame(float flFrameDelta)
         return;
 
     m_pFBO->Enable();
-    
+    GL_CheckForErrors();
 
 // Debug FBO usage
 #if DEBUG_FBO_AREA_USAGE
@@ -87,10 +87,12 @@ void Viewport::RenderFrame(float flFrameDelta)
     glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
 
     sr->RenderScene(this);
+    GL_CheckForErrors();
 
     // RenderGuizmo();
 
     m_pFBO->Disable();
+    GL_CheckForErrors();
 
     m_bNeedUpdate = false;
 }

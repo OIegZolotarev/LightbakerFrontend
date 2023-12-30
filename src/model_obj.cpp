@@ -49,13 +49,15 @@ void ModelOBJ::LoadLMMesh()
 
 ModelOBJ::~ModelOBJ()
 {
-    for (auto &it : m_ModelData.meshes)
-    {
-        FreeGLTexture(it.diffuse_texture);
 
-        for (int i = 0; i < MAX_LIGHT_STYLES; i++)
-            FreeGLTexture(it.lightmap_texture[i]);
-    }
+    // TODO: FIXME
+//     for (auto &it : m_ModelData.meshes)
+//     {
+//         FreeGLTexture(it.diffuse_texture);
+// 
+//         for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+//             FreeGLTexture(it.lightmap_texture[i]);
+//     }
 
     FreeVector(m_ModelData.faces);
     FreeVector(m_ModelData.normals);
@@ -463,29 +465,29 @@ void ModelOBJ::ReloadTextures()
 
 void ModelOBJ::ReloadLightmapTextures()
 {
-    for (auto &it : m_LightmapModelData.meshes)
-    {
-        if (it.diffuse_texture)
-            GLReloadTexture(it.diffuse_texture);
-        else
-        {
-            it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
-
-            if (it.diffuse_texture)
-                if (it.diffuse_texture->Width() == -1)
-                    it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
-        }
-
-        for (int i = 0; i < MAX_LIGHT_STYLES; i++)
-        {
-            if (it.lightmap_texture[i])
-                GLReloadTexture(it.lightmap_texture[i]);
-            else
-            {
-                it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
-            }
-        }
-    }
+  //  for (auto &it : m_LightmapModelData.meshes)
+//    {
+//         if (it.diffuse_texture)
+//             GLReloadTexture(it.diffuse_texture);
+//         else
+//         {
+//             it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
+// 
+//             if (it.diffuse_texture)
+//                 if (it.diffuse_texture->Width() == -1)
+//                     it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
+//         }
+// 
+//         for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+//         {
+//             if (it.lightmap_texture[i])
+//                 GLReloadTexture(it.lightmap_texture[i]);
+//             else
+//             {
+//                 it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
+//             }
+//         }
+//     }
 }
 
 std::string &ModelOBJ::Export(const char *fileName, lightBakerSettings_t *lb3kOptions, glm::vec3 envColor)

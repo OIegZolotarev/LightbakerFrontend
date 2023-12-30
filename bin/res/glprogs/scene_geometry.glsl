@@ -5,6 +5,7 @@
 
 #include "common_vertex.h"
 
+
 #ifdef DIFFUSE
 out vec2 oTexCoord;
 #endif 
@@ -15,6 +16,10 @@ out vec2 oLMCoord;
 
 #ifdef FLATSHADED
 out vec3 oNormal;
+#endif
+
+#ifdef USING_BONES
+uniform mat4 u_BonesTransform[128];
 #endif
 
 void main()
@@ -28,16 +33,30 @@ void main()
 	oLMCoord  = color.xy;
 #endif
 
-#ifdef NORMAL
+#ifdef FLATSHADED
 	oNormal = normal;
 #endif
 
 #ifdef USING_BONES 
 	vec4 pos = vec4(xyz,1) * u_BonesTransform[bones[0]];
 	gl_Position = _transform(pos.xyz);	
-#else
+#endif
+
+#ifdef SPRITE
+
+	mat4 invMV = inverse(u_ModelViewMatrix);
+
+	vec3 right = pullRightVector(invMV);
+	vec3 up = pullUpVector(invMV);
+					
+	vec3 pos = xyz + (right * normal.x * u_Scale.x / 2.f) + (up * normal.y * u_Scale.y / 2.f);
+	gl_Position = _transform(pos);	 
+#endif 
+
+#ifdef STATIC_GEOMETRY
 	gl_Position = _transform();	
 #endif 
+
 
 }
 
@@ -56,13 +75,13 @@ uniform vec4 u_Color;
 
 #ifdef DIFFUSE
 // Diffuse
-uniform sampler2D diffuse;
+uniform sampler2D u_Diffuse;
 in vec2 oTexCoord;
 #endif
 
 #ifdef LIGHTMAP
 // Lightmap
-uniform sampler2D lightmap;
+uniform sampler2D u_Lightmap;
 in vec2 oLMCoord;
 #endif
 
@@ -73,27 +92,34 @@ in vec3 oNormal;
 
 void main()
 {		
-	vec4 oFragcolor = vec4(1,1,1,1)	;
+	vec4 outColor = vec4(1.f,1.f,1.f,1.f);	
 
 #ifdef DIFFUSE
-		vec4 diffuseSample = texture2D(diffuse,oTexCoord);	
-		oFragColor *= diffuseSample;
+	vec4 diffuseSample = texture2D(u_Diffuse,oTexCoord);	
+	outColor = diffuseSample;				
 #endif
 
 #ifdef LIGHTMAP
-		vec4 lmSample = texture2D(lightmap,oLMCoord);
-		oFragColor *= lmSample;
+	vec4 lmSample = texture2D(u_Lightmap,oLMCoord);
+	outColor *= vec4(lmSample.rgb,1.f);	
 #endif
 
-#ifdef NORMAL
-	oFragColor *= oNormal;
+#ifdef FLATSHADED
+	outColor = (vec4(oNormal,1.f) + vec4(1.f,1.f,1.f,1.f)) * 0.5f;
 #endif
 
 #ifdef SOLID_COLOR
-	oFragColor *= u_Color;
+	outColor *= u_Color;
 #endif
 
+	oFragColor = outColor;
+	
 	oSelColor = u_ObjectSerialNumber;  
+	//oSelColor = 0;  
+	
+	
 } 
+
+
 
 #endif

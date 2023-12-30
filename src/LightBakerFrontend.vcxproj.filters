@@ -257,13 +257,7 @@
     <ClCompile Include="Icosphere.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="gl_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
-    </ClCompile>
     <ClCompile Include="spotlight_cone_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
-    <ClCompile Include="lightmapped_scene_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="helper_geometry_shader.cpp">
@@ -340,9 +334,6 @@
     </ClCompile>
     <ClCompile Include="mathlib.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_backend.cpp">
-      <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
     <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы\Viewports</Filter>
@@ -436,6 +427,12 @@
     </ClCompile>
     <ClCompile Include="mod_primitive.cpp">
       <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_shader.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -611,9 +608,6 @@
       <Filter>GLSL</Filter>
     </ClInclude>
     <ClInclude Include="spotlight_cone_shader.h">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClInclude>
-    <ClInclude Include="lightmapped_scene_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="helper_geometry_shader.h">
@@ -809,22 +803,10 @@
     <None Include="..\bin\res\glprogs\object_selection.vert">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="..\bin\res\glprogs\scene_ligtmapped.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene.vert">
-      <Filter>GLSL</Filter>
-    </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene_diffuse.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene_groupshaded.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="hammer_fgd\hammer_fgd.y">

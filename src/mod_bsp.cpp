@@ -34,6 +34,10 @@ void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMod
     auto pMesh = model->GetDrawMesh();
     pMesh->Bind();
 
+    auto it = currentShader->UniformByKind(UniformKind::ObjectSerialNumber);
+    if (it)
+        it->SetInt(pEntity->GetSerialNumber());
+
     auto &lists = model->GetDisplayList();
 
     for (auto &it : lists)
