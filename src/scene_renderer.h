@@ -33,6 +33,16 @@ typedef struct
     float        renderDistance;
 } sSortInfo;
 
+typedef struct uberShaderDefs_s
+{
+    ModelType type;
+    RenderMode mode;
+    std::list<const char*> defines;        
+    ShaderProgram *shader;
+} uberShaderDefs_t;
+
+
+
 class SceneRenderer : public IEventHandler
 {
 public:
@@ -78,7 +88,7 @@ public:
 
     void AddTransparentEntity(SceneEntityWeakPtr pEntity);
 
-void DrawBillboardMesh();
+    void DrawBillboardMesh();
 
 private:
     RenderChain m_TransparentEntitiesChain;
@@ -110,17 +120,13 @@ private:
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-    
-
     std::vector<sSortInfo> m_vSortedSolidEntities;
     std::vector<sSortInfo> m_vSortedTransparentEntities;
 
-    void                   SortRenderLists();
+    void SortRenderLists();
 
     ShaderProgram *m_pStudioShader;
 
-    
-
-    void RenderEntitiesChain(const sSortInfo * pData, const size_t nEntities, bool transparent) const;
+    void           RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const;
     ShaderProgram *SetupShaderForModelType(const ModelType currentType) const;
 };

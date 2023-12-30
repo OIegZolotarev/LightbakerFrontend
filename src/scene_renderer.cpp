@@ -16,7 +16,22 @@
 #include "selection_3d.h"
 #include <unordered_set>
 
-#define FAST_BB
+uberShaderDefs_t g_UberShaderTable[] = {
+    // clang-format off
+    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"     , "DIFFUSE",}     , nullptr},
+    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"     , "DIFFUSE"}     , nullptr},
+    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "NORMAL"}      , nullptr},
+    {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"}, nullptr},
+    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr},
+    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "NORMAL"}      , nullptr},
+    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          , "DIFFUSE"}     , nullptr},
+    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          , "DIFFUSE"}     , nullptr},
+    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          , "DIFFUSE"}     , nullptr},
+    {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
+    {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
+    {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr},
+    // clang-format on
+};
 
 SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
 {
@@ -37,6 +52,14 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
     m_pShowGround = pers->GetSetting(ApplicationSettings::ShowGround);
 
     m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
+
+    for (auto &it : g_UberShaderTable)
+    {
+
+
+        it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
+    }
+
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -132,7 +155,6 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
         GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         RenderEntitiesChain(m_vSortedTransparentEntities.data(), m_vSortedTransparentEntities.size(), true);
         GLBackend::SetBlending(false);
-
 
         if (m_RenderMode == RenderMode::Wireframe)
         {
