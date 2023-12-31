@@ -416,6 +416,10 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
     auto c = ImGui::DockBuilderGetCentralNode(gIDMainDockspace);
 
+    int oldViewport[4];
+    for (int i = 0; i < 4; i++)
+        oldViewport[i] = m_i3DViewport[i];
+
     if (c)
     {
         m_i3DViewport[0] = (int)c->Pos.x;
@@ -429,6 +433,15 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
         m_i3DViewport[1] = 0;
         m_i3DViewport[2] = m_iWindowWidth;
         m_i3DViewport[3] = m_iWindowWidth;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (m_i3DViewport[i] != oldViewport[i])
+        {
+            ViewportsOrchestrator::Instance()->FlagRepaintAll();
+            break;
+        }
     }
 
     ImGui::End();
