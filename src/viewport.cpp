@@ -246,6 +246,7 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             if (ImGui::MenuItem(it.second, 0, m_RenderMode == it.first))
             {
                 m_RenderMode = it.first;
+                m_bNeedUpdate = true;
             }
         }
 
