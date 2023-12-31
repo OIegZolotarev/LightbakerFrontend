@@ -42,6 +42,9 @@ class Application
 
 	int SuggestMonitorForNewWindow();
 
+
+    bool m_bMouseCursorVisible;
+
 public:
 	// Конструкторы\доступ
 	~Application();
@@ -98,6 +101,7 @@ public:
     {
         return m_lstWindows;
     }
+
 };
  
  inline int Con_Printf(const char* fmt, ...)

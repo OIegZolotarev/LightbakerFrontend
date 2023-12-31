@@ -176,6 +176,26 @@ bool IPlatformWindow::IsMainWindow()
     return false;
 }
 
+bool IPlatformWindow::HasMouseCursorInside()
+{
+    int mx, my;
+    SDL_GetGlobalMouseState(&mx, &my);
+
+    glm::ivec2 pos = {0, 0}, size = {0,0};
+
+    SDL_GetWindowPosition(m_pSDLWindow, &pos.x, &pos.y);
+    SDL_GetWindowSize(m_pSDLWindow, &size.x, &size.y);
+
+    if (mx >= pos.x && mx < pos.x + size.x)
+    {
+        if (my >= pos.y && my < pos.y + size.y)
+            return true;
+    }
+
+    return false;
+
+}
+
 IPlatformWindow::~IPlatformWindow()
 {
     m_vEventHandlers.clear();
@@ -251,4 +271,19 @@ glm::ivec2 IPlatformWindow::CenterPointGlobal()
 void IPlatformWindow::ScheduleImGuiStyleUpdate()
 {
     m_bUpdateImGuiStyleNextFrame = true;
+}
+
+void IPlatformWindow::UpdateCursorVisibility(bool m_bMouseCursorVisible)
+{
+    m_bHasMouse = HasMouseCursorInside();
+
+    if (m_bMouseCursorVisible)
+    {
+        if (m_bHasMouse)        
+            m_pImGUIContext->IO.MouseDrawCursor = true;        
+        else
+            m_pImGUIContext->IO.MouseDrawCursor = false;
+    }
+    else 
+            m_pImGUIContext->IO.MouseDrawCursor = false;
 }

@@ -149,6 +149,7 @@ void Application::Run()
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
                 case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEMOTION:
                 case SDL_MOUSEBUTTONDOWN:
                     for (auto &it : m_lstWindows)
                     {
@@ -190,6 +191,8 @@ void Application::Run()
 
         for (auto &it : m_lstWindows)
         {
+            it->UpdateCursorVisibility(m_bMouseCursorVisible);
+
             if (!it->IsTerminated())
                 it->IterateUpdate();
         }
@@ -388,13 +391,13 @@ void Application::ParseLightBakerProgressMessage(std::string &captured)
 }
 
 void Application::ShowMouseCursor()
-{
-    ImGui::GetIO().MouseDrawCursor = true;
+{    
+    m_bMouseCursorVisible = true;
 }
 
 void Application::HideMouseCursor()
 {
-    ImGui::GetIO().MouseDrawCursor = false;
+    m_bMouseCursorVisible = false;    
 }
 
 const char *date     = __DATE__;
@@ -448,7 +451,7 @@ void Application::Terminate()
 
 bool Application::IsMouseCursorVisible()
 {
-    return ImGui::GetIO().MouseDrawCursor;
+    return m_bMouseCursorVisible;
 }
 
 float Application::GetBakingProgress()

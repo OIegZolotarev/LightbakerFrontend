@@ -52,6 +52,8 @@ protected:
 
     bool m_bUpdateImGuiStyleNextFrame;
 
+    bool HasMouseCursorInside();
+
 private:
     std::list<IEventHandler *> m_vEventHandlers;
 
@@ -93,4 +95,5 @@ public:
     glm::ivec2  CenterPointGlobal();
 
     void ScheduleImGuiStyleUpdate();
+    void UpdateCursorVisibility(bool m_bMouseCursorVisible);
 };

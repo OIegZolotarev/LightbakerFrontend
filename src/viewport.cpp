@@ -183,8 +183,7 @@ void Viewport::DisplayRenderedFrame()
 
         if (PointInClientRect(ratPos))
         {
-            m_bHovered = true;
-            
+            m_bHovered = true;            
         }
         else
         {
