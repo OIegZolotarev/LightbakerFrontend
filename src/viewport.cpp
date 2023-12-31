@@ -139,8 +139,7 @@ void Viewport::DisplayRenderedFrame()
     {
         m_bDocked = ImGui::IsWindowDocked();
 
-        if (Application::Instance()->IsMouseCursorVisible())
-            m_bHovered = ImGui::IsWindowHovered();
+
 
         auto r = GLScreenSpace2DRenderer::Instance();
 
@@ -167,6 +166,9 @@ void Viewport::DisplayRenderedFrame()
 
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
 
+        if (Application::Instance()->IsMouseCursorVisible())
+            m_bHovered = ImGui::IsItemHovered();
+        
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
 
@@ -192,9 +194,8 @@ void Viewport::HandlePicker()
     {
         m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
 
-        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver()) && m_bHovered;
 
-        
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
             
@@ -227,6 +228,9 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
     {
         ImGui::OpenPopup(m_strNamePopupKey.c_str());
     }
+
+    if (ImGui::IsItemHovered())
+        m_bHovered = false;
 
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
