@@ -29,7 +29,7 @@ void ImGuiHelpers::Init()
                                                                icons_ranges);
 
 
-    g_pToolbarIconsSheet = TextureManager::Instance()->LoadTextureSynch("res/ui/toolbar_icons.png");
+    g_pToolbarIconsSheet = TextureManager::Instance()->LoadTextureSynch("res/ui/common_icons.png");
 }
 
 bool ImGuiHelpers::ImageButtonWithText(ImTextureID texId, const char *label, const ImVec2 &imageSize, const ImVec2 &uv0,
@@ -119,7 +119,7 @@ bool ImGuiHelpers::ImageButtonWithText(ImTextureID texId, const char *label, con
     return pressed;
 }
 
-bool ImGuiHelpers::ButtonWithCommonIcon(CommonTextures icon, const char *label, const float icon_size,
+bool ImGuiHelpers::ButtonWithCommonTextureIcon(CommonTextures icon, const char *label, const float icon_size,
                                         ImVec4 tint /*= {1,1,1,1}*/)
 {
     auto icn    = GetCommonIcon(icon);
@@ -130,13 +130,13 @@ bool ImGuiHelpers::ButtonWithCommonIcon(CommonTextures icon, const char *label, 
                                              ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, tint);
 }
 
-bool ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons icon, const char *label, const float icon_size,
+bool ImGuiHelpers::ButtonWithCommonIcon(CommonIcons icon, const char *label, const float icon_size,
                                      ImVec4 tint /*= {1, 1, 1, 1}*/)
 {    
     auto style   = ImGui::GetStyle();
     auto bgColor = style.Colors[ImGuiCol_Button];
 
-    ImVec4 uv = g_ToolbarIconsRects[(int)icon];
+    ImVec4 uv = g_CommonIconsRects[(int)icon];
 
     ImVec2 uv0 = ImVec2(uv.x, 1 - uv.y);
     ImVec2 uv1 = ImVec2(uv.z, 1 - uv.w);
@@ -148,9 +148,9 @@ bool ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons icon, const char *label, c
       //                                       uv0, uv1, style.FramePadding.x, bgColor, tint);
 }
 
-void ImGuiHelpers::DisplayToolbarIcon(ToolbarIcons icon, const float size)
+void ImGuiHelpers::DisplayCommonIcon(CommonIcons icon, const float size)
 {
-    ImVec4 uv = g_ToolbarIconsRects[(int)icon];
+    ImVec4 uv = g_CommonIconsRects[(int)icon];
 
     ImVec2 uv0 = ImVec2(uv.x, 1 - uv.y);
     ImVec2 uv1 = ImVec2(uv.z, 1 - uv.w);

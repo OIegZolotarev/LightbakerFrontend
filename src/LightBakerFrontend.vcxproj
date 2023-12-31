@@ -205,6 +205,7 @@ build.bat
     <ClCompile Include="bsp_entities_properties_binding.cpp" />
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="btQuickProf.cpp" />
+    <ClCompile Include="common_icons.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
     <ClCompile Include="fs_file_data.cpp" />
@@ -261,7 +262,6 @@ build.bat
     <ClCompile Include="mod_obj_data.cpp" />
     <ClCompile Include="platform_window.cpp" />
     <ClCompile Include="secondary_window.cpp" />
-    <ClCompile Include="toolbar_icons.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="viewports_orchestrator.cpp" />
     <ClCompile Include="world_entity.cpp" />
@@ -318,6 +318,7 @@ build.bat
     <ClInclude Include="bsp_entity_property.h" />
     <ClInclude Include="btQuickProf.h" />
     <ClInclude Include="color.h" />
+    <ClInclude Include="common_icons.h" />
     <ClInclude Include="editor_grid_shader.h" />
     <ClInclude Include="files_listview_ex.h" />
     <ClInclude Include="fs_file_data.h" />
@@ -380,7 +381,6 @@ build.bat
     <ClInclude Include="mathlib.h" />
     <ClInclude Include="secondary_window.h" />
     <ClInclude Include="spritegn.h" />
-    <ClInclude Include="toolbar_icons.h" />
     <ClInclude Include="viewport.h" />
     <ClInclude Include="viewports_orchestrator.h" />
     <ClInclude Include="viewport_rendermodes.h" />

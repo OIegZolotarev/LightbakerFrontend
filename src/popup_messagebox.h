@@ -11,7 +11,8 @@ enum class MessageBoxIcons
 {
     Error,
     Notification,
-    Exclamation,
+    Warning,
+    Question,
     None
 };
 

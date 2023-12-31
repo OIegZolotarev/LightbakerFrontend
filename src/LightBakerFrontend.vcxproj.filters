@@ -431,14 +431,14 @@
     <ClCompile Include="gl_backend.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
-    <ClCompile Include="toolbar_icons.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="application.cpp">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClCompile>
     <ClCompile Include="popup_messagebox.cpp">
       <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="common_icons.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -796,11 +796,11 @@
     <ClInclude Include="mod_primitive.h">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
-    <ClInclude Include="toolbar_icons.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="popup_messagebox.h">
       <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="common_icons.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

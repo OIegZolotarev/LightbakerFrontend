@@ -857,20 +857,22 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
     float r = ImGui::GetWindowHeight();
 
-    for (int i = (int)ToolbarIcons::Add; i < (int)ToolbarIcons::Undo; i++)
+    for (int i = (int)CommonIcons::Add; i < (int)CommonIcons::Undo; i++)
     {
-        if (ImGuiHelpers::ButtonWithToolbarIcon((ToolbarIcons)i, "###Hello there!", size))
+        if (ImGuiHelpers::ButtonWithCommonIcon((CommonIcons)i, "###Hello there!", size))
         {
             PopupMessageBox *pMessageBox = new PopupMessageBox;
 
             pMessageBox->SetTitle("Hello there!");
             pMessageBox->SetMessage("Message");
+            pMessageBox->SetIcon(MessageBoxIcons::Question);
             pMessageBox->SetButtons(MSG_BOX_YES | MSG_BOX_NO);
 
             pMessageBox->SetCallback([&](MessageBoxButtons button) {
             
                 pMessageBox = new PopupMessageBox;
                 pMessageBox->SetTitle("Callback!");
+                pMessageBox->SetIcon(MessageBoxIcons::Error);
                 pMessageBox->SetMessage("You         can't escape!!! ^) ");
                 pMessageBox->SetButtons(MSG_BOX_YES  | MSG_BOX_NO);
                 pMessageBox->Show();

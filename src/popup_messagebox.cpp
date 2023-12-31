@@ -25,8 +25,31 @@ void PopupMessageBox::Render()
 {
     if (ImGui::BeginChild("MessageBoxContent", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
     {
+        CommonIcons icon = CommonIcons::MessageBoxInfo;
+
+        switch (m_Icon)
+        {
+        case MessageBoxIcons::Error:
+            icon = CommonIcons::MessageBoxError;
+            break;
+        case MessageBoxIcons::Notification:
+            icon = CommonIcons::MessageBoxInfo;
+            break;
+        case MessageBoxIcons::Warning:
+            icon = CommonIcons::MessageBoxWarning;
+            break;
+        case MessageBoxIcons::Question:
+            icon = CommonIcons::MessageBoxHelp;
+            break;
+        case MessageBoxIcons::None:
+            break;
+        default:
+            break;
+        
+        }
+
         ImGui::Spacing();
-        ImGuiHelpers::DisplayToolbarIcon(ToolbarIcons::Clear, 48);
+        ImGuiHelpers::DisplayCommonIcon(icon, 48);
         ImGui::SameLine();
         ImGui::Text(m_Message.c_str());
     }
