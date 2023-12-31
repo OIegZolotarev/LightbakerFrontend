@@ -102,7 +102,7 @@ class SceneEntity : public ISelectableObject
 
 protected:
     void SetClassName(const char *name);
-    void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
+    void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
     // For transparent sorting
     std::weak_ptr<SceneEntity> m_pNext;

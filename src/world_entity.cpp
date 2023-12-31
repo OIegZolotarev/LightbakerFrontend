@@ -3,4 +3,6 @@
     (c) 2023 CrazyRussian
 */
 
+#include "application.h"
+#include "common.h"
 #include "world_entity.h"

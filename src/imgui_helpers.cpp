@@ -147,3 +147,14 @@ bool ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons icon, const char *label, c
     //return ImGuiHelpers::ImageButtonWithText((ImTextureID)g_pToolbarIconsSheet->GLTextureNum(), label, ImVec2(icon_size, icon_size),
       //                                       uv0, uv1, style.FramePadding.x, bgColor, tint);
 }
+
+void ImGuiHelpers::DisplayToolbarIcon(ToolbarIcons icon, const float size)
+{
+    ImVec4 uv = g_ToolbarIconsRects[(int)icon];
+
+    ImVec2 uv0 = ImVec2(uv.x, 1 - uv.y);
+    ImVec2 uv1 = ImVec2(uv.z, 1 - uv.w);
+
+    ImVec2 imageSize = ImVec2(size, size);
+    ImGui::Image((ImTextureID)g_pToolbarIconsSheet->GLTextureNum(), imageSize, uv0, uv1);
+}

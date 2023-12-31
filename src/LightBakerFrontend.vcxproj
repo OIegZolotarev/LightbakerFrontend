@@ -219,6 +219,7 @@ build.bat
     <ClCompile Include="mod_manager.cpp" />
     <ClCompile Include="mod_primitive.cpp" />
     <ClCompile Include="mod_sprite.cpp" />
+    <ClCompile Include="popup_messagebox.cpp" />
     <ClCompile Include="r_chain.cpp" />
     <ClCompile Include="r_frustum.cpp" />
     <ClCompile Include="game_configuration.cpp" />
@@ -332,6 +333,7 @@ build.bat
     <ClInclude Include="mod_manager.h" />
     <ClInclude Include="mod_primitive.h" />
     <ClInclude Include="mod_sprite.h" />
+    <ClInclude Include="popup_messagebox.h" />
     <ClInclude Include="r_chain.h" />
     <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />

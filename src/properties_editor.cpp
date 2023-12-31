@@ -33,6 +33,11 @@ ObjectPropertiesEditor::~ObjectPropertiesEditor()
     }
 }
 
+IObjectPropertiesBinding *ObjectPropertiesEditor::GetBindings()
+{
+    return m_pPropertiesBinding;
+}
+
 void ObjectPropertiesEditor::RenderEditor()
 {
     if (!m_FlagsEditorID)
@@ -97,6 +102,18 @@ DockPanels ObjectPropertiesEditor::GetDockSide()
 void ObjectPropertiesEditor::Render()
 {
     RenderEditor();
+}
+
+void ObjectPropertiesEditor::ReloadPropertiesFromBinder()
+{
+    if (m_pPropertiesBinding)
+    {
+        m_lstProperties.clear();
+        m_pPropertiesBinding->FillProperties(m_lstProperties);
+    }
+
+    m_pGuizmoPropertyPosition = FindFirstPropertyByType(PropertiesTypes::Position);
+    m_pGuizmoPropertyRotation = FindFirstPropertyByType(PropertiesTypes::Angles);
 }
 
 int ObjectPropertiesEditor::CurrentSerialNumber()

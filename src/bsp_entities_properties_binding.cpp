@@ -9,6 +9,7 @@
 #include "bsp_entities_properties_binding.h"
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
+#include "properties_editor.h"
 
 using namespace GoldSource;
 
@@ -65,6 +66,11 @@ void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantVa
     {
         collection.push_back(it);
     }
+}
+
+void BSPEntitiesPropertiesBinder::AddObject(SceneEntityWeakPtr weakRef)
+{
+    SelectEntity(weakRef);
 }
 
 SceneEntity *BSPEntitiesPropertiesBinder::GetEntity(int param1)
@@ -170,6 +176,8 @@ void BSPEntitiesPropertiesBinder::RebuildPropertiesList()
             m_lstCommonProperties.push_back(new GoldSource::BSPEntityProperty(it));
         }
     }
+
+    ObjectPropertiesEditor::Instance()->ReloadPropertiesFromBinder();
 }
 
 void BSPEntitiesPropertiesBinder::CleanupDeadObjects()

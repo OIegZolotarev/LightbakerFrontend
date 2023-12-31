@@ -3,6 +3,8 @@
     (c) 2023 CrazyRussian
 */
 
+#include "application.h"
+#include "common.h"
 #include "r_chain.h"
 
 RenderChain::RenderChain()

@@ -44,6 +44,8 @@ public:
     void UpdateProperty(VariantValue *prop) override;
 
     SceneEntity *GetEntity(int param1) override;
+
+    void AddObject(SceneEntityWeakPtr weakRef) override;
 };
 
 } // namespace GoldSource

@@ -437,6 +437,9 @@
     <ClCompile Include="application.cpp">
       <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClCompile>
+    <ClCompile Include="popup_messagebox.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -795,6 +798,9 @@
     </ClInclude>
     <ClInclude Include="toolbar_icons.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_messagebox.h">
+      <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

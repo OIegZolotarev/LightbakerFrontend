@@ -210,10 +210,19 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
         SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
         m_pScene->HintSelected(weakRef);
 
-        // TODO: make binder singletons?
-        BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
-        pBinder->SelectEntity(weakRef);
-        ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+        auto bindings = ObjectPropertiesEditor::Instance()->GetBindings();
+
+        if (bindings)
+        {
+            bindings->AddObject(weakRef);
+        }
+        else
+        {
+            // TODO: make binder singletons?
+            BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
+            pBinder->SelectEntity(weakRef);
+            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+        }
     }
 }
 

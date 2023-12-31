@@ -21,4 +21,7 @@ bool ButtonWithCommonIcon(CommonTextures icon, const char *label, const float ic
 
 bool ButtonWithToolbarIcon(ToolbarIcons icon, const char *label, const float icon_size, ImVec4 tint = {1, 1, 1, 1});
 
+void DisplayToolbarIcon(ToolbarIcons icon, const float size);
+
+
 } // namespace ImGuiHelpers

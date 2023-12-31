@@ -180,10 +180,6 @@ void OptionsDialog::RenderFooter()
 
 bool OptionsDialog::RenderHeader()
 {
-    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene         = sceneRenderer->GetScene();
-
-    //
     //     if (!ImGui::BeginPopupModal(key, &m_bVisible, ImGuiWindowFlags_NoResize))
     //         return false;
 
