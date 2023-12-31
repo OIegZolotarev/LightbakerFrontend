@@ -167,6 +167,9 @@ class Camera : public IEventHandler
     const glm::vec3 &GetAngles() const;
     const glm::vec3 &GetOrigin() const;
 
+    void SetOrigin(const glm::vec3 newPos);
+    void SetAngles(const glm::vec3 newAngles);
+
     void Apply(float flFrameDelta);
     void Reset();
 
@@ -197,4 +200,5 @@ class Camera : public IEventHandler
     Frustum *GetFrustum();
     glm::vec3 GetMoveSpeed();
     bool      IsFPSNavigationEngaged();
+    void      CopyOrientation(Camera *param1);
 };

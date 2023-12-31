@@ -30,7 +30,9 @@ class Viewport : public IEventHandler
     glm::vec2 m_ClientAreaSize;
 
     // State
-    bool m_bHovered     = false;
+    bool m_bHovered          = false;
+    bool m_bHoveredImGUI     = false;
+
     bool m_bForceUndock = false;
     bool m_bDocked      = false;
     bool m_bVisible     = true;

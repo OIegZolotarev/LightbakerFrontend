@@ -8,6 +8,7 @@
 #include "gl_screenspace_2d_renderer.h"
 #include "imgui_internal.h"
 #include "properties_editor.h"
+#include "viewports_orchestrator.h"
 
 glm::vec2 Viewport::CalcRelativeMousePos()
 {
@@ -56,6 +57,11 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
     m_strNamePopupKey = m_strName + "_popup";
 
     m_pCamera = new Camera(this);
+
+    if (pCopyFrom)
+    {
+        m_pCamera->CopyOrientation(pCopyFrom->GetCamera());
+    }
 }
 
 Viewport::~Viewport()
@@ -151,6 +157,9 @@ void Viewport::DisplayRenderedFrame()
 
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 
+        if (abs(viewportSize.x - m_ClientAreaSize.x) > 0.5f || abs(viewportSize.y - m_ClientAreaSize.y) > 0.5f)
+            m_bNeedUpdate = true;
+
         m_ClientAreaSize = {viewportSize.x, viewportSize.y};
 
         float uv_x = viewportSize.x / (m_FrameBufferSize.x);
@@ -165,9 +174,23 @@ void Viewport::DisplayRenderedFrame()
         m_ClientAreaPos = {pos.x, pos.y};
 
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
+        // ImGui::SetHoveredID((ImGuiID) this);
 
         if (Application::Instance()->IsMouseCursorVisible())
-            m_bHovered = ImGui::IsItemHovered();
+            m_bHoveredImGUI = ImGui::IsItemHovered();
+
+        auto ratPos = CalcRelativeMousePos();
+
+        if (PointInClientRect(ratPos))
+        {
+            m_bHovered = true;
+            
+        }
+        else
+        {
+            m_bHovered = false;
+            m_bHoveredImGUI = false;
+        }
         
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
@@ -194,7 +217,7 @@ void Viewport::HandlePicker()
     {
         m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
 
-        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver()) && m_bHovered;
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver()) && m_bHovered && m_bHoveredImGUI;
 
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
@@ -230,7 +253,7 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
     }
 
     if (ImGui::IsItemHovered())
-        m_bHovered = false;
+        m_bHoveredImGUI = false;
 
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
@@ -259,6 +282,14 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
         if (ImGui::MenuItem("Clone"))
         {
+            DoCloneViewport();
+        }
+
+        if (ImGui::MenuItem("Clone to new window"))
+        {
+            auto cmd = Application::CommandsRegistry()->FindCommandByGlobalId(GlobalCommands::OpenNewWindow);
+            cmd->Execute();
+
             DoCloneViewport();
         }
 
@@ -337,8 +368,8 @@ void Viewport::OutputDebug()
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps_nav: %d, hov: %d, docked: %d", m_strName.c_str(), pos.x,
-                pos.y, pos.z, spd.x, spd.y, spd.z, bFPSNav, m_bHovered, m_bDocked);
+    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d", m_strName.c_str(), pos.x,
+                pos.y, pos.z, spd.x, spd.y, spd.z, bFPSNav, m_bHovered, m_bHoveredImGUI, m_bDocked);
 
     auto ratPos = CalcRelativeMousePos();
 
@@ -407,5 +438,5 @@ IPlatformWindow *Viewport::GetPlatformWindow()
 
 void Viewport::DoCloneViewport()
 {
-    Application::GetMainWindow()->CloneViewport(this);
+    ViewportsOrchestrator::Instance()->CloneViewportToLeastClutteredWindow(this);
 }

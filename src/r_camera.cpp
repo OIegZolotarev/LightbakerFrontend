@@ -220,7 +220,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             {
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 Application::Instance()->ShowMouseCursor();
-                Application::Instance()->SetupEventsRedirection(false, m_pViewport->GetPlatformWindow());
+                Application::Instance()->SetupEventsRedirection(false, nullptr);
 
                 m_Mode = CameraMouseModes::None;
             }
@@ -271,6 +271,16 @@ const glm::vec3 &Camera::GetAngles() const
 const glm::vec3 &Camera::GetOrigin() const
 {
     return m_Origin;
+}
+
+void Camera::SetOrigin(const glm::vec3 newPos)
+{
+    m_Origin = newPos;
+}
+
+void Camera::SetAngles(const glm::vec3 newAngles)
+{
+    m_Angles = newAngles;
 }
 
 void Camera::Apply(float flFrameDelta)
@@ -511,6 +521,12 @@ glm::vec3 Camera::GetMoveSpeed()
 bool Camera::IsFPSNavigationEngaged()
 {
     return m_bFPSNavigation;
+}
+
+void Camera::CopyOrientation(Camera *param1)
+{
+    SetOrigin(param1->m_Origin);
+    SetAngles(param1->m_Angles);
 }
 
 glm::vec3 Camera::GetRightVector()

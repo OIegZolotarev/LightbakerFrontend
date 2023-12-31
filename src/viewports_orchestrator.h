@@ -14,6 +14,8 @@ class ViewportsOrchestrator: public Singleton<ViewportsOrchestrator>
     std::list<Viewport *> m_lstViewports;
     nlohmann::json m_savedViewports;
 
+    int CountViewports(const IPlatformWindow *it);
+
 public:
     ~ViewportsOrchestrator();
 
@@ -28,4 +30,7 @@ public:
     void SaveViewports(nlohmann::json & persistentData);
     bool LoadViewports();
     void DestroyWindowViewports(IPlatformWindow *wind);
+    void CloneViewportToLeastClutteredWindow(Viewport *param1);
+
+
 };

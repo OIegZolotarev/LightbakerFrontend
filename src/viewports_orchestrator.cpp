@@ -30,7 +30,7 @@ Viewport *ViewportsOrchestrator::AddNewViewport(const char *name, IPlatformWindo
 
 void ViewportsOrchestrator::FlagRepaintAll()
 {
-    for (auto & it:m_lstViewports)
+    for (auto &it : m_lstViewports)
     {
         it->FlagUpdate();
     }
@@ -105,4 +105,42 @@ void ViewportsOrchestrator::DestroyWindowViewports(IPlatformWindow *wind)
         }
         return false;
     });
+}
+
+void ViewportsOrchestrator::CloneViewportToLeastClutteredWindow(Viewport *param1)
+{
+    int              bestCount  = 999999;
+    IPlatformWindow *bestWindow = nullptr;
+
+    for (auto &it : Application::Instance()->GetAllWindows())
+    {
+        int viewportsCount = CountViewports(it);
+
+        if (viewportsCount < bestCount)
+        {
+            bestCount  = viewportsCount;
+            bestWindow = it;
+        }
+    }
+
+    assert(bestWindow);
+
+    static int counter = 1;
+
+    std::string name = std::format("Viewport {0}", counter++);
+
+    AddNewViewport(name.c_str(), bestWindow, param1);
+}
+
+int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
+{
+    int result = 0;
+
+    for (auto &vp : m_lstViewports)
+    {
+        if (vp->GetPlatformWindow() == it)
+            result++;
+    }
+
+    return result;
 }
