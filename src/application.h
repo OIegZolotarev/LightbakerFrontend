@@ -43,7 +43,7 @@ class Application
 	int SuggestMonitorForNewWindow();
 
 
-    bool m_bMouseCursorVisible;
+    bool m_bMouseCursorVisible = true;
 
 public:
 	// Конструкторы\доступ

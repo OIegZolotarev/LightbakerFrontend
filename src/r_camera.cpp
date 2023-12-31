@@ -220,7 +220,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             {
                 SDL_SetRelativeMouseMode(SDL_FALSE);
                 Application::Instance()->ShowMouseCursor();
-                Application::Instance()->SetupEventsRedirection(false, nullptr);
+                Application::Instance()->SetupEventsRedirection(false, m_pViewport->GetPlatformWindow());
 
                 m_Mode = CameraMouseModes::None;
             }

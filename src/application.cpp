@@ -208,6 +208,8 @@ void Application::InitMainWindow()
     m_pMainWindow        = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
     m_pMainWindow->InitStuff();
 
+    ShowMouseCursor();
+
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() 
             {

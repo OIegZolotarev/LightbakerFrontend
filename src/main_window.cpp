@@ -287,10 +287,10 @@ void MainWindow::InitBackend()
     ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
-    // g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
-    // SDL_SetCursor(g_EmptyCursor);
+     g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
+     SDL_SetCursor(g_EmptyCursor);
 
-    io.MouseDrawCursor = true;
+    
 
     // Force backend to initialize
     GLBackend::Instance();
