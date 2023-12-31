@@ -116,9 +116,6 @@
     <ClCompile Include="..\lib\glad\glad.c">
       <Filter>Исходные файлы\GLAD</Filter>
     </ClCompile>
-    <ClCompile Include="application.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="main_window.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -436,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="toolbar_icons.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

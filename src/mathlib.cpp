@@ -140,6 +140,9 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
         break;
     }
 
+    if (isnan(dist2) || isnan(dist1))
+        return 2;
+
     sides = 0;
     if (dist1 >= dist)
         sides = 1;

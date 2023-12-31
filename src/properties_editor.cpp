@@ -208,7 +208,12 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
         if (m_lstProperties.size() > 0)
         {
-            ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons::SortAlpha, "###Hello there!", 16);
+            if (ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons::SortAlpha, "###Hello there!", 16))
+            {
+                m_lstProperties.sort([](const VariantValue *a, const VariantValue *b) {
+                    return strcasecmp(a->DisplayName(), b->DisplayName()) < 0;
+                });
+            }
 
             if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
             {

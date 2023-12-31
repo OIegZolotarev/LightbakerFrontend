@@ -27,11 +27,15 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 			scene->DoDeleteSelection();
 		}
 
-		if (ImGui::TreeNode("root"))
+		auto &sceneObjects = scene->GetSceneObjects();
+
+		if (ImGui::TreeNode("root") && sceneObjects.size() > 0)
 		{
-			auto& sceneObjects = scene->GetSceneObjects();
+			
 
 			auto worldSpawn = sceneObjects.begin();
+
+			
 
 
 			if (ImGui::Selectable((*worldSpawn)->Description(), (*worldSpawn)->IsSelected()))
