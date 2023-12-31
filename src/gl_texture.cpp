@@ -17,7 +17,6 @@ void *AsynchTextureLoadTask::LoadTextureFileData(GLTexture *texture)
 {
     FileData *pData = Application::GetFileSystem()->LoadFile(texture->Name());
 
-    // TODO: emo textures
     if (!pData)
         return nullptr;
 
@@ -55,12 +54,8 @@ AsynchTextureLoadTask::~AsynchTextureLoadTask()
 GLTexture *AsynchTextureLoadTask::ScheduleTexture(const char *fileName)
 {
     GLTexture *texture = new GLTexture(fileName, TextureSource::CommonImage, 0);
-    // memset(texture, 0, sizeof(GLTexture));
-
-    // texture->file_name = fileName;
 
     m_qScheduledTextures.push(texture);
-
     m_nTotalSteps = m_qScheduledTextures.size();
 
     return texture;

@@ -10,6 +10,7 @@
 #include "r_camera.h"
 #include "ui_common.h"
 #include "viewports_orchestrator.h"
+#include "imgui_helpers.h"
 
 ObjectPropertiesEditor::ObjectPropertiesEditor() : IGUIPanel(PanelsId::ObjectProperties, (char *)"Object properties")
 {
@@ -207,6 +208,8 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
         if (m_lstProperties.size() > 0)
         {
+            ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons::SortAlpha, "###Hello there!", 16);
+
             if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
             {
                 int i = 0;

@@ -83,7 +83,7 @@ public:
     void InitStuff();
 
 private:
-    enum ToolbarIcons
+    enum wndToolbarIcons
     {
         AddOmni = 0,
         AddSpot,
@@ -92,7 +92,7 @@ private:
         MaxIcons
     };
 
-    GLuint m_ToolbarIcons[ToolbarIcons::MaxIcons];
+    GLuint m_ToolbarIcons[wndToolbarIcons::MaxIcons];
 
     bool  RenderToolbarIcon(GLuint iconId);
     float RenderMainMenu();

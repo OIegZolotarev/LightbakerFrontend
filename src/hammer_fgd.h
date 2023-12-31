@@ -74,8 +74,12 @@ typedef struct FGDFlagsValue_s
 
 typedef std::list<FGDFlagsValue_t> FGDFlagsList;
 
+class FGDEntityClass;
+
 class FGDPropertyDescriptor
 {
+
+
 protected:
     std::string m_Name              = "";
     std::string m_Descr             = "";
@@ -83,7 +87,9 @@ protected:
     float       m_DefaultValueFloat = 0;
     std::string m_PropertyHelp      = "";
 
-    int m_PrimitiveKind;
+    int m_Type;
+
+    const FGDEntityClass *m_pBaseClass;
 
 public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther);
@@ -98,6 +104,16 @@ public:
     virtual FGDPropertyDescriptor *Clone()
     {
         return new FGDPropertyDescriptor(this);
+    }
+
+    void SetBaseClass(const FGDEntityClass * pClass)
+    {
+        m_pBaseClass = pClass;
+    }
+
+    const FGDEntityClass *GetBaseClass() const
+    {
+        return m_pBaseClass;
     }
 };
 

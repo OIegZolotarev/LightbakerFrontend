@@ -437,6 +437,12 @@ PersistentStorage *PersistentStorage::Instance()
     return sInstance;
 }
 
+void PersistentStorage::RemoveMRUItem(std::string &filePath)
+{
+    m_lstMRUFiles.remove_if([&](mruFile_t &a) { return a.first == filePath; });
+    SortMRU();
+}
+
 void PersistentStorage::SaveToFile()
 {
     char persistent_file[1024];

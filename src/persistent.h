@@ -77,4 +77,5 @@ class PersistentStorage
     bool IsFreshFile();
 
     static PersistentStorage *Instance();
+    void                      RemoveMRUItem(std::string &filePath);
 };

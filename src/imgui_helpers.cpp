@@ -10,6 +10,9 @@
 #include "lb3k_imgui_icons.h"
 #include "ui_common.h"
 
+GLTexture *g_pToolbarIconsSheet;
+
+
 void ImGuiHelpers::Init()
 {
     ImGui::GetIO().Fonts->AddFontDefault();
@@ -24,6 +27,9 @@ void ImGuiHelpers::Init()
 
     ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(lb3k_compressed_data_base85, 21, &icons_config,
                                                                icons_ranges);
+
+
+    g_pToolbarIconsSheet = TextureManager::Instance()->LoadTextureSynch("res/ui/toolbar_icons.png");
 }
 
 bool ImGuiHelpers::ImageButtonWithText(ImTextureID texId, const char *label, const ImVec2 &imageSize, const ImVec2 &uv0,
@@ -122,4 +128,22 @@ bool ImGuiHelpers::ButtonWithCommonIcon(CommonTextures icon, const char *label, 
 
     return ImGuiHelpers::ImageButtonWithText((ImTextureID)icn->GLTextureNum(), label, ImVec2(icon_size, icon_size),
                                              ImVec2(1, 1), ImVec2(0, 0), style.FramePadding.x, bgColor, tint);
+}
+
+bool ImGuiHelpers::ButtonWithToolbarIcon(ToolbarIcons icon, const char *label, const float icon_size,
+                                     ImVec4 tint /*= {1, 1, 1, 1}*/)
+{    
+    auto style   = ImGui::GetStyle();
+    auto bgColor = style.Colors[ImGuiCol_Button];
+
+    ImVec4 uv = g_ToolbarIconsRects[(int)icon];
+
+    ImVec2 uv0 = ImVec2(uv.x, 1 - uv.y);
+    ImVec2 uv1 = ImVec2(uv.z, 1 - uv.w);
+
+    ImVec2 imageSize = ImVec2(icon_size, icon_size);
+    return ImGui::ImageButton(label,(ImTextureID)g_pToolbarIconsSheet->GLTextureNum(), imageSize, uv0, uv1, bgColor, tint);
+
+    //return ImGuiHelpers::ImageButtonWithText((ImTextureID)g_pToolbarIconsSheet->GLTextureNum(), label, ImVec2(icon_size, icon_size),
+      //                                       uv0, uv1, style.FramePadding.x, bgColor, tint);
 }

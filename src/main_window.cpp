@@ -711,14 +711,24 @@ float MainWindow::RenderMainMenu()
 
                     for (auto &it : mru)
                     {
-                        auto file = FileSystem::Instance()->ExtractFileName(it.first.c_str());
-                        auto path = FileSystem::Instance()->ExtractFilePath(it.first.c_str());
+                        auto fs = FileSystem::Instance();
+
+                        auto file = fs->ExtractFileName(it.first.c_str());
+                        auto path = fs->ExtractFilePath(it.first.c_str());
 
                         file = std::format("{0}. {1}", ++index, file);
 
                         if (ImGui::MenuItem(file.c_str(), path.c_str()))
                         {
-                            m_pSceneRenderer->LoadModel((char *)it.first.c_str(), LRF_LOAD_ALL);
+                            auto & filePath = it.first;
+
+                            if (fs->FileExists(filePath.c_str()))
+                                m_pSceneRenderer->LoadModel(filePath.c_str(), LRF_LOAD_ALL);
+                            else
+                            {
+                                // MessageBox("File does not exists anymore and will be removed from list");
+                                Application::GetPersistentStorage()->RemoveMRUItem(filePath);
+                            }
                         }
                     }
                 }
@@ -815,21 +825,37 @@ float MainWindow::RenderMainMenu()
 
 float MainWindow::RenderMainToolbar(float menuHeight)
 {
+    static int size = 21;
+
     ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
     ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));
 
     ImGui::Begin("##MainÅoolbar", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-    auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
-
-    for (auto &it : toolbarCommands)
-    {
-        auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
-        cmd->RenderImGUI(23);
-    }
+//     auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
+// 
+//     for (auto &it : toolbarCommands)
+//     {
+//         auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
+//         cmd->RenderImGUI(23);
+//     }
 
     float r = ImGui::GetWindowHeight();
 
+    for (int i = (int)ToolbarIcons::Add; i < (int)ToolbarIcons::Undo; i++)
+    {
+        ImGuiHelpers::ButtonWithToolbarIcon((ToolbarIcons)i, "###Hello there!", size);        
+        ImGui::SameLine();
+
+        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+        ImGui::SameLine();
+    }
+
+    ImGui::End();
+
+    ImGui::Begin("Tweak size");
+
+        ImGui::InputInt("Icons size", &size);
     ImGui::End();
 
     return r;
