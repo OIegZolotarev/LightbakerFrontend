@@ -741,8 +741,17 @@ float MainWindow::RenderMainMenu()
                                 m_pSceneRenderer->LoadModel(filePath.c_str(), LRF_LOAD_ALL);
                             else
                             {
-                                // MessageBox("File does not exists anymore and will be removed from list");
+
+                                PopupMessageBox *pMessageBox = new PopupMessageBox;
+                                pMessageBox->SetTitle("Error");
+                                pMessageBox->SetMessage("File does not exist anymore\nand will be removed from list");
+                                pMessageBox->SetIcon(MessageBoxIcons::Warning);
+                                pMessageBox->SetButtons(MSG_BOX_OK);
+                                                                
+                                pMessageBox->Show();
+                                
                                 Application::GetPersistentStorage()->RemoveMRUItem(filePath);
+                                break;
                             }
                         }
                     }
@@ -840,6 +849,7 @@ float MainWindow::RenderMainMenu()
 
 float MainWindow::RenderMainToolbar(float menuHeight)
 {
+    // Looks good enough
     static int size = 21;
 
     ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
@@ -890,10 +900,9 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
     ImGui::End();
 
-    ImGui::Begin("Tweak size");
-
-        ImGui::InputInt("Icons size", &size);
-    ImGui::End();
+//     ImGui::Begin("Tweak size");
+//         ImGui::InputInt("Icons size", &size);
+//     ImGui::End();
 
     return r;
 }
