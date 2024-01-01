@@ -34,6 +34,8 @@ private:
     
 	PopupWindows m_Id;
 	
+	bool m_bDontProcessThisFrame = false;
+
 	void SchedulePopupOpen();    
 	friend class PopupsManager;
 

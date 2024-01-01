@@ -144,9 +144,11 @@ void PopupsManager::ShowPopup(PopupWindows id)
 void PopupsManager::ShowPopup(IImGUIPopup *pPopup)
 {
     m_vPopups.push_back(pPopup);
-    
+        
     pPopup->SetVisible(true);
     pPopup->SchedulePopupOpen();
+    pPopup->m_bDontProcessThisFrame = true;
+  
     m_lstOpenedPopups.push_back(pPopup);
 }
 
@@ -156,6 +158,13 @@ void PopupsManager::RenderPopups()
 
     for (auto it = m_lstOpenedPopups.begin(); it != m_lstOpenedPopups.end(); ++it)
     {
+        if ((*it)->m_bDontProcessThisFrame)
+        {
+            (*it)->m_bDontProcessThisFrame = false;
+            continue;
+        }
+        
+
         auto ptr = *it;
         
         if (!ptr->IsVisible())

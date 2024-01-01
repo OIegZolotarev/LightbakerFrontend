@@ -61,8 +61,13 @@ void PopupMessageBox::Render()
         {
             if (ImGui::Button(title))
             {
+                SetVisible(false);
+                ImGui::CloseCurrentPopup();
+
                 if (m_Callback)
                     m_Callback(id);
+
+                
             }
 
             ImGui::SameLine();
@@ -109,7 +114,6 @@ int PopupMessageBox::RenderingFlags()
 void PopupMessageBox::Show()
 {
     PopupsManager::Instance()->ShowPopup(this);
-    SetVisible(true);
 }
 
 bool PopupMessageBox::BeginRendering()

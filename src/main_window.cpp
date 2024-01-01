@@ -883,7 +883,7 @@ float MainWindow::RenderMainToolbar(float menuHeight)
                 pMessageBox = new PopupMessageBox;
                 pMessageBox->SetTitle("Callback!");
                 pMessageBox->SetIcon(MessageBoxIcons::Error);
-                pMessageBox->SetMessage("You         can't escape!!! ^) ");
+                pMessageBox->SetMessage("You can't escape!!! ^) ");
                 pMessageBox->SetButtons(MSG_BOX_YES  | MSG_BOX_NO);
                 pMessageBox->Show();
 
