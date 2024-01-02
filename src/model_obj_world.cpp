@@ -29,8 +29,8 @@ ModelObjWorld::~ModelObjWorld()
 void ModelObjWorld::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
 	SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
-	WorldspawnPropertiesBinder *binder = new WorldspawnPropertiesBinder(weakRef);
-	LoadPropertiesToPropsEditor(binder);
+	// WorldspawnPropertiesBinder *binder = new WorldspawnPropertiesBinder(weakRef);
+	// LoadPropertiesToPropsEditor(binder);
 }
 
 
@@ -98,66 +98,66 @@ void ModelObjWorld::Render(RenderMode mode, ShaderProgram* shader)
     throw std::logic_error("The method or operation is not implemented.");
 }
 
-void WorldspawnPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
-{
-	auto ptr = m_ptr.lock();
-
-	if (!ptr)
-		return;
-
-	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
-
-
-	// TODO: redo
-// 	VariantValue p;
-// 
-// 	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
-// 	p.SetColorRGB(world->GetEnvColor());
-// 	collection.push_back(p);
-
-}
-
-bool WorldspawnPropertiesBinder::IsObjectValid()
-{
-	return m_ptr.lock() != nullptr;
-}
-
-void WorldspawnPropertiesBinder::OnPropertyChangeSavedToHistory()
-{
-	Application::ScheduleCompilationIfNecceseary();
-}
-
-void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, size_t num)
-{
-	auto ptr = m_ptr.lock();
-	
-	if (!ptr)
-		return;
-
-	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
-
-	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
-
-	for (size_t i = 0; i < num; i++)
-	{
-		auto & it = props[i];
-
-		switch (it.GetId())
-		{
-		case EnvColor:
-			world->SetEnvColor(it.GetColorRGB());
-			break;
-		}
-	}
-}
-
-const char* WorldspawnPropertiesBinder::ObjectClassname()
-{
-	return "World (Wavefront Obj)";
-}
-
-void WorldspawnPropertiesBinder::UpdateProperty(VariantValue *prop)
-{
-    throw std::logic_error("The method or operation is not implemented.");
-}
-
+//void WorldspawnPropertiesBinder::FillProperties(std::list<VariantValue*>& collection)
+//{
+//	auto ptr = m_ptr.lock();
+//
+//	if (!ptr)
+//		return;
+//
+//	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
+//
+//
+//	// TODO: redo
+//// 	VariantValue p;
+//// 
+//// 	p = VariantValue(EnvColor, PropertiesTypes::ColorRGB, "Environment color");
+//// 	p.SetColorRGB(world->GetEnvColor());
+//// 	collection.push_back(p);
+//
+//}
+//
+//bool WorldspawnPropertiesBinder::IsObjectValid()
+//{
+//	return m_ptr.lock() != nullptr;
+//}
+//
+//void WorldspawnPropertiesBinder::OnPropertyChangeSavedToHistory()
+//{
+//	Application::ScheduleCompilationIfNecceseary();
+//}
+//
+//void WorldspawnPropertiesBinder::UpdateObjectProperties(VariantValue* props, size_t num)
+//{
+//	auto ptr = m_ptr.lock();
+//	
+//	if (!ptr)
+//		return;
+//
+//	ModelObjWorld* world = (ModelObjWorld*)ptr.get();
+//
+//	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
+//
+//	for (size_t i = 0; i < num; i++)
+//	{
+//		auto & it = props[i];
+//
+//		switch (it.GetId())
+//		{
+//		case EnvColor:
+//			world->SetEnvColor(it.GetColorRGB());
+//			break;
+//		}
+//	}
+//}
+//
+//const char* WorldspawnPropertiesBinder::ObjectClassname()
+//{
+//	return "World (Wavefront Obj)";
+//}
+//
+//void WorldspawnPropertiesBinder::UpdateProperty(VariantValue *prop)
+//{
+//    throw std::logic_error("The method or operation is not implemented.");
+//}
+//

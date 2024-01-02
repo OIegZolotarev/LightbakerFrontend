@@ -194,7 +194,8 @@ void BSPEntityProperty::ParseAngles(const std::string &value)
 
 void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
 {
-    m_Value = pNewProperty->m_Value;
+    if (pNewProperty)
+        m_Value = pNewProperty->m_Value;
 
     switch (m_iSpecialId)
     {

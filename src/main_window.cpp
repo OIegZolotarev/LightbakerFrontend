@@ -49,16 +49,6 @@ MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
 
     // InitStuff();
 
-    m_vPanels.push_back(ObjectPropertiesEditor::Instance());
-    m_vPanels.push_back(new SceneObjectPanel);
-    m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
-    m_vPanels.push_back(new DebugPanel);
-
-    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
-    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =
-        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
-
     // SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
 }
 
@@ -72,6 +62,16 @@ void MainWindow::InitStuff()
     InitCommonResources();
     InitCommands();
     InitTimers();
+
+    m_vPanels.push_back(ObjectPropertiesEditor::Instance());
+    m_vPanels.push_back(new SceneObjectPanel);
+    m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
+    m_vPanels.push_back(new DebugPanel);
+
+    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
+    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
+    m_pUseGradientBackground =
+        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
     GL_CheckForErrors();
 }
@@ -191,9 +191,7 @@ void GLAPIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLen
     (void)userParam;
 
     // Replace LogDebug with your logging function
-    Con_Printf("[OpenGL:source='%s', type='%s', severity='%s'] %s\n", sourceText, typeText,
-             severityText, message);
-
+    Con_Printf("[OpenGL:source='%s', type='%s', severity='%s'] %s\n", sourceText, typeText, severityText, message);
 }
 
 void MainWindow::InitBackend()
@@ -243,7 +241,7 @@ void MainWindow::InitBackend()
 
 #ifdef GL_DEBUG
 
-    #define GL_DEBUG_OUTPUT 0x92E0
+#define GL_DEBUG_OUTPUT 0x92E0
 
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallbackARB(DebugMessageCallback, 0);
@@ -287,10 +285,8 @@ void MainWindow::InitBackend()
     ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
-     g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
-     SDL_SetCursor(g_EmptyCursor);
-
-    
+    g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
+    SDL_SetCursor(g_EmptyCursor);
 
     // Force backend to initialize
     GLBackend::Instance();
@@ -553,7 +549,8 @@ void MainWindow::IterateUpdate()
 
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
 
-    GLBackend::Instance()->NewFrame(); GL_CheckForErrors();
+    GLBackend::Instance()->NewFrame();
+    GL_CheckForErrors();
     Application::Instance()->CheckIfBakngFinished();
     GL_CheckForErrors();
 
@@ -735,21 +732,20 @@ float MainWindow::RenderMainMenu()
 
                         if (ImGui::MenuItem(file.c_str(), path.c_str()))
                         {
-                            auto & filePath = it.first;
+                            auto &filePath = it.first;
 
                             if (fs->FileExists(filePath.c_str()))
                                 m_pSceneRenderer->LoadModel(filePath.c_str(), LRF_LOAD_ALL);
                             else
                             {
-
                                 PopupMessageBox *pMessageBox = new PopupMessageBox;
                                 pMessageBox->SetTitle("Error");
                                 pMessageBox->SetMessage("File does not exist anymore\nand will be removed from list");
                                 pMessageBox->SetIcon(MessageBoxIcons::Warning);
                                 pMessageBox->SetButtons(MSG_BOX_OK);
-                                                                
+
                                 pMessageBox->Show();
-                                
+
                                 Application::GetPersistentStorage()->RemoveMRUItem(filePath);
                                 break;
                             }
@@ -857,13 +853,13 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
     ImGui::Begin("##MainÅoolbar", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
-//     auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
-// 
-//     for (auto &it : toolbarCommands)
-//     {
-//         auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
-//         cmd->RenderImGUI(23);
-//     }
+    //     auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
+    //
+    //     for (auto &it : toolbarCommands)
+    //     {
+    //         auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
+    //         cmd->RenderImGUI(23);
+    //     }
 
     float r = ImGui::GetWindowHeight();
 
@@ -879,18 +875,15 @@ float MainWindow::RenderMainToolbar(float menuHeight)
             pMessageBox->SetButtons(MSG_BOX_YES | MSG_BOX_NO);
 
             pMessageBox->SetCallback([&](MessageBoxButtons button) {
-            
                 pMessageBox = new PopupMessageBox;
                 pMessageBox->SetTitle("Callback!");
                 pMessageBox->SetIcon(MessageBoxIcons::Error);
                 pMessageBox->SetMessage("You can't escape!!! ^) ");
-                pMessageBox->SetButtons(MSG_BOX_YES  | MSG_BOX_NO);
+                pMessageBox->SetButtons(MSG_BOX_YES | MSG_BOX_NO);
                 pMessageBox->Show();
-
-                });
+            });
 
             pMessageBox->Show();
-
         }
         ImGui::SameLine();
 
@@ -900,9 +893,9 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
     ImGui::End();
 
-//     ImGui::Begin("Tweak size");
-//         ImGui::InputInt("Icons size", &size);
-//     ImGui::End();
+    //     ImGui::Begin("Tweak size");
+    //         ImGui::InputInt("Icons size", &size);
+    //     ImGui::End();
 
     return r;
 }
@@ -1113,12 +1106,10 @@ void MainWindow::GL_BeginFrame()
     ClearBackground(true);
     GL_CheckForErrors();
 
-
     glClear(GL_DEPTH_BUFFER_BIT);
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
     GL_CheckForErrors();
-    
 }
 
 void MainWindow::ClearBackground(bool rebindShader)

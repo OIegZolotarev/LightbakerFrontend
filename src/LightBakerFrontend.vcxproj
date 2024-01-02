@@ -188,7 +188,6 @@ build.bat
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp" />
-    <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp" />
     <ClCompile Include="..\include\imgui\backends\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\include\imgui\backends\imgui_impl_sdl2.cpp" />
     <ClCompile Include="..\include\imgui\imgui.cpp" />
@@ -214,6 +213,7 @@ build.bat
     <ClCompile Include="fs_quake1_pak.cpp" />
     <ClCompile Include="gl_draw_mesh.cpp" />
     <ClCompile Include="goldsource_bsp_asynch_loader.cpp" />
+    <ClCompile Include="ImGuizmo.cpp" />
     <ClCompile Include="img_indexed_from_memory.cpp" />
     <ClCompile Include="mod_bsp.cpp" />
     <ClCompile Include="mod_mdlv10.cpp" />
@@ -304,7 +304,6 @@ build.bat
     <ClInclude Include="..\include\better-enums\enum.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h" />
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h" />
-    <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h" />
     <ClInclude Include="..\include\imgui\imconfig.h" />
     <ClInclude Include="..\include\imgui\imgui.h" />
     <ClInclude Include="..\include\imgui\imgui_internal.h" />
@@ -327,6 +326,7 @@ build.bat
     <ClInclude Include="fs_quake1_pak.h" />
     <ClInclude Include="gl_draw_mesh.h" />
     <ClInclude Include="goldsource_bsp_asynch_loader.h" />
+    <ClInclude Include="ImGuizmo.h" />
     <ClInclude Include="img_indexed_from_memory.h" />
     <ClInclude Include="mod_bsp.h" />
     <ClInclude Include="mod_mdlv10.h" />

@@ -86,34 +86,3 @@ enum LightProperties
 typedef std::shared_ptr<Lb3kLightEntity> lightDefPtr_t;
 typedef std::weak_ptr<Lb3kLightEntity> lightDefWPtr_t;
 
-class LightPropertiesBinding : public IObjectPropertiesBinding
-{
-    lightDefWPtr_t m_pwLightDef;
-
-    void MakeSizeProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeConeBProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeConeAProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightIntensityProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightColorProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightAnglesProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightPosProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightFlagsProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightTypeProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-    void MakeLightStyleProperty(VariantValue &p, std::shared_ptr<Lb3kLightEntity> ptr);
-
-  public:
-    LightPropertiesBinding(lightDefWPtr_t ref);
-
-    void FillProperties(std::list<VariantValue*>& collection) override;
-    void UpdateObjectProperties(VariantValue *data, size_t num) override;
-    bool IsObjectValid() override;
-
-    uint32_t GetSerialNumber() override;
-    void OnPropertyChangeSavedToHistory() override;
-
-    ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode() override;
-
-    const char *ObjectClassname() override;
-
-    void UpdateProperty(VariantValue *prop) override;
-};

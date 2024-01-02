@@ -66,7 +66,7 @@ void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
     m_pNext = pOther;
 }
 
-const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
+const BoundingBox &SceneEntity::AbsoluteBoundingBox() const
 {
     return m_EntVars.bboxAbsolute;
 }
@@ -138,16 +138,16 @@ void SceneEntity::SetAngles(const glm::vec3 &angles)
     m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
-void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
-{
-    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene         = sceneRenderer->GetScene();
-
-    auto weakRef = scene->GetEntityWeakRef(this);
-    scene->HintSelected(weakRef);
-
-    ObjectPropertiesEditor::Instance()->LoadObject(binder);
-}
+// void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
+// {
+//     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+//     auto scene         = sceneRenderer->GetScene();
+// 
+//     auto weakRef = scene->GetEntityWeakRef(this);
+//     scene->HintSelected(weakRef);
+// 
+//     ObjectPropertiesEditor::Instance()->LoadObject(binder);
+// }
 
 SceneEntity::SceneEntity(Scene *pScene)
 {

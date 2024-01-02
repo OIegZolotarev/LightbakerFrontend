@@ -143,9 +143,6 @@
     <ClCompile Include="draw_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
-    </ClCompile>
     <ClCompile Include="console_output_panel.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -440,6 +437,9 @@
     <ClCompile Include="common_icons.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="ImGuizmo.cpp">
+      <Filter>Исходные файлы\ImGuizmo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -489,9 +489,6 @@
     </ClInclude>
     <ClInclude Include="draw_utils.h">
       <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClInclude>
     <ClInclude Include="enum_iterator.h">
       <Filter>Исходные файлы</Filter>
@@ -801,6 +798,9 @@
     </ClInclude>
     <ClInclude Include="common_icons.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo.h">
+      <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

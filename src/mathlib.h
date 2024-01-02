@@ -7,13 +7,13 @@
 
 #define GLM_FORCE_SWIZZLE
 
+#include "helpers.h"
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/quaternion.hpp>
 #include <glm/mat4x4.hpp>
-#include "helpers.h"
 
 enum class PlaneTypes
 {
@@ -37,30 +37,32 @@ typedef struct plane_s
     byte signbits; // signx  + (signy<<1) + (signz<<2)
 
     void CalcSignBits();
-    int BoxOnPlaneSide(const glm::vec3 & emins, const glm::vec3 & emaxs);
+    int  BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs);
 
 } plane_t;
 
-bool PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t* plane3, glm::vec3 &out);
+bool  PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t *plane3, glm::vec3 &out);
 float AngleMod(float val);
 
 class BoundingBox
 {
-    glm::vec3 m_Mins = {0,0,0};
+    // Must remain tightly packed!
+
+    glm::vec3 m_Mins = {0, 0, 0};
     glm::vec3 m_Maxs = {0, 0, 0};
 
 public:
+    float *Data();
 
     BoundingBox()
     {
-        
     }
 
     BoundingBox(const short *bspminsmaxs);
     BoundingBox(const glm::vec3 pos, const BoundingBox &other);
     BoundingBox(const glm::vec3 &mins, const glm::vec3 &maxs);
-    BoundingBox(const short* mins, const short*maxs);
-    BoundingBox(const float* mins, const float*maxs);
+    BoundingBox(const short *mins, const short *maxs);
+    BoundingBox(const float *mins, const float *maxs);
     BoundingBox(const glm::vec3 size);
     BoundingBox(const float scale);
 
@@ -73,6 +75,13 @@ public:
     }
 
     void AddPoint(const glm::vec3 pt);
+    void AddBoundingBox(const BoundingBox &other);
+    
+    glm::vec3 Center();
+
+    BoundingBox ConvertToRelative();
+    void        Translate(glm::vec3 delta);
+    void        ApplyScale(glm::vec3 matrixScale);
 };
 
 glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles);

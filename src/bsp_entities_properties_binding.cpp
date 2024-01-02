@@ -6,10 +6,11 @@
 #include "application.h"
 #include "common.h"
 
-#include "bsp_entities_properties_binding.h"
+
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
 #include "properties_editor.h"
+#include "bsp_entities_properties_binding.h"
 
 using namespace GoldSource;
 
@@ -20,6 +21,14 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
 
     if (!rawBSP)
         return;
+
+    // Dont't add if already selected
+    for (auto & it: m_lstSelectedObjects)
+    {
+        auto ptr = it.lock();
+        if (ptr.get() == rawBSP)
+            return;
+    }
 
     m_lstSelectedObjects.push_back(ptr);
 
@@ -56,7 +65,7 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
         if (m_lstSelectedObjects.size() == 1)
             m_strObjectsClassname = std::format("{0}", firstClass);
         else
-            m_strObjectsClassname = std::format("{1} {0}'s", firstClass, m_lstSelectedObjects.size());
+            m_strObjectsClassname = std::format("{1} {0}s", firstClass, m_lstSelectedObjects.size());
     }
 }
 
@@ -66,6 +75,84 @@ void GoldSource::BSPEntitiesPropertiesBinder::FillProperties(std::list<VariantVa
     {
         collection.push_back(it);
     }
+}
+
+void GoldSource::BSPEntitiesPropertiesBinder::OnSelectionResized(std::unordered_map<uint32_t, glm::vec3> &relativePositions,
+                                                     glm::vec3 scale,
+                                                     glm::vec3 centerPos)
+{
+    for (auto &it : m_lstSelectedObjects)
+    {
+        BSPEntity *rawBsp = SceneEntity::GetRawSafest<BSPEntity>(it);
+
+        if (!rawBsp)
+            continue;
+
+        assert(relativePositions.contains(rawBsp->GetSerialNumber()));
+
+        glm::vec3 newPos = relativePositions.at(rawBsp->GetSerialNumber()) * scale;
+        
+        auto      bspProperty = rawBsp->FindProperty(SpecialKeys::KeyOrigin());
+        bspProperty->SetPosition(newPos + centerPos);
+        bspProperty->Update(nullptr);
+    }
+}
+
+// void BSPEntitiesPropertiesBinder::OnSelectionResized(BoundingBox m_AllObjectsBounds, BoundingBox rel)
+// {
+//     glm::vec3 oldSize = m_AllObjectsBounds.Size();
+//     glm::vec3 oldMins = m_AllObjectsBounds.Mins();
+// 
+//     glm::vec3 newMins = rel.Mins();
+//     glm::vec3 newSize = rel.Size();
+// 
+//     for (auto & it: m_lstSelectedObjects)
+//     {
+//         BSPEntity *rawBsp = SceneEntity::GetRawSafest<BSPEntity>(it);
+// 
+//         if (!rawBsp)
+//             continue;
+// 
+//         // Position in range between [0-1,0-1,0-1]
+//         glm::vec3 pos = (rawBsp->GetPosition() - oldMins) / oldSize;
+// 
+//         auto bspProperty = rawBsp->FindProperty(SpecialKeys::KeyOrigin());
+// 
+//         if (!bspProperty)
+//             continue;
+// 
+//         auto newPos = newMins + (pos * newSize);
+// 
+//         Con_Printf("Moving to %f %f %f\n", newPos.x, newPos.y, newPos.z);
+//         
+// 
+//         bspProperty->SetPosition(newPos);
+//         bspProperty->Update(nullptr);
+//     }
+// 
+// }
+
+void BSPEntitiesPropertiesBinder::UpdatePropertyPositionDelta(VariantValue *propertyPosition, glm::vec3 delta)
+{
+    if (! instanceof <BSPEntityProperty>(propertyPosition))
+        return;
+
+    BSPEntityProperty *p = (BSPEntityProperty *)propertyPosition;
+
+    for (auto &it : m_lstSelectedObjects)
+    {
+        BSPEntity* rawBsp = SceneEntity::GetRawSafest<BSPEntity>(it);
+
+        if (!rawBsp)
+            continue;
+        
+        rawBsp->UpdatePropertyPosition(p, delta);
+    }
+}
+
+void BSPEntitiesPropertiesBinder::ClearObjects()
+{
+    m_lstSelectedObjects.clear();
 }
 
 void BSPEntitiesPropertiesBinder::AddObject(SceneEntityWeakPtr weakRef)
@@ -92,6 +179,7 @@ void BSPEntitiesPropertiesBinder::UpdateProperty(VariantValue *prop)
         return;
 
     BSPEntityProperty *p = (BSPEntityProperty *)prop;
+       
 
     for (auto & it : m_lstSelectedObjects)
     {
@@ -108,7 +196,8 @@ void BSPEntitiesPropertiesBinder::UpdateProperty(VariantValue *prop)
 
 ImGuizmo::OPERATION BSPEntitiesPropertiesBinder::GetMeaningfulGizmoOperationMode()
 {
-    return ImGuizmo::TRANSLATE | (ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z);
+    return ImGuizmo::TRANSLATE;
+     // ImGuizmo::TRANSLATE | (ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y | ImGuizmo::ROTATE_Z);
 }
 
 void BSPEntitiesPropertiesBinder::RenderFooter()

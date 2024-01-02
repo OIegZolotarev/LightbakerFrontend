@@ -1,3 +1,8 @@
+/*
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
+*/
+
 #include "object_props.h"
 #include "scene_entity.h"
 
@@ -310,12 +315,12 @@ void VariantValue::SetDisplayName(const std::string &dispName, bool updateIfSet 
     m_strDisplayName = dispName;
 }
 
-void IObjectPropertiesBinding::RenderFooter()
-{
-    return;
-}
-
-SceneEntity *IObjectPropertiesBinding::GetEntity(int param1)
-{
-    return nullptr;
-}
+// void IObjectPropertiesBinding::RenderFooter()
+// {
+//     return;
+// }
+// 
+// SceneEntity *IObjectPropertiesBinding::GetEntity(int param1)
+// {
+//     return nullptr;
+// }

@@ -154,6 +154,11 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
     return sides;
 }
 
+float *BoundingBox::Data()
+{
+    return &m_Mins.x;
+}
+
 BoundingBox::BoundingBox(const glm::vec3 pos, const BoundingBox &other)
 {
     m_Mins = pos + other.m_Mins;
@@ -219,3 +224,33 @@ void BoundingBox::AddPoint(const glm::vec3 pt)
             m_Maxs[i] = pt[i];
     }
 }
+
+void BoundingBox::AddBoundingBox(const BoundingBox &other)
+{
+    AddPoint(other.Mins());
+    AddPoint(other.Maxs());
+}
+
+glm::vec3 BoundingBox::Center()
+{
+    return m_Mins + (m_Maxs - m_Mins) * 0.5f;
+}
+
+BoundingBox BoundingBox::ConvertToRelative()
+{
+    glm::vec3 center = Center();
+    return BoundingBox(m_Mins - center, m_Maxs - center);
+}
+
+void BoundingBox::Translate(glm::vec3 delta)
+{
+    m_Mins += delta;
+    m_Maxs += delta;
+}
+
+void BoundingBox::ApplyScale(glm::vec3 matrixScale)
+{
+    m_Mins *= matrixScale;
+    m_Maxs *= matrixScale;
+}
+

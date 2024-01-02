@@ -6,6 +6,7 @@
 #pragma once
 
 #include "common.h"
+#include "object_props.h"
 
 class VariantValue;
 enum class PropertiesTypes;

@@ -4,10 +4,13 @@
 */
 
 #pragma once
+#include "bsp_entities_properties_binding.h"
 #include "igui_panel.h"
 #include "object_props.h"
 
 class Viewport;
+
+
 
 class ObjectPropertiesEditor : public IGUIPanel
 {
@@ -15,7 +18,8 @@ class ObjectPropertiesEditor : public IGUIPanel
 
     ObjectPropertiesEditor();
 
-    IObjectPropertiesBinding *m_pPropertiesBinding = nullptr;
+    std::unordered_map<uint32_t,glm::vec3>                              m_mapRelativeObjectsPos;
+    GoldSource::BSPEntitiesPropertiesBinder *m_pPropertiesBinding = nullptr;
 
     // Properties
     std::list<VariantValue *> m_lstProperties;
@@ -37,6 +41,10 @@ class ObjectPropertiesEditor : public IGUIPanel
     VariantValue *m_pGuizmoPropertyPosition = nullptr;
     VariantValue *m_pGuizmoPropertyRotation = nullptr;
 
+    void ResetGuizmoScaling();
+    void UpdateAllObjectsBoundingBox();
+    void UpdateRelativePositions();
+
     void SetupGuizmo();
     void EditTransform(Viewport *pViewport, bool editTransformDecomposition);
     void HandleGizmoChange();
@@ -56,17 +64,24 @@ public:
 
     // Object manipulation
 
-    IObjectPropertiesBinding *GetBindings();
-    void                      LoadObject(IObjectPropertiesBinding *pBindings);
-    void                      UnloadObject();
+    GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
+    void                                     LoadObject(SceneEntityWeakPtr &pObject);
 
-    int  CurrentSerialNumber(); // TODO: refactor this
+    
+
+    void UnloadObject();
+
     void ReloadPropertyValue(int id);
 
     DockPanels GetDockSide() override;
 
+    const BoundingBox GetAllObjectsBoundingBox() const;
+
     void RenderGuizmo(Viewport *pViewport);
     void Render() override;
-
+    
     void ReloadPropertiesFromBinder();
+
+private:
+    void UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
 };

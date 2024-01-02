@@ -6,7 +6,7 @@
 #pragma once
 
 #include "common.h"
-#include "scene_entity.h"
+
 
 enum class PropertiesTypes
 {
@@ -127,39 +127,3 @@ public:
 
 class SceneEntity;
 
-class IObjectPropertiesBinding
-{
-public:
-    virtual void FillProperties(std::list<VariantValue *> &collection) = 0;
-
-    // Legacy
-    virtual void UpdateObjectProperties(VariantValue *props, size_t num){};
-
-    virtual void UpdateProperty(VariantValue *prop) = 0;
-
-    virtual bool IsObjectValid()
-    {
-        return true;
-    }
-
-    virtual uint32_t GetSerialNumber()
-    {
-        return 0;
-    }
-
-    virtual void OnPropertyChangeSavedToHistory(){};
-
-    virtual ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode()
-    {
-        return (ImGuizmo::OPERATION)0;
-    }
-
-    virtual const char *ObjectClassname()
-    {
-        return "<no classname>";
-    }
-
-    virtual void         RenderFooter();
-    virtual SceneEntity *GetEntity(int param1);
-    virtual void         AddObject(SceneEntityWeakPtr weakRef){};
-};

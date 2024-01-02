@@ -20,46 +20,48 @@ CPropertyChangeAction::CPropertyChangeAction(size_t serialNumber, VariantValue o
 
 void CPropertyChangeAction::Redo()
 {
-	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRender->GetScene();
-
-	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
-
-	if (auto ptr = pLight.lock())
-	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
-
-		auto b = new LightPropertiesBinding(lightPtr);
-		b->UpdateObjectProperties(&m_NewValue, 1);
-		delete b;
-
-		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
-		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
-		}
-	}
+    assert(false && "fixme");
+    // 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+// 	auto scene = sceneRender->GetScene();
+// 
+// 	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
+// 
+// 	if (auto ptr = pLight.lock())
+// 	{
+// 		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
+// 
+// 		auto b = new LightPropertiesBinding(lightPtr);
+// 		b->UpdateObjectProperties(&m_NewValue, 1);
+// 		delete b;
+// 
+// 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
+// 		{
+// 			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
+// 		}
+// 	}
 }
 
 void CPropertyChangeAction::Undo()
 {
-	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRender->GetScene();
-
-	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
-
-	if (auto ptr = pLight.lock())
-	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
-
-		auto b = new LightPropertiesBinding(lightPtr);
-		b->UpdateObjectProperties(&m_OldValue, 1);
-		delete b;
-
-		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
-		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
-		}
-	}
+    assert(false && "fixme");
+    // 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+// 	auto scene = sceneRender->GetScene();
+// 
+// 	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
+// 
+// 	if (auto ptr = pLight.lock())
+// 	{
+// 		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
+// 
+// 		auto b = new LightPropertiesBinding(lightPtr);
+// 		b->UpdateObjectProperties(&m_OldValue, 1);
+// 		delete b;
+// 
+// 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
+// 		{
+// 			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
+// 		}
+// 	}
 }
 
 

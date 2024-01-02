@@ -55,31 +55,31 @@ public:
 };
 
 
-class WorldspawnPropertiesBinder : public IObjectPropertiesBinding
-{
-	SceneEntityWeakPtr m_ptr;
-
-	enum PropsId
-	{
-		EnvColor = 0
-	};
-
-public:
-
-	WorldspawnPropertiesBinder(SceneEntityWeakPtr ptr)
-	{
-		m_ptr = ptr;
-	}
-
-	void FillProperties(std::list<VariantValue*>& collection) override;
-	bool IsObjectValid() override;
-	void OnPropertyChangeSavedToHistory() override;
-	void UpdateObjectProperties(VariantValue* props, size_t num) override;
-
-
-
-	const char* ObjectClassname() override;
-
-
- void UpdateProperty(VariantValue *prop) override;
-};
+//class WorldspawnPropertiesBinder : public IObjectPropertiesBinding
+//{
+//	SceneEntityWeakPtr m_ptr;
+//
+//	enum PropsId
+//	{
+//		EnvColor = 0
+//	};
+//
+//public:
+//
+//	WorldspawnPropertiesBinder(SceneEntityWeakPtr ptr)
+//	{
+//		m_ptr = ptr;
+//	}
+//
+//	void FillProperties(std::list<VariantValue*>& collection) override;
+//	bool IsObjectValid() override;
+//	void OnPropertyChangeSavedToHistory() override;
+//	void UpdateObjectProperties(VariantValue* props, size_t num) override;
+//
+//
+//
+//	const char* ObjectClassname() override;
+//
+//
+// void UpdateProperty(VariantValue *prop) override;
+//};

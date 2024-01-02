@@ -147,6 +147,10 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     // Render visible stuff
 
+    // ObjectPropertiesEditor::Instance()->Render3DBoundingBox();
+
+    // RenderPointEntityDefault(bbox.Center(), bboxRel.Mins(), bboxRel.Maxs(), {1, 0, 0}, 0);
+
     if (m_pScene)
     {
         if (m_RenderMode == RenderMode::Wireframe)
@@ -466,7 +470,7 @@ void SceneRenderer::SortRenderLists()
         if (!it->IsDataLoaded())
             continue;
 
-        if (frustum->CullBox(it->AbsoulteBoundingBox()))
+        if (frustum->CullBox(it->AbsoluteBoundingBox()))
             continue;
 
         // TODO: encapsulate model acquisition and fall back to box if original is unloaded?

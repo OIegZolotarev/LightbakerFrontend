@@ -214,14 +214,15 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
         if (bindings)
         {
-            bindings->AddObject(weakRef);
+            ObjectPropertiesEditor::Instance()->LoadObject(weakRef);
+            // bindings->AddObject(weakRef);
         }
         else
         {
             // TODO: make binder singletons?
-            BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
-            pBinder->SelectEntity(weakRef);
-            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+//             BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
+//             pBinder->SelectEntity(weakRef);
+//            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
         }
     }
 }
@@ -302,4 +303,15 @@ void BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
 GoldSource::FGDEntityClassWeakPtr BSPEntity::GetFGDClass()
 {
     return m_pFGDClass;
+}
+
+void BSPEntity::UpdatePropertyPosition(BSPEntityProperty *pNewProperty, glm::vec3 delta)
+{
+    auto myProperty = FindProperty(pNewProperty->Hash());
+
+    // Shouldn't be nullptr
+    assert(myProperty);
+
+    myProperty->SetPosition(myProperty->GetPosition() + delta);
+    myProperty->Update(nullptr);
 }

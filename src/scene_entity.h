@@ -9,6 +9,7 @@
 #include "object_props.h"
 #include "selection_3d.h"
 #include "viewport_rendermodes.h"
+#include "bsp_entity_property.h"
 
 enum class EntityClasses
 {
@@ -91,6 +92,7 @@ typedef struct sentvars_s
 
 class Scene;
 class ShaderProgram;
+namespace GoldSource { class BSPEntityProperty; }
 
 class SceneEntity : public ISelectableObject
 {
@@ -101,13 +103,16 @@ class SceneEntity : public ISelectableObject
     void RecalcAbsBBox();
 
 protected:
+
     void SetClassName(const char *name);
-    void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
+    // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
     // For transparent sorting
     std::weak_ptr<SceneEntity> m_pNext;
 
     Scene *m_pScene;
+
+    
 
 public:
     SceneEntity(Scene *pScene);
@@ -164,7 +169,7 @@ public:
 
     std::weak_ptr<SceneEntity> Next();
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
-    const BoundingBox &        AbsoulteBoundingBox() const;
+    const BoundingBox &        AbsoluteBoundingBox() const;
 
     void SetTransform(glm::mat4 m_matGuizmo);
 

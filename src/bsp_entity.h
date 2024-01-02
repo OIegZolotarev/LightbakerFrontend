@@ -23,13 +23,14 @@ class BSPEntity : public SceneEntity
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
-    std::list<BSPEntityProperty *> m_lstProperties;
+    
+    std::list<GoldSource::BSPEntityProperty *> m_lstProperties;
 
     bool m_bIsTransparent = false;
 
     friend class BSPEntityProperty;
 
-    BSPEntityProperty *FindProperty(size_t prophash);
+    
 
 public:
     // Delete for now, implement later if necceseary
@@ -44,6 +45,7 @@ public:
 
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
+    BSPEntityProperty *             FindProperty(size_t prophash);
     bool                            HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
@@ -52,9 +54,8 @@ public:
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
-    
-
     void Render(RenderMode mode, ShaderProgram *shader) override;
+    void UpdatePropertyPosition(BSPEntityProperty *p, glm::vec3 delta);
 };
 
 } // namespace GoldSource
