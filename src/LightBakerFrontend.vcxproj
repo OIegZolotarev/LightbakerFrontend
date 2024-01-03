@@ -261,6 +261,7 @@ build.bat
     <ClCompile Include="mathlib.cpp" />
     <ClCompile Include="mod_obj_data.cpp" />
     <ClCompile Include="platform_window.cpp" />
+    <ClCompile Include="r_octree.cpp" />
     <ClCompile Include="secondary_window.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="viewports_orchestrator.cpp" />
@@ -379,6 +380,7 @@ build.bat
     <ClInclude Include="platform_window.h" />
     <ClInclude Include="lb3k_imgui_icons.h" />
     <ClInclude Include="mathlib.h" />
+    <ClInclude Include="r_octree.h" />
     <ClInclude Include="secondary_window.h" />
     <ClInclude Include="spritegn.h" />
     <ClInclude Include="viewport.h" />

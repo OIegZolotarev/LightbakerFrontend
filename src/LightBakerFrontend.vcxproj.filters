@@ -440,6 +440,9 @@
     <ClCompile Include="ImGuizmo.cpp">
       <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClCompile>
+    <ClCompile Include="r_octree.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -801,6 +804,9 @@
     </ClInclude>
     <ClInclude Include="ImGuizmo.h">
       <Filter>Исходные файлы\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="r_octree.h">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -433,26 +433,27 @@ const char *ModelOBJ::Description()
 
 void ModelOBJ::PrepareLights()
 {
-    auto scene  = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-    auto lights = scene->GetLightDefs();
-
-    m_ModelData.lightDefs.clear();
-    m_LightmapModelData.lightDefs.clear();
-
-    for (auto light = lights.begin(); light != lights.end(); light++)
-    {
-        auto lightPointer = std::dynamic_pointer_cast<Lb3kLightEntity>(*light);
-
-        if (lightPointer)
-        {
-            // Наверное тупой подход
-            Lb3kLightEntity *l1 = new Lb3kLightEntity(*lightPointer);
-            Lb3kLightEntity *l2 = new Lb3kLightEntity(*lightPointer);
-
-            m_LightmapModelData.lightDefs.push_back(l1);
-            m_ModelData.lightDefs.push_back(l2);
-        }
-    }
+    // TODO: fixme
+    //     auto scene  = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+//     auto lights = scene->GetLightDefs();
+// 
+//     m_ModelData.lightDefs.clear();
+//     m_LightmapModelData.lightDefs.clear();
+// 
+//     for (auto light = lights.begin(); light != lights.end(); light++)
+//     {
+//         auto lightPointer = std::dynamic_pointer_cast<Lb3kLightEntity>(*light);
+// 
+//         if (lightPointer)
+//         {
+//             // Наверное тупой подход
+//             Lb3kLightEntity *l1 = new Lb3kLightEntity(*lightPointer);
+//             Lb3kLightEntity *l2 = new Lb3kLightEntity(*lightPointer);
+// 
+//             m_LightmapModelData.lightDefs.push_back(l1);
+//             m_ModelData.lightDefs.push_back(l2);
+//         }
+//     }
 }
 
 void ModelOBJ::ReloadTextures()

@@ -4,12 +4,12 @@
 */
 
 #pragma once
+#include "bsp_entity_property.h"
 #include "gl_texture.h"
 #include "mod_manager.h"
 #include "object_props.h"
 #include "selection_3d.h"
 #include "viewport_rendermodes.h"
-#include "bsp_entity_property.h"
 
 enum class EntityClasses
 {
@@ -37,7 +37,7 @@ typedef struct sentvars_s
     ColorRGBA wireframecolor;
 
     // Models
-    IModelWeakPtr model;    
+    IModelWeakPtr model;
 
     // Studio models
     int   bodynum;
@@ -66,7 +66,7 @@ typedef struct sentvars_s
         rendercolor    = {1, 1, 1, 1};
         wireframecolor = {1, 1, 1, 1};
 
-        model       = IModelWeakPtr();        
+        model = IModelWeakPtr();
 
         bodynum  = 0;
         skin     = 0;
@@ -92,7 +92,13 @@ typedef struct sentvars_s
 
 class Scene;
 class ShaderProgram;
-namespace GoldSource { class BSPEntityProperty; }
+class OctreeNode;
+namespace GoldSource
+{
+class BSPEntityProperty;
+}
+
+
 
 class SceneEntity : public ISelectableObject
 {
@@ -102,17 +108,17 @@ class SceneEntity : public ISelectableObject
 
     void RecalcAbsBBox();
 
-protected:
+    OctreeNode *m_pOctreeNode = nullptr;
 
+protected:
     void SetClassName(const char *name);
     // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
     // For transparent sorting
     std::weak_ptr<SceneEntity> m_pNext;
 
-    Scene *m_pScene;
-
-    
+    Scene *m_pScene             = nullptr;
+    bool   m_bRegisteredInScene = false;
 
 public:
     SceneEntity(Scene *pScene);
@@ -122,8 +128,7 @@ public:
 
     virtual bool IsDataLoaded();
 
-    // DECLARE_PROPERTY(uint32_t      , SerialNumber);
-
+    // Common properties
     void           SetSerialNumber(const uint32_t newNum);
     const uint32_t GetSerialNumber() const;
 
@@ -149,31 +154,34 @@ public:
     const BoundingBox &GetRelativeBoundingBox() const;
     const BoundingBox &GetAbsoulteBoundingBox() const;
 
+    void SetTransform(glm::mat4 m_matGuizmo);
+
+    // Selectable object
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
     void OnUnSelect() override;
     void OnUnhovered() override;
+    void InvokeSelect();
 
     virtual const char *Description();
     virtual bool        IsLightEntity();
     virtual void        OnAdditionToScene(class Scene *pScene);
 
+    const std::string &   GetClassName() const;
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
-
-    void               InvokeSelect();
-    const std::string &GetClassName() const;
 
     template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef);
 
     std::weak_ptr<SceneEntity> Next();
     void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
-    const BoundingBox &        AbsoluteBoundingBox() const;
-
-    void SetTransform(glm::mat4 m_matGuizmo);
 
     void Debug_RenderTransform();
+
+    void FlagRegisteredInScene(bool state);
+    void SetOctreeNode(OctreeNode *node);
+    const OctreeNode * GetOctreeNode() const;
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

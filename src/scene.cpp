@@ -40,11 +40,17 @@ void Scene::LoadLevel(const char *levelName, int loadFlags)
     LoadLevel(levelName);
 }
 
+const std::list<SceneEntityPtr> &Scene::GetEntities() const
+{
+    return m_SceneEntities;
+}
+
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
 
-    //    pTestModel = ModelsManager::Instance()->LookupModel("res/mesh/not_existing_model.mdl");
+    // TODO: fixme later
+    m_pOctree = new OctreeNode(8192);
 }
 
 Scene::~Scene()
@@ -54,7 +60,8 @@ Scene::~Scene()
         ptr->UnmountGameFS();
     }
 
-    // FreeVector(m_vecSceneLightDefs);
+    delete m_pOctree;
+
     m_SceneEntities.clear();
     delete m_pEditHistory;
 }
@@ -88,7 +95,7 @@ void Scene::DoDeleteSelection()
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
-    auto newLight = std::make_shared<Lb3kLightEntity>(this);
+    auto newLight = new Lb3kLightEntity(this);
 
     // newLight->pos = m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
     newLight->SetPosition(pos);
@@ -115,24 +122,22 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 
     newLight->SetSize(0, 0);
 
-    m_SceneEntities.push_back(newLight);
+    // m_SceneEntities.push_back(newLight);
 
     if (interactive)
         newLight->InvokeSelect();
 
-    return newLight;
+    return AddNewSceneEntity(newLight);
 }
 
-SceneEntityPtr Scene::AddNewGenericEntity()
-{
-    auto newEntity = std::make_shared<SceneEntity>(this);
-    m_SceneEntities.push_back(newEntity);
-    return newEntity;
-}
 
-void Scene::AddNewSceneEntity(SceneEntity *entity)
+
+SceneEntityPtr Scene::AddNewSceneEntity(SceneEntity *entity)
 {
-    m_SceneEntities.push_back(SceneEntityPtr(entity));
+    auto result = SceneEntityPtr(entity);
+    m_SceneEntities.push_back(result);
+    OnEntityRegistered(result);
+    return result;
 }
 
 std::list<SceneEntityPtr> &Scene::GetSceneObjects()
@@ -155,11 +160,6 @@ SceneEntityWeakPtr Scene::GetSelection()
     return m_pCurrentSelection;
 }
 
-std::list<SceneEntityPtr> &Scene::GetLightDefs()
-{
-    return m_SceneEntities;
-}
-
 bool Scene::IsModelLoaded()
 {
     if (m_SceneEntities.size() < 1)
@@ -169,22 +169,12 @@ bool Scene::IsModelLoaded()
     return it->get()->IsDataLoaded();
 }
 
-std::string Scene::GetModelFileName()
-{
-    assert("not implemented yet");
-    return "";
-}
-
-std::string Scene::GetModelTextureName()
-{
-    assert("not implemented yet");
-    return "";
-}
-
 void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn)
 {
-    it->SetSerialNumber(sn);
+    it->SetSerialNumber(sn);    
     m_SceneEntities.push_back(it);
+
+    OnEntityRegistered(it);
 }
 
 SceneEntityWeakPtr Scene::GetEntityBySerialNumber(size_t serialNumber)
@@ -388,29 +378,41 @@ size_t Scene::TotalEntities()
     return m_SceneEntities.size();
 }
 
+void Scene::DebugRenderOctree()
+{
+    if (m_pOctree)
+        m_pOctree->DrawDebug();
+}
+
+void Scene::OnEntityRegistered(SceneEntityPtr &it)
+{
+    it->FlagRegisteredInScene(true);
+    auto wptr = SceneEntityWeakPtr(it);
+    m_pOctree->PushEntity(wptr);
+}
+
 // void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
 // {
 //     BT_PROFILE("Scene::RenderEntities()");
-// 
+//
 //     DebugSorting(sr);
-// 
+//
 //     renderStats_s *stats = GLBackend::Instance()->RenderStats();
-// 
+//
 //     stats->nEntitiesTotal    = m_SceneEntities.size();
 //     stats->nEntitiesRendered = 0;
-// 
+//
 //     ModelType currentType = ModelType::Unset;
-// 
+//
 //     for (auto & info: m_vSortedEntities)
 //     {
 //         if (info.modType != currentType)
 //         {
-//         
+//
 //         }
-// 
-// 
+//
+//
 //         stats->nEntitiesRendered++;
 //         info.pEntity->Render(mode, nullptr);
 //     }
 // }
-

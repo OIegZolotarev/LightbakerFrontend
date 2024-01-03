@@ -66,11 +66,6 @@ void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
     m_pNext = pOther;
 }
 
-const BoundingBox &SceneEntity::AbsoluteBoundingBox() const
-{
-    return m_EntVars.bboxAbsolute;
-}
-
 void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
 {
     m_EntVars.transform = m_matGuizmo;
@@ -125,6 +120,21 @@ void SceneEntity::Debug_RenderTransform()
     drawAxis(m_EntVars.origin, forward, 100, {1, 0, 0, 1});
     drawAxis(m_EntVars.origin, right, 100, {0, 1, 0, 1});
     drawAxis(m_EntVars.origin, up, 100, {0, 0, 1, 1});
+}
+
+void SceneEntity::FlagRegisteredInScene(bool state)
+{
+    m_bRegisteredInScene = state;
+}
+
+void SceneEntity::SetOctreeNode(OctreeNode *node)
+{
+    m_pOctreeNode = node;
+}
+
+const OctreeNode *SceneEntity::GetOctreeNode() const
+{
+    return m_pOctreeNode;
 }
 
 const glm::vec3 SceneEntity::GetAngles() const

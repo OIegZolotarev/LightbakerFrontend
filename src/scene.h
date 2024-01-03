@@ -8,10 +8,11 @@
 #include "common.h"
 #include "game_configuration.h"
 #include "lb3k_wrapper.h"
+#include "mod_manager.h"
 #include "model_obj.h"
 #include "scene_entity.h"
 #include "serial_counter.h"
-#include "mod_manager.h"
+#include "r_octree.h"
 
 enum class LevelFormat
 {
@@ -49,14 +50,15 @@ class Scene
     void ClearEntities();
     void LoadLevel(const char *levelName);
 
-     IModelWeakPtr pTestModel;
+    IModelWeakPtr pTestModel;
 
-     friend class SceneRenderer;
+    friend class SceneRenderer;
 
-     const std::list<SceneEntityPtr> & GetEntities() const
-     {
-         return m_SceneEntities;
-     }
+    const std::list<SceneEntityPtr> &GetEntities() const;
+
+    OctreeNode *m_pOctree;
+   
+    void OnEntityRegistered(SceneEntityPtr &it);
 
 public:
     Scene();
@@ -64,15 +66,18 @@ public:
 
     void LoadLevel(const char *levelName, int loadFlags);
 
-    void           DoDeleteSelection();
+    void DoDeleteSelection();
 
-    SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
-    SceneEntityPtr AddNewGenericEntity();
+    // Scene objects
+    SceneEntityPtr             AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);    
+    SceneEntityPtr             AddNewSceneEntity(SceneEntity *entity);
+    void                       AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);
+    
+    std::list<SceneEntityPtr> &GetSceneObjects();               
+    SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
 
-    void AddNewSceneEntity(SceneEntity * entity);
-
-    std::list<SceneEntityPtr> &GetSceneObjects();
-    std::list<SceneEntityPtr> &GetLightDefs();
+    void               DeleteEntityWithSerialNumber(size_t serialNumber);
+    void               DeleteEntity(SceneEntityWeakPtr l);
 
     CEditHistory *GetEditHistory() const;
 
@@ -81,14 +86,7 @@ public:
 
     bool IsModelLoaded();
 
-    std::string GetModelFileName();
-    std::string GetModelTextureName();
-
-    // Entity manipulation
-    void               AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);
-    SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
-    void               DeleteEntityWithSerialNumber(size_t serialNumber);
-    void               DeleteEntity(SceneEntityWeakPtr l);
+    
 
     // Scene scaling
     float GetSceneScale();
@@ -99,13 +97,16 @@ public:
     void               Reload(int loadFlags);
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions);
-    
-    void        DumpLightmapMesh();
-    void        DumpLightmapUV();
+
+    void DumpLightmapMesh();
+    void DumpLightmapUV();
 
     GameConfigurationWeakPtr UsedGameConfiguration();
     uint32_t                 AllocSerialNumber();
-    IWorldEntity* GetWorldEntity();
-  
+    IWorldEntity *           GetWorldEntity();
+
     size_t TotalEntities();
+
+
+void DebugRenderOctree();
 };

@@ -94,11 +94,11 @@ void ObjectPropertiesEditor::UpdateAllObjectsBoundingBox()
 
         if (!bInitialized)
         {
-            m_AllObjectsBounds = ptr->AbsoluteBoundingBox();
+            m_AllObjectsBounds = ptr->GetAbsoulteBoundingBox();
             bInitialized       = true;
         }
         else
-            m_AllObjectsBounds.AddBoundingBox(ptr->AbsoluteBoundingBox());
+            m_AllObjectsBounds.AddBoundingBox(ptr->GetAbsoulteBoundingBox());
     }
 }
 

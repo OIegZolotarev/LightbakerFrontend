@@ -183,7 +183,17 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             GL_CheckForErrors();
         }
+
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_CULL_FACE);
+        m_pScene->DebugRenderOctree();
+        glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+
+    
+    
 
     if (m_pShowGround->GetAsBool())
     {
@@ -231,22 +241,22 @@ void SceneRenderer::RenderHelperGeometry()
     //glUseProgram(0);
 #endif
 
-    for (auto &it : m_pScene->GetLightDefs())
-    {
-        //         if (!it)
-        //             return;
-        //
-        //         if (!it->IsLightEntity())
-        //             continue;
-        //
-        //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
-        //                       it->GetSerialNumber());
-        //
-        //         if (it->IsSelected())
-        //         {
-        //             selection = it;
-        //         }
-    }
+//     for (auto &it : m_pScene->GetLightDefs())
+//     {
+//         //         if (!it)
+//         //             return;
+//         //
+//         //         if (!it->IsLightEntity())
+//         //             continue;
+//         //
+//         //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+//         //                       it->GetSerialNumber());
+//         //
+//         //         if (it->IsSelected())
+//         //         {
+//         //             selection = it;
+//         //         }
+//     }
 
     if (selection.lock() && false)
     {
@@ -470,7 +480,9 @@ void SceneRenderer::SortRenderLists()
         if (!it->IsDataLoaded())
             continue;
 
-        if (frustum->CullBox(it->AbsoluteBoundingBox()))
+        // assert(it->GetOctreeNode() != nullptr);
+
+        if (frustum->CullBox(it->GetAbsoulteBoundingBox()))
             continue;
 
         // TODO: encapsulate model acquisition and fall back to box if original is unloaded?
