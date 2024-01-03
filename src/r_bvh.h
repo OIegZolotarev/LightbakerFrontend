@@ -79,19 +79,10 @@ periodicity, e.g. periodic along specific axes.
 class BVHTree
 {
 public:
-    BVHTree(double skinThickness, const glm::vec3 &extents);
+    BVHTree(double m_flSkinThickness, const glm::vec3 &extents);
 
-    //! Insert a particle into the tree (arbitrary shape with bounding box).
-    /*! \param index
-            The index of the particle.
-
-        \param lowerBound
-            The lower bound in each dimension.
-
-        \param upperBound
-            The upper bound in each dimension.
-     */
-    void InsertEntity(SceneEntityWeakPtr &entity, const glm::vec3 &mins, const glm::vec3 &maxs);
+    
+    void InsertEntity(SceneEntityPtr & entity);
 
     /// Return the number of particles in the tree.
     unsigned int nParticles();
@@ -100,7 +91,7 @@ public:
     /*! \param particle
             The particle index (particleMap will be used to map the node).
      */
-    void RemoveEntity(SceneEntityWeakPtr &entity);
+    void RemoveEntity(SceneEntityPtr &entity);
 
     /// Remove all particles from the tree.
     void RemoveAll();
@@ -154,40 +145,29 @@ public:
 
 private:
     /// The index of the root node.
-    unsigned int root;
+    unsigned int m_uiRootNode;
 
     /// The dynamic tree.
-    std::vector<BVHNode> nodes;
+    std::vector<BVHNode> m_vecNodes;
 
     /// The current number of nodes in the tree.
-    unsigned int nodeCount;
+    unsigned int m_uiNodeCount;
 
     /// The current node capacity.
-    unsigned int nodeCapacity;
+    unsigned int m_uiNodeCapacity;
 
     /// The position of node at the top of the free list.
-    unsigned int freeList;
+    unsigned int m_uiFreeList;
 
     /// The skin thickness of the fattened AABBs, as a fraction of the AABB base length.
-    double skinThickness;
-
-    /// Whether the system is periodic along each axis.
-    glm::bvec3 periodicity;
+    float m_flSkinThickness;
 
     /// The size of the system in each dimension.
-    glm::vec3 boxSize;
-
-    /// The position of the negative minimum image.
-    glm::vec3 negMinImage;
-
-    /// The position of the positive minimum image.
-    glm::vec3 posMinImage;
+    glm::vec3 m_vBoxSize;
 
     /// A map between particle and node indices.
-    std::unordered_map<unsigned int, unsigned int> particleMap;
+    std::unordered_map<unsigned int, unsigned int> m_EntitiesMap;
 
-    /// Does touching count as overlapping in tree queries?
-    bool touchIsOverlap;
 
     //! Allocate a new node.
     /*! \return
@@ -195,22 +175,9 @@ private:
      */
     unsigned int AllocateNode();
 
-    //! Free an existing node.
-    /*! \param node
-            The index of the node to be freed.
-     */
     void FreeNode(unsigned int node);
 
-    //! Insert a leaf into the tree.
-    /*! \param leaf
-            The index of the leaf node.
-     */
     void InsertLeaf(unsigned int leaf);
-
-    //! Remove a leaf from the tree.
-    /*! \param leaf
-            The index of the leaf node.
-     */
     void RemoveLeaf(unsigned int leaf);
 
     //! Balance the tree.
@@ -219,30 +186,9 @@ private:
      */
     unsigned int Balance(unsigned int node);
 
-    //! Compute the height of the tree.
-    /*! \return
-            The height of the entire tree.
-     */
     unsigned int ComputeHeight() const;
+    unsigned int ComputeHeight(unsigned int rootNode) const;
 
-    //! Compute the height of a sub-tree.
-    /*! \param node
-            The index of the root node.
-
-        \return
-            The height of the sub-tree.
-     */
-    unsigned int ComputeHeight(unsigned int) const;
-
-    //! Assert that the sub-tree has a valid structure.
-    /*! \param node
-            The index of the root node.
-     */
-    void ValidateStructure(unsigned int) const;
-
-    //! Assert that the sub-tree has valid metrics.
-    /*! \param node
-            The index of the root node.
-     */
-    void ValidateMetrics(unsigned int) const;
+    void ValidateStructure(unsigned int rootNode) const;
+    void ValidateMetrics(unsigned int rootNode) const;
 };

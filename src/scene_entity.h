@@ -11,6 +11,9 @@
 #include "selection_3d.h"
 #include "viewport_rendermodes.h"
 
+#include "mathlib.h"
+#include "r_bvh_boundingbox.h"
+
 enum class EntityClasses
 {
     None = 0,
@@ -30,7 +33,7 @@ typedef struct sentvars_s
 
     // Bounding boxes
     BoundingBox bboxRelative;
-    BoundingBox bboxAbsolute;
+    BVHBoundingBox bboxAbsolute;
 
     // Displaying
     ColorRGBA rendercolor;
@@ -61,7 +64,7 @@ typedef struct sentvars_s
         scale  = {1, 1, 1};
 
         bboxRelative = BoundingBox(8);
-        bboxAbsolute = BoundingBox(8);
+        bboxAbsolute = BVHBoundingBox(8);
 
         rendercolor    = {1, 1, 1, 1};
         wireframecolor = {1, 1, 1, 1};
@@ -152,7 +155,7 @@ public:
     const float GetFrame() const;
 
     const BoundingBox &GetRelativeBoundingBox() const;
-    const BoundingBox &GetAbsoulteBoundingBox() const;
+    const BVHBoundingBox &GetAbsoulteBoundingBox() const;
 
     void SetTransform(glm::mat4 m_matGuizmo);
 

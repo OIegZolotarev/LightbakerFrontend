@@ -45,6 +45,15 @@
 {
 }
 
+ BVHBoundingBox::BVHBoundingBox(int extents) : BoundingBox(extents)
+{
+     
+}
+
+ BVHBoundingBox::BVHBoundingBox(const glm::vec3 pos, const BoundingBox & bboxRel) : BoundingBox(pos, bboxRel)
+{
+}
+
 float BVHBoundingBox::ComputeSurfaceArea() const
 {
     // Sum of "area" of all the sides.
@@ -133,15 +142,15 @@ bool BVHBoundingBox::Overlaps(const BVHBoundingBox &aabb, bool touchIsOverlap) c
     return rv;
 }
 
-void BVHBoundingBox::Inflate(float skinThickness)
+void BVHBoundingBox::Inflate(float m_flSkinThickness)
 {
     glm::vec3 size = Size();
 
     // Fatten the new AABB.
     for (unsigned int i = 0; i < 3; i++)
     {
-        m_Mins[i] -= skinThickness * size[i];
-        m_Maxs[i] += skinThickness * size[i];
+        m_Mins[i] -= m_flSkinThickness * size[i];
+        m_Maxs[i] += m_flSkinThickness * size[i];
     }
 }
 

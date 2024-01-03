@@ -7,9 +7,10 @@
 #include "scene_entity.h"
 #include "properties_editor.h"
 
+
 void SceneEntity::RecalcAbsBBox()
 {
-    m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+    m_EntVars.bboxAbsolute = BVHBoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
 }
 
 const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
@@ -17,7 +18,7 @@ const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
     return m_EntVars.bboxRelative;
 }
 
-const BoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
+const BVHBoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
 {
     return m_EntVars.bboxAbsolute;
 }

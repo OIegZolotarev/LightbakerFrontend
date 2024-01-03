@@ -41,17 +41,19 @@ class BVHBoundingBox : public BoundingBox
     glm::vec3 m_Center;
 
 public:
+    BVHBoundingBox(int extents);
     BVHBoundingBox(const glm::vec3 mins, const glm::vec3 maxs);
+    BVHBoundingBox(const glm::vec3 pos, const BoundingBox & bboxRel);
+
     BVHBoundingBox();
 
     float ComputeSurfaceArea() const;
     float GetSurfaceArea() const;
 
     void Merge(const BVHBoundingBox &aabb1, const BVHBoundingBox &aabb2);
-
     bool Contains(const BVHBoundingBox &aabb) const;
 
     bool Overlaps(const BVHBoundingBox &aabb, bool touchIsOverlap) const;
-    void Inflate(float skinThickness);
+    void Inflate(float m_flSkinThickness);
     void RecalcAreaAndCenter();
 };

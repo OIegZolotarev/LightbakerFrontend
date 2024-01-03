@@ -36,28 +36,28 @@
 
 const unsigned int NULL_NODE = 0xffffffff;
 
-BVHTree::BVHTree(double skinThickness, const glm::vec3 &extents)
+BVHTree::BVHTree(double m_flSkinThickness, const glm::vec3 &extents)
 {
     // Initialise the tree.
-    root      = NULL_NODE;
-    nodeCount = 0;
-    nodes.resize(nodeCapacity);
+    m_uiRootNode      = NULL_NODE;
+    m_uiNodeCount = 0;
+    m_vecNodes.resize(m_uiNodeCapacity);
 
     // Build a linked list for the list of free nodes.
-    for (unsigned int i = 0; i < nodeCapacity - 1; i++)
+    for (unsigned int i = 0; i < m_uiNodeCapacity - 1; i++)
     {
-        nodes[i].next   = i + 1;
-        nodes[i].height = -1;
+        m_vecNodes[i].next   = i + 1;
+        m_vecNodes[i].height = -1;
     }
 
-    nodes[nodeCapacity - 1].next   = NULL_NODE;
-    nodes[nodeCapacity - 1].height = -1;
+    m_vecNodes[m_uiNodeCapacity - 1].next   = NULL_NODE;
+    m_vecNodes[m_uiNodeCapacity - 1].height = -1;
 
     // Assign the index of the first free node.
-    freeList = 0;
+    m_uiFreeList = 0;
 }
 
-void BVHTree::InsertEntity(SceneEntityWeakPtr &entity, const glm::vec3 &mins, const glm::vec3 &maxs)
+void BVHTree::InsertEntity(SceneEntityPtr & entity)
 {
     //     Make sure the particle doesn't already exist.
     //         if (particleMap.count(particle) != 0)
@@ -67,39 +67,39 @@ void BVHTree::InsertEntity(SceneEntityWeakPtr &entity, const glm::vec3 &mins, co
 
     // Allocate a new node for the particle.
     unsigned int node = AllocateNode();
-
-    nodes[node].aabb = BVHBoundingBox(mins, maxs);
-    nodes[node].aabb.Inflate(skinThickness);
-    nodes[node].aabb.RecalcAreaAndCenter();
+       
+    m_vecNodes[node].aabb = entity->GetAbsoulteBoundingBox();
+    m_vecNodes[node].aabb.Inflate(m_flSkinThickness);
+    m_vecNodes[node].aabb.RecalcAreaAndCenter();
 
     // Zero the height.
-    nodes[node].height = 0;
+    m_vecNodes[node].height = 0;
 
     // Insert a new leaf into the tree.
     InsertLeaf(node);
 
     // Add the new particle to the map.
-    // particleMap.insert(std::unordered_map<unsigned int, unsigned int>::value_type(particle, node));
+    m_EntitiesMap.insert(std::pair<uint32_t,uint32_t>(entity->GetSerialNumber(), node));
 
     // Store the particle index.
-    nodes[node].entity = particle;
+    m_vecNodes[node].entity = entity;
 }
 
 unsigned int BVHTree::nParticles()
 {
-    return particleMap.size();
+    return m_EntitiesMap.size();
 }
 
-void BVHTree::RemoveEntity(SceneEntityWeakPtr &entity)
+void BVHTree::RemoveEntity(SceneEntityPtr &entity)
 {
     // Map iterator.
     std::unordered_map<unsigned int, unsigned int>::iterator it;
 
     // Find the particle.
-    it = particleMap.find(particle);
+    it = m_EntitiesMap.find(entity->GetSerialNumber());
 
     // The particle doesn't exist.
-    if (it == particleMap.end())
+    if (it == m_EntitiesMap.end())
     {
         throw std::invalid_argument("[ERROR]: Invalid particle index!");
     }
@@ -108,10 +108,10 @@ void BVHTree::RemoveEntity(SceneEntityWeakPtr &entity)
     unsigned int node = it->second;
 
     // Erase the particle from the map.
-    particleMap.erase(it);
+    m_EntitiesMap.erase(it);
 
-    assert(node < nodeCapacity);
-    assert(nodes[node].IsLeaf());
+    assert(node < m_uiNodeCapacity);
+    assert(m_vecNodes[node].IsLeaf());
 
     RemoveLeaf(node);
     FreeNode(node);
@@ -120,16 +120,16 @@ void BVHTree::RemoveEntity(SceneEntityWeakPtr &entity)
 void BVHTree::RemoveAll()
 {
     // Iterator pointing to the start of the particle map.
-    std::unordered_map<unsigned int, unsigned int>::iterator it = particleMap.begin();
+    std::unordered_map<unsigned int, unsigned int>::iterator it = m_EntitiesMap.begin();
 
     // Iterate over the map.
-    while (it != particleMap.end())
+    while (it != m_EntitiesMap.end())
     {
         // Extract the node index.
         unsigned int node = it->second;
 
-        assert(node < nodeCapacity);
-        assert(nodes[node].IsLeaf());
+        assert(node < m_uiNodeCapacity);
+        assert(m_vecNodes[node].IsLeaf());
 
         RemoveLeaf(node);
         FreeNode(node);
@@ -138,7 +138,7 @@ void BVHTree::RemoveAll()
     }
 
     // Clear the particle map.
-    particleMap.clear();
+    m_EntitiesMap.clear();
 }
 
 bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert)
@@ -147,10 +147,10 @@ bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const g
     std::unordered_map<unsigned int, unsigned int>::iterator it;
 
     // Find the particle.
-    it = particleMap.find(particle);
+    it = m_EntitiesMap.find(particle);
 
     // The particle doesn't exist.
-    if (it == particleMap.end())
+    if (it == m_EntitiesMap.end())
     {
         // FIXME
         // throw std::invalid_argument("[ERROR]: Invalid particle index!");
@@ -159,24 +159,24 @@ bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const g
     // Extract the node index.
     unsigned int node = it->second;
 
-    assert(node < nodeCapacity);
-    assert(nodes[node].IsLeaf());
+    assert(node < m_uiNodeCapacity);
+    assert(m_vecNodes[node].IsLeaf());
 
     // Create the new AABB.
     BVHBoundingBox aabb(mins, maxs);
 
     // No need to update if the particle is still within its fattened AABB.
-    if (!alwaysReinsert && nodes[node].aabb.Contains(aabb))
+    if (!alwaysReinsert && m_vecNodes[node].aabb.Contains(aabb))
         return false;
 
     // Remove the current leaf.
     RemoveLeaf(node);
 
-    aabb.Inflate(skinThickness);
+    aabb.Inflate(m_flSkinThickness);
     aabb.RecalcAreaAndCenter();
 
     // Assign the new AABB.
-    nodes[node].aabb = aabb;
+    m_vecNodes[node].aabb = aabb;
 
     // Insert a new leaf node.
     InsertLeaf(node);
@@ -186,27 +186,27 @@ bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const g
 
 unsigned int BVHTree::GetHeight() const
 {
-    if (root == NULL_NODE)
+    if (m_uiRootNode == NULL_NODE)
         return 0;
-    return nodes[root].height;
+    return m_vecNodes[m_uiRootNode].height;
 }
 
 unsigned int BVHTree::GetNodeCount() const
 {
-    return nodeCount;
+    return m_uiNodeCount;
 }
 
 unsigned int BVHTree::ComputeMaximumBalance() const
 {
     unsigned int maxBalance = 0;
-    for (unsigned int i = 0; i < nodeCapacity; i++)
+    for (unsigned int i = 0; i < m_uiNodeCapacity; i++)
     {
-        if (nodes[i].height <= 1)
+        if (m_vecNodes[i].height <= 1)
             continue;
 
-        assert(nodes[i].IsLeaf() == false);
+        assert(m_vecNodes[i].IsLeaf() == false);
 
-        unsigned int Balance = std::abs(nodes[nodes[i].left].height - nodes[nodes[i].right].height);
+        unsigned int Balance = std::abs(m_vecNodes[m_vecNodes[i].left].height - m_vecNodes[m_vecNodes[i].right].height);
         maxBalance           = std::max(maxBalance, Balance);
     }
 
@@ -215,18 +215,18 @@ unsigned int BVHTree::ComputeMaximumBalance() const
 
 double BVHTree::ComputeSurfaceAreaRatio() const
 {
-    if (root == NULL_NODE)
+    if (m_uiRootNode == NULL_NODE)
         return 0.0;
 
-    double rootArea  = nodes[root].aabb.ComputeSurfaceArea();
+    double rootArea  = m_vecNodes[m_uiRootNode].aabb.ComputeSurfaceArea();
     double totalArea = 0.0;
 
-    for (unsigned int i = 0; i < nodeCapacity; i++)
+    for (unsigned int i = 0; i < m_uiNodeCapacity; i++)
     {
-        if (nodes[i].height < 0)
+        if (m_vecNodes[i].height < 0)
             continue;
 
-        totalArea += nodes[i].aabb.ComputeSurfaceArea();
+        totalArea += m_vecNodes[i].aabb.ComputeSurfaceArea();
     }
 
     return totalArea / rootArea;
@@ -235,38 +235,38 @@ double BVHTree::ComputeSurfaceAreaRatio() const
 void BVHTree::Validate() const
 {
 #ifndef NDEBUG
-    ValidateStructure(root);
-    ValidateMetrics(root);
+    ValidateStructure(m_uiRootNode);
+    ValidateMetrics(m_uiRootNode);
 
     unsigned int freeCount = 0;
-    unsigned int freeIndex = freeList;
+    unsigned int freeIndex = m_uiFreeList;
 
     while (freeIndex != NULL_NODE)
     {
-        assert(freeIndex < nodeCapacity);
-        freeIndex = nodes[freeIndex].next;
+        assert(freeIndex < m_uiNodeCapacity);
+        freeIndex = m_vecNodes[freeIndex].next;
         freeCount++;
     }
 
     assert(GetHeight() == ComputeHeight());
-    assert((nodeCount + freeCount) == nodeCapacity);
+    assert((m_uiNodeCount + freeCount) == m_uiNodeCapacity);
 #endif
 }
 
 void BVHTree::Rebuild()
 {
-    std::vector<unsigned int> nodeIndices(nodeCount);
+    std::vector<unsigned int> nodeIndices(m_uiNodeCount);
     unsigned int              count = 0;
 
-    for (unsigned int i = 0; i < nodeCapacity; i++)
+    for (unsigned int i = 0; i < m_uiNodeCapacity; i++)
     {
         // Free node.
-        if (nodes[i].height < 0)
+        if (m_vecNodes[i].height < 0)
             continue;
 
-        if (nodes[i].IsLeaf())
+        if (m_vecNodes[i].IsLeaf())
         {
-            nodes[i].parent    = NULL_NODE;
+            m_vecNodes[i].parent    = NULL_NODE;
             nodeIndices[count] = i;
             count++;
         }
@@ -281,11 +281,11 @@ void BVHTree::Rebuild()
 
         for (unsigned int i = 0; i < count; i++)
         {
-            BVHBoundingBox aabbi = nodes[nodeIndices[i]].aabb;
+            BVHBoundingBox aabbi = m_vecNodes[nodeIndices[i]].aabb;
 
             for (unsigned int j = i + 1; j < count; j++)
             {
-                BVHBoundingBox aabbj = nodes[nodeIndices[j]].aabb;
+                BVHBoundingBox aabbj = m_vecNodes[nodeIndices[j]].aabb;
                 BVHBoundingBox aabb;
                 aabb.Merge(aabbi, aabbj);
                 double cost = aabb.GetSurfaceArea();
@@ -303,21 +303,21 @@ void BVHTree::Rebuild()
         unsigned int index2 = nodeIndices[jMin];
 
         unsigned int parent  = AllocateNode();
-        nodes[parent].left   = index1;
-        nodes[parent].right  = index2;
-        nodes[parent].height = 1 + std::max(nodes[index1].height, nodes[index2].height);
-        nodes[parent].aabb.Merge(nodes[index1].aabb, nodes[index2].aabb);
-        nodes[parent].parent = NULL_NODE;
+        m_vecNodes[parent].left   = index1;
+        m_vecNodes[parent].right  = index2;
+        m_vecNodes[parent].height = 1 + std::max(m_vecNodes[index1].height, m_vecNodes[index2].height);
+        m_vecNodes[parent].aabb.Merge(m_vecNodes[index1].aabb, m_vecNodes[index2].aabb);
+        m_vecNodes[parent].parent = NULL_NODE;
 
-        nodes[index1].parent = parent;
-        nodes[index2].parent = parent;
+        m_vecNodes[index1].parent = parent;
+        m_vecNodes[index2].parent = parent;
 
         nodeIndices[jMin] = nodeIndices[count - 1];
         nodeIndices[iMin] = parent;
         count--;
     }
 
-    root = nodeIndices[0];
+    m_uiRootNode = nodeIndices[0];
 
     Validate();
 }
@@ -325,74 +325,74 @@ void BVHTree::Rebuild()
 unsigned int BVHTree::AllocateNode()
 {
     // Exand the node pool as needed.
-    if (freeList == NULL_NODE)
+    if (m_uiFreeList == NULL_NODE)
     {
-        assert(nodeCount == nodeCapacity);
+        assert(m_uiNodeCount == m_uiNodeCapacity);
 
         // The free list is empty. Rebuild a bigger pool.
-        nodeCapacity *= 2;
-        nodes.resize(nodeCapacity);
+        m_uiNodeCapacity *= 2;
+        m_vecNodes.resize(m_uiNodeCapacity);
 
         // Build a linked list for the list of free nodes.
-        for (unsigned int i = nodeCount; i < nodeCapacity - 1; i++)
+        for (unsigned int i = m_uiNodeCount; i < m_uiNodeCapacity - 1; i++)
         {
-            nodes[i].next   = i + 1;
-            nodes[i].height = -1;
+            m_vecNodes[i].next   = i + 1;
+            m_vecNodes[i].height = -1;
         }
-        nodes[nodeCapacity - 1].next   = NULL_NODE;
-        nodes[nodeCapacity - 1].height = -1;
+        m_vecNodes[m_uiNodeCapacity - 1].next   = NULL_NODE;
+        m_vecNodes[m_uiNodeCapacity - 1].height = -1;
 
         // Assign the index of the first free node.
-        freeList = nodeCount;
+        m_uiFreeList = m_uiNodeCount;
     }
 
     // Peel a node off the free list.
-    unsigned int node  = freeList;
-    freeList           = nodes[node].next;
-    nodes[node].parent = NULL_NODE;
-    nodes[node].left   = NULL_NODE;
-    nodes[node].right  = NULL_NODE;
-    nodes[node].height = 0;
-    nodeCount++;
+    unsigned int node  = m_uiFreeList;
+    m_uiFreeList           = m_vecNodes[node].next;
+    m_vecNodes[node].parent = NULL_NODE;
+    m_vecNodes[node].left   = NULL_NODE;
+    m_vecNodes[node].right  = NULL_NODE;
+    m_vecNodes[node].height = 0;
+    m_uiNodeCount++;
 
     return node;
 }
 
 void BVHTree::FreeNode(unsigned int node)
 {
-    assert(node < nodeCapacity);
-    assert(0 < nodeCount);
+    assert(node < m_uiNodeCapacity);
+    assert(0 < m_uiNodeCount);
 
-    nodes[node].next   = freeList;
-    nodes[node].height = -1;
-    freeList           = node;
-    nodeCount--;
+    m_vecNodes[node].next   = m_uiFreeList;
+    m_vecNodes[node].height = -1;
+    m_uiFreeList           = node;
+    m_uiNodeCount--;
 }
 
 void BVHTree::InsertLeaf(unsigned int leaf)
 {
-    if (root == NULL_NODE)
+    if (m_uiRootNode == NULL_NODE)
     {
-        root               = leaf;
-        nodes[root].parent = NULL_NODE;
+        m_uiRootNode               = leaf;
+        m_vecNodes[m_uiRootNode].parent = NULL_NODE;
         return;
     }
 
     // Find the best sibling for the node.
 
-    BVHBoundingBox leafAABB = nodes[leaf].aabb;
-    unsigned int   index    = root;
+    BVHBoundingBox leafAABB = m_vecNodes[leaf].aabb;
+    unsigned int   index    = m_uiRootNode;
 
-    while (!nodes[index].IsLeaf())
+    while (!m_vecNodes[index].IsLeaf())
     {
         // Extract the children of the node.
-        unsigned int left  = nodes[index].left;
-        unsigned int right = nodes[index].right;
+        unsigned int left  = m_vecNodes[index].left;
+        unsigned int right = m_vecNodes[index].right;
 
-        double surfaceArea = nodes[index].aabb.GetSurfaceArea();
+        double surfaceArea = m_vecNodes[index].aabb.GetSurfaceArea();
 
         BVHBoundingBox combinedAABB;
-        combinedAABB.Merge(nodes[index].aabb, leafAABB);
+        combinedAABB.Merge(m_vecNodes[index].aabb, leafAABB);
         double combinedSurfaceArea = combinedAABB.GetSurfaceArea();
 
         // Cost of creating a new parent for this node and the new leaf.
@@ -403,34 +403,34 @@ void BVHTree::InsertLeaf(unsigned int leaf)
 
         // Cost of descending to the left.
         double costLeft;
-        if (nodes[left].IsLeaf())
+        if (m_vecNodes[left].IsLeaf())
         {
             BVHBoundingBox aabb;
-            aabb.Merge(leafAABB, nodes[left].aabb);
+            aabb.Merge(leafAABB, m_vecNodes[left].aabb);
             costLeft = aabb.GetSurfaceArea() + inheritanceCost;
         }
         else
         {
             BVHBoundingBox aabb;
-            aabb.Merge(leafAABB, nodes[left].aabb);
-            double oldArea = nodes[left].aabb.GetSurfaceArea();
+            aabb.Merge(leafAABB, m_vecNodes[left].aabb);
+            double oldArea = m_vecNodes[left].aabb.GetSurfaceArea();
             double newArea = aabb.GetSurfaceArea();
             costLeft       = (newArea - oldArea) + inheritanceCost;
         }
 
         // Cost of descending to the right.
         double costRight;
-        if (nodes[right].IsLeaf())
+        if (m_vecNodes[right].IsLeaf())
         {
             BVHBoundingBox aabb;
-            aabb.Merge(leafAABB, nodes[right].aabb);
+            aabb.Merge(leafAABB, m_vecNodes[right].aabb);
             costRight = aabb.GetSurfaceArea() + inheritanceCost;
         }
         else
         {
             BVHBoundingBox aabb;
-            aabb.Merge(leafAABB, nodes[right].aabb);
-            double oldArea = nodes[right].aabb.GetSurfaceArea();
+            aabb.Merge(leafAABB, m_vecNodes[right].aabb);
+            double oldArea = m_vecNodes[right].aabb.GetSurfaceArea();
             double newArea = aabb.GetSurfaceArea();
             costRight      = (newArea - oldArea) + inheritanceCost;
         }
@@ -449,80 +449,80 @@ void BVHTree::InsertLeaf(unsigned int leaf)
     unsigned int sibling = index;
 
     // Create a new parent.
-    unsigned int oldParent  = nodes[sibling].parent;
+    unsigned int oldParent  = m_vecNodes[sibling].parent;
     unsigned int newParent  = AllocateNode();
-    nodes[newParent].parent = oldParent;
-    nodes[newParent].aabb.Merge(leafAABB, nodes[sibling].aabb);
-    nodes[newParent].height = nodes[sibling].height + 1;
+    m_vecNodes[newParent].parent = oldParent;
+    m_vecNodes[newParent].aabb.Merge(leafAABB, m_vecNodes[sibling].aabb);
+    m_vecNodes[newParent].height = m_vecNodes[sibling].height + 1;
 
     // The sibling was not the root.
     if (oldParent != NULL_NODE)
     {
-        if (nodes[oldParent].left == sibling)
-            nodes[oldParent].left = newParent;
+        if (m_vecNodes[oldParent].left == sibling)
+            m_vecNodes[oldParent].left = newParent;
         else
-            nodes[oldParent].right = newParent;
+            m_vecNodes[oldParent].right = newParent;
 
-        nodes[newParent].left  = sibling;
-        nodes[newParent].right = leaf;
-        nodes[sibling].parent  = newParent;
-        nodes[leaf].parent     = newParent;
+        m_vecNodes[newParent].left  = sibling;
+        m_vecNodes[newParent].right = leaf;
+        m_vecNodes[sibling].parent  = newParent;
+        m_vecNodes[leaf].parent     = newParent;
     }
     // The sibling was the root.
     else
     {
-        nodes[newParent].left  = sibling;
-        nodes[newParent].right = leaf;
-        nodes[sibling].parent  = newParent;
-        nodes[leaf].parent     = newParent;
-        root                   = newParent;
+        m_vecNodes[newParent].left  = sibling;
+        m_vecNodes[newParent].right = leaf;
+        m_vecNodes[sibling].parent  = newParent;
+        m_vecNodes[leaf].parent     = newParent;
+        m_uiRootNode                   = newParent;
     }
 
     // Walk back up the tree fixing heights and AABBs.
-    index = nodes[leaf].parent;
+    index = m_vecNodes[leaf].parent;
     while (index != NULL_NODE)
     {
         index = Balance(index);
 
-        unsigned int left  = nodes[index].left;
-        unsigned int right = nodes[index].right;
+        unsigned int left  = m_vecNodes[index].left;
+        unsigned int right = m_vecNodes[index].right;
 
         assert(left != NULL_NODE);
         assert(right != NULL_NODE);
 
-        nodes[index].height = 1 + std::max(nodes[left].height, nodes[right].height);
-        nodes[index].aabb.Merge(nodes[left].aabb, nodes[right].aabb);
+        m_vecNodes[index].height = 1 + std::max(m_vecNodes[left].height, m_vecNodes[right].height);
+        m_vecNodes[index].aabb.Merge(m_vecNodes[left].aabb, m_vecNodes[right].aabb);
 
-        index = nodes[index].parent;
+        index = m_vecNodes[index].parent;
     }
 }
 
 void BVHTree::RemoveLeaf(unsigned int leaf)
 {
-    if (leaf == root)
+    if (leaf == m_uiRootNode)
     {
-        root = NULL_NODE;
+        m_uiRootNode = NULL_NODE;
         return;
     }
 
-    unsigned int parent      = nodes[leaf].parent;
-    unsigned int grandParent = nodes[parent].parent;
+    unsigned int parent      = m_vecNodes[leaf].parent;
+    unsigned int grandParent = m_vecNodes[parent].parent;
     unsigned int sibling;
 
-    if (nodes[parent].left == leaf)
-        sibling = nodes[parent].right;
+    if (m_vecNodes[parent].left == leaf)
+        sibling = m_vecNodes[parent].right;
     else
-        sibling = nodes[parent].left;
+        sibling = m_vecNodes[parent].left;
 
     // Destroy the parent and connect the sibling to the grandparent.
     if (grandParent != NULL_NODE)
     {
-        if (nodes[grandParent].left == parent)
-            nodes[grandParent].left = sibling;
+        if (m_vecNodes[grandParent].left == parent)
+            m_vecNodes[grandParent].left = sibling;
         else
-            nodes[grandParent].right = sibling;
+            m_vecNodes[grandParent].right = sibling;
 
-        nodes[sibling].parent = grandParent;
+        m_vecNodes[sibling].parent = grandParent;
         FreeNode(parent);
 
         // Adjust ancestor bounds.
@@ -531,19 +531,19 @@ void BVHTree::RemoveLeaf(unsigned int leaf)
         {
             index = Balance(index);
 
-            unsigned int left  = nodes[index].left;
-            unsigned int right = nodes[index].right;
+            unsigned int left  = m_vecNodes[index].left;
+            unsigned int right = m_vecNodes[index].right;
 
-            nodes[index].aabb.Merge(nodes[left].aabb, nodes[right].aabb);
-            nodes[index].height = 1 + std::max(nodes[left].height, nodes[right].height);
+            m_vecNodes[index].aabb.Merge(m_vecNodes[left].aabb, m_vecNodes[right].aabb);
+            m_vecNodes[index].height = 1 + std::max(m_vecNodes[left].height, m_vecNodes[right].height);
 
-            index = nodes[index].parent;
+            index = m_vecNodes[index].parent;
         }
     }
     else
     {
-        root                  = sibling;
-        nodes[sibling].parent = NULL_NODE;
+        m_uiRootNode                  = sibling;
+        m_vecNodes[sibling].parent = NULL_NODE;
         FreeNode(parent);
     }
 }
@@ -552,67 +552,67 @@ unsigned int BVHTree::Balance(unsigned int node)
 {
     assert(node != NULL_NODE);
 
-    if (nodes[node].IsLeaf() || (nodes[node].height < 2))
+    if (m_vecNodes[node].IsLeaf() || (m_vecNodes[node].height < 2))
         return node;
 
-    unsigned int left  = nodes[node].left;
-    unsigned int right = nodes[node].right;
+    unsigned int left  = m_vecNodes[node].left;
+    unsigned int right = m_vecNodes[node].right;
 
-    assert(left < nodeCapacity);
-    assert(right < nodeCapacity);
+    assert(left < m_uiNodeCapacity);
+    assert(right < m_uiNodeCapacity);
 
-    int currentBalance = nodes[right].height - nodes[left].height;
+    int currentBalance = m_vecNodes[right].height - m_vecNodes[left].height;
 
     // Rotate right branch up.
     if (currentBalance > 1)
     {
-        unsigned int rightLeft  = nodes[right].left;
-        unsigned int rightRight = nodes[right].right;
+        unsigned int rightLeft  = m_vecNodes[right].left;
+        unsigned int rightRight = m_vecNodes[right].right;
 
-        assert(rightLeft < nodeCapacity);
-        assert(rightRight < nodeCapacity);
+        assert(rightLeft < m_uiNodeCapacity);
+        assert(rightRight < m_uiNodeCapacity);
 
         // Swap node and its right-hand child.
-        nodes[right].left   = node;
-        nodes[right].parent = nodes[node].parent;
-        nodes[node].parent  = right;
+        m_vecNodes[right].left   = node;
+        m_vecNodes[right].parent = m_vecNodes[node].parent;
+        m_vecNodes[node].parent  = right;
 
         // The node's old parent should now point to its right-hand child.
-        if (nodes[right].parent != NULL_NODE)
+        if (m_vecNodes[right].parent != NULL_NODE)
         {
-            if (nodes[nodes[right].parent].left == node)
-                nodes[nodes[right].parent].left = right;
+            if (m_vecNodes[m_vecNodes[right].parent].left == node)
+                m_vecNodes[m_vecNodes[right].parent].left = right;
             else
             {
-                assert(nodes[nodes[right].parent].right == node);
-                nodes[nodes[right].parent].right = right;
+                assert(m_vecNodes[m_vecNodes[right].parent].right == node);
+                m_vecNodes[m_vecNodes[right].parent].right = right;
             }
         }
         else
-            root = right;
+            m_uiRootNode = right;
 
         // Rotate.
-        if (nodes[rightLeft].height > nodes[rightRight].height)
+        if (m_vecNodes[rightLeft].height > m_vecNodes[rightRight].height)
         {
-            nodes[right].right       = rightLeft;
-            nodes[node].right        = rightRight;
-            nodes[rightRight].parent = node;
-            nodes[node].aabb.Merge(nodes[left].aabb, nodes[rightRight].aabb);
-            nodes[right].aabb.Merge(nodes[node].aabb, nodes[rightLeft].aabb);
+            m_vecNodes[right].right       = rightLeft;
+            m_vecNodes[node].right        = rightRight;
+            m_vecNodes[rightRight].parent = node;
+            m_vecNodes[node].aabb.Merge(m_vecNodes[left].aabb, m_vecNodes[rightRight].aabb);
+            m_vecNodes[right].aabb.Merge(m_vecNodes[node].aabb, m_vecNodes[rightLeft].aabb);
 
-            nodes[node].height  = 1 + std::max(nodes[left].height, nodes[rightRight].height);
-            nodes[right].height = 1 + std::max(nodes[node].height, nodes[rightLeft].height);
+            m_vecNodes[node].height  = 1 + std::max(m_vecNodes[left].height, m_vecNodes[rightRight].height);
+            m_vecNodes[right].height = 1 + std::max(m_vecNodes[node].height, m_vecNodes[rightLeft].height);
         }
         else
         {
-            nodes[right].right      = rightRight;
-            nodes[node].right       = rightLeft;
-            nodes[rightLeft].parent = node;
-            nodes[node].aabb.Merge(nodes[left].aabb, nodes[rightLeft].aabb);
-            nodes[right].aabb.Merge(nodes[node].aabb, nodes[rightRight].aabb);
+            m_vecNodes[right].right      = rightRight;
+            m_vecNodes[node].right       = rightLeft;
+            m_vecNodes[rightLeft].parent = node;
+            m_vecNodes[node].aabb.Merge(m_vecNodes[left].aabb, m_vecNodes[rightLeft].aabb);
+            m_vecNodes[right].aabb.Merge(m_vecNodes[node].aabb, m_vecNodes[rightRight].aabb);
 
-            nodes[node].height  = 1 + std::max(nodes[left].height, nodes[rightLeft].height);
-            nodes[right].height = 1 + std::max(nodes[node].height, nodes[rightRight].height);
+            m_vecNodes[node].height  = 1 + std::max(m_vecNodes[left].height, m_vecNodes[rightLeft].height);
+            m_vecNodes[right].height = 1 + std::max(m_vecNodes[node].height, m_vecNodes[rightRight].height);
         }
 
         return right;
@@ -621,53 +621,53 @@ unsigned int BVHTree::Balance(unsigned int node)
     // Rotate left branch up.
     if (currentBalance < -1)
     {
-        unsigned int leftLeft  = nodes[left].left;
-        unsigned int leftRight = nodes[left].right;
+        unsigned int leftLeft  = m_vecNodes[left].left;
+        unsigned int leftRight = m_vecNodes[left].right;
 
-        assert(leftLeft < nodeCapacity);
-        assert(leftRight < nodeCapacity);
+        assert(leftLeft < m_uiNodeCapacity);
+        assert(leftRight < m_uiNodeCapacity);
 
         // Swap node and its left-hand child.
-        nodes[left].left   = node;
-        nodes[left].parent = nodes[node].parent;
-        nodes[node].parent = left;
+        m_vecNodes[left].left   = node;
+        m_vecNodes[left].parent = m_vecNodes[node].parent;
+        m_vecNodes[node].parent = left;
 
         // The node's old parent should now point to its left-hand child.
-        if (nodes[left].parent != NULL_NODE)
+        if (m_vecNodes[left].parent != NULL_NODE)
         {
-            if (nodes[nodes[left].parent].left == node)
-                nodes[nodes[left].parent].left = left;
+            if (m_vecNodes[m_vecNodes[left].parent].left == node)
+                m_vecNodes[m_vecNodes[left].parent].left = left;
             else
             {
-                assert(nodes[nodes[left].parent].right == node);
-                nodes[nodes[left].parent].right = left;
+                assert(m_vecNodes[m_vecNodes[left].parent].right == node);
+                m_vecNodes[m_vecNodes[left].parent].right = left;
             }
         }
         else
-            root = left;
+            m_uiRootNode = left;
 
         // Rotate.
-        if (nodes[leftLeft].height > nodes[leftRight].height)
+        if (m_vecNodes[leftLeft].height > m_vecNodes[leftRight].height)
         {
-            nodes[left].right       = leftLeft;
-            nodes[node].left        = leftRight;
-            nodes[leftRight].parent = node;
-            nodes[node].aabb.Merge(nodes[right].aabb, nodes[leftRight].aabb);
-            nodes[left].aabb.Merge(nodes[node].aabb, nodes[leftLeft].aabb);
+            m_vecNodes[left].right       = leftLeft;
+            m_vecNodes[node].left        = leftRight;
+            m_vecNodes[leftRight].parent = node;
+            m_vecNodes[node].aabb.Merge(m_vecNodes[right].aabb, m_vecNodes[leftRight].aabb);
+            m_vecNodes[left].aabb.Merge(m_vecNodes[node].aabb, m_vecNodes[leftLeft].aabb);
 
-            nodes[node].height = 1 + std::max(nodes[right].height, nodes[leftRight].height);
-            nodes[left].height = 1 + std::max(nodes[node].height, nodes[leftLeft].height);
+            m_vecNodes[node].height = 1 + std::max(m_vecNodes[right].height, m_vecNodes[leftRight].height);
+            m_vecNodes[left].height = 1 + std::max(m_vecNodes[node].height, m_vecNodes[leftLeft].height);
         }
         else
         {
-            nodes[left].right      = leftRight;
-            nodes[node].left       = leftLeft;
-            nodes[leftLeft].parent = node;
-            nodes[node].aabb.Merge(nodes[right].aabb, nodes[leftLeft].aabb);
-            nodes[left].aabb.Merge(nodes[node].aabb, nodes[leftRight].aabb);
+            m_vecNodes[left].right      = leftRight;
+            m_vecNodes[node].left       = leftLeft;
+            m_vecNodes[leftLeft].parent = node;
+            m_vecNodes[node].aabb.Merge(m_vecNodes[right].aabb, m_vecNodes[leftLeft].aabb);
+            m_vecNodes[left].aabb.Merge(m_vecNodes[node].aabb, m_vecNodes[leftRight].aabb);
 
-            nodes[node].height = 1 + std::max(nodes[right].height, nodes[leftLeft].height);
-            nodes[left].height = 1 + std::max(nodes[node].height, nodes[leftRight].height);
+            m_vecNodes[node].height = 1 + std::max(m_vecNodes[right].height, m_vecNodes[leftLeft].height);
+            m_vecNodes[left].height = 1 + std::max(m_vecNodes[node].height, m_vecNodes[leftRight].height);
         }
 
         return left;
@@ -678,18 +678,18 @@ unsigned int BVHTree::Balance(unsigned int node)
 
 unsigned int BVHTree::ComputeHeight() const
 {
-    return ComputeHeight(root);
+    return ComputeHeight(m_uiRootNode);
 }
 
 unsigned int BVHTree::ComputeHeight(unsigned int node) const
 {
-    assert(node < nodeCapacity);
+    assert(node < m_uiNodeCapacity);
 
-    if (nodes[node].IsLeaf())
+    if (m_vecNodes[node].IsLeaf())
         return 0;
 
-    unsigned int height1 = ComputeHeight(nodes[node].left);
-    unsigned int height2 = ComputeHeight(nodes[node].right);
+    unsigned int height1 = ComputeHeight(m_vecNodes[node].left);
+    unsigned int height2 = ComputeHeight(m_vecNodes[node].right);
 
     return 1 + std::max(height1, height2);
 }
@@ -699,25 +699,25 @@ void BVHTree::ValidateStructure(unsigned int node) const
     if (node == NULL_NODE)
         return;
 
-    if (node == root)
-        assert(nodes[node].parent == NULL_NODE);
+    if (node == m_uiRootNode)
+        assert(m_vecNodes[node].parent == NULL_NODE);
 
-    unsigned int left  = nodes[node].left;
-    unsigned int right = nodes[node].right;
+    unsigned int left  = m_vecNodes[node].left;
+    unsigned int right = m_vecNodes[node].right;
 
-    if (nodes[node].IsLeaf())
+    if (m_vecNodes[node].IsLeaf())
     {
         assert(left == NULL_NODE);
         assert(right == NULL_NODE);
-        assert(nodes[node].height == 0);
+        assert(m_vecNodes[node].height == 0);
         return;
     }
 
-    assert(left < nodeCapacity);
-    assert(right < nodeCapacity);
+    assert(left < m_uiNodeCapacity);
+    assert(right < m_uiNodeCapacity);
 
-    assert(nodes[left].parent == node);
-    assert(nodes[right].parent == node);
+    assert(m_vecNodes[left].parent == node);
+    assert(m_vecNodes[right].parent == node);
 
     ValidateStructure(left);
     ValidateStructure(right);
@@ -728,33 +728,33 @@ void BVHTree::ValidateMetrics(unsigned int node) const
     if (node == NULL_NODE)
         return;
 
-    unsigned int left  = nodes[node].left;
-    unsigned int right = nodes[node].right;
+    unsigned int left  = m_vecNodes[node].left;
+    unsigned int right = m_vecNodes[node].right;
 
-    if (nodes[node].IsLeaf())
+    if (m_vecNodes[node].IsLeaf())
     {
         assert(left == NULL_NODE);
         assert(right == NULL_NODE);
-        assert(nodes[node].height == 0);
+        assert(m_vecNodes[node].height == 0);
         return;
     }
 
-    assert(left < nodeCapacity);
-    assert(right < nodeCapacity);
+    assert(left < m_uiNodeCapacity);
+    assert(right < m_uiNodeCapacity);
 
-    int height1 = nodes[left].height;
-    int height2 = nodes[right].height;
+    int height1 = m_vecNodes[left].height;
+    int height2 = m_vecNodes[right].height;
     int height  = 1 + std::max(height1, height2);
     (void)height; // Unused variable in Release build
-    assert(nodes[node].height == height);
+    assert(m_vecNodes[node].height == height);
 
     BVHBoundingBox aabb;
-    aabb.Merge(nodes[left].aabb, nodes[right].aabb);
+    aabb.Merge(m_vecNodes[left].aabb, m_vecNodes[right].aabb);
 
     for (unsigned int i = 0; i < 3; i++)
     {
-        assert(aabb.Mins()[i] == nodes[node].aabb.Mins()[i]);
-        assert(aabb.Maxs()[i] == nodes[node].aabb.Maxs()[i]);
+        assert(aabb.Mins()[i] == m_vecNodes[node].aabb.Mins()[i]);
+        assert(aabb.Maxs()[i] == m_vecNodes[node].aabb.Maxs()[i]);
     }
 
     ValidateMetrics(left);
