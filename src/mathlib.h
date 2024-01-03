@@ -48,15 +48,14 @@ class BoundingBox
 {
     // Must remain tightly packed!
 
+protected:
     glm::vec3 m_Mins = {0, 0, 0};
     glm::vec3 m_Maxs = {0, 0, 0};
 
 public:
     float *Data();
 
-    BoundingBox()
-    {
-    }
+    BoundingBox();
 
     BoundingBox(const short *bspminsmaxs);
     BoundingBox(const glm::vec3 pos, const BoundingBox &other);
@@ -69,19 +68,19 @@ public:
     const glm::vec3 &Mins() const;
     const glm::vec3 &Maxs() const;
 
-    const glm::vec3 Size() const
-    {
-        return m_Maxs - m_Mins;
-    }
+    const glm::vec3 Size() const;
 
     void AddPoint(const glm::vec3 pt);
     void AddBoundingBox(const BoundingBox &other);
     
-    glm::vec3 Center();
+    const glm::vec3 Center() const;
 
     BoundingBox ConvertToRelative();
     void        Translate(glm::vec3 delta);
     void        ApplyScale(glm::vec3 matrixScale);
 };
+
+
+
 
 glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles);

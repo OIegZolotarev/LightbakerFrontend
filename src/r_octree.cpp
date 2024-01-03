@@ -153,7 +153,7 @@ bool OctreeNode::RecursivePushEntity(SceneEntityWeakPtr &weakRef, SceneEntityPtr
     return false;
 }
 
-void OctreeNode::DrawDebug()
+void OctreeNode::DrawDebug(int maxRecursion) const
 {
     if (m_Entities.size() > 0)
     {
@@ -166,9 +166,10 @@ void OctreeNode::DrawDebug()
         sr->RenderPointEntityDefault(pos, localMins, localMaxs, {1, 0, 0}, 0);
     }
 
-    if (m_pChildren[0])
+
+    if (m_pChildren[0] && maxRecursion > 0 || maxRecursion == -1)
     {
         for (auto &it : m_pChildren)
-            it->DrawDebug();
+            it->DrawDebug(maxRecursion - 1);
     }
 }

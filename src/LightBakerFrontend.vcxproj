@@ -204,6 +204,8 @@ build.bat
     <ClCompile Include="bsp_entities_properties_binding.cpp" />
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="btQuickProf.cpp" />
+    <ClCompile Include="r_bvh.cpp" />
+    <ClCompile Include="r_bvh_boundingbox.cpp" />
     <ClCompile Include="common_icons.cpp" />
     <ClCompile Include="editor_grid_shader.cpp" />
     <ClCompile Include="files_listview_ex.cpp" />
@@ -317,6 +319,7 @@ build.bat
     <ClInclude Include="bsp_entities_properties_binding.h" />
     <ClInclude Include="bsp_entity_property.h" />
     <ClInclude Include="btQuickProf.h" />
+    <ClInclude Include="r_bvh_boundingbox.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="common_icons.h" />
     <ClInclude Include="editor_grid_shader.h" />
@@ -336,6 +339,7 @@ build.bat
     <ClInclude Include="mod_primitive.h" />
     <ClInclude Include="mod_sprite.h" />
     <ClInclude Include="popup_messagebox.h" />
+    <ClInclude Include="r_bvh.h" />
     <ClInclude Include="r_chain.h" />
     <ClInclude Include="r_frustum.h" />
     <ClInclude Include="game_configuration.h" />

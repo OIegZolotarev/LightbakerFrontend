@@ -441,7 +441,13 @@
       <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClCompile>
     <ClCompile Include="r_octree.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="r_bvh_boundingbox.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="r_bvh.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -806,6 +812,12 @@
       <Filter>Исходные файлы\ImGuizmo</Filter>
     </ClInclude>
     <ClInclude Include="r_octree.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="r_bvh.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="r_bvh_boundingbox.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
   </ItemGroup>

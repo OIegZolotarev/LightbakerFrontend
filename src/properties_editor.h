@@ -84,4 +84,7 @@ public:
 
 private:
     void UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
+
+public:
+    void RenderDebugOctree();
 };

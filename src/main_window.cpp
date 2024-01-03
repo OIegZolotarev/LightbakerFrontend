@@ -863,7 +863,7 @@ float MainWindow::RenderMainToolbar(float menuHeight)
 
     float r = ImGui::GetWindowHeight();
 
-    for (int i = (int)CommonIcons::Add; i < (int)CommonIcons::Undo; i++)
+    for (int i = (int)CommonIcons::Add; i <= (int)CommonIcons::Undo; i++)
     {
         if (ImGuiHelpers::ButtonWithCommonIcon((CommonIcons)i, "###Hello there!", size))
         {

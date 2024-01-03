@@ -36,5 +36,5 @@ public:
     void PushEntity(SceneEntityWeakPtr &entity);
     bool RecursivePushEntity(SceneEntityWeakPtr & weakRef, SceneEntityPtr &ptr);
 
-    void DrawDebug();
+    void DrawDebug(int maxRecursion = -1) const;
 };

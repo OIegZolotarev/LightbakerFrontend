@@ -189,6 +189,16 @@ void ObjectPropertiesEditor::UpdatePositionDelta(VariantValue *propertyPosition,
     m_pPropertiesBinding->UpdatePropertyPositionDelta(propertyPosition, delta);
 }
 
+void ObjectPropertiesEditor::RenderDebugOctree()
+{
+    auto entity = m_pPropertiesBinding->GetEntity(0);
+
+    if (entity)
+    {
+        entity->GetOctreeNode()->DrawDebug(2);
+    }
+}
+
 void ObjectPropertiesEditor::ReloadPropertyValue(int id)
 {
     m_lstProperties.clear();

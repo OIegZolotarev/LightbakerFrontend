@@ -162,6 +162,9 @@ void BSPEntitiesPropertiesBinder::AddObject(SceneEntityWeakPtr weakRef)
 
 SceneEntity *BSPEntitiesPropertiesBinder::GetEntity(int param1)
 {
+    if ((m_lstSelectedObjects.size()) <= param1)
+        return nullptr;
+
     auto it = m_lstSelectedObjects.begin();
     std::advance(it, param1);
 

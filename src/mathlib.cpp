@@ -203,6 +203,10 @@ BoundingBox::BoundingBox(const float *mins, const float *maxs)
     m_Maxs = {(float)maxs[0], (float)maxs[1], (float)maxs[2]};
 }
 
+ BoundingBox::BoundingBox()
+{
+}
+
 const glm::vec3 &BoundingBox::Mins() const
 {
     return m_Mins;
@@ -211,6 +215,11 @@ const glm::vec3 &BoundingBox::Mins() const
 const glm::vec3 &BoundingBox::Maxs() const
 {
     return m_Maxs;
+}
+
+const glm::vec3 BoundingBox::Size() const
+{
+    return m_Maxs - m_Mins;
 }
 
 void BoundingBox::AddPoint(const glm::vec3 pt)
@@ -231,7 +240,7 @@ void BoundingBox::AddBoundingBox(const BoundingBox &other)
     AddPoint(other.Maxs());
 }
 
-glm::vec3 BoundingBox::Center()
+const glm::vec3 BoundingBox::Center() const
 {
     return m_Mins + (m_Maxs - m_Mins) * 0.5f;
 }
