@@ -34,9 +34,9 @@
 */
 
 #include "mathlib.h"
-#include <vector>
-#include <unordered_map>
 #include "r_bvh_boundingbox.h"
+#include <unordered_map>
+#include <vector>
 
 #include "scene_entity.h"
 
@@ -65,7 +65,7 @@ struct BVHNode
 
     SceneEntityWeakPtr entity;
 
-    bool isLeaf() const;
+    bool IsLeaf() const;
 };
 
 /*! \brief The dynamic AABB tree.
@@ -79,10 +79,7 @@ periodicity, e.g. periodic along specific axes.
 class BVHTree
 {
 public:
-
-    
-    BVHTree(double skinThickness,  const glm::vec3 & extents);
-
+    BVHTree(double skinThickness, const glm::vec3 &extents);
 
     //! Insert a particle into the tree (arbitrary shape with bounding box).
     /*! \param index
@@ -94,7 +91,7 @@ public:
         \param upperBound
             The upper bound in each dimension.
      */
-    void insertParticle(SceneEntityWeakPtr & entity, const glm::vec3 & mins, const glm::vec3 & maxs);
+    void InsertEntity(SceneEntityWeakPtr &entity, const glm::vec3 &mins, const glm::vec3 &maxs);
 
     /// Return the number of particles in the tree.
     unsigned int nParticles();
@@ -103,10 +100,10 @@ public:
     /*! \param particle
             The particle index (particleMap will be used to map the node).
      */
-    void removeParticle(SceneEntityWeakPtr &entity);
+    void RemoveEntity(SceneEntityWeakPtr &entity);
 
     /// Remove all particles from the tree.
-    void removeAll();
+    void RemoveAll();
 
     //! Update the tree if a particle moves outside its fattened AABB.
     /*! \param particle
@@ -121,39 +118,39 @@ public:
         \param alwaysReinsert
             Always reinsert the particle, even if it's within its old AABB (default: false)
      */
-    bool updateParticle(unsigned int, const glm::vec3 &mins, const glm::vec3 & maxs, bool alwaysReinsert = false);
+    bool UpdateEntity(unsigned int, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert = false);
 
     //! Get the height of the tree.
     /*! \return
             The height of the binary tree.
      */
-    unsigned int getHeight() const;
+    unsigned int GetHeight() const;
 
     //! Get the number of nodes in the tree.
     /*! \return
             The number of nodes in the tree.
      */
-    unsigned int getNodeCount() const;
+    unsigned int GetNodeCount() const;
 
-    //! Compute the maximum balancance of the tree.
+    //! Compute the maximum balance of the tree.
     /*! \return
             The maximum difference between the height of two
             children of a node.
      */
-    unsigned int computeMaximumBalance() const;
+    unsigned int ComputeMaximumBalance() const;
 
     //! Compute the surface area ratio of the tree.
     /*! \return
             The ratio of the sum of the node surface area to the surface
             area of the root node.
      */
-    double computeSurfaceAreaRatio() const;
+    double ComputeSurfaceAreaRatio() const;
 
     /// Validate the tree.
-    void validate() const;
+    void Validate() const;
 
     /// Rebuild an optimal tree.
-    void rebuild();
+    void Rebuild();
 
 private:
     /// The index of the root node.
@@ -170,9 +167,6 @@ private:
 
     /// The position of node at the top of the free list.
     unsigned int freeList;
-
-    /// Whether the system is periodic along at least one axis.
-    bool isPeriodic;
 
     /// The skin thickness of the fattened AABBs, as a fraction of the AABB base length.
     double skinThickness;
@@ -199,37 +193,37 @@ private:
     /*! \return
             The index of the allocated node.
      */
-    unsigned int allocateNode();
+    unsigned int AllocateNode();
 
     //! Free an existing node.
     /*! \param node
             The index of the node to be freed.
      */
-    void freeNode(unsigned int);
+    void FreeNode(unsigned int node);
 
     //! Insert a leaf into the tree.
     /*! \param leaf
             The index of the leaf node.
      */
-    void insertLeaf(unsigned int);
+    void InsertLeaf(unsigned int leaf);
 
     //! Remove a leaf from the tree.
     /*! \param leaf
             The index of the leaf node.
      */
-    void removeLeaf(unsigned int);
+    void RemoveLeaf(unsigned int leaf);
 
     //! Balance the tree.
     /*! \param node
             The index of the node.
      */
-    unsigned int balance(unsigned int);
+    unsigned int Balance(unsigned int node);
 
     //! Compute the height of the tree.
     /*! \return
             The height of the entire tree.
      */
-    unsigned int computeHeight() const;
+    unsigned int ComputeHeight() const;
 
     //! Compute the height of a sub-tree.
     /*! \param node
@@ -238,18 +232,17 @@ private:
         \return
             The height of the sub-tree.
      */
-    unsigned int computeHeight(unsigned int) const;
+    unsigned int ComputeHeight(unsigned int) const;
 
     //! Assert that the sub-tree has a valid structure.
     /*! \param node
             The index of the root node.
      */
-    void validateStructure(unsigned int) const;
+    void ValidateStructure(unsigned int) const;
 
     //! Assert that the sub-tree has valid metrics.
     /*! \param node
             The index of the root node.
      */
-    void validateMetrics(unsigned int) const;
-
+    void ValidateMetrics(unsigned int) const;
 };

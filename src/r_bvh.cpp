@@ -31,17 +31,16 @@
   http://www.box2d.org
 */
 
-
 #include "r_bvh.h"
 #include <stdexcept>
 
 const unsigned int NULL_NODE = 0xffffffff;
 
- BVHTree::BVHTree(double skinThickness, const glm::vec3 &extents)
+BVHTree::BVHTree(double skinThickness, const glm::vec3 &extents)
 {
     // Initialise the tree.
-    root         = NULL_NODE;
-    nodeCount    = 0;    
+    root      = NULL_NODE;
+    nodeCount = 0;
     nodes.resize(nodeCapacity);
 
     // Build a linked list for the list of free nodes.
@@ -58,16 +57,16 @@ const unsigned int NULL_NODE = 0xffffffff;
     freeList = 0;
 }
 
-void BVHTree::insertParticle(SceneEntityWeakPtr &entity, const glm::vec3 &mins, const glm::vec3 &maxs)
+void BVHTree::InsertEntity(SceneEntityWeakPtr &entity, const glm::vec3 &mins, const glm::vec3 &maxs)
 {
-//     Make sure the particle doesn't already exist.
-//         if (particleMap.count(particle) != 0)
-//         {
-//             throw std::invalid_argument("[ERROR]: Particle already exists in tree!");
-//         }
+    //     Make sure the particle doesn't already exist.
+    //         if (particleMap.count(particle) != 0)
+    //         {
+    //             throw std::invalid_argument("[ERROR]: Particle already exists in tree!");
+    //         }
 
     // Allocate a new node for the particle.
-    unsigned int node = allocateNode();
+    unsigned int node = AllocateNode();
 
     nodes[node].aabb = BVHBoundingBox(mins, maxs);
     nodes[node].aabb.Inflate(skinThickness);
@@ -77,7 +76,7 @@ void BVHTree::insertParticle(SceneEntityWeakPtr &entity, const glm::vec3 &mins, 
     nodes[node].height = 0;
 
     // Insert a new leaf into the tree.
-    insertLeaf(node);
+    InsertLeaf(node);
 
     // Add the new particle to the map.
     // particleMap.insert(std::unordered_map<unsigned int, unsigned int>::value_type(particle, node));
@@ -91,7 +90,7 @@ unsigned int BVHTree::nParticles()
     return particleMap.size();
 }
 
-void BVHTree::removeParticle(SceneEntityWeakPtr &entity)
+void BVHTree::RemoveEntity(SceneEntityWeakPtr &entity)
 {
     // Map iterator.
     std::unordered_map<unsigned int, unsigned int>::iterator it;
@@ -112,13 +111,13 @@ void BVHTree::removeParticle(SceneEntityWeakPtr &entity)
     particleMap.erase(it);
 
     assert(node < nodeCapacity);
-    assert(nodes[node].isLeaf());
+    assert(nodes[node].IsLeaf());
 
-    removeLeaf(node);
-    freeNode(node);
+    RemoveLeaf(node);
+    FreeNode(node);
 }
 
-void BVHTree::removeAll()
+void BVHTree::RemoveAll()
 {
     // Iterator pointing to the start of the particle map.
     std::unordered_map<unsigned int, unsigned int>::iterator it = particleMap.begin();
@@ -130,10 +129,10 @@ void BVHTree::removeAll()
         unsigned int node = it->second;
 
         assert(node < nodeCapacity);
-        assert(nodes[node].isLeaf());
+        assert(nodes[node].IsLeaf());
 
-        removeLeaf(node);
-        freeNode(node);
+        RemoveLeaf(node);
+        FreeNode(node);
 
         it++;
     }
@@ -142,7 +141,7 @@ void BVHTree::removeAll()
     particleMap.clear();
 }
 
-bool BVHTree::updateParticle(unsigned int particle, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert)
+bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert)
 {
     // Map iterator.
     std::unordered_map<unsigned int, unsigned int>::iterator it;
@@ -161,9 +160,7 @@ bool BVHTree::updateParticle(unsigned int particle, const glm::vec3 &mins, const
     unsigned int node = it->second;
 
     assert(node < nodeCapacity);
-    assert(nodes[node].isLeaf());
-
-
+    assert(nodes[node].IsLeaf());
 
     // Create the new AABB.
     BVHBoundingBox aabb(mins, maxs);
@@ -173,7 +170,7 @@ bool BVHTree::updateParticle(unsigned int particle, const glm::vec3 &mins, const
         return false;
 
     // Remove the current leaf.
-    removeLeaf(node);
+    RemoveLeaf(node);
 
     aabb.Inflate(skinThickness);
     aabb.RecalcAreaAndCenter();
@@ -182,24 +179,24 @@ bool BVHTree::updateParticle(unsigned int particle, const glm::vec3 &mins, const
     nodes[node].aabb = aabb;
 
     // Insert a new leaf node.
-    insertLeaf(node);
+    InsertLeaf(node);
 
     return true;
 }
 
-unsigned int BVHTree::getHeight() const
+unsigned int BVHTree::GetHeight() const
 {
     if (root == NULL_NODE)
         return 0;
     return nodes[root].height;
 }
 
-unsigned int BVHTree::getNodeCount() const
+unsigned int BVHTree::GetNodeCount() const
 {
     return nodeCount;
 }
 
-unsigned int BVHTree::computeMaximumBalance() const
+unsigned int BVHTree::ComputeMaximumBalance() const
 {
     unsigned int maxBalance = 0;
     for (unsigned int i = 0; i < nodeCapacity; i++)
@@ -207,16 +204,16 @@ unsigned int BVHTree::computeMaximumBalance() const
         if (nodes[i].height <= 1)
             continue;
 
-        assert(nodes[i].isLeaf() == false);
+        assert(nodes[i].IsLeaf() == false);
 
-        unsigned int balance = std::abs(nodes[nodes[i].left].height - nodes[nodes[i].right].height);
-        maxBalance           = std::max(maxBalance, balance);
+        unsigned int Balance = std::abs(nodes[nodes[i].left].height - nodes[nodes[i].right].height);
+        maxBalance           = std::max(maxBalance, Balance);
     }
 
     return maxBalance;
 }
 
-double BVHTree::computeSurfaceAreaRatio() const
+double BVHTree::ComputeSurfaceAreaRatio() const
 {
     if (root == NULL_NODE)
         return 0.0;
@@ -235,11 +232,11 @@ double BVHTree::computeSurfaceAreaRatio() const
     return totalArea / rootArea;
 }
 
-void BVHTree::validate() const
+void BVHTree::Validate() const
 {
 #ifndef NDEBUG
-    validateStructure(root);
-    validateMetrics(root);
+    ValidateStructure(root);
+    ValidateMetrics(root);
 
     unsigned int freeCount = 0;
     unsigned int freeIndex = freeList;
@@ -251,12 +248,12 @@ void BVHTree::validate() const
         freeCount++;
     }
 
-    assert(getHeight() == computeHeight());
+    assert(GetHeight() == ComputeHeight());
     assert((nodeCount + freeCount) == nodeCapacity);
 #endif
 }
 
-void BVHTree::rebuild()
+void BVHTree::Rebuild()
 {
     std::vector<unsigned int> nodeIndices(nodeCount);
     unsigned int              count = 0;
@@ -267,14 +264,14 @@ void BVHTree::rebuild()
         if (nodes[i].height < 0)
             continue;
 
-        if (nodes[i].isLeaf())
+        if (nodes[i].IsLeaf())
         {
             nodes[i].parent    = NULL_NODE;
             nodeIndices[count] = i;
             count++;
         }
         else
-            freeNode(i);
+            FreeNode(i);
     }
 
     while (count > 1)
@@ -305,7 +302,7 @@ void BVHTree::rebuild()
         unsigned int index1 = nodeIndices[iMin];
         unsigned int index2 = nodeIndices[jMin];
 
-        unsigned int parent  = allocateNode();
+        unsigned int parent  = AllocateNode();
         nodes[parent].left   = index1;
         nodes[parent].right  = index2;
         nodes[parent].height = 1 + std::max(nodes[index1].height, nodes[index2].height);
@@ -322,10 +319,10 @@ void BVHTree::rebuild()
 
     root = nodeIndices[0];
 
-    validate();
+    Validate();
 }
 
-unsigned int BVHTree::allocateNode()
+unsigned int BVHTree::AllocateNode()
 {
     // Exand the node pool as needed.
     if (freeList == NULL_NODE)
@@ -355,13 +352,13 @@ unsigned int BVHTree::allocateNode()
     nodes[node].parent = NULL_NODE;
     nodes[node].left   = NULL_NODE;
     nodes[node].right  = NULL_NODE;
-    nodes[node].height = 0;    
+    nodes[node].height = 0;
     nodeCount++;
 
     return node;
 }
 
-void BVHTree::freeNode(unsigned int node)
+void BVHTree::FreeNode(unsigned int node)
 {
     assert(node < nodeCapacity);
     assert(0 < nodeCount);
@@ -372,7 +369,7 @@ void BVHTree::freeNode(unsigned int node)
     nodeCount--;
 }
 
-void BVHTree::insertLeaf(unsigned int leaf)
+void BVHTree::InsertLeaf(unsigned int leaf)
 {
     if (root == NULL_NODE)
     {
@@ -383,10 +380,10 @@ void BVHTree::insertLeaf(unsigned int leaf)
 
     // Find the best sibling for the node.
 
-    BVHBoundingBox         leafAABB = nodes[leaf].aabb;
-    unsigned int index    = root;
+    BVHBoundingBox leafAABB = nodes[leaf].aabb;
+    unsigned int   index    = root;
 
-    while (!nodes[index].isLeaf())
+    while (!nodes[index].IsLeaf())
     {
         // Extract the children of the node.
         unsigned int left  = nodes[index].left;
@@ -406,7 +403,7 @@ void BVHTree::insertLeaf(unsigned int leaf)
 
         // Cost of descending to the left.
         double costLeft;
-        if (nodes[left].isLeaf())
+        if (nodes[left].IsLeaf())
         {
             BVHBoundingBox aabb;
             aabb.Merge(leafAABB, nodes[left].aabb);
@@ -423,7 +420,7 @@ void BVHTree::insertLeaf(unsigned int leaf)
 
         // Cost of descending to the right.
         double costRight;
-        if (nodes[right].isLeaf())
+        if (nodes[right].IsLeaf())
         {
             BVHBoundingBox aabb;
             aabb.Merge(leafAABB, nodes[right].aabb);
@@ -453,7 +450,7 @@ void BVHTree::insertLeaf(unsigned int leaf)
 
     // Create a new parent.
     unsigned int oldParent  = nodes[sibling].parent;
-    unsigned int newParent  = allocateNode();
+    unsigned int newParent  = AllocateNode();
     nodes[newParent].parent = oldParent;
     nodes[newParent].aabb.Merge(leafAABB, nodes[sibling].aabb);
     nodes[newParent].height = nodes[sibling].height + 1;
@@ -485,7 +482,7 @@ void BVHTree::insertLeaf(unsigned int leaf)
     index = nodes[leaf].parent;
     while (index != NULL_NODE)
     {
-        index = balance(index);
+        index = Balance(index);
 
         unsigned int left  = nodes[index].left;
         unsigned int right = nodes[index].right;
@@ -500,7 +497,7 @@ void BVHTree::insertLeaf(unsigned int leaf)
     }
 }
 
-void BVHTree::removeLeaf(unsigned int leaf)
+void BVHTree::RemoveLeaf(unsigned int leaf)
 {
     if (leaf == root)
     {
@@ -526,13 +523,13 @@ void BVHTree::removeLeaf(unsigned int leaf)
             nodes[grandParent].right = sibling;
 
         nodes[sibling].parent = grandParent;
-        freeNode(parent);
+        FreeNode(parent);
 
         // Adjust ancestor bounds.
         unsigned int index = grandParent;
         while (index != NULL_NODE)
         {
-            index = balance(index);
+            index = Balance(index);
 
             unsigned int left  = nodes[index].left;
             unsigned int right = nodes[index].right;
@@ -547,15 +544,15 @@ void BVHTree::removeLeaf(unsigned int leaf)
     {
         root                  = sibling;
         nodes[sibling].parent = NULL_NODE;
-        freeNode(parent);
+        FreeNode(parent);
     }
 }
 
-unsigned int BVHTree::balance(unsigned int node)
+unsigned int BVHTree::Balance(unsigned int node)
 {
     assert(node != NULL_NODE);
 
-    if (nodes[node].isLeaf() || (nodes[node].height < 2))
+    if (nodes[node].IsLeaf() || (nodes[node].height < 2))
         return node;
 
     unsigned int left  = nodes[node].left;
@@ -679,25 +676,25 @@ unsigned int BVHTree::balance(unsigned int node)
     return node;
 }
 
-unsigned int BVHTree::computeHeight() const
+unsigned int BVHTree::ComputeHeight() const
 {
-    return computeHeight(root);
+    return ComputeHeight(root);
 }
 
-unsigned int BVHTree::computeHeight(unsigned int node) const
+unsigned int BVHTree::ComputeHeight(unsigned int node) const
 {
     assert(node < nodeCapacity);
 
-    if (nodes[node].isLeaf())
+    if (nodes[node].IsLeaf())
         return 0;
 
-    unsigned int height1 = computeHeight(nodes[node].left);
-    unsigned int height2 = computeHeight(nodes[node].right);
+    unsigned int height1 = ComputeHeight(nodes[node].left);
+    unsigned int height2 = ComputeHeight(nodes[node].right);
 
     return 1 + std::max(height1, height2);
 }
 
-void BVHTree::validateStructure(unsigned int node) const
+void BVHTree::ValidateStructure(unsigned int node) const
 {
     if (node == NULL_NODE)
         return;
@@ -708,7 +705,7 @@ void BVHTree::validateStructure(unsigned int node) const
     unsigned int left  = nodes[node].left;
     unsigned int right = nodes[node].right;
 
-    if (nodes[node].isLeaf())
+    if (nodes[node].IsLeaf())
     {
         assert(left == NULL_NODE);
         assert(right == NULL_NODE);
@@ -722,11 +719,11 @@ void BVHTree::validateStructure(unsigned int node) const
     assert(nodes[left].parent == node);
     assert(nodes[right].parent == node);
 
-    validateStructure(left);
-    validateStructure(right);
+    ValidateStructure(left);
+    ValidateStructure(right);
 }
 
-void BVHTree::validateMetrics(unsigned int node) const
+void BVHTree::ValidateMetrics(unsigned int node) const
 {
     if (node == NULL_NODE)
         return;
@@ -734,7 +731,7 @@ void BVHTree::validateMetrics(unsigned int node) const
     unsigned int left  = nodes[node].left;
     unsigned int right = nodes[node].right;
 
-    if (nodes[node].isLeaf())
+    if (nodes[node].IsLeaf())
     {
         assert(left == NULL_NODE);
         assert(right == NULL_NODE);
@@ -760,11 +757,11 @@ void BVHTree::validateMetrics(unsigned int node) const
         assert(aabb.Maxs()[i] == nodes[node].aabb.Maxs()[i]);
     }
 
-    validateMetrics(left);
-    validateMetrics(right);
+    ValidateMetrics(left);
+    ValidateMetrics(right);
 }
 
-bool BVHNode::isLeaf() const
+bool BVHNode::IsLeaf() const
 {
     return (left == NULL_NODE);
 }
