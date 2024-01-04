@@ -143,6 +143,13 @@ public:
     /// Rebuild an optimal tree.
     void Rebuild();
 
+    int  RootNode();
+    void DebugRender(int node);
+
+    
+    void DebugRenderTreeUINode(int node);
+    void DebugRenderTreeUI();
+
 private:
     /// The index of the root node.
     unsigned int m_uiRootNode;

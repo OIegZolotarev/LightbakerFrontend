@@ -188,7 +188,9 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_CULL_FACE);
         
-        ObjectPropertiesEditor::Instance()->RenderDebugOctree();
+        if (m_pScene)
+            m_pScene->DebugRenderBVH();
+        // ObjectPropertiesEditor::Instance()->RenderDebugOctree();
         
         
 

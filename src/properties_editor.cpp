@@ -195,7 +195,7 @@ void ObjectPropertiesEditor::RenderDebugOctree()
 
     if (entity)
     {
-        entity->GetOctreeNode()->DrawDebug(2);
+        // entity->GetOctreeNode()->DrawDebug(2);
     }
 }
 

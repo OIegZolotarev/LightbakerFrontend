@@ -32,15 +32,16 @@
 */
 
 #include "r_bvh.h"
+#include "application.h"
 #include <stdexcept>
 
 const unsigned int NULL_NODE = 0xffffffff;
 
 BVHTree::BVHTree(double m_flSkinThickness, const glm::vec3 &extents)
 {
-    // Initialise the tree.
-    m_uiRootNode      = NULL_NODE;
-    m_uiNodeCount = 0;
+    m_uiNodeCapacity = 8192;
+    m_uiRootNode     = NULL_NODE;
+    m_uiNodeCount    = 0;
     m_vecNodes.resize(m_uiNodeCapacity);
 
     // Build a linked list for the list of free nodes.
@@ -57,7 +58,7 @@ BVHTree::BVHTree(double m_flSkinThickness, const glm::vec3 &extents)
     m_uiFreeList = 0;
 }
 
-void BVHTree::InsertEntity(SceneEntityPtr & entity)
+void BVHTree::InsertEntity(SceneEntityPtr &entity)
 {
     //     Make sure the particle doesn't already exist.
     //         if (particleMap.count(particle) != 0)
@@ -67,7 +68,7 @@ void BVHTree::InsertEntity(SceneEntityPtr & entity)
 
     // Allocate a new node for the particle.
     unsigned int node = AllocateNode();
-       
+
     m_vecNodes[node].aabb = entity->GetAbsoulteBoundingBox();
     m_vecNodes[node].aabb.Inflate(m_flSkinThickness);
     m_vecNodes[node].aabb.RecalcAreaAndCenter();
@@ -79,7 +80,7 @@ void BVHTree::InsertEntity(SceneEntityPtr & entity)
     InsertLeaf(node);
 
     // Add the new particle to the map.
-    m_EntitiesMap.insert(std::pair<uint32_t,uint32_t>(entity->GetSerialNumber(), node));
+    m_EntitiesMap.insert(std::pair<uint32_t, uint32_t>(entity->GetSerialNumber(), node));
 
     // Store the particle index.
     m_vecNodes[node].entity = entity;
@@ -266,8 +267,8 @@ void BVHTree::Rebuild()
 
         if (m_vecNodes[i].IsLeaf())
         {
-            m_vecNodes[i].parent    = NULL_NODE;
-            nodeIndices[count] = i;
+            m_vecNodes[i].parent = NULL_NODE;
+            nodeIndices[count]   = i;
             count++;
         }
         else
@@ -302,7 +303,7 @@ void BVHTree::Rebuild()
         unsigned int index1 = nodeIndices[iMin];
         unsigned int index2 = nodeIndices[jMin];
 
-        unsigned int parent  = AllocateNode();
+        unsigned int parent       = AllocateNode();
         m_vecNodes[parent].left   = index1;
         m_vecNodes[parent].right  = index2;
         m_vecNodes[parent].height = 1 + std::max(m_vecNodes[index1].height, m_vecNodes[index2].height);
@@ -320,6 +321,82 @@ void BVHTree::Rebuild()
     m_uiRootNode = nodeIndices[0];
 
     Validate();
+}
+
+int BVHTree::RootNode()
+{
+    return m_uiRootNode;
+}
+
+void BVHTree::DebugRender(int node)
+{
+    if (node == NULL_NODE)
+        return;
+
+    BVHNode *nodePtr = &m_vecNodes[node];
+    BVHNode *sibling = nodePtr;
+
+    auto sr = Application::GetMainWindow()->GetSceneRenderer();
+
+    glm::vec3   pos = sibling->aabb.Center();
+    BoundingBox rel = sibling->aabb.ConvertToRelative();
+
+    sr->RenderPointEntityDefault(pos, rel.Mins(), rel.Maxs(), {1, 0, 0}, 0);
+}
+
+int nodeToRender = NULL_NODE;
+
+void BVHTree::DebugRenderTreeUINode(int node)
+{
+    BVHNode *ptr = &m_vecNodes[node];
+
+    // bool opened = TreeNode(id, "##nolabel);
+
+    if (ptr->IsLeaf())
+    {
+        auto entity = ptr->entity.lock();
+
+        if (entity)
+        {
+            if (ImGui::TreeNodeEx(ptr, ImGuiTreeNodeFlags_Leaf, "%s", entity->GetClassName().c_str()))
+            {
+                ImGui::TreePop();
+            }
+        }
+        else
+        {
+            if (ImGui::TreeNodeEx(ptr, ImGuiTreeNodeFlags_Leaf, "<Dead entity>"))
+            {
+                ImGui::TreePop();
+            }
+        }
+    }
+    else
+    {
+        if (ImGui::TreeNode(ptr, "Node %d", node))
+        {
+            if (ImGui::IsItemActive())
+                nodeToRender = node;
+
+            if (ptr->left != NULL_NODE)
+                DebugRenderTreeUINode(ptr->left);
+
+            if (ptr->right != NULL_NODE)
+                DebugRenderTreeUINode(ptr->right);
+
+            ImGui::TreePop();
+        }
+    }
+}
+
+void BVHTree::DebugRenderTreeUI()
+{
+    ImGui::Begin("Scene BVH");
+
+    if (m_uiRootNode != NULL_NODE)
+        DebugRenderTreeUINode(m_uiRootNode);
+
+    ImGui::End();
 }
 
 unsigned int BVHTree::AllocateNode()
@@ -347,8 +424,8 @@ unsigned int BVHTree::AllocateNode()
     }
 
     // Peel a node off the free list.
-    unsigned int node  = m_uiFreeList;
-    m_uiFreeList           = m_vecNodes[node].next;
+    unsigned int node       = m_uiFreeList;
+    m_uiFreeList            = m_vecNodes[node].next;
     m_vecNodes[node].parent = NULL_NODE;
     m_vecNodes[node].left   = NULL_NODE;
     m_vecNodes[node].right  = NULL_NODE;
@@ -365,7 +442,7 @@ void BVHTree::FreeNode(unsigned int node)
 
     m_vecNodes[node].next   = m_uiFreeList;
     m_vecNodes[node].height = -1;
-    m_uiFreeList           = node;
+    m_uiFreeList            = node;
     m_uiNodeCount--;
 }
 
@@ -373,7 +450,7 @@ void BVHTree::InsertLeaf(unsigned int leaf)
 {
     if (m_uiRootNode == NULL_NODE)
     {
-        m_uiRootNode               = leaf;
+        m_uiRootNode                    = leaf;
         m_vecNodes[m_uiRootNode].parent = NULL_NODE;
         return;
     }
@@ -449,8 +526,8 @@ void BVHTree::InsertLeaf(unsigned int leaf)
     unsigned int sibling = index;
 
     // Create a new parent.
-    unsigned int oldParent  = m_vecNodes[sibling].parent;
-    unsigned int newParent  = AllocateNode();
+    unsigned int oldParent       = m_vecNodes[sibling].parent;
+    unsigned int newParent       = AllocateNode();
     m_vecNodes[newParent].parent = oldParent;
     m_vecNodes[newParent].aabb.Merge(leafAABB, m_vecNodes[sibling].aabb);
     m_vecNodes[newParent].height = m_vecNodes[sibling].height + 1;
@@ -475,7 +552,7 @@ void BVHTree::InsertLeaf(unsigned int leaf)
         m_vecNodes[newParent].right = leaf;
         m_vecNodes[sibling].parent  = newParent;
         m_vecNodes[leaf].parent     = newParent;
-        m_uiRootNode                   = newParent;
+        m_uiRootNode                = newParent;
     }
 
     // Walk back up the tree fixing heights and AABBs.
@@ -542,7 +619,7 @@ void BVHTree::RemoveLeaf(unsigned int leaf)
     }
     else
     {
-        m_uiRootNode                  = sibling;
+        m_uiRootNode               = sibling;
         m_vecNodes[sibling].parent = NULL_NODE;
         FreeNode(parent);
     }

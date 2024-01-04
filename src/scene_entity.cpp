@@ -1,6 +1,6 @@
 /*
     LightBaker3000 Frontend project,
-    (c) 2023 CrazyRussian
+    (c) 2023-2024 CrazyRussian
 */
 
 #include "application.h"
@@ -126,16 +126,6 @@ void SceneEntity::Debug_RenderTransform()
 void SceneEntity::FlagRegisteredInScene(bool state)
 {
     m_bRegisteredInScene = state;
-}
-
-void SceneEntity::SetOctreeNode(OctreeNode *node)
-{
-    m_pOctreeNode = node;
-}
-
-const OctreeNode *SceneEntity::GetOctreeNode() const
-{
-    return m_pOctreeNode;
 }
 
 const glm::vec3 SceneEntity::GetAngles() const

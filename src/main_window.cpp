@@ -953,7 +953,6 @@ void MainWindow::RenderGUI()
     }
 
     DrawLoadingBanner();
-
     DrawStatusBar();
 
 #ifdef _DEBUG

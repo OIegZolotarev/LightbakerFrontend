@@ -145,7 +145,7 @@ bool OctreeNode::RecursivePushEntity(SceneEntityWeakPtr &weakRef, SceneEntityPtr
                 return false;
         }
 
-        ptr->SetOctreeNode(this);
+        // ptr->SetOctreeNode(this);
         m_Entities.push_back(weakRef);
         return true;
     }

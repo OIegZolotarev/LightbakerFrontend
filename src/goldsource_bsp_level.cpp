@@ -1105,7 +1105,7 @@ void BSPLevel::PopulateScene(Scene * pScene)
         it->SetSerialNumber(pScene->AllocSerialNumber());
         it->PopulateScene();
 
-		assert(it->GetOctreeNode());
+		// assert(it->GetOctreeNode());
     }
 
 	

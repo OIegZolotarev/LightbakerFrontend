@@ -111,8 +111,6 @@ class SceneEntity : public ISelectableObject
 
     void RecalcAbsBBox();
 
-    OctreeNode *m_pOctreeNode = nullptr;
-
 protected:
     void SetClassName(const char *name);
     // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
@@ -183,8 +181,6 @@ public:
     void Debug_RenderTransform();
 
     void FlagRegisteredInScene(bool state);
-    void SetOctreeNode(OctreeNode *node);
-    const OctreeNode * GetOctreeNode() const;
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

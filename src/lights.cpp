@@ -270,22 +270,22 @@ void Lb3kLightEntity::SetType(LightTypes newType)
 	type = newType;
 
 
-	// TODO: fixme
-	switch (type)
-	{
-// 	case LightTypes::Omni:
-//         SetEditorIcon(GetCommonIcon(CommonTextures::OmniLight));
-// 		break;
-// 	case LightTypes::Spot:
-//         SetEditorIcon(GetCommonIcon(CommonTextures::SpotLight));
-// 		break;
-// 	case LightTypes::Direct:
-//         SetEditorIcon(GetCommonIcon(CommonTextures::DirectLight));
-// 		break;
-// 	default:
-// 		break;
-
-	}
+// 	// TODO: fixme
+// 	switch (type)
+// 	{
+// // 	case LightTypes::Omni:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::OmniLight));
+// // 		break;
+// // 	case LightTypes::Spot:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::SpotLight));
+// // 		break;
+// // 	case LightTypes::Direct:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::DirectLight));
+// // 		break;
+// // 	default:
+// // 		break;
+// 
+// 	}
 }
 
 void Lb3kLightEntity::OnHovered()

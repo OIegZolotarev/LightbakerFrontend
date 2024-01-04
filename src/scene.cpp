@@ -48,9 +48,9 @@ const std::list<SceneEntityPtr> &Scene::GetEntities() const
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
-
-    // TODO: fixme later
-    m_pOctree = new OctreeNode(8192);
+    
+    // TODO: review extents
+    m_pBVHTree = new BVHTree(0.05, {8192,8192,8192});
 }
 
 Scene::~Scene()
@@ -60,7 +60,7 @@ Scene::~Scene()
         ptr->UnmountGameFS();
     }
 
-    delete m_pOctree;
+    delete m_pBVHTree;
 
     m_SceneEntities.clear();
     delete m_pEditHistory;
@@ -378,17 +378,24 @@ size_t Scene::TotalEntities()
     return m_SceneEntities.size();
 }
 
-void Scene::DebugRenderOctree()
+
+void Scene::DebugRenderBVH()
 {
-    if (m_pOctree)
-        m_pOctree->DrawDebug();
+    extern int nodeToRender;
+    m_pBVHTree->DebugRender(nodeToRender);
+}
+
+void Scene::DebugRenderBVHUI()
+{
+    m_pBVHTree->DebugRenderTreeUI();
 }
 
 void Scene::OnEntityRegistered(SceneEntityPtr &it)
 {
     it->FlagRegisteredInScene(true);
     auto wptr = SceneEntityWeakPtr(it);
-    m_pOctree->PushEntity(wptr);
+    
+    m_pBVHTree->InsertEntity(it);
 }
 
 // void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)

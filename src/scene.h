@@ -13,6 +13,7 @@
 #include "scene_entity.h"
 #include "serial_counter.h"
 #include "r_octree.h"
+#include "r_bvh.h"
 
 enum class LevelFormat
 {
@@ -56,7 +57,8 @@ class Scene
 
     const std::list<SceneEntityPtr> &GetEntities() const;
 
-    OctreeNode *m_pOctree;
+    // OctreeNode *m_pOctree;
+    BVHTree *m_pBVHTree;
    
     void OnEntityRegistered(SceneEntityPtr &it);
 
@@ -107,6 +109,6 @@ public:
 
     size_t TotalEntities();
 
-
-void DebugRenderOctree();
+    void DebugRenderBVH();
+    void DebugRenderBVHUI();
 };
