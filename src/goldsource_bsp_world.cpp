@@ -22,7 +22,7 @@ void BSPWorld::ReloadLightmaps()
 
 void BSPWorld::OnAdditionToScene(Scene *pScene)
 {
-    m_pLevel->PopulateScene(pScene);
+    // m_pLevel->PopulateScene(pScene);
 }
 
 BSPWorld::BSPWorld(const char *levelName, Scene *pScene) : IWorldEntity(pScene)
@@ -86,6 +86,11 @@ void BSPWorld::OnLevelLoaded()
     ModelsManager::Instance()->OnSceneLoaded(m_pScene); 
 
     m_pLevel->PopulateScene(m_pScene);
+
+
+    auto ptr = m_pScene->GetEntityWeakRef(this);
+    auto locked = ptr.lock();
+    m_pScene->OnEntityRegistered(locked);
     
 }
 

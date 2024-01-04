@@ -43,7 +43,7 @@
 struct BVHNode
 {
     /// Constructor.
-    BVHNode(){};
+    BVHNode();;
 
     // The fattened axis-aligned bounding box.
     BVHBoundingBox aabb;
@@ -63,7 +63,7 @@ struct BVHNode
     // Height of the node. This is 0 for a leaf and -1 for a free node.
     int height;
 
-    SceneEntityWeakPtr entity;
+    SceneEntityPtr entity;
 
     bool IsLeaf() const;
 };
@@ -150,6 +150,11 @@ public:
     void DebugRenderTreeUINode(int node);
     void DebugRenderTreeUI();
 
+    
+    BVHNode *GetRootNode();
+
+    BVHNode* GetNodePtr(unsigned int idx);
+
 private:
     /// The index of the root node.
     unsigned int m_uiRootNode;
@@ -198,4 +203,6 @@ private:
 
     void ValidateStructure(unsigned int rootNode) const;
     void ValidateMetrics(unsigned int rootNode) const;
+
+
 };

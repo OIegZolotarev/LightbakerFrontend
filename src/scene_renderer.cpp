@@ -16,6 +16,8 @@
 #include "selection_3d.h"
 #include <unordered_set>
 
+bool g_useBVH = false;
+
 uberShaderDefs_t g_UberShaderTable[] = {
     // clang-format off
     {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"} , nullptr},
@@ -478,6 +480,86 @@ void SceneRenderer::SortRenderLists()
 
     glm::vec3 eyesPos = m_pCamera->GetOrigin();
 
+    if (g_useBVH)
+    {
+        BVHTree *pSceneTree = m_pScene->GetBVHTree();
+        FillSortListsBVH(pSceneTree, pSceneTree->GetRootNode(), frustum, eyesPos);
+    }
+    else
+        FillSortListsLinear(ents, frustum, eyesPos);
+
+    
+
+
+    std::sort(m_vSortedSolidEntities.begin(), m_vSortedSolidEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool { return a.modType > b.modType; });
+
+    std::sort(m_vSortedTransparentEntities.begin(), m_vSortedTransparentEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool {
+                  return a.modType > b.modType && a.renderDistance > b.renderDistance;
+              });
+}
+
+void SceneRenderer::FillSortListsBVH(BVHTree *pTree, BVHNode *pNode, Frustum *pFrustum, glm::vec3 eyesPos,
+                                     FrustumVisiblity parentVisiblity)
+{
+    BT_PROFILE("SceneRenderer::FillSortListsBVH");
+
+    if (pNode == nullptr)
+        return;
+
+    FrustumVisiblity myVisilibity = parentVisiblity;
+
+    if (1)
+    {
+        if (parentVisiblity != FrustumVisiblity::Complete)
+        {
+            myVisilibity = pFrustum->CullBoxEx(pNode->aabb);
+
+            if (myVisilibity == FrustumVisiblity::None)
+                return;
+        }
+    }
+    else
+    {
+        if (pFrustum->CullBox(pNode->aabb))
+            return;
+    }
+
+
+    if (pNode->IsLeaf())
+    {
+        auto & it    = pNode->entity;        
+        auto model = it->GetModel();
+
+        if (model.expired())
+            return;
+
+        auto ptr = model.lock();
+
+        if (ptr->IsTransparent())
+        {
+            float dist = glm::length2(it->GetPosition() - eyesPos);
+            m_vSortedTransparentEntities.push_back({it.get(), ptr->GetType(), dist});
+        }
+        else
+            m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
+    }
+    else
+    {        
+        if (pNode->left != -1)
+            FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->left), pFrustum, eyesPos, myVisilibity);
+
+        if (pNode->right != -1)
+            FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->right), pFrustum, eyesPos, myVisilibity);
+    }
+
+}
+
+void SceneRenderer::FillSortListsLinear(const std::list<SceneEntityPtr> &ents, Frustum *frustum, glm::vec3 eyesPos)
+{
+    BT_PROFILE("SceneRenderer::FillSortListsLinear");
+
     for (auto &it : ents)
     {
         if (!it)
@@ -507,14 +589,6 @@ void SceneRenderer::SortRenderLists()
         else
             m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
     }
-
-    std::sort(m_vSortedSolidEntities.begin(), m_vSortedSolidEntities.end(),
-              [](sSortInfo &a, sSortInfo &b) -> bool { return a.modType > b.modType; });
-
-    std::sort(m_vSortedTransparentEntities.begin(), m_vSortedTransparentEntities.end(),
-              [](sSortInfo &a, sSortInfo &b) -> bool {
-                  return a.modType > b.modType && a.renderDistance > b.renderDistance;
-              });
 }
 
 void SceneRenderer::RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const
@@ -592,6 +666,8 @@ ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentTyp
     return nullptr;
 
 }
+
+
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
                                              const glm::vec3 &m_Maxs, const glm::vec3 &m_Color,

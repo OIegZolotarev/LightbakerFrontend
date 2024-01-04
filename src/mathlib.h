@@ -28,6 +28,10 @@ enum class PlaneTypes
 void VectorMA(const glm::vec3 &start, const float scale, const glm::vec3 &direction, glm::vec3 &dest);
 void VectorNormalize(glm::vec3 &vec);
 
+#define BPS_FRONT 1
+#define BPS_BACK 2
+#define BPS_BETWEEN  3
+
 typedef struct plane_s
 {
     glm::vec3 normal;

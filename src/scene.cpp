@@ -271,6 +271,11 @@ void Scene::LoadLevel(const char *levelName)
         ptr->MountGameFS();
     }
 
+    if (m_pBVHTree)
+    {
+        m_pBVHTree->RemoveAll();
+    }
+
     auto format = DetermineLevelFormatFromFileName(levelName);
 
     std::shared_ptr<SceneEntity> pLevelEntity;
@@ -297,7 +302,8 @@ void Scene::LoadLevel(const char *levelName)
     else
         m_SceneEntities.push_back(pLevelEntity);
 
-    pLevelEntity->OnAdditionToScene(this);
+    //pLevelEntity->OnAdditionToScene(this);
+    //OnEntityRegistered(pLevelEntity);
 
     Application::GetMainWindow()->UpdateStatusbar(FL_UPDATE_ALL_STATUS_FIELDS);
 }
@@ -388,6 +394,11 @@ void Scene::DebugRenderBVH()
 void Scene::DebugRenderBVHUI()
 {
     m_pBVHTree->DebugRenderTreeUI();
+}
+
+BVHTree* Scene::GetBVHTree()
+{
+    return m_pBVHTree;
 }
 
 void Scene::OnEntityRegistered(SceneEntityPtr &it)

@@ -1092,20 +1092,9 @@ void BSPLevel::PopulateScene(Scene * pScene)
 
     for (auto it : m_vEntities)
     {
-        auto mod = it->GetModel();
-
-		auto ptr = mod.lock();
-
-		if (!ptr)
-			continue;
-
-		if (ptr->GetType() != ModelType::StaticLightmapped)
-			continue;
-
         it->SetSerialNumber(pScene->AllocSerialNumber());
         it->PopulateScene();
 
-		// assert(it->GetOctreeNode());
     }
 
 	

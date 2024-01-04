@@ -8,6 +8,8 @@
 #include "btQuickProf.h"
 #include "viewports_orchestrator.h"
 
+extern bool g_useBVH;
+
 DebugPanel::DebugPanel() : IGUIPanel(PanelsId::Debug, (char *)"Debug")
 {
 }
@@ -115,6 +117,8 @@ void DebugPanel::Render()
 
         if (forceUpdates)
             ViewportsOrchestrator::Instance()->FlagRepaintAll();
+
+        ImGui::Checkbox("Use BVH", &g_useBVH);
 
         ImGui::SameLine();
 

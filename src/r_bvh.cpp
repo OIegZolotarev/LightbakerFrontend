@@ -354,21 +354,9 @@ void BVHTree::DebugRenderTreeUINode(int node)
 
     if (ptr->IsLeaf())
     {
-        auto entity = ptr->entity.lock();
-
-        if (entity)
+        if (ImGui::TreeNodeEx(ptr, ImGuiTreeNodeFlags_Leaf, "%s", ptr->entity->GetClassName().c_str()))
         {
-            if (ImGui::TreeNodeEx(ptr, ImGuiTreeNodeFlags_Leaf, "%s", entity->GetClassName().c_str()))
-            {
-                ImGui::TreePop();
-            }
-        }
-        else
-        {
-            if (ImGui::TreeNodeEx(ptr, ImGuiTreeNodeFlags_Leaf, "<Dead entity>"))
-            {
-                ImGui::TreePop();
-            }
+            ImGui::TreePop();
         }
     }
     else
@@ -401,7 +389,7 @@ void BVHTree::DebugRenderTreeUI()
 
 unsigned int BVHTree::AllocateNode()
 {
-    // Exand the node pool as needed.
+    // Expand the node pool as needed.
     if (m_uiFreeList == NULL_NODE)
     {
         assert(m_uiNodeCount == m_uiNodeCapacity);
@@ -836,6 +824,26 @@ void BVHTree::ValidateMetrics(unsigned int node) const
 
     ValidateMetrics(left);
     ValidateMetrics(right);
+}
+
+BVHNode *BVHTree::GetRootNode()
+{
+    if (m_uiRootNode == NULL_NODE)
+        return nullptr;
+
+    return &m_vecNodes[m_uiRootNode];
+}
+
+BVHNode *BVHTree::GetNodePtr(unsigned int idx)
+{
+    if (idx == NULL_NODE)
+        return nullptr;
+
+    return &m_vecNodes[idx];
+}
+
+BVHNode::BVHNode()
+{
 }
 
 bool BVHNode::IsLeaf() const

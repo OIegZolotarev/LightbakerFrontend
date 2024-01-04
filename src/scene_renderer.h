@@ -15,6 +15,7 @@
 #include "scene.h"
 #include "viewport.h"
 #include "viewport_rendermodes.h"
+#include "r_frustum.h"
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -25,6 +26,9 @@
 
 class Camera;
 class MainWindow;
+class Frustum;
+class BVHTree;
+struct BVHNode;
 
 typedef struct
 {
@@ -35,13 +39,11 @@ typedef struct
 
 typedef struct uberShaderDefs_s
 {
-    ModelType type;
-    RenderMode mode;
-    std::list<const char*> defines;        
-    ShaderProgram *shader;
+    ModelType               type;
+    RenderMode              mode;
+    std::list<const char *> defines;
+    ShaderProgram *         shader;
 } uberShaderDefs_t;
-
-
 
 class SceneRenderer : public IEventHandler
 {
@@ -125,8 +127,13 @@ private:
 
     void SortRenderLists();
 
+    void FillSortListsLinear(const std::list<SceneEntityPtr> &ents, Frustum *frustum, glm::vec3 eyesPos);
+
     ShaderProgram *m_pStudioShader;
 
     void           RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const;
     ShaderProgram *SetupShaderForModelType(const ModelType currentType) const;
+
+    
+    void FillSortListsBVH(BVHTree * pTree, BVHNode * pNode, Frustum* pFrustum, glm::vec3 eyesPos, FrustumVisiblity parentVisiblity = FrustumVisiblity::Partial);
 };

@@ -12,6 +12,13 @@
 
 BETTER_ENUM(FrustumPlanes, int, Right, Left, Top, Bottom, NearZ, FarZ);
 
+enum class FrustumVisiblity
+{
+    None = 0,
+    Partial,
+    Complete
+};
+
 class Frustum
 {
     plane_t m_Planes[FrustumPlanes::_size()];
@@ -32,6 +39,7 @@ public:
     bool CullBox(const glm::vec3 & mins, const glm::vec3 & maxs);
     bool CullBox(const BoundingBox & bbox);
     
+    FrustumVisiblity CullBoxEx(const BoundingBox &bbox);
 
     void DrawDebug();
 

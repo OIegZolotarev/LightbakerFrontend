@@ -60,7 +60,7 @@ class Scene
     // OctreeNode *m_pOctree;
     BVHTree *m_pBVHTree;
    
-    void OnEntityRegistered(SceneEntityPtr &it);
+    
 
 public:
     Scene();
@@ -111,4 +111,7 @@ public:
 
     void DebugRenderBVH();
     void DebugRenderBVHUI();
+    BVHTree* GetBVHTree();
+
+    void OnEntityRegistered(SceneEntityPtr &it);
 };

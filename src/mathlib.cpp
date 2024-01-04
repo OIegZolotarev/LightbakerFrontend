@@ -93,10 +93,10 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
     if (type < 3)
     {
         if (dist <= emins[type])
-            return 1;
+            return BPS_FRONT;
         if (dist >= emaxs[type])
-            return 2;
-        return 3;
+            return BPS_BACK;
+        return BPS_BETWEEN;
     }
 
     // general case
@@ -141,7 +141,7 @@ int plane_s::BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs)
     }
 
     if (isnan(dist2) || isnan(dist1))
-        return 2;
+        return BPS_BACK;
 
     sides = 0;
     if (dist1 >= dist)

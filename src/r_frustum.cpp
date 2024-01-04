@@ -40,7 +40,7 @@ void Frustum::InitPerspective(const glm::vec3 &origin, const glm::vec3 &forward,
     float flIntercept = glm::dot(origin, forward);
 
     // Setup the near and far planes.
-    SetPlane(FrustumPlanes::FarZ, -forward, -zFar - flIntercept);
+    SetPlane(FrustumPlanes::FarZ,  -forward, -zFar - flIntercept);
     SetPlane(FrustumPlanes::NearZ, forward, zNear + flIntercept);
 
     float flTanX = tan(glm::radians(fovX * 0.5f));
@@ -84,7 +84,36 @@ bool Frustum::CullBox(const glm::vec3 &mins, const glm::vec3 &maxs)
 
 bool Frustum::CullBox(const BoundingBox &bbox)
 {
+    BT_PROFILE("Frustum::CullBox()");
+
     return CullBox(bbox.Mins(), bbox.Maxs());
+}
+
+FrustumVisiblity Frustum::CullBoxEx(const BoundingBox &bbox)
+{
+    int r = 0;
+
+    const glm::vec3 &mins = bbox.Mins();
+    const glm::vec3 &maxs = bbox.Maxs();
+
+    for (auto &it : FrustumPlanes::_values())
+    {
+        int idx  = it._to_integral();
+        int flag = m_Planes[idx].BoxOnPlaneSide(mins, maxs); 
+        
+
+        if (flag == BPS_BACK)
+            return FrustumVisiblity::None;
+        else if (flag == BPS_FRONT)
+            r++;
+
+    }
+
+    
+    if (r == 6)
+        return FrustumVisiblity::Complete;
+    else
+        return FrustumVisiblity::Partial;
 }
 
 // Based on void CFrustum :: DrawFrustumDebug( void )
@@ -111,13 +140,6 @@ void Frustum::DrawDebug()
             break;
         }
     }
-
-    
-//     shader->SetDefaultCamera();
-//     shader->SetTransformIdentity();
-//     shader->SetColor({1,1,1,1});
-//     shader->SetScale({1,1,1});
-//     shader->SetTransform(glm::mat4x4(1.f));
 
     ComputeFrustumCorners(bbox);
 
