@@ -142,19 +142,23 @@ void BVHTree::RemoveAll()
     m_EntitiesMap.clear();
 }
 
-bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert)
+bool BVHTree::UpdateEntity(const uint32_t serialNumber, const BVHBoundingBox &newABSBox,
+                           const bool alwaysReinsert)
 {
+    BT_PROFILE("BVHTree::UpdateEntity");
+
     // Map iterator.
     std::unordered_map<unsigned int, unsigned int>::iterator it;
 
     // Find the particle.
-    it = m_EntitiesMap.find(particle);
+    it = m_EntitiesMap.find(serialNumber);
 
     // The particle doesn't exist.
     if (it == m_EntitiesMap.end())
     {
+        return false;
         // FIXME
-        // throw std::invalid_argument("[ERROR]: Invalid particle index!");
+        // throw std::invalid_argument("[ERROR]:* Invalid particle index!");
     }
 
     // Extract the node index.
@@ -164,7 +168,7 @@ bool BVHTree::UpdateEntity(unsigned int particle, const glm::vec3 &mins, const g
     assert(m_vecNodes[node].IsLeaf());
 
     // Create the new AABB.
-    BVHBoundingBox aabb(mins, maxs);
+    BVHBoundingBox aabb(newABSBox);
 
     // No need to update if the particle is still within its fattened AABB.
     if (!alwaysReinsert && m_vecNodes[node].aabb.Contains(aabb))

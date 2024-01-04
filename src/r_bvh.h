@@ -109,7 +109,7 @@ public:
         \param alwaysReinsert
             Always reinsert the particle, even if it's within its old AABB (default: false)
      */
-    bool UpdateEntity(unsigned int, const glm::vec3 &mins, const glm::vec3 &maxs, bool alwaysReinsert = false);
+    bool UpdateEntity(const uint32_t serialNumber, const BVHBoundingBox & newABSBox, const bool alwaysReinsert = false);
 
     //! Get the height of the tree.
     /*! \return

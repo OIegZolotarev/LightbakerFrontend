@@ -625,6 +625,7 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransfo
 
         ImGuizmo::DecomposeMatrixToComponents(&m_matDeltaGuizmo[0][0], &posDelta.x, &unused2.x, &matrixScaleDelta.x);
 
+        // TODO: fix this
         if (glm::length2(matrixScaleDelta) > 0.01)
         {
             m_pPropertiesBinding->OnSelectionResized(m_mapRelativeObjectsPos, matrixScale, pos);

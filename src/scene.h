@@ -114,4 +114,5 @@ public:
     BVHTree* GetBVHTree();
 
     void OnEntityRegistered(SceneEntityPtr &it);
+    void UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute);
 };

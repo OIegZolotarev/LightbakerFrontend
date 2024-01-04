@@ -188,6 +188,10 @@ void SceneEntity::SetPosition(const glm::vec3 &pos)
     RecalcAbsBBox();
 
     m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
+
+    if (m_pScene)
+        m_pScene->UpdateEntityBVH(m_EntVars.serialNumber, m_EntVars.bboxAbsolute);
+
 }
 
 const glm::vec3 SceneEntity::GetPosition() const

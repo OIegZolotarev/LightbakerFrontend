@@ -409,6 +409,11 @@ void Scene::OnEntityRegistered(SceneEntityPtr &it)
     m_pBVHTree->InsertEntity(it);
 }
 
+void Scene::UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute)
+{    
+     m_pBVHTree->UpdateEntity(serialNumber, bboxAbsolute);
+}
+
 // void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)
 // {
 //     BT_PROFILE("Scene::RenderEntities()");
