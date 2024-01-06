@@ -611,20 +611,19 @@ SceneRenderer *MainWindow::GetSceneRenderer()
 
 void MainWindow::InitCommands()
 {
-    auto callbackLoadModel = [](std::string &fileName) {
-        Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
-    };
+    Application::CommandsRegistry()->InitializeAllCommands();
 
-    Application::CommandsRegistry()->RegisterCommand(new CCommand(
-        GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR, [&]() {
-            auto lfd = LoadFileDialog::Instance();
-
-            lfd->SetTitle("Load map\\scene");
-            lfd->SetFilters(".obj,.bsp");
-            lfd->SetOnSelectCallback(callbackLoadModel);
-
-            PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
-        }));
+    //     Application::CommandsRegistry()->RegisterCommand(new CCommand(
+    //         GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR,
+    //         [&]() {
+    //             auto lfd = LoadFileDialog::Instance();
+    //
+    //             lfd->SetTitle("Load map\\scene");
+    //             lfd->SetFilters(".obj,.bsp");
+    //             lfd->SetOnSelectCallback(callbackLoadModel);
+    //
+    //             PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+    //         }));
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonTextures::DirectLight),
@@ -843,59 +842,176 @@ float MainWindow::RenderMainMenu()
     return size;
 }
 
-float MainWindow::RenderMainToolbar(float menuHeight)
+// Base on https://github.com/ocornut/imgui/issues/264
+// Toolbar test [Experimental]
+// Usage:
+// {
+//   static ImGuiAxis toolbar1_axis = ImGuiAxis_X; // Your storage for the current direction.
+//   DockingToolbar("Toolbar1", &toolbar1_axis);
+// }
+void DockingToolbar(const char *name, ImGuiAxis *p_toolbar_axis)
 {
-    // Looks good enough
-    static int size = 21;
+    // [Option] Automatically update axis based on parent split (inside of doing it via right-click on the toolbar)
+    // Pros:
+    // - Less user intervention.
+    // - Avoid for need for saving the toolbar direction, since it's automatic.
+    // Cons:
+    // - This is currently leading to some glitches.
+    // - Some docking setup won't return the axis the user would expect.
+    const bool TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED = true;
 
-    ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
-    ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));
+    // ImGuiAxis_X = horizontal toolbar
+    // ImGuiAxis_Y = vertical toolbar
+    ImGuiAxis toolbar_axis = *p_toolbar_axis;
 
-    ImGui::Begin("##MainÅoolbar", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+    // 1. We request auto-sizing on one axis
+    // Note however this will only affect the toolbar when NOT docked.
+    ImVec2 requested_size = (toolbar_axis == ImGuiAxis_X) ? ImVec2(-1.0f, 0.0f) : ImVec2(0.0f, -1.0f);
+    ImGui::SetNextWindowSize(requested_size);
 
-    //     auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
-    //
-    //     for (auto &it : toolbarCommands)
-    //     {
-    //         auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
-    //         cmd->RenderImGUI(23);
-    //     }
+    // 2. Specific docking options for toolbars.
+    // Currently they add some constraint we ideally wouldn't want, but this is simplifying our first implementation
+    ImGuiWindowClass window_class;
+    window_class.DockingAllowUnclassed = true;
+    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoCloseButton;
+    window_class.DockNodeFlagsOverrideSet |=
+        ImGuiDockNodeFlags_HiddenTabBar; // ImGuiDockNodeFlags_NoTabBar // FIXME: Will need a working Undock widget for
+                                         // _NoTabBar to work
+    // window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingSplitOther;
+    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverMe;
+    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverOther;
+    if (toolbar_axis == ImGuiAxis_X)
+        window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeY;
+    else
+        window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeX;
+    ImGui::SetNextWindowClass(&window_class);
 
-    float r = ImGui::GetWindowHeight();
+    // 3. Begin into the window
+    const float  font_size = ImGui::GetFontSize();
+    const ImVec2 icon_size(ImFloor(font_size * 1.7f), ImFloor(font_size * 1.7f));
+    ImGui::Begin(name, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
-    for (int i = (int)CommonIcons::Add; i <= (int)CommonIcons::Undo; i++)
+    // 4. Overwrite node size
+    ImGuiDockNode *node = ImGui::GetWindowDockNode();
+    if (node != NULL)
     {
-        if (ImGuiHelpers::ButtonWithCommonIcon((CommonIcons)i, "###Hello there!", size))
+        // Overwrite size of the node
+        ImGuiStyle &    style             = ImGui::GetStyle();
+        const ImGuiAxis toolbar_axis_perp = (ImGuiAxis)(toolbar_axis ^ 1);
+        const float     TOOLBAR_SIZE_WHEN_DOCKED = style.WindowPadding[toolbar_axis_perp] * 2.0f + icon_size[toolbar_axis_perp];
+        node->WantLockSizeOnce        = true;
+        node->Size[toolbar_axis_perp] = node->SizeRef[toolbar_axis_perp] = TOOLBAR_SIZE_WHEN_DOCKED;
+
+        if (TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
+            if (node->ParentNode && node->ParentNode->SplitAxis != ImGuiAxis_None)
+                toolbar_axis = (ImGuiAxis)(node->ParentNode->SplitAxis ^ 1);
+    }
+
+    // 5. Dummy populate tab bar
+    //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5.0f, 5.0f));
+    // UndockWidget(icon_size, toolbar_axis);
+    for (int icon_n = 0; icon_n < 10; icon_n++)
+    {
+        char label[32];
+        ImFormatString(label, IM_ARRAYSIZE(label), "%02d", icon_n);
+        if (icon_n > 0 && toolbar_axis == ImGuiAxis_X)
+            ImGui::SameLine();
+        ImGui::Button(label, icon_size);
+    }
+   // ImGui::PopStyleVar(2);
+
+    // 6. Context-menu to change axis
+    if (node == NULL || !TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
+    {
+        if (ImGui::BeginPopupContextWindow())
         {
-            PopupMessageBox *pMessageBox = new PopupMessageBox;
-
-            pMessageBox->SetTitle("Hello there!");
-            pMessageBox->SetMessage("Message");
-            pMessageBox->SetIcon(MessageBoxIcons::Question);
-            pMessageBox->SetButtons(MSG_BOX_YES | MSG_BOX_NO);
-
-            pMessageBox->SetCallback([&](MessageBoxButtons button) {
-                pMessageBox = new PopupMessageBox;
-                pMessageBox->SetTitle("Callback!");
-                pMessageBox->SetIcon(MessageBoxIcons::Error);
-                pMessageBox->SetMessage("You can't escape!!! ^) ");
-                pMessageBox->SetButtons(MSG_BOX_YES | MSG_BOX_NO);
-                pMessageBox->Show();
-            });
-
-            pMessageBox->Show();
+            ImGui::TextUnformatted(name);
+            ImGui::Separator();
+            if (ImGui::MenuItem("Horizontal", "", (toolbar_axis == ImGuiAxis_X)))
+                toolbar_axis = ImGuiAxis_X;
+            if (ImGui::MenuItem("Vertical", "", (toolbar_axis == ImGuiAxis_Y)))
+                toolbar_axis = ImGuiAxis_Y;
+            ImGui::EndPopup();
         }
-        ImGui::SameLine();
-
-        ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
-        ImGui::SameLine();
     }
 
     ImGui::End();
 
-    //     ImGui::Begin("Tweak size");
-    //         ImGui::InputInt("Icons size", &size);
-    //     ImGui::End();
+    // Output user stored data
+    *p_toolbar_axis = toolbar_axis;
+}
+
+float MainWindow::RenderMainToolbar(float menuHeight)
+{
+    static ImGuiAxis toolbar1_axis = ImGuiAxis_X; // Your storage for the current direction.
+    
+
+    DockingToolbar("Main toolbar", &toolbar1_axis);
+    return 0;
+
+    // Looks good enough
+    static int  size      = 21;
+    static bool m_bDocked = false;
+
+    /*ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
+    ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));*/
+
+    if (m_bDocked)
+    {
+        ImGuiWindowClass window_class;
+        window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+
+        ImGui::SetNextWindowClass(&window_class);
+    }
+
+    int flags_docked = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+    int flags        = m_bDocked ? flags_docked : 0;
+
+    //     if (m_bForceUndock)
+    //     {
+    //         flags |= ImGuiWindowFlags_NoDocking;
+    //         m_bForceUndock = false;
+    //     }
+
+       //ImGui::Docking
+
+    if (ImGui::Begin("Main toolbar", 0, flags))
+    {
+        if (ImGui::IsWindowDocked())
+            m_bDocked = true;
+
+        int toolbarStructure[] = {
+            (int)GlobalCommands::NewFile, (int)GlobalCommands::LoadFile, (int)GlobalCommands::SaveFile, -1,
+            (int)GlobalCommands::Cut,     (int)GlobalCommands::Copy,     (int)GlobalCommands::Paste};
+
+        for (auto &it : toolbarStructure)
+        {
+            if (it == -1)
+            {
+                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                ImGui::SameLine();
+            }
+            else
+            {
+                auto cmd = Application::CommandsRegistry()->FindCommandByGlobalId((GlobalCommands)it);
+
+                if (!cmd)
+                    continue;
+
+                if (ImGuiHelpers::ButtonWithCommonIcon(cmd->GetCommonIcon(), cmd->GetDescription(), size))
+                {
+                    cmd->Execute();
+                }
+
+                ImGui::SameLine();
+            }
+        }
+
+        ImGui::End();
+    }
+
+    float r = 0;
 
     return r;
 }
@@ -936,10 +1052,12 @@ void MainWindow::RenderGUI()
         }
     }
 
-    float menuHeight    = RenderMainMenu();
-    float toolbarHeight = RenderMainToolbar(menuHeight);
+    float menuHeight = RenderMainMenu();
 
+    float toolbarHeight = 0;
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
+
+    RenderMainToolbar(menuHeight);
 
     for (auto &it : m_vPanels)
         it->InvokeRender();

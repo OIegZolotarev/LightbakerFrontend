@@ -13,7 +13,8 @@
 #include "ui_common.h"
 #include "viewports_orchestrator.h"
 
-ObjectPropertiesEditor::ObjectPropertiesEditor() : IGUIPanel(PanelsId::ObjectProperties, (char *)"Object properties")
+ObjectPropertiesEditor::ObjectPropertiesEditor()
+    : ToolUIPanel(ToolUIPanelID::ObjectProperties, (char *)"Object properties")
 {
     // LightPropertiesBinding b;
     // b.FillProperties(m_vPropsData);

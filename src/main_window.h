@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include "console.h"
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "object_props.h"
 #include "platform_window.h"
 #include "scene_renderer.h"
@@ -128,7 +128,7 @@ private:
 
     // Docking
     defaultDockSides_s       m_defaultDockSides;
-    std::vector<IGUIPanel *> m_vPanels;
+    std::vector<ToolUIPanel *> m_vPanels;
 
     void    InitDocks();
     ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,

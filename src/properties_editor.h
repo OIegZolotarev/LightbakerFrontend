@@ -5,14 +5,14 @@
 
 #pragma once
 #include "bsp_entities_properties_binding.h"
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "object_props.h"
 
 class Viewport;
 
 
 
-class ObjectPropertiesEditor : public IGUIPanel
+class ObjectPropertiesEditor : public ToolUIPanel
 {
     ImGuiID m_FlagsEditorID = 0;
 

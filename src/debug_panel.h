@@ -4,9 +4,9 @@
 */
 
 #pragma once
-#include "igui_panel.h"
+#include "toolui_panel.h"
 
-class DebugPanel: public IGUIPanel
+class DebugPanel: public ToolUIPanel
 {
 public:
 	DebugPanel();

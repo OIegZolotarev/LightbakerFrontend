@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "object_props.h"
 #include <list>
 #include <nlohmann/json.hpp>
@@ -53,7 +53,7 @@ class PersistentStorage
 
     std::vector<VariantValue *> m_ApplicationProps;
 
-    bool m_bPanelsValid[PanelsId::MaxPanels] = {false};
+    bool m_bPanelsValid[ToolUIPanelID::MaxPanels] = {false};
 
     bool m_bFreshFile;
 
@@ -72,8 +72,8 @@ class PersistentStorage
 
     bool GetSettingBool(ApplicationSettings id);
 
-    bool IsPanelAtValidPosition(PanelsId id);
-    void FlagPanelIsAtValidPosition(PanelsId id);
+    bool IsPanelAtValidPosition(ToolUIPanelID id);
+    void FlagPanelIsAtValidPosition(ToolUIPanelID id);
     bool IsFreshFile();
 
     static PersistentStorage *Instance();

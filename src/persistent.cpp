@@ -6,7 +6,7 @@
 #include "persistent.h"
 #include "application.h"
 #include "common.h"
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "ui_options_pages.h"
 #include <nlohmann/json.hpp>
 #include <string>
@@ -146,7 +146,7 @@ void PersistentStorage::LoadFromFile(Application *appInstance)
 
             for (auto &it : items)
             {
-                PanelsId id  = PanelsId::_from_string(it["Id"].get<std::string>().c_str());
+                ToolUIPanelID id      = ToolUIPanelID::_from_string(it["Id"].get<std::string>().c_str());
                 bool isValid = it["Valid"];
 
                 m_bPanelsValid[id._value] = isValid;
@@ -416,12 +416,12 @@ void PersistentStorage::ParseApplicationSettings(nlohmann::json j)
     }
 }
 
-bool PersistentStorage::IsPanelAtValidPosition(PanelsId id)
+bool PersistentStorage::IsPanelAtValidPosition(ToolUIPanelID id)
 {
     return m_bPanelsValid[id._value];
 }
 
-void PersistentStorage::FlagPanelIsAtValidPosition(PanelsId id)
+void PersistentStorage::FlagPanelIsAtValidPosition(ToolUIPanelID id)
 {
     m_bPanelsValid[id._value] = true;
 }
@@ -467,12 +467,12 @@ void PersistentStorage::SaveToFile()
 
         std::list<nlohmann::json> panels_state;
 
-        for (auto &it : PanelsId::_values())
+        for (auto &it : ToolUIPanelID::_values())
         {
-            if (it._value == PanelsId::None)
+            if (it._value == ToolUIPanelID::None)
                 continue;
 
-            if (it._value == PanelsId::MaxPanels)
+            if (it._value == ToolUIPanelID::MaxPanels)
                 continue;
 
             nlohmann::json panel_desc;

@@ -10,7 +10,7 @@
 
 extern bool g_useBVH;
 
-DebugPanel::DebugPanel() : IGUIPanel(PanelsId::Debug, (char *)"Debug")
+DebugPanel::DebugPanel() : ToolUIPanel(ToolUIPanelID::Debug, (char *)"Debug")
 {
 }
 

@@ -10,6 +10,8 @@
 #include "application.h"
 #include "imgui_helpers.h"
 #include "imgui_internal.h"
+#include "imgui_popups.h"
+#include "popup_loadfile_dialog.h"
 #include "text_utils.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
@@ -82,11 +84,85 @@ bool CCommandsRegistry::OnKeyDown()
     return false;
 }
 
+void CCommandsRegistry::InitializeAllCommands()
+{
+    auto callbackLoadModel = [](std::string &fileName) {
+        Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
+    };
+
+    CCommand *newCommand;
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::NewFile);
+    newCommand->SetDescription("New file...");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::NewFile);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::LoadFile);
+    newCommand->SetDescription("Load...");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Open);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {
+        auto lfd = LoadFileDialog::Instance();
+
+        lfd->SetTitle("Load map\\scene");
+        lfd->SetFilters(".obj,.bsp");
+        lfd->SetOnSelectCallback(callbackLoadModel);
+
+        PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+    });
+
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::SaveFile);
+    newCommand->SetDescription("Save file");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Save);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Cut);
+    newCommand->SetDescription("Cut selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Cut);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Copy);
+    newCommand->SetDescription("Copy selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Copy);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Paste);
+    newCommand->SetDescription("Paste selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Paste);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+}
+
 CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
                    pfnCommandCallback callback)
     : m_eCommandId(id), m_pIcon(icon), m_iFlags(flags), m_pfnCallback(callback)
 {
     strcpy_s(m_szDescription, description);
+
     if (keyStroke)
         strcpy_s(m_szKeyStroke, keyStroke);
     else
@@ -138,9 +214,52 @@ CCommand::CCommand(GlobalCommands id, const char *description, const char *keySt
     }
 }
 
+void CCommand::SetId(GlobalCommands id)
+{
+    m_eCommandId = id;
+}
+
+void CCommand::SetDescription(const char *descr)
+{
+    strlcpy(m_szDescription, descr, sizeof(m_szDescription));
+}
+
+void CCommand::SetKeyStroke(const char *keyStroke)
+{
+    if (!keyStroke)
+        *m_szKeyStroke = 0;
+    else
+        strlcpy(m_szKeyStroke, keyStroke, sizeof(m_szKeyStroke));
+}
+
+void CCommand::SetCustomIcon(GLTexture *pIcon)
+{
+    m_pIcon = pIcon;
+}
+
+void CCommand::SetCommonIcon(CommonIcons icon)
+{
+    m_CommonIcon = icon;
+}
+
+void CCommand::SetFlags(int flags)
+{
+    m_iFlags = flags;
+}
+
+void CCommand::SetCallback(pfnCommandCallback callback)
+{
+    m_pfnCallback = callback;
+}
+
 void CCommand::Execute()
 {
     m_pfnCallback();
+}
+
+int CCommand::Flags()
+{
+    return m_iFlags;
 }
 
 void CCommand::RenderImGUI(int size)
@@ -205,4 +324,9 @@ bool CCommand::IsKeystrokeActive(const uint8_t *kbState)
 const char *CCommand::GetShortcutDescription()
 {
     return m_szKeyStroke;
+}
+
+CommonIcons CCommand::GetCommonIcon()
+{
+    return m_CommonIcon;
 }

@@ -80,7 +80,7 @@ void SceneObjectPanel::RenderSceneObjectsPanel()
 	ImGui::End();
 }
 
-SceneObjectPanel::SceneObjectPanel() : IGUIPanel(PanelsId::SceneObjects,(char*)"Scene objects")
+SceneObjectPanel::SceneObjectPanel() : ToolUIPanel(ToolUIPanelID::SceneObjects, (char *)"Scene objects")
 {
 
 }

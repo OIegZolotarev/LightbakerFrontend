@@ -4,10 +4,11 @@
 */
 
 #include "ui_common.h"
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "console_output_panel.h"
 
-ConsoleOutputPanel::ConsoleOutputPanel(DebugConsole* pConsole): IGUIPanel(PanelsId::ConsoleOutput,(char*)"Console")
+ConsoleOutputPanel::ConsoleOutputPanel(DebugConsole *pConsole)
+    : ToolUIPanel(ToolUIPanelID::ConsoleOutput, (char *)"Console")
 {
 	m_pConsole = pConsole;
 }

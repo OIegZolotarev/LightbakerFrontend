@@ -4,9 +4,9 @@
 */
 
 #pragma once
-#include "igui_panel.h"
+#include "toolui_panel.h"
 
-class SceneObjectPanel : public IGUIPanel
+class SceneObjectPanel : public ToolUIPanel
 {
 	void RenderSceneObjectsPanel();
 public:

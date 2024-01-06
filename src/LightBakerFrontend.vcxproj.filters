@@ -108,6 +108,9 @@
     <Filter Include="Исходные файлы\Bullet Profiler">
       <UniqueIdentifier>{e7d48034-89f9-492f-bc55-ce6ac9a1982f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Panels">
+      <UniqueIdentifier>{28d57d6c-c6b7-4e58-81dd-2f8d205a4a84}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -143,12 +146,6 @@
     <ClCompile Include="draw_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="console_output_panel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="debug_panel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="text_utils.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -177,9 +174,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="scene_renderer.cpp">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="scene_objects_panel.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="scene.cpp">
@@ -242,9 +236,6 @@
     <ClCompile Include="edit_history.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="properties_editor.cpp">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="persistent.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
@@ -269,7 +260,7 @@
     <ClCompile Include="goldsource_bsp_world.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
-    <ClCompile Include="igui_panel.cpp">
+    <ClCompile Include="toolui_panel.cpp">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClCompile>
     <ClCompile Include="imgui_helpers.cpp">
@@ -449,6 +440,21 @@
     <ClCompile Include="r_bvh.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="properties_editor.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="console_output_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_objects_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="toolbar_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -505,12 +511,6 @@
     <ClInclude Include="..\include\better-enums\enum.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="console_output_panel.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="debug_panel.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="text_utils.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
@@ -536,9 +536,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="scene_renderer.h">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="scene_objects_panel.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="scene.h">
@@ -607,9 +604,6 @@
     <ClInclude Include="edit_history.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="properties_editor.h">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="persistent.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClInclude>
@@ -637,7 +631,7 @@
     <ClInclude Include="goldsource_bsp_world.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClInclude>
-    <ClInclude Include="igui_panel.h">
+    <ClInclude Include="toolui_panel.h">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClInclude>
     <ClInclude Include="imgui_helpers.h">
@@ -819,6 +813,21 @@
     </ClInclude>
     <ClInclude Include="r_bvh_boundingbox.h">
       <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="properties_editor.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="console_output_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_objects_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="toolbar_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
