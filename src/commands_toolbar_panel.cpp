@@ -54,12 +54,16 @@ void CommandsToolbar::DockingToolbar(const char *name, int *axis)
         window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeY;
     else
         window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeX;
+    
     ImGui::SetNextWindowClass(&window_class);
 
     // 3. Begin into the window
+
+    int flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar;
+    
     const float  font_size = ImGui::GetFontSize();
     const ImVec2 icon_size(ImFloor(font_size * g_Adj.x), ImFloor(font_size * g_Adj.y));
-    ImGui::Begin(name, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+    ImGui::Begin(name, NULL, flags);
 
     // 4. Overwrite node size
     ImGuiDockNode *node = ImGui::GetWindowDockNode();
@@ -74,21 +78,25 @@ void CommandsToolbar::DockingToolbar(const char *name, int *axis)
         
         node->Size[toolbar_axis_perp] = node->SizeRef[toolbar_axis_perp] = TOOLBAR_SIZE_WHEN_DOCKED;
         
-        
+        // FIXME: for now code assumes that there is no windows in upper heirarchy         
+        // BUT, in configurations like those will fail
+        // 
+        // 
 //         node->ParentNode->WantLockSizeOnce        = true;
 //         node->ParentNode->Size[toolbar_axis_perp] = node->SizeRef[toolbar_axis_perp] = TOOLBAR_SIZE_WHEN_DOCKED;
 
         if (TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
         {
-            // if (node->ParentNode && node->ParentNode->SplitAxis != ImGuiAxis_None)
+            if (node->ParentNode && node->ParentNode->SplitAxis != ImGuiAxis_None)
+                toolbar_axis = (ImGuiAxis)(node->ParentNode->SplitAxis ^ 1);
 
-            if (node->ParentNode)
-            {
-                if (node->ParentNode->Size.x > node->ParentNode->Size.y)
-                    toolbar_axis = ImGuiAxis::ImGuiAxis_X;
-                else
-                    toolbar_axis = ImGuiAxis::ImGuiAxis_Y;
-            }
+//             if (node->ParentNode)
+//             {
+//                 if (node->ParentNode->Size.x > node->ParentNode->Size.y)
+//                     toolbar_axis = ImGuiAxis::ImGuiAxis_X;
+//                 else
+//                     toolbar_axis = ImGuiAxis::ImGuiAxis_Y;
+//             }
         }
     }
 
@@ -174,9 +182,14 @@ void CommandsToolbar::AddSeparator()
     m_lstItems.push_back(nullptr);
 }
 
+void CommandsToolbar::SetDefaultDockSide(DockPanels id)
+{
+    m_DefaultDockSide = id;
+}
+
 DockPanels CommandsToolbar::GetDockSide()
 {
-    return DockPanels::Top;
+    return m_DefaultDockSide;
 }
 
 void CommandsToolbar::Render()

@@ -13,6 +13,7 @@ class CommandsToolbar : public ToolUIPanel
 {
     // nulls treated as separators
     std::list<CCommand *> m_lstItems;
+    DockPanels            m_DefaultDockSide;
 
     int  m_ToolbarAxis;
     void DockingToolbar(const char *name, int * axis);
@@ -26,6 +27,7 @@ public:
     void AddCommand(GlobalCommands id);
     void AddSeparator();
 
+    void       SetDefaultDockSide(DockPanels id);
     DockPanels GetDockSide() override;
 
     void Render() override;

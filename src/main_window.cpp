@@ -80,7 +80,20 @@ void MainWindow::InitStuff()
     mainToolbar->AddCommand(GlobalCommands::Copy);
     mainToolbar->AddCommand(GlobalCommands::Paste);
 
+    mainToolbar->SetDefaultDockSide(DockPanels::Top);
+
     m_vPanels.push_back(mainToolbar);
+// 
+//      auto tb2 = new CommandsToolbar(ToolUIPanelID::Toolbar2, "Toolbar 2");
+//          
+//      tb2->AddCommand(GlobalCommands::NewFile);
+//      tb2->AddCommand(GlobalCommands::LoadFile);
+//      tb2->AddCommand(GlobalCommands::SaveFile);
+//      tb2->AddSeparator();
+//      
+//      mainToolbar->SetDefaultDockSide(DockPanels::TopRight);
+// 
+//     m_vPanels.push_back(tb2);
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
@@ -366,13 +379,13 @@ void MainWindow::InitDocks()
     ImGui::DockBuilderSetNodeSize(gIDMainDockspace, viewport->Size);
 
     auto idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
-    // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f, &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
+     // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f, &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
 
     auto idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
     ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockBottomLeft, &m_defaultDockSides.idDockBottomRight);
 
     auto idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
+    //ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
 
     auto idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
     ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockRightTop,
