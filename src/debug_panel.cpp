@@ -99,7 +99,7 @@ void DebugPanel::Render()
 
         float accumulated_time = 0, parent_time = iterator->Is_Root() ? CProfileManager::Get_Time_Since_Reset()
                                                                       : iterator->Get_Current_Parent_Total_Time();
-        int   i;
+      
         int   frames_since_reset = CProfileManager::Get_Frame_Count_Since_Reset();
 
         if (ImGui::TreeNode(iterator->Get_Current_Parent_Name(), "Profiling: %s (total running time: %.3f ms) ---",

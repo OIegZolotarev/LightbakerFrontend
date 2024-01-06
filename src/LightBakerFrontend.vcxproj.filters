@@ -260,9 +260,6 @@
     <ClCompile Include="goldsource_bsp_world.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
-    <ClCompile Include="toolui_panel.cpp">
-      <Filter>Исходные файлы\ImGUI\helpers</Filter>
-    </ClCompile>
     <ClCompile Include="imgui_helpers.cpp">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClCompile>
@@ -401,9 +398,6 @@
     <ClCompile Include="fs_folder_mount.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="btQuickProf.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="r_chain.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
@@ -418,9 +412,6 @@
     </ClCompile>
     <ClCompile Include="gl_backend.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
-    </ClCompile>
-    <ClCompile Include="application.cpp">
-      <Filter>Исходные файлы\WavefrontObj</Filter>
     </ClCompile>
     <ClCompile Include="popup_messagebox.cpp">
       <Filter>Исходные файлы\Popups</Filter>
@@ -452,7 +443,16 @@
     <ClCompile Include="scene_objects_panel.cpp">
       <Filter>Исходные файлы\Panels</Filter>
     </ClCompile>
-    <ClCompile Include="toolbar_panel.cpp">
+    <ClCompile Include="commands_toolbar_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="btQuickProf.cpp">
+      <Filter>Исходные файлы\Bullet Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="toolui_panel.cpp">
       <Filter>Исходные файлы\Panels</Filter>
     </ClCompile>
   </ItemGroup>
@@ -630,9 +630,6 @@
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClInclude>
-    <ClInclude Include="toolui_panel.h">
-      <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClInclude>
     <ClInclude Include="imgui_helpers.h">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
@@ -826,7 +823,10 @@
     <ClInclude Include="scene_objects_panel.h">
       <Filter>Исходные файлы\Panels</Filter>
     </ClInclude>
-    <ClInclude Include="toolbar_panel.h">
+    <ClInclude Include="commands_toolbar_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="toolui_panel.h">
       <Filter>Исходные файлы\Panels</Filter>
     </ClInclude>
   </ItemGroup>

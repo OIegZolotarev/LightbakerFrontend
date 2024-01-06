@@ -29,7 +29,9 @@
 #include "viewports_orchestrator.h"
 #include "wad_textures.h"
 #include <list>
+#include "commands_toolbar_panel.h"
 
+bool g_bShowDemo          = false;
 bool DEBUG_3D_SELECTION = false;
 
 const char *strDockspace     = "DockSpace";
@@ -67,6 +69,18 @@ void MainWindow::InitStuff()
     m_vPanels.push_back(new SceneObjectPanel);
     m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
     m_vPanels.push_back(new DebugPanel);
+
+    CommandsToolbar *mainToolbar = new CommandsToolbar(ToolUIPanelID::MainToolbar, "Main toolbar");
+
+    mainToolbar->AddCommand(GlobalCommands::NewFile);
+    mainToolbar->AddCommand(GlobalCommands::LoadFile);
+    mainToolbar->AddCommand(GlobalCommands::SaveFile);
+    mainToolbar->AddSeparator();
+    mainToolbar->AddCommand(GlobalCommands::Cut);
+    mainToolbar->AddCommand(GlobalCommands::Copy);
+    mainToolbar->AddCommand(GlobalCommands::Paste);
+
+    m_vPanels.push_back(mainToolbar);
 
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
@@ -352,20 +366,22 @@ void MainWindow::InitDocks()
     ImGui::DockBuilderSetNodeSize(gIDMainDockspace, viewport->Size);
 
     auto idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockUpLeft,
-                                &m_defaultDockSides.idDockUpRight);
+    // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f, &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
 
     auto idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockBottomLeft,
-                                &m_defaultDockSides.idDockBottomRight);
+    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockBottomLeft, &m_defaultDockSides.idDockBottomRight);
 
     auto idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockLeftTop,
-                                &m_defaultDockSides.idDockLeftBottom);
+    ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
 
     auto idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockRightTop,
+    ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockRightTop,
                                 &m_defaultDockSides.idDockRightBottom);
+
+    m_defaultDockSides.idDockTop = idDockUp;
+    m_defaultDockSides.idDockBottom = idDockDown;
+    m_defaultDockSides.idDockLeft = idDockLeft;
+    m_defaultDockSides.idDockRight = idDockRight;
 
     // m_idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
     // m_idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
@@ -831,6 +847,11 @@ float MainWindow::RenderMainMenu()
             // 				//m_pPopupsManager->ShowPopup(PopupWindows::StyleChooser);
             // 			}
 
+            if (ImGui::MenuItem("Show ImGUI demo"))
+            {
+                g_bShowDemo = true;
+            }
+
             ImGui::EndMenu();
         }
 
@@ -842,114 +863,9 @@ float MainWindow::RenderMainMenu()
     return size;
 }
 
-// Base on https://github.com/ocornut/imgui/issues/264
-// Toolbar test [Experimental]
-// Usage:
-// {
-//   static ImGuiAxis toolbar1_axis = ImGuiAxis_X; // Your storage for the current direction.
-//   DockingToolbar("Toolbar1", &toolbar1_axis);
-// }
-void DockingToolbar(const char *name, ImGuiAxis *p_toolbar_axis)
-{
-    // [Option] Automatically update axis based on parent split (inside of doing it via right-click on the toolbar)
-    // Pros:
-    // - Less user intervention.
-    // - Avoid for need for saving the toolbar direction, since it's automatic.
-    // Cons:
-    // - This is currently leading to some glitches.
-    // - Some docking setup won't return the axis the user would expect.
-    const bool TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED = true;
-
-    // ImGuiAxis_X = horizontal toolbar
-    // ImGuiAxis_Y = vertical toolbar
-    ImGuiAxis toolbar_axis = *p_toolbar_axis;
-
-    // 1. We request auto-sizing on one axis
-    // Note however this will only affect the toolbar when NOT docked.
-    ImVec2 requested_size = (toolbar_axis == ImGuiAxis_X) ? ImVec2(-1.0f, 0.0f) : ImVec2(0.0f, -1.0f);
-    ImGui::SetNextWindowSize(requested_size);
-
-    // 2. Specific docking options for toolbars.
-    // Currently they add some constraint we ideally wouldn't want, but this is simplifying our first implementation
-    ImGuiWindowClass window_class;
-    window_class.DockingAllowUnclassed = true;
-    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoCloseButton;
-    window_class.DockNodeFlagsOverrideSet |=
-        ImGuiDockNodeFlags_HiddenTabBar; // ImGuiDockNodeFlags_NoTabBar // FIXME: Will need a working Undock widget for
-                                         // _NoTabBar to work
-    // window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingSplitOther;
-    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverMe;
-    window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoDockingOverOther;
-    if (toolbar_axis == ImGuiAxis_X)
-        window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeY;
-    else
-        window_class.DockNodeFlagsOverrideSet |= ImGuiDockNodeFlags_NoResizeX;
-    ImGui::SetNextWindowClass(&window_class);
-
-    // 3. Begin into the window
-    const float  font_size = ImGui::GetFontSize();
-    const ImVec2 icon_size(ImFloor(font_size * 1.7f), ImFloor(font_size * 1.7f));
-    ImGui::Begin(name, NULL, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
-
-    // 4. Overwrite node size
-    ImGuiDockNode *node = ImGui::GetWindowDockNode();
-    if (node != NULL)
-    {
-        // Overwrite size of the node
-        ImGuiStyle &    style             = ImGui::GetStyle();
-        const ImGuiAxis toolbar_axis_perp = (ImGuiAxis)(toolbar_axis ^ 1);
-        const float     TOOLBAR_SIZE_WHEN_DOCKED = style.WindowPadding[toolbar_axis_perp] * 2.0f + icon_size[toolbar_axis_perp];
-        node->WantLockSizeOnce        = true;
-        node->Size[toolbar_axis_perp] = node->SizeRef[toolbar_axis_perp] = TOOLBAR_SIZE_WHEN_DOCKED;
-
-        if (TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
-            if (node->ParentNode && node->ParentNode->SplitAxis != ImGuiAxis_None)
-                toolbar_axis = (ImGuiAxis)(node->ParentNode->SplitAxis ^ 1);
-    }
-
-    // 5. Dummy populate tab bar
-    //ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
-    //ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5.0f, 5.0f));
-    // UndockWidget(icon_size, toolbar_axis);
-    for (int icon_n = 0; icon_n < 10; icon_n++)
-    {
-        char label[32];
-        ImFormatString(label, IM_ARRAYSIZE(label), "%02d", icon_n);
-        if (icon_n > 0 && toolbar_axis == ImGuiAxis_X)
-            ImGui::SameLine();
-        ImGui::Button(label, icon_size);
-    }
-   // ImGui::PopStyleVar(2);
-
-    // 6. Context-menu to change axis
-    if (node == NULL || !TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
-    {
-        if (ImGui::BeginPopupContextWindow())
-        {
-            ImGui::TextUnformatted(name);
-            ImGui::Separator();
-            if (ImGui::MenuItem("Horizontal", "", (toolbar_axis == ImGuiAxis_X)))
-                toolbar_axis = ImGuiAxis_X;
-            if (ImGui::MenuItem("Vertical", "", (toolbar_axis == ImGuiAxis_Y)))
-                toolbar_axis = ImGuiAxis_Y;
-            ImGui::EndPopup();
-        }
-    }
-
-    ImGui::End();
-
-    // Output user stored data
-    *p_toolbar_axis = toolbar_axis;
-}
 
 float MainWindow::RenderMainToolbar(float menuHeight)
 {
-    static ImGuiAxis toolbar1_axis = ImGuiAxis_X; // Your storage for the current direction.
-    
-
-    DockingToolbar("Main toolbar", &toolbar1_axis);
-    return 0;
-
     // Looks good enough
     static int  size      = 21;
     static bool m_bDocked = false;
@@ -1044,7 +960,15 @@ void MainWindow::RenderGUI()
         if (delayInit == 0)
         {
             if (pers->IsFreshFile())
+            {
                 InitDocks();
+                
+
+                for (auto &it : m_vPanels)
+                {
+                    it->InvalidatePosition();
+                }
+            }
 
             ViewportsOrchestrator::Instance()->FlagRepaintAll();
 
@@ -1057,7 +981,7 @@ void MainWindow::RenderGUI()
     float toolbarHeight = 0;
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
 
-    RenderMainToolbar(menuHeight);
+    // RenderMainToolbar(menuHeight);
 
     for (auto &it : m_vPanels)
         it->InvokeRender();
@@ -1073,8 +997,9 @@ void MainWindow::RenderGUI()
     DrawLoadingBanner();
     DrawStatusBar();
 
-#ifdef _DEBUG
-    ImGui::ShowDemoWindow();
+#ifdef _DEBUG    
+    if (g_bShowDemo)
+        ImGui::ShowDemoWindow(&g_bShowDemo);
 #endif
 
     ViewportsOrchestrator::Instance()->DisplayViewports(this);

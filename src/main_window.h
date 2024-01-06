@@ -44,6 +44,12 @@ typedef struct defaultDockSides_s
     ImGuiID idDockUpRight;
     ImGuiID idDockBottomLeft;
     ImGuiID idDockBottomRight;
+    
+    ImGuiID idDockTop;
+    ImGuiID idDockBottom;
+    ImGuiID idDockLeft;
+    ImGuiID idDockRight;
+
 } defaultDockSides_t;
 
 #define NUM_VIEWPORTS 4
@@ -110,9 +116,7 @@ private:
 
     void LimitToTargetFPS();
 
-    class SceneRenderer *m_pSceneRenderer;
-
-    bool PropagateControlsEvent(SDL_Event &e);
+    SceneRenderer *m_pSceneRenderer;
 
     bool         m_bShowConsole = true;
     DebugConsole m_Console;

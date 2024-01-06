@@ -9,7 +9,7 @@
 #include <better-enums/enum.h>
 
 // Serializable panel ID, used to restore position when application is loaded
-BETTER_ENUM(ToolUIPanelID,int, None,ObjectProperties, ConsoleOutput, SceneObjects, Debug, MaxPanels)
+BETTER_ENUM(ToolUIPanelID,int, None,ObjectProperties, ConsoleOutput, SceneObjects, Debug, MainToolbar, MaxPanels)
 
 enum class DockPanels
 {
@@ -21,6 +21,11 @@ enum class DockPanels
 	BottomRight,
 	TopLeft,
 	TopRight,
+	
+	Top,
+	Bottom,
+	Left,
+	Right,
 };
 
 class IPlatformWindow;
@@ -28,7 +33,7 @@ class IPlatformWindow;
 class ToolUIPanel
 {
 protected:
-	char* m_strPanelTitle = nullptr;
+	const char* m_strPanelTitle;
     ToolUIPanelID m_id            = ToolUIPanelID::None;
 
 	IPlatformWindow *m_pOwningWindow;
@@ -40,7 +45,7 @@ private:
 public:
 	//	ImGui::DockBuilderDockWindow(strTabModelDisplay, Application::GetDockId(ImGuiDir_Down));
 
-	ToolUIPanel(ToolUIPanelID id, char *title);
+	ToolUIPanel(ToolUIPanelID id, const char *title);
 
 	void InvokeRender();
 	virtual void Render();
