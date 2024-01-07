@@ -83,7 +83,6 @@ void MainWindow::InitStuff()
     mainToolbar->AddCommand(GlobalCommands::Paste);
 
     mainToolbar->SetDefaultDockSide(DockPanels::Top);
-
     m_vPanels.push_back(mainToolbar);
 
 
@@ -92,24 +91,7 @@ void MainWindow::InitStuff()
     m_vPanels.push_back(editingtoolsBar);
 
     EditingToolbox::Instance()->Initialize();
-
-
-    // 
-//      auto tb2 = new CommandsToolbar(ToolUIPanelID::Toolbar2, "Toolbar 2");
-//          
-//      tb2->AddCommand(GlobalCommands::NewFile);
-//      tb2->AddCommand(GlobalCommands::LoadFile);
-//      tb2->AddCommand(GlobalCommands::SaveFile);
-//      tb2->AddSeparator();
-//      
-//      mainToolbar->SetDefaultDockSide(DockPanels::TopRight);
-// 
-//     m_vPanels.push_back(tb2);
-
-    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
-    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =
-        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+    AddEventHandler(EditingToolbox::Instance());
 
     GL_CheckForErrors();
 }
@@ -356,6 +338,10 @@ bool MainWindow::HandleEvent(SDL_Event &event)
 
 void MainWindow::InitBackgroundRenderer()
 {
+    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
+    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
+    m_pUseGradientBackground = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+
     m_pBackgroundShader = GLBackend::Instance()->QueryShader("res/glprogs/background.glsl", {});
 
     // TODO: try some more intersting ways described here:
@@ -406,6 +392,7 @@ void MainWindow::InitDocks()
     m_defaultDockSides.idDockBottom = idDockDown;
     m_defaultDockSides.idDockLeft = idDockLeft;
     m_defaultDockSides.idDockRight = idDockRight;
+    m_defaultDockSides.idDockCenter = gIDMainDockspace;
 
     // m_idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
     // m_idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
@@ -994,6 +981,7 @@ void MainWindow::RenderGUI()
                 }
             }
 
+            ViewportsOrchestrator::Instance()->EnsureAtLeastOneViewportExists();
             ViewportsOrchestrator::Instance()->FlagRepaintAll();
 
             Application::Instance()->FlagDelayedInitDone();
@@ -1020,6 +1008,8 @@ void MainWindow::RenderGUI()
 
     DrawLoadingBanner();
     DrawStatusBar();
+
+    EditingToolbox::Instance()->RenderToolUI();
 
 #ifdef _DEBUG    
     if (g_bShowDemo)

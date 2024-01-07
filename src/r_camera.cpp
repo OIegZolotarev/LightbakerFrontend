@@ -142,7 +142,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
 {
 #define DEBUG_KEYSTROKES
 
-    callbackRotate = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackRotate = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackRotate(%d)\n", bHit);
 
         if (bHit)
@@ -151,7 +151,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             m_Mode = CameraMouseModes::None;
     });
 
-    callbackPan = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackPan = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackPan(%d) event == %d\n", bHit, event.type);
 
         if (bHit)
@@ -160,7 +160,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             m_Mode = CameraMouseModes::None;
     });
 
-    callbackZoom = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackZoom = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackZoom(%d)\n", bHit);
 
         if (bHit)
@@ -169,7 +169,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             m_Mode = CameraMouseModes::None;
     });
 
-    callbackZoomIn = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackZoomIn = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackZoomIn(%d)\n", bHit);
 
         if (bHit)
@@ -178,7 +178,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             m_Mode = CameraMouseModes::None;
     });
 
-    callbackZoomOut = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackZoomOut = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         DEBUG_KEYSTROKES("callbackZoomOut(%d)\n", bHit);
 
         if (bHit)
@@ -187,7 +187,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
             m_Mode = CameraMouseModes::None;
     });
 
-    callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         // if (bHit)
         // Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
 
@@ -227,35 +227,35 @@ void Camera::SetupCommonKeystrokesCallbacks()
         }
     });
 
-    callbackMoveForward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackMoveForward = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         if (bHit)
             SetForwardSpeed(m_pMoveSpeed->GetFloat());
         else
             SetForwardSpeed(0);
     });
 
-    callbackMoveBackward = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackMoveBackward = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         if (bHit)
             SetForwardSpeed(-m_pMoveSpeed->GetFloat());
         else
             SetForwardSpeed(0);
     });
 
-    callbackStrafeLeft = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackStrafeLeft = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         if (bHit)
             SetStrafeSpeed(-m_pMoveSpeed->GetFloat());
         else
             SetStrafeSpeed(0);
     });
 
-    callbackStrafeRight = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackStrafeRight = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         if (bHit)
             SetStrafeSpeed(m_pMoveSpeed->GetFloat());
         else
             SetStrafeSpeed(0);
     });
 
-    callbackMoveup = pfnKeyStrokeCallback([&](bool bHit, SDL_Event &event) -> void {
+    callbackMoveup = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         if (bHit)
             SetUpSpeed(m_pMoveSpeed->GetFloat());
         else
@@ -335,7 +335,7 @@ float *Camera::GetProjectionMatrixPtr() const
     return (float *)&m_matProjection[0][0];
 }
 
-int Camera::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
+int Camera::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
     switch (e.type)
     {
@@ -606,7 +606,7 @@ void Camera::SetUpSpeed(const int moveSpeed)
     m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
-int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
+int Camera::MouseMotionEvent(const SDL_Event &_event, const float flFrameDelta)
 {
     auto  event  = _event.motion;
     float flDist = m_pMoveSpeed->GetFloat();
@@ -661,7 +661,7 @@ int Camera::MouseMotionEvent(SDL_Event &_event, float flFrameDelta)
     return 0;
 }
 
-int Camera::ButtonEvent(SDL_Event &_event)
+int Camera::ButtonEvent(const SDL_Event &_event)
 {
     auto event = _event.button;
 
@@ -707,7 +707,7 @@ int Camera::ButtonEvent(SDL_Event &_event)
         return 0;
 }
 
-int Camera::MouseWheelEvent(SDL_Event &_event, float flFrameDelta)
+int Camera::MouseWheelEvent(const SDL_Event &_event, const float flFrameDelta)
 {
     auto  event  = _event.motion;
     float flDist = glm::length(m_Origin);
@@ -918,7 +918,7 @@ void CameraCommandKeyStroke::SetCallback(pfnKeyStrokeCallback callback)
     m_Callback = callback;
 }
 
-void CameraCommandKeyStroke::ExecuteCallback(bool bHit, SDL_Event &event)
+void CameraCommandKeyStroke::ExecuteCallback(bool bHit, const SDL_Event &event)
 {
     m_Callback(bHit, event);
 }

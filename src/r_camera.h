@@ -31,7 +31,7 @@ enum class CameraMouseModes
 #define POP_MODELVIEW  (1 << 1)
 #define POP_BOTH       (POP_MODELVIEW | POP_PROJECTION)
 
-typedef std::function<void(bool bHit, SDL_Event &event)> pfnKeyStrokeCallback;
+typedef std::function<void(bool bHit, const SDL_Event &event)> pfnKeyStrokeCallback;
 
 enum class CameraControlScheme
 {
@@ -72,7 +72,7 @@ class CameraCommandKeyStroke
     bool AreKeysPressed();
 
     void SetCallback(pfnKeyStrokeCallback callback);
-    void ExecuteCallback(bool bHit, SDL_Event &event);
+    void ExecuteCallback(bool bHit, const SDL_Event &event);
     void SetWheelDirection(int direction, bool needOtherKeys);
 
     bool CanBeExecuteFromMouseWheel(int direction);

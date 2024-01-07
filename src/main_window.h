@@ -50,6 +50,8 @@ typedef struct defaultDockSides_s
     ImGuiID idDockLeft;
     ImGuiID idDockRight;
 
+    ImGuiID idDockCenter;
+
 } defaultDockSides_t;
 
 #define NUM_VIEWPORTS 4

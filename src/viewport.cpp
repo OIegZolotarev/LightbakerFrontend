@@ -9,6 +9,7 @@
 #include "imgui_internal.h"
 #include "properties_editor.h"
 #include "viewports_orchestrator.h"
+#include "editing_toolbox.h"
 
 glm::vec2 Viewport::CalcRelativeMousePos()
 {
@@ -95,7 +96,7 @@ void Viewport::RenderFrame(float flFrameDelta)
     sr->RenderScene(this);
     GL_CheckForErrors();
 
-    // RenderGuizmo();
+    EditingToolbox::Instance()->RenderTool(flFrameDelta);
 
     m_pFBO->Disable();
     GL_CheckForErrors();
@@ -428,6 +429,11 @@ bool Viewport::IsVisible()
 glm::vec2 Viewport::GetClientAreaPosAbs()
 {
     return m_DisplayWidgetPosition + m_ClientAreaPos;
+}
+
+void Viewport::SetVisible(bool flag)
+{
+    m_bVisible = true;
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()

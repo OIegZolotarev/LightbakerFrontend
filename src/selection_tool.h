@@ -6,8 +6,16 @@
 #pragma once
 #include "editing_tool.h"
 
+enum SelectionModes
+{
+    Picker,
+    BoxSelection,
+    Paint
+};
+
 class SelectionTool: public IEditingTool
 {
+    SelectionModes m_SelectionMode = Picker;
 public:
     SelectionTool();
 
@@ -16,4 +24,7 @@ public:
 
     void Render(float flFrameDelta) override;
     void RenderUI() override;
+
+private:
+    void RenderModeSelectorUI();
 };

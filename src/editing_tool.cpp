@@ -59,6 +59,11 @@ void IEditingTool::SetDescritpion(const char *strDescription)
     strlcpy(m_strDescription, strDescription, sizeof(m_strDescription));
 }
 
+const char *IEditingTool::GetDescrition() const
+{
+    return m_strDescription;
+}
+
 void IEditingTool::RegisterBoundCommand()
 {
     CCommand *newCommand = new CCommand;

@@ -57,6 +57,16 @@ void EditingToolbox::RenderToolUI()
 
 int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    switch (e.type)
+    {
+    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONUP:
+        break;
+    case SDL_KEYDOWN:
+    case SDL_KEYUP:
+        break;
+    }
+
     return 0;
 }
 

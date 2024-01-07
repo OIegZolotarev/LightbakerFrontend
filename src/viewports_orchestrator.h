@@ -32,5 +32,6 @@ public:
     void DestroyWindowViewports(IPlatformWindow *wind);
     void CloneViewportToLeastClutteredWindow(Viewport *param1);
 
+    void EnsureAtLeastOneViewportExists();
 
 };

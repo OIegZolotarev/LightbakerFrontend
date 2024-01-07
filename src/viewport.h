@@ -93,4 +93,5 @@ public:
     {
         m_bNeedUpdate = true;
     }
+    void SetVisible(bool flag);
 };

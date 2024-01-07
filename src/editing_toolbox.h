@@ -11,7 +11,7 @@
 
 
 class EditingToolbox: public Singleton<EditingToolbox>, 
-    IEventHandler
+    public IEventHandler
 {
     std::list<IEditingTool *> m_lstToolbs;
 

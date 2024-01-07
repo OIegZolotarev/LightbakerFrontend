@@ -58,7 +58,7 @@ void ToolUIPanel::ResetPosition()
 
     ImGui::DockBuilderDockWindow(m_strPanelTitle, dockId);
 
-    //Application::GetMainWindow()->UpdateDocks();
+    Application::GetMainWindow()->UpdateDocks();
 }
 
 ToolUIPanel::ToolUIPanel(ToolUIPanelID id, const char *title)

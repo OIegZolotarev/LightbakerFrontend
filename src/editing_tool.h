@@ -35,8 +35,8 @@ class IEditingTool
     EditingToolId m_id = EditingToolId::None;
     GlobalCommands m_BoundCommand = GlobalCommands::None;
     CommonIcons    m_ToolIcon;
-    char           m_strDescription[32];
 
+    char           m_strDescription[32];
     friend class EditingToolbox;
     
         
@@ -46,6 +46,7 @@ protected:
     void SetBoundCommand(GlobalCommands cmd);
     void SetToolIcon(CommonIcons icon);
     void SetDescritpion(const char *strDescription);
+    const char *GetDescrition() const;
  public:
     IEditingTool(EditingToolId id);
     ~IEditingTool();

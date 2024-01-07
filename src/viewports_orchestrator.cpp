@@ -4,8 +4,9 @@
 */
 
 #include "application.h"
-#include "viewports_orchestrator.h"
 #include "common.h"
+#include "viewports_orchestrator.h"
+#include "imgui_internal.h"
 
 ViewportsOrchestrator::~ViewportsOrchestrator()
 {
@@ -130,6 +131,41 @@ void ViewportsOrchestrator::CloneViewportToLeastClutteredWindow(Viewport *param1
     std::string name = std::format("Viewport {0}", counter++);
 
     AddNewViewport(name.c_str(), bestWindow, param1);
+}
+
+void ViewportsOrchestrator::EnsureAtLeastOneViewportExists()
+{
+    bool hasVisible = false;
+
+    for (auto &vp : m_lstViewports)
+    {
+        if (vp->IsVisible())
+        {
+            hasVisible = true;
+            break;
+        }
+    }
+
+    if (hasVisible)
+        return;
+
+    auto dockSides = Application::GetMainWindow()->GetDockSides();
+
+    Viewport *pTarget = nullptr;
+
+    if (m_lstViewports.size() > 0)
+    {
+        auto it       = m_lstViewports.begin();
+        auto viewport = *it;
+
+        pTarget = viewport;
+    }
+    else
+        pTarget = AddNewViewport("Main", Application::GetMainWindow(), 0);
+
+    pTarget->SetVisible(true);
+    ImGui::DockBuilderDockWindow(pTarget->Name(), dockSides->idDockCenter);
+    Application::GetMainWindow()->UpdateDocks();
 }
 
 int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
