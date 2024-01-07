@@ -5,6 +5,7 @@
 
 #include "application.h"
 #include "r_editor_grid.h"
+#include "viewports_orchestrator.h"
 
 
 GridRenderer::~GridRenderer()
@@ -159,6 +160,8 @@ void GridRenderer::StepDownGrid()
     
     // Con_Printf("Grid step: %d\n", m_iGridResolution);
     Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
+    
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 void GridRenderer::StepUpGrid()
@@ -168,8 +171,9 @@ void GridRenderer::StepUpGrid()
 
     // Con_Printf("Grid step: %d\n", miGridResolution);
 
-
     Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 int GridRenderer::GridStep()
