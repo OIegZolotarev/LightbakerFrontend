@@ -7,17 +7,21 @@
 #pragma once
 #include "toolui_panel.h"
 #include "commands_registry.h"
+#include "imgui_internal.h"
 
 
 class CommandsToolbar : public ToolUIPanel
 {
-    // nulls treated as separators
-    std::list<CCommand *> m_lstItems;
     DockPanels            m_DefaultDockSide;
 
     int  m_ToolbarAxis;
     void DockingToolbar(const char *name, int * axis);
 
+    virtual void RenderItems(ImGuiAxis toolbar_axis);
+
+protected:
+    // nulls treated as separators
+    std::list<CCommand *> m_lstItems;
 
 public:
     CommandsToolbar(ToolUIPanelID id, const char *name);

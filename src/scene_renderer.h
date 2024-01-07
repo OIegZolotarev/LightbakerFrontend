@@ -71,7 +71,7 @@ public:
     void       SetRenderMode(RenderMode param1);
     RenderMode GetRenderMode();
 
-    int   HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
+    int   HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
     float FrameDelta();
 
     // Loading

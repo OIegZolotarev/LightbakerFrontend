@@ -3,10 +3,15 @@
     (c) 2022-2024 CrazyRussian
 */
 
+#include "application.h"
+#include "common.h"
 #include "editing_tool.h"
+#include "editing_toolbox.h"
+#include "text_utils.h"
 
-IEditingTool::IEditingTool()
+IEditingTool::IEditingTool(EditingToolId id)
 {
+    m_id = id;
 }
 
 IEditingTool::~IEditingTool()
@@ -21,10 +26,48 @@ void IEditingTool::OnMouseReleased()
 {
 }
 
-void IEditingTool::Think()
+void IEditingTool::Render(float flFrameDelta)
 {
 }
 
 void IEditingTool::RenderUI()
 {
+}
+
+const EditingToolId IEditingTool::GetToolId() const
+{
+    return m_id;
+}
+
+const GlobalCommands IEditingTool::GetBoundCommand() const
+{
+    return m_BoundCommand;
+}
+
+void IEditingTool::SetBoundCommand(GlobalCommands cmd)
+{
+    m_BoundCommand = cmd;
+}
+
+void IEditingTool::SetToolIcon(CommonIcons icon)
+{
+    m_ToolIcon = icon;
+}
+
+void IEditingTool::SetDescritpion(const char *strDescription)
+{
+    strlcpy(m_strDescription, strDescription, sizeof(m_strDescription));
+}
+
+void IEditingTool::RegisterBoundCommand()
+{
+    CCommand *newCommand = new CCommand;
+    newCommand->SetId(m_BoundCommand);
+    newCommand->SetDescription(m_strDescription);
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(m_ToolIcon);
+    newCommand->SetFlags(0);
+    newCommand->SetCallback([&]() { EditingToolbox::Instance()->SelectTool(m_id); });
+
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
 }

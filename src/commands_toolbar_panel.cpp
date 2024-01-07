@@ -103,6 +103,33 @@ void CommandsToolbar::DockingToolbar(const char *name, int *axis)
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(5.0f, 5.0f));
 
+    RenderItems(toolbar_axis);
+
+    ImGui::PopStyleVar(2);
+
+    // 6. Context-menu to change axis
+    if (node == NULL || !TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
+    {
+        if (ImGui::BeginPopupContextWindow())
+        {
+            ImGui::TextUnformatted(name);
+            ImGui::Separator();
+            if (ImGui::MenuItem("Horizontal", "", (toolbar_axis == ImGuiAxis_X)))
+                toolbar_axis = ImGuiAxis_X;
+            if (ImGui::MenuItem("Vertical", "", (toolbar_axis == ImGuiAxis_Y)))
+                toolbar_axis = ImGuiAxis_Y;
+            ImGui::EndPopup();
+        }
+    }
+
+    ImGui::End();
+
+    // Output user stored data
+    *axis = (int)toolbar_axis;
+}
+
+void CommandsToolbar::RenderItems(ImGuiAxis toolbar_axis)
+{
     float size = 21;
     int   n    = 0;
     for (auto it : m_lstItems)
@@ -129,27 +156,6 @@ void CommandsToolbar::DockingToolbar(const char *name, int *axis)
 
         n++;
     }
-    ImGui::PopStyleVar(2);
-
-    // 6. Context-menu to change axis
-    if (node == NULL || !TOOLBAR_AUTO_DIRECTION_WHEN_DOCKED)
-    {
-        if (ImGui::BeginPopupContextWindow())
-        {
-            ImGui::TextUnformatted(name);
-            ImGui::Separator();
-            if (ImGui::MenuItem("Horizontal", "", (toolbar_axis == ImGuiAxis_X)))
-                toolbar_axis = ImGuiAxis_X;
-            if (ImGui::MenuItem("Vertical", "", (toolbar_axis == ImGuiAxis_Y)))
-                toolbar_axis = ImGuiAxis_Y;
-            ImGui::EndPopup();
-        }
-    }
-
-    ImGui::End();
-
-    // Output user stored data
-    *axis = (int)toolbar_axis;
 }
 
 CommandsToolbar::CommandsToolbar(ToolUIPanelID id, const char *name) : ToolUIPanel(id, name)

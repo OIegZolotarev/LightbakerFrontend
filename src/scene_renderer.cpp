@@ -275,7 +275,7 @@ void SceneRenderer::RenderHelperGeometry()
     glDisable(GL_BLEND);
 }
 
-int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
+int SceneRenderer::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
     return 0;
 }

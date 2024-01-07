@@ -30,6 +30,8 @@
 #include "wad_textures.h"
 #include <list>
 #include "commands_toolbar_panel.h"
+#include "toolbox_panel.h"
+#include "editing_toolbox.h"
 
 bool g_bShowDemo          = false;
 bool DEBUG_3D_SELECTION = false;
@@ -85,13 +87,11 @@ void MainWindow::InitStuff()
     m_vPanels.push_back(mainToolbar);
 
 
-    CommandsToolbar *editingtoolsBar = new CommandsToolbar(ToolUIPanelID::EditingTools, "Editing tools");
-    editingtoolsBar->AddCommand(GlobalCommands::ActivateSelectionTool);
-    editingtoolsBar->AddCommand(GlobalCommands::ActivateCameraTool);
-
+    CommandsToolbar *editingtoolsBar = new ToolboxPanel(ToolUIPanelID::EditingTools, "Editing tools");
     editingtoolsBar->SetDefaultDockSide(DockPanels::Left);
     m_vPanels.push_back(editingtoolsBar);
 
+    EditingToolbox::Instance()->Initialize();
 
 
     // 

@@ -458,6 +458,18 @@
     <ClCompile Include="editing_tool.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="editing_toolbox.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="selection_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="toolbox_panel.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -833,6 +845,18 @@
       <Filter>Исходные файлы\Panels</Filter>
     </ClInclude>
     <ClInclude Include="editing_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editing_toolbox.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="selection_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="toolbox_panel.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
   </ItemGroup>

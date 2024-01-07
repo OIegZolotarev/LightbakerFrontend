@@ -339,7 +339,7 @@ void Viewport::UpdateDisplayWidgetPos()
     m_DisplayWidgetPosition = {vMin.x, vMin.y};
 }
 
-int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
+int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)

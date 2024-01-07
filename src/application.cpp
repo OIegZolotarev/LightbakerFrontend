@@ -22,6 +22,7 @@
 #include "r_editor_grid.h"
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
+#include "editing_toolbox.h"
 
 Application::Application()
 {
@@ -109,6 +110,8 @@ Application::~Application()
     delete m_pPersistentStorage;
     delete m_pLightBakerApplication;
     delete GameConfigurationsManager::Instance();
+
+    delete EditingToolbox::Instance();
 }
 
 #include <sdl-event-to-string\sdl_event_to_string.h>

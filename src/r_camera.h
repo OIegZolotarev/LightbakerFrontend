@@ -147,9 +147,9 @@ class Camera : public IEventHandler
     void SetupPerspectiveMatrix();
     void SetupModelViewMatrix();
 
-    int MouseMotionEvent(SDL_Event &event, float flFrameDelta);
-    int ButtonEvent(SDL_Event &event);
-    int MouseWheelEvent(SDL_Event &event, float flFrameDelta);
+    int MouseMotionEvent(const SDL_Event &event, const float flFrameDelta);
+    int ButtonEvent(const SDL_Event &event);
+    int MouseWheelEvent(const SDL_Event &event, const float flFrameDelta);
 
     void DoZoomIn();
     void DoZoomOut();
@@ -182,7 +182,7 @@ class Camera : public IEventHandler
     float* GetViewMatrixPtr() const;
     float* GetProjectionMatrixPtr() const;
 
-    int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
+    int HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
     glm::vec3 GetRightVector();
     glm::vec3 GetUpVector();

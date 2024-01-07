@@ -42,7 +42,8 @@ enum class GlobalCommands
     // Separate window
     OpenNewWindow,
     ActivateSelectionTool,
-    ActivateCameraTool
+    ActivateCameraTool,
+    None
 };
 
 typedef std::function<void()> pfnCommandCallback;

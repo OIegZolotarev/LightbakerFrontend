@@ -159,23 +159,23 @@ void CCommandsRegistry::InitializeAllCommands()
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
 
-    newCommand = new CCommand;
-    newCommand->SetId(GlobalCommands::ActivateSelectionTool);
-    newCommand->SetDescription("Selection tool");
-    newCommand->SetKeyStroke(nullptr);
-    newCommand->SetCommonIcon(CommonIcons::SelectTool);
-    newCommand->SetFlags(0);
-    newCommand->SetCallback([&]() {});
-    Application::CommandsRegistry()->RegisterCommand(newCommand);
-
-    newCommand = new CCommand;
-    newCommand->SetId(GlobalCommands::ActivateCameraTool);
-    newCommand->SetDescription("Camera tool");
-    newCommand->SetKeyStroke(nullptr);
-    newCommand->SetCommonIcon(CommonIcons::CameraTool);
-    newCommand->SetFlags(0);
-    newCommand->SetCallback([&]() {});
-    Application::CommandsRegistry()->RegisterCommand(newCommand);
+//     newCommand = new CCommand;
+//     newCommand->SetId(GlobalCommands::ActivateSelectionTool);
+//     newCommand->SetDescription("Selection tool");
+//     newCommand->SetKeyStroke(nullptr);
+//     newCommand->SetCommonIcon(CommonIcons::SelectTool);
+//     newCommand->SetFlags(0);
+//     newCommand->SetCallback([&]() {});
+//     Application::CommandsRegistry()->RegisterCommand(newCommand);
+// 
+//     newCommand = new CCommand;
+//     newCommand->SetId(GlobalCommands::ActivateCameraTool);
+//     newCommand->SetDescription("Camera tool");
+//     newCommand->SetKeyStroke(nullptr);
+//     newCommand->SetCommonIcon(CommonIcons::CameraTool);
+//     newCommand->SetFlags(0);
+//     newCommand->SetCallback([&]() {});
+//     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
 }
 
