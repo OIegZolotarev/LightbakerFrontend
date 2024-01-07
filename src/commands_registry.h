@@ -4,8 +4,8 @@
 */
 
 #pragma once
-#include "gl_texture.h"
 #include "common_icons.h"
+#include "gl_texture.h"
 
 enum class GlobalCommands
 {
@@ -40,7 +40,9 @@ enum class GlobalCommands
     IncreaseGridStep,
     DecreaseGridStep,
     // Separate window
-    OpenNewWindow
+    OpenNewWindow,
+    ActivateSelectionTool,
+    ActivateCameraTool
 };
 
 typedef std::function<void()> pfnCommandCallback;
@@ -66,18 +68,18 @@ public:
     CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
              pfnCommandCallback callback);
 
-    CCommand() {};
+    CCommand(){};
 
     void SetId(GlobalCommands id);
-    void SetDescription(const char * descr);
-    void SetKeyStroke(const char* keyStroke);
-    void SetCustomIcon(GLTexture * pIcon);
+    void SetDescription(const char *descr);
+    void SetKeyStroke(const char *keyStroke);
+    void SetCustomIcon(GLTexture *pIcon);
     void SetCommonIcon(CommonIcons icon);
     void SetFlags(int flags);
     void SetCallback(pfnCommandCallback callback);
 
-    void Execute();
-    int  Flags();
+    void           Execute();
+    int            Flags();
     void           RenderImGUI(int size = 32);
     GlobalCommands GetId();
     const char *   GetDescription();
@@ -107,5 +109,4 @@ public:
     bool OnKeyDown();
 
     void InitializeAllCommands();
-
 };

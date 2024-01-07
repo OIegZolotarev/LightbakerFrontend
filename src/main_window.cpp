@@ -83,7 +83,18 @@ void MainWindow::InitStuff()
     mainToolbar->SetDefaultDockSide(DockPanels::Top);
 
     m_vPanels.push_back(mainToolbar);
-// 
+
+
+    CommandsToolbar *editingtoolsBar = new CommandsToolbar(ToolUIPanelID::EditingTools, "Editing tools");
+    editingtoolsBar->AddCommand(GlobalCommands::ActivateSelectionTool);
+    editingtoolsBar->AddCommand(GlobalCommands::ActivateCameraTool);
+
+    editingtoolsBar->SetDefaultDockSide(DockPanels::Left);
+    m_vPanels.push_back(editingtoolsBar);
+
+
+
+    // 
 //      auto tb2 = new CommandsToolbar(ToolUIPanelID::Toolbar2, "Toolbar 2");
 //          
 //      tb2->AddCommand(GlobalCommands::NewFile);

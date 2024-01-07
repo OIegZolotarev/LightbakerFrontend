@@ -16,7 +16,7 @@
 #include "selection_3d.h"
 #include <unordered_set>
 
-bool g_useBVH = false;
+bool g_useBVH = true;
 
 uberShaderDefs_t g_UberShaderTable[] = {
     // clang-format off

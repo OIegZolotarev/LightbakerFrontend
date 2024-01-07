@@ -9,7 +9,7 @@
 #include <better-enums/enum.h>
 
 // Serializable panel ID, used to restore position when application is loaded
-BETTER_ENUM(ToolUIPanelID,int, None,ObjectProperties, ConsoleOutput, SceneObjects, Debug, MainToolbar, Toolbar2, MaxPanels)
+BETTER_ENUM(ToolUIPanelID,int, None,ObjectProperties, ConsoleOutput, SceneObjects, Debug, MainToolbar, EditingTools, MaxPanels)
 
 enum class DockPanels
 {

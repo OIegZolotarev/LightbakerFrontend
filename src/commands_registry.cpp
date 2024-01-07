@@ -3,14 +3,16 @@
     (c) 2022 CrazyRussian
 */
 
-#include "commands_registry.h"
-#include "common.h"
-#include "ui_common.h"
-
 #include "application.h"
+#include "commands_registry.h"
+
+#include "ui_common.h"
+#include "common.h"
+
 #include "imgui_helpers.h"
 #include "imgui_internal.h"
 #include "imgui_popups.h"
+
 #include "popup_loadfile_dialog.h"
 #include "text_utils.h"
 
@@ -155,6 +157,26 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
     newCommand->SetCallback([&]() {});
     Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::ActivateSelectionTool);
+    newCommand->SetDescription("Selection tool");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::SelectTool);
+    newCommand->SetFlags(0);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::ActivateCameraTool);
+    newCommand->SetDescription("Camera tool");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::CameraTool);
+    newCommand->SetFlags(0);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
 }
 
 CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
