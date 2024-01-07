@@ -428,7 +428,7 @@ void PersistentStorage::FlagPanelIsAtValidPosition(ToolUIPanelID id)
 
 bool PersistentStorage::IsFreshFile()
 {
-    return true;
+    // return true;
 
     return m_bFreshFile;
 }

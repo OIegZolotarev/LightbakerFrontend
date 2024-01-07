@@ -3,13 +3,13 @@
     (c) 2023 CrazyRussian
 */
 
-#include "viewport.h"
 #include "application.h"
+#include "viewport.h"
+#include "editing_toolbox.h"
 #include "gl_screenspace_2d_renderer.h"
 #include "imgui_internal.h"
 #include "properties_editor.h"
 #include "viewports_orchestrator.h"
-#include "editing_toolbox.h"
 
 glm::vec2 Viewport::CalcRelativeMousePos()
 {
@@ -109,9 +109,7 @@ void Viewport::RenderGuizmo()
     if (!SelectionManager::IsGizmoEnabled())
         return;
 
-
     ObjectPropertiesEditor::Instance()->RenderGuizmo(this);
-
 }
 
 void Viewport::DisplayRenderedFrame()
@@ -142,11 +140,11 @@ void Viewport::DisplayRenderedFrame()
         m_bForceUndock = false;
     }
 
+    // flags |= ImGuiWindowFlags_NoInputs;
+
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
         m_bDocked = ImGui::IsWindowDocked();
-
-
 
         auto r = GLScreenSpace2DRenderer::Instance();
 
@@ -174,7 +172,7 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
-        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
+        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1, 1, 1, 1});
         // ImGui::SetHoveredID((ImGuiID) this);
 
         if (Application::Instance()->IsMouseCursorVisible())
@@ -184,14 +182,14 @@ void Viewport::DisplayRenderedFrame()
 
         if (PointInClientRect(ratPos))
         {
-            m_bHovered = true;            
+            m_bHovered = true;
         }
         else
         {
-            m_bHovered = false;
+            m_bHovered      = false;
             m_bHoveredImGUI = false;
         }
-        
+
         UpdateDisplayWidgetPos();
         DisplayViewportUI(pos);
 
@@ -219,9 +217,10 @@ void Viewport::HandlePicker()
 
         bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver()) && m_bHovered && m_bHoveredImGUI;
 
+        canSelect = false;
+
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
-            
             FlagUpdate();
 
             auto sr    = Application::GetMainWindow()->GetSceneRenderer();
@@ -238,7 +237,6 @@ void Viewport::HandlePicker()
             {
                 ObjectPropertiesEditor::Instance()->UnloadObject();
             }
-                
         }
     }
 }
@@ -262,13 +260,13 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
         std::pair<RenderMode, const char *> menuItems[] = {{RenderMode::Lightshaded, "Lightshaded"},
                                                            {RenderMode::Unshaded, "Unshaded"},
                                                            {RenderMode::Flatshaded, "Flatshaded"},
-                                                           {RenderMode::Wireframe, "Wireframe shaded"}};                                                           
+                                                           {RenderMode::Wireframe, "Wireframe shaded"}};
 
         for (auto &it : menuItems)
         {
             if (ImGui::MenuItem(it.second, 0, m_RenderMode == it.first))
             {
-                m_RenderMode = it.first;
+                m_RenderMode  = it.first;
                 m_bNeedUpdate = true;
             }
         }
@@ -295,11 +293,11 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
         if (ImGui::BeginMenu("Send to other window"))
         {
-            auto & lstWindow = Application::Instance()->GetAllWindows();
+            auto &lstWindow = Application::Instance()->GetAllWindows();
 
-            for (auto & it: lstWindow)
+            for (auto &it : lstWindow)
             {
-                if (ImGui::MenuItem(it->GetDescription(),0, it == m_pPlatformWindow))
+                if (ImGui::MenuItem(it->GetDescription(), 0, it == m_pPlatformWindow))
                 {
                     if (it != m_pPlatformWindow)
                     {
@@ -311,7 +309,6 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             }
 
             ImGui::EndMenu();
-
         }
 
         if (m_bDocked)
@@ -363,13 +360,16 @@ RenderMode Viewport::GetRenderMode()
 
 void Viewport::OutputDebug()
 {
-    auto      pos = m_pCamera->GetOrigin();
-    glm::vec3 spd = m_pCamera->GetAngles();
+    auto      position = m_pCamera->GetOrigin();
+    glm::vec3 angles = m_pCamera->GetAngles();
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d", m_strName.c_str(), pos.x,
-                pos.y, pos.z, spd.x, spd.y, spd.z, bFPSNav, m_bHovered, m_bHoveredImGUI, m_bDocked);
+    
+
+    ImGui::Text("%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d",
+                m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered, m_bHoveredImGUI,
+                m_bDocked);
 
     auto ratPos = CalcRelativeMousePos();
 
@@ -377,7 +377,13 @@ void Viewport::OutputDebug()
     {
         int id = ReadPixel(ratPos.x, ratPos.y);
         ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, id);
+
+        const glm::vec3 world = ScreenToWorld(ratPos, 0.5f);
+        ImGui::Text("World: %.3f %.3f %.3f", world.x, world.y, world.z);
+
     }
+
+    
 }
 
 const char *Viewport::Name()
@@ -431,9 +437,41 @@ glm::vec2 Viewport::GetClientAreaPosAbs()
     return m_DisplayWidgetPosition + m_ClientAreaPos;
 }
 
+void Viewport::FlagUpdate()
+{
+    m_bNeedUpdate = true;
+}
+
 void Viewport::SetVisible(bool flag)
 {
     m_bVisible = true;
+}
+
+ViewportMouseHover Viewport::GetMouseHoveringStatus()
+{
+    if (!m_bHovered && !m_bHoveredImGUI)
+        return ViewportMouseHover::NotHovered;
+    else if (m_bHovered && !m_bHoveredImGUI)
+        return ViewportMouseHover::HoveredButObstructedWithUI;
+
+    return ViewportMouseHover::Hovered;
+}
+
+glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction)
+{
+    assert(depthFraction >= -1 && depthFraction <= 1);
+
+    glm::vec3 ndc = {};
+
+    ndc.x = viewportCoords.x / m_ClientAreaSize.y;
+    ndc.y = (1 - (viewportCoords.y / m_ClientAreaSize.y));
+    ndc.z = depthFraction;
+
+    // Convert from [0,1] to [-1,1] range
+    ndc.x = (ndc.x - 0.5f) * 2;
+    ndc.y = (ndc.y - 0.5f) * 2;
+
+    return m_pCamera->ScreenToWorld(ndc);
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()

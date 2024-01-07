@@ -5,17 +5,8 @@
 
 #pragma once
 
-#include "viewport.h"
 #include "commands_registry.h"
-
-enum class MouseButtons
-{
-    Left,
-    Right,
-    Middle,
-    Aux1,
-    Aux2
-};
+#include "viewport.h"
 
 enum class EditingToolId
 {
@@ -28,36 +19,38 @@ enum class EditingToolId
 
 class IEditingTool
 {
-    Viewport *m_pActiveViewport;
-    Scene *   m_pActiveDocument;
-
-
-    EditingToolId m_id = EditingToolId::None;
+    EditingToolId  m_id           = EditingToolId::None;
     GlobalCommands m_BoundCommand = GlobalCommands::None;
     CommonIcons    m_ToolIcon;
 
-    char           m_strDescription[32];
+    char m_strDescription[32];
     friend class EditingToolbox;
-    
-        
+
     void RegisterBoundCommand();
 
 protected:
-    void SetBoundCommand(GlobalCommands cmd);
-    void SetToolIcon(CommonIcons icon);
-    void SetDescritpion(const char *strDescription);
+
+    Viewport *m_pActiveViewport;
+    Scene *   m_pActiveDocument;
+
+    void        SetBoundCommand(GlobalCommands cmd);
+    void        SetToolIcon(CommonIcons icon);
+    void        SetDescritpion(const char *strDescription);
     const char *GetDescrition() const;
- public:
+
+public:
     IEditingTool(EditingToolId id);
     ~IEditingTool();
 
-    virtual void OnMouseClicked(Viewport * pActiveViewport, Scene* pActiveDocument);
-    virtual void OnMouseReleased();
-    
+    virtual int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta);
+    virtual int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta);
+
     virtual void Render(float flFrameDelta);
     virtual void RenderUI();
-    
+
     const EditingToolId  GetToolId() const;
     const GlobalCommands GetBoundCommand() const;
-    
+
+    void SetActiveViewport(Viewport *pViewport);
+    void SetActiveDocument(Scene *pScene);
 };

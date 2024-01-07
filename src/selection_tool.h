@@ -13,17 +13,25 @@ enum SelectionModes
     Paint
 };
 
-class SelectionTool: public IEditingTool
+class SelectionTool : public IEditingTool
 {
     SelectionModes m_SelectionMode = Picker;
+
+    bool m_bMouseDragValid = false;
+    glm::vec2 m_vecMouseDragStart;
+    glm::vec2 m_vecMouseDragEnd;
+
 public:
+
     SelectionTool();
 
-    void OnMouseClicked(Viewport *pActiveViewport, Scene *pActiveDocument) override;
-    void OnMouseReleased() override;
-
+    // Rendering and UI
     void Render(float flFrameDelta) override;
     void RenderUI() override;
+
+    // Events handling
+    int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
+    int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
 private:
     void RenderModeSelectorUI();

@@ -7,8 +7,8 @@
 
 #include "ui_common.h"
 
-#define EVENT_HANDLED (1<<0)
-#define EVENT_CONSUMED (1<<1)
+#define EVENT_HANDLED (1<<0) // Event was handled but should continue propagation
+#define EVENT_CONSUMED (1<<1) // Event was handled and propagation must be stopped
 
 #define EVENT_FINISHED (EVENT_CONSUMED | EVENT_HANDLED)
 

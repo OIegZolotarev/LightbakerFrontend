@@ -9,6 +9,7 @@
 #include "camera_tool.h"
 #include "editing_toolbox.h"
 #include "selection_tool.h"
+#include "viewports_orchestrator.h"
 
 IEditingTool *EditingToolbox::FindTool(EditingToolId id)
 {
@@ -57,14 +58,23 @@ void EditingToolbox::RenderToolUI()
 
 int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    if (!m_pCurrentTool)
+        return 0;
+
+    auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+    auto scene    = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+
+    m_pCurrentTool->SetActiveViewport(viewport);
+    m_pCurrentTool->SetActiveDocument(scene);
+
     switch (e.type)
     {
-    case SDL_MOUSEBUTTONDOWN:
+    case SDL_MOUSEBUTTONDOWN:        
     case SDL_MOUSEBUTTONUP:
-        break;
+        return m_pCurrentTool->HandleMouseEvent(bWasHandled, e, flFrameDelta);        
     case SDL_KEYDOWN:
     case SDL_KEYUP:
-        break;
+        return m_pCurrentTool->HandleKeyboardEvent(bWasHandled, e, flFrameDelta);
     }
 
     return 0;
@@ -82,3 +92,4 @@ const EditingToolId EditingToolbox::SelectedToolId() const
 
     return EditingToolId::None;
 }
+

@@ -18,12 +18,14 @@ IEditingTool::~IEditingTool()
 {
 }
 
-void IEditingTool::OnMouseClicked(Viewport *pActiveViewport, Scene *pActiveDocument)
+int IEditingTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    return 0;
 }
 
-void IEditingTool::OnMouseReleased()
+int IEditingTool::HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    return 0;
 }
 
 void IEditingTool::Render(float flFrameDelta)
@@ -42,6 +44,16 @@ const EditingToolId IEditingTool::GetToolId() const
 const GlobalCommands IEditingTool::GetBoundCommand() const
 {
     return m_BoundCommand;
+}
+
+void IEditingTool::SetActiveViewport(Viewport *pViewport)
+{
+    m_pActiveViewport = pViewport;
+}
+
+void IEditingTool::SetActiveDocument(Scene *pScene)
+{
+    m_pActiveDocument = pScene;
 }
 
 void IEditingTool::SetBoundCommand(GlobalCommands cmd)

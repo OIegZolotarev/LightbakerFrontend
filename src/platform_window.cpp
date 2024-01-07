@@ -9,6 +9,7 @@
 #include "imgui_internal.h"
 #include "selection_3d.h"
 #include "ui_common.h"
+#include "viewports_orchestrator.h"
 
 bool IPlatformWindow::CheckImGuiEvent(SDL_Event &event)
 {
@@ -22,7 +23,17 @@ bool IPlatformWindow::CheckImGuiEvent(SDL_Event &event)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
         if (ImGui::GetIO().WantCaptureMouse)
-            return true;
+        {
+
+            // If we hovering any viewport - pass mouse events to it,
+            //  kinda quirky behavior alas
+            auto vp = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+
+            if (!vp)
+                return true;
+            else
+                return false;
+        }
         break;
     }
 
@@ -51,23 +62,9 @@ bool IPlatformWindow::CommonHandleEvent(SDL_Event &event)
 
     case SDL_MOUSEMOTION:
     case SDL_MOUSEBUTTONDOWN:
-
-        if (event.button.button & SDL_BUTTON_LEFT)
-        {
-            if (!ImGui::GetHoveredID())
-            {
-                if (SelectionManager::Instance()->SelectHoveredObject())
-                {
-                    break;
-                }
-            }
-        }
-
     case SDL_MOUSEBUTTONUP:
     case SDL_MOUSEWHEEL:
     case SDL_KEYUP:
-        // TODO: implement
-
         PropagateControlsEvent(event);
         return true;
 

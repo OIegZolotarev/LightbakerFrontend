@@ -16,6 +16,8 @@ class ViewportsOrchestrator: public Singleton<ViewportsOrchestrator>
 
     int CountViewports(const IPlatformWindow *it);
 
+    Viewport *m_pHoveredViewport;
+
 public:
     ~ViewportsOrchestrator();
 
@@ -34,4 +36,5 @@ public:
 
     void EnsureAtLeastOneViewportExists();
 
+    Viewport *GetHoveredViewport();
 };

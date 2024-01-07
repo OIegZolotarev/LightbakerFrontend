@@ -529,6 +529,17 @@ void Camera::CopyOrientation(Camera *param1)
     SetAngles(param1->m_Angles);
 }
 
+const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const
+{
+
+    glm::mat4 unprojectionMatrix = glm::inverse(m_matProjection * m_matModelView);
+
+    glm::vec4 result = unprojectionMatrix * glm::vec4(normalizedDeviceCoords, 1);
+    result /= result.w;
+
+    return glm::vec3(result.xyz);
+}
+
 glm::vec3 Camera::GetRightVector()
 {
     return m_vRight;
@@ -798,47 +809,6 @@ void Camera::SetupModelViewMatrix()
     concatRotate(-m_Angles[2], 1, 0, 0);
     concatRotate(-m_Angles[0], 0, 1, 0);
     concatRotate(-m_Angles[1], 0, 0, 1);
-
-    
-    // #ifdef QUAKE_STYLE
-    //
-    //          ident = glm::mat4(1);
-    //          ident = glm::rotate(ident, -glm::radians(90.f), glm::vec3(1, 0, 0));
-    //          m_matModelView *= ident;
-    //
-    //          ident = glm::mat4(1);
-    //          ident = glm::rotate(ident, glm::radians(180.f), glm::vec3(0, 0, 1));
-    //          m_matModelView *= ident;
-    //
-    //
-    // //     ident = glm::mat4(1);
-    // //     ident = glm::rotate(ident, glm::radians(90.f), glm::vec3(0, 0, 1));
-    // //     m_matModelView *= ident;
-    // //
-    // //     ident = glm::mat4(1);
-    // //     ident = glm::rotate(ident, -glm::radians(180.f), glm::vec3(0, 1, 0));
-    // //     m_matModelView *= ident;
-    //
-    //     ident = glm::mat4(1);
-    //     ident = glm::rotate(ident, -glm::radians(m_Angles[ROLL]), glm::vec3(1, 0, 0));
-    //     m_matModelView *= ident;
-    //
-    //     ident = glm::mat4(1);
-    //     ident = glm::rotate(ident, -glm::radians(m_Angles[PITCH]), glm::vec3(0, 1, 0));
-    //     m_matModelView *= ident;
-    //
-    //     ident = glm::mat4(1);
-    //     ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 0, 1));
-    //     m_matModelView *= ident;
-    // #else
-    //     ident = glm::mat4(1);
-    //     ident = glm::rotate(ident, glm::radians(m_Angles[PITCH]), glm::vec3(1, 0, 0));
-    //     m_matModelView *= ident;
-    //
-    //     ident = glm::mat4(1);
-    //     ident = glm::rotate(ident, glm::radians(m_Angles[YAW]), glm::vec3(0, 1, 0));
-    //     m_matModelView *= ident;
-    // #endif
 
     m_matModelView = glm::translate(m_matModelView, -m_Origin);
 

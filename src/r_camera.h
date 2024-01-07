@@ -201,4 +201,7 @@ class Camera : public IEventHandler
     glm::vec3 GetMoveSpeed();
     bool      IsFPSNavigationEngaged();
     void      CopyOrientation(Camera *param1);
+
+    const glm::vec3 ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const;
+
 };

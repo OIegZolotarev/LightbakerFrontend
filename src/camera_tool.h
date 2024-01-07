@@ -12,9 +12,6 @@ public:
 
     CameraTool();
 
-    void OnMouseClicked(Viewport *pActiveViewport, Scene *pActiveDocument) override;
-    void OnMouseReleased() override;
-
     void Render(float flFrameDelta) override;
     void RenderUI() override;
 };

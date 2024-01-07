@@ -5,16 +5,23 @@
 
 #pragma once
 
-#include "r_camera.h"
 #include "event_handler.h"
 #include "gl_framebuffer_object.h"
 #include "mathlib.h"
 #include "platform_window.h"
+#include "r_camera.h"
 #include "scene_renderer.h"
 #include "viewport_rendermodes.h"
 #include <nlohmann/json.hpp>
 
 BETTER_ENUM(AnchoringCorner, int, TopLeft, TopRight, BottomRight, BottomLeft);
+
+enum ViewportMouseHover
+{
+    NotHovered = 0,
+    HoveredButObstructedWithUI,
+    Hovered
+};
 
 class Viewport : public IEventHandler
 {
@@ -30,8 +37,8 @@ class Viewport : public IEventHandler
     glm::vec2 m_ClientAreaSize;
 
     // State
-    bool m_bHovered          = false;
-    bool m_bHoveredImGUI     = false;
+    bool m_bHovered      = false;
+    bool m_bHoveredImGUI = false;
 
     bool m_bForceUndock = false;
     bool m_bDocked      = false;
@@ -48,8 +55,7 @@ class Viewport : public IEventHandler
     int                  ReadPixel(unsigned int x, unsigned int y);
 
     // Mouse utils
-    glm::vec2 CalcRelativeMousePos();
-    bool      PointInClientRect(glm::vec2 pt);
+    bool PointInClientRect(glm::vec2 pt);
 
     // Displaying
     void DisplayViewportUI(ImVec2 pos);
@@ -82,16 +88,22 @@ public:
     const char *Name();
     glm::vec2   GetClientArea();
 
+    // Serialization
     void             SaveState(nlohmann::json &persistentData);
     static Viewport *LoadState(nlohmann::json &persistentData);
 
-    void RegisterEventHandlerAtHost();
-    bool IsVisible();
+    void      RegisterEventHandlerAtHost();
     glm::vec2 GetClientAreaPosAbs();
 
-    void FlagUpdate()
-    {
-        m_bNeedUpdate = true;
-    }
+    void FlagUpdate();
+
+    // Visibility
     void SetVisible(bool flag);
+    bool IsVisible();
+
+    // Mouse
+    glm::vec2          CalcRelativeMousePos();
+    ViewportMouseHover GetMouseHoveringStatus();
+
+    glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction);
 };

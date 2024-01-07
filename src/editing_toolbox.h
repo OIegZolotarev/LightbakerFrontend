@@ -31,4 +31,6 @@ public:
 
     const std::list<IEditingTool *> & GetAllTools() const;
     const EditingToolId                    SelectedToolId() const;
+
+
 };

@@ -41,6 +41,8 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 {
     BT_PROFILE("ViewportsOrchestrator::RenderViewports()");
 
+    m_pHoveredViewport = nullptr;
+
     for (auto &it : m_lstViewports)
     {
         if (!it->IsVisible())
@@ -49,7 +51,14 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
         if (it->GetPlatformWindow() != pWindow)
             continue;
 
+        if (it->GetMouseHoveringStatus() == ViewportMouseHover::Hovered)
+        {
+            assert(!m_pHoveredViewport && "Error in hovering logic - multiple viewports seems to be hovered");
+            m_pHoveredViewport = it;
+        }
+
         it->RenderFrame(flFrameDelta);
+
     }
 }
 
@@ -166,6 +175,11 @@ void ViewportsOrchestrator::EnsureAtLeastOneViewportExists()
     pTarget->SetVisible(true);
     ImGui::DockBuilderDockWindow(pTarget->Name(), dockSides->idDockCenter);
     Application::GetMainWindow()->UpdateDocks();
+}
+
+Viewport *ViewportsOrchestrator::GetHoveredViewport()
+{
+    return m_pHoveredViewport;
 }
 
 int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
