@@ -136,7 +136,11 @@ bool ImGuiHelpers::ButtonWithCommonIcon(CommonIcons icon, const char *label, con
     auto style   = ImGui::GetStyle();
     auto bgColor = style.Colors[ImGuiCol_Button];
 
-    ImVec4 uv = g_CommonIconsRects[(int)icon];
+    ImVec4 uv;
+    if (icon != CommonIcons::None)
+        uv = g_CommonIconsRects[(int)icon];
+    else
+        uv = ImVec4(1, 1, 1, 1);
 
     ImVec2 uv0 = ImVec2(uv.x, 1 - uv.y);
     ImVec2 uv1 = ImVec2(uv.z, 1 - uv.w);

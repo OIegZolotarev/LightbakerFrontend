@@ -43,6 +43,14 @@ enum class GlobalCommands
     OpenNewWindow,
     ActivateSelectionTool,
     ActivateCameraTool,
+    // Camera
+    CameraLookFromTop,
+    CameraLookFromBottom,
+    CameraLookFromLeft,
+    CameraLookFromRight,
+    CameraLookFromFront,
+    CameraLookFromBack,
+
     None
 };
 
@@ -65,6 +73,8 @@ class CCommand
     GlobalCommands     m_eCommandId;
     pfnCommandCallback m_pfnCallback;
 
+    void ParseKeyStroke();
+
 public:
     CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
              pfnCommandCallback callback);
@@ -74,8 +84,10 @@ public:
     void SetId(GlobalCommands id);
     void SetDescription(const char *descr);
     void SetKeyStroke(const char *keyStroke);
+
     void SetCustomIcon(GLTexture *pIcon);
     void SetCommonIcon(CommonIcons icon);
+
     void SetFlags(int flags);
     void SetCallback(pfnCommandCallback callback);
 
@@ -95,6 +107,8 @@ class CCommandsRegistry
     std::vector<size_t>     m_vecMainToolbarCommands;
     std::vector<CCommand *> m_vecCommandDescriptor;
 
+    void RegisterCameraTurningCommands();
+
 public:
     CCommandsRegistry();
     ~CCommandsRegistry();
@@ -110,4 +124,6 @@ public:
     bool OnKeyDown();
 
     void InitializeAllCommands();
+
+    
 };

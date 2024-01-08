@@ -821,6 +821,20 @@ float MainWindow::RenderMainMenu()
 
         if (ImGui::BeginMenu("View"))
         {
+            if (ImGui::BeginMenu("Position camera"))
+            {
+                COMMAND_ITEM(GlobalCommands::CameraLookFromTop);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromBottom);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromLeft);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromRight);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromFront);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromBack);
+                ImGui::EndMenu();
+            }
+
+
+            ImGui::Separator();
+
 #ifdef _DEBUG
             COMMAND_ITEM(GlobalCommands::DebugSelection);
 #endif

@@ -358,6 +358,22 @@ int Camera::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFram
 
 void Camera::UpdateOrientation(float flFrameDelta)
 {
+    if (m_bInTransition)
+    {
+        m_flTransitionProgress += flFrameDelta * 2;
+
+        if (m_flTransitionProgress >= 1.f)
+        {
+            m_Angles        = m_TranstionoEndingAngles;
+            m_bInTransition = false;
+            return;
+        }
+
+        m_Angles = glm::lerp(m_TranstionStartingAngles, m_TranstionoEndingAngles, m_flTransitionProgress);
+        m_pViewport->FlagUpdate();
+        return;
+    }
+
     bool recalcPosition = CalcMovementSpeeds(flFrameDelta);
 
     if (m_bFPSNavigation)
@@ -562,6 +578,15 @@ const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) co
     
 
     return glm::vec3(result.xyz);
+}
+
+void Camera::ExecuteTransition(glm::vec3 targetAngles)
+{
+    m_TranstionStartingAngles = m_Angles;
+    m_TranstionoEndingAngles  = targetAngles;
+
+    m_bInTransition        = true;
+    m_flTransitionProgress = 0;
 }
 
 glm::vec3 Camera::GetRightVector()

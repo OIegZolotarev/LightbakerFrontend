@@ -23,14 +23,6 @@ enum class CameraMouseModes
 #define YAW   1
 #define ROLL  2
 
-#define PUSH_PROJECTION (1 << 0)
-#define PUSH_MODELVIEW  (1 << 1)
-#define PUSH_BOTH       (PUSH_PROJECTION | PUSH_MODELVIEW)
-
-#define POP_PROJECTION (1 << 0)
-#define POP_MODELVIEW  (1 << 1)
-#define POP_BOTH       (POP_MODELVIEW | POP_PROJECTION)
-
 typedef std::function<void(bool bHit, const SDL_Event &event)> pfnKeyStrokeCallback;
 
 enum class CameraControlScheme
@@ -133,6 +125,13 @@ class Camera : public IEventHandler
     glm::vec3 m_Origin   = {0, 0, 0};
     glm::vec3 m_Angles   = {90, 0, 0};
 
+    // Transition animation
+    bool m_bInTransition = false;
+    float m_flTransitionProgress = 0.0f;
+    
+    glm::vec3 m_TranstionStartingAngles               = {90, 0, 0};
+    glm::vec3 m_TranstionoEndingAngles               = {90, 0, 0};
+
     glm::mat4 m_matProjection;
     glm::mat4 m_matModelView;
 
@@ -204,4 +203,5 @@ class Camera : public IEventHandler
 
     const glm::vec3 ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const;
 
+    void ExecuteTransition(glm::vec3 targetAngles);
 };

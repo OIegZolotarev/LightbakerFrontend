@@ -6,8 +6,8 @@
 #include "application.h"
 #include "commands_registry.h"
 
-#include "ui_common.h"
 #include "common.h"
+#include "ui_common.h"
 
 #include "imgui_helpers.h"
 #include "imgui_internal.h"
@@ -15,6 +15,7 @@
 
 #include "popup_loadfile_dialog.h"
 #include "text_utils.h"
+#include "viewports_orchestrator.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -158,44 +159,76 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetCallback([&]() {});
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
+    RegisterCameraTurningCommands();
 
-//     newCommand = new CCommand;
-//     newCommand->SetId(GlobalCommands::ActivateSelectionTool);
-//     newCommand->SetDescription("Selection tool");
-//     newCommand->SetKeyStroke(nullptr);
-//     newCommand->SetCommonIcon(CommonIcons::SelectTool);
-//     newCommand->SetFlags(0);
-//     newCommand->SetCallback([&]() {});
-//     Application::CommandsRegistry()->RegisterCommand(newCommand);
-// 
-//     newCommand = new CCommand;
-//     newCommand->SetId(GlobalCommands::ActivateCameraTool);
-//     newCommand->SetDescription("Camera tool");
-//     newCommand->SetKeyStroke(nullptr);
-//     newCommand->SetCommonIcon(CommonIcons::CameraTool);
-//     newCommand->SetFlags(0);
-//     newCommand->SetCallback([&]() {});
-//     Application::CommandsRegistry()->RegisterCommand(newCommand);
-
+    //     newCommand = new CCommand;
+    //     newCommand->SetId(GlobalCommands::ActivateSelectionTool);
+    //     newCommand->SetDescription("Selection tool");
+    //     newCommand->SetKeyStroke(nullptr);
+    //     newCommand->SetCommonIcon(CommonIcons::SelectTool);
+    //     newCommand->SetFlags(0);
+    //     newCommand->SetCallback([&]() {});
+    //     Application::CommandsRegistry()->RegisterCommand(newCommand);
+    //
+    //     newCommand = new CCommand;
+    //     newCommand->SetId(GlobalCommands::ActivateCameraTool);
+    //     newCommand->SetDescription("Camera tool");
+    //     newCommand->SetKeyStroke(nullptr);
+    //     newCommand->SetCommonIcon(CommonIcons::CameraTool);
+    //     newCommand->SetFlags(0);
+    //     newCommand->SetCallback([&]() {});
+    //     Application::CommandsRegistry()->RegisterCommand(newCommand);
 }
 
-CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
-                   pfnCommandCallback callback)
-    : m_eCommandId(id), m_pIcon(icon), m_iFlags(flags), m_pfnCallback(callback)
+void CCommandsRegistry::RegisterCameraTurningCommands()
 {
-    strcpy_s(m_szDescription, description);
+    struct cmdDescriptor_s
+    {
+        GlobalCommands id;
+        glm::vec3      angles;
+        const char *   descr;
+        const char *   key;
+    };
 
-    if (keyStroke)
-        strcpy_s(m_szKeyStroke, keyStroke);
-    else
-        *m_szKeyStroke = 0;
+    cmdDescriptor_s commands[] = {
+        // clang-format off
+        {GlobalCommands::CameraLookFromFront  , {0   , 90  , 0} , "Front"  , "Keypad 8"} ,
+        {GlobalCommands::CameraLookFromBack   , {0   , 270 , 0} , "Back"   , "Keypad 2"} ,
+        {GlobalCommands::CameraLookFromLeft   , {0   , 180 , 0} , "Left"   , "Keypad 4"} ,
+        {GlobalCommands::CameraLookFromRight  , {0   , 0   , 0} , "Right"  , "Keypad 6"} ,
+        {GlobalCommands::CameraLookFromTop    , {-90 , 0   , 0} , "Top"    , "Keypad 7"} ,
+        {GlobalCommands::CameraLookFromBottom , {90  , 0   , 0} , "Bottom" , "Keypad 3"} ,
+        // clang-format on
+    };
 
+    for (auto &it : commands)
+    {
+        CCommand *newCommand = new CCommand;
+        newCommand->SetId(it.id);
+        newCommand->SetDescription(it.descr);
+        newCommand->SetKeyStroke(it.key);
+        newCommand->SetCommonIcon(CommonIcons::None);
+        newCommand->SetFlags(0);
+        newCommand->SetCallback([=]() {
+            auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+            if (!viewport)
+                return;
+
+            viewport->GetCamera()->ExecuteTransition(it.angles);
+        });
+        
+        RegisterCommand(newCommand);
+    }
+}
+
+void CCommand::ParseKeyStroke()
+{
     for (auto &it : m_rKeys)
         it = -1;
 
-    if (keyStroke)
+    if (*m_szKeyStroke)
     {
-        auto items = TextUtils::SplitTextSimple(keyStroke, strlen(keyStroke), '-');
+        auto items = TextUtils::SplitTextSimple(m_szKeyStroke, strlen(m_szKeyStroke), '-');
 
         auto addKey = [&](int keyId) -> bool {
             int i = 0;
@@ -236,6 +269,23 @@ CCommand::CCommand(GlobalCommands id, const char *description, const char *keySt
     }
 }
 
+CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
+                   pfnCommandCallback callback)
+    : m_eCommandId(id), m_pIcon(icon), m_iFlags(flags), m_pfnCallback(callback)
+{
+    strcpy_s(m_szDescription, description);
+
+    if (keyStroke)
+        strcpy_s(m_szKeyStroke, keyStroke);
+    else
+        *m_szKeyStroke = 0;
+
+    for (auto &it : m_rKeys)
+        it = -1;
+
+    
+}
+
 void CCommand::SetId(GlobalCommands id)
 {
     m_eCommandId = id;
@@ -252,6 +302,8 @@ void CCommand::SetKeyStroke(const char *keyStroke)
         *m_szKeyStroke = 0;
     else
         strlcpy(m_szKeyStroke, keyStroke, sizeof(m_szKeyStroke));
+
+    ParseKeyStroke();
 }
 
 void CCommand::SetCustomIcon(GLTexture *pIcon)

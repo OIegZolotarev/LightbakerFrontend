@@ -46,6 +46,7 @@ enum class CommonIcons
 	Sunlight,
 	TextureTool,
 	Undo,
+	None
 };
 
 extern ImVec4 g_CommonIconsRects[39];
