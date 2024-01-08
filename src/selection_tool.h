@@ -37,5 +37,9 @@ public:
     int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
     int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
+    int HandleLeftRelease();
+
+    int HandleLeftClick();
+
     void RenderViewportUI(Viewport* pViewport) override;
 };

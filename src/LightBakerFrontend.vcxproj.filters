@@ -15,14 +15,8 @@
     <Filter Include="Исходные файлы\GLAD">
       <UniqueIdentifier>{3d599df9-3a49-403a-ad28-2b9a13fa5f5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\ImGUIFileDialog">
-      <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\tiny-proccess-library">
       <UniqueIdentifier>{bba0812e-0c84-49d1-a57e-f6832ee12063}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\ImGuizmo">
-      <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Исходные файлы\Popups">
       <UniqueIdentifier>{79dfe3a4-2732-4f60-b6c1-af22b80a52a5}</UniqueIdentifier>
@@ -111,6 +105,12 @@
     <Filter Include="Исходные файлы\Panels">
       <UniqueIdentifier>{28d57d6c-c6b7-4e58-81dd-2f8d205a4a84}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\ImGUI\ImGuizmo">
+      <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\ImGUIFileDialog">
+      <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -126,7 +126,7 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClCompile>
     <ClCompile Include="common_resources.cpp">
       <Filter>Исходные файлы</Filter>
@@ -420,7 +420,7 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="ImGuizmo.cpp">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGuizmo</Filter>
     </ClCompile>
     <ClCompile Include="r_octree.cpp">
       <Filter>Исходные файлы\Scene</Filter>
@@ -497,10 +497,10 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClInclude>
     <ClInclude Include="common_resources.h">
       <Filter>Исходные файлы</Filter>
@@ -818,7 +818,7 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="ImGuizmo.h">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGuizmo</Filter>
     </ClInclude>
     <ClInclude Include="r_octree.h">
       <Filter>Исходные файлы\Scene</Filter>

@@ -97,6 +97,8 @@ public:
 
     void FlagUpdate();
 
+    size_t GetHoveredObjectID();
+
     // Visibility
     void SetVisible(bool flag);
     bool IsVisible();

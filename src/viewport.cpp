@@ -14,6 +14,7 @@
 glm::vec2 Viewport::CalcRelativeMousePos(bool yAtTop)
 {
     ImVec2 s = ImGui::GetMousePos();
+
     if (yAtTop)
         return {s.x - m_DisplayWidgetPosition.x, (s.y - m_DisplayWidgetPosition.y)};
     else
@@ -214,7 +215,7 @@ void Viewport::HandlePicker()
 {
     BT_PROFILE("Viewport::HandlePicker()");
 
-    auto ratPos = CalcRelativeMousePos();
+    auto ratPos = CalcRelativeMousePos(false);
 
     if (PointInClientRect(ratPos))
     {
@@ -377,12 +378,12 @@ void Viewport::OutputDebug()
                 m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered, m_bHoveredImGUI,
                 m_bDocked);
 
-    auto ratPos = CalcRelativeMousePos();
+    auto ratPos = CalcRelativeMousePos(false);
 
     if (PointInClientRect(ratPos))
     {
-        int id = ReadPixel(ratPos.x, ratPos.y);
-        ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, id);
+        // int id = ReadPixel(ratPos.x, ratPos.y);
+        ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, m_hoveredObjectId);
 
         static float zNear = 0.f;
         static float zFar  = 1.f;
@@ -459,6 +460,11 @@ glm::vec2 Viewport::GetClientAreaPosAbs()
 void Viewport::FlagUpdate()
 {
     m_bNeedUpdate = true;
+}
+
+size_t Viewport::GetHoveredObjectID()
+{
+    return m_hoveredObjectId;
 }
 
 void Viewport::SetVisible(bool flag)
