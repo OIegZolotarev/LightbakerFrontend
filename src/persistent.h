@@ -38,7 +38,8 @@ enum class ApplicationSettings
     CameraMouseSensivityPaning,
     CameraMouseSensivityZooming,
     DefaultGameConfiguration,
-    SelectedObjectColor
+    SelectedObjectColor,
+    SelectionBoxColor,
 };
 
 typedef std::pair<std::string, std::time_t> mruFile_t;

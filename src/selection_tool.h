@@ -48,4 +48,7 @@ public:
     void SelectHoveredObject();
 
     void RenderViewportUI(Viewport *pViewport) override;
+
+private:
+    VariantValue *m_pSelectionBoxColor;
 };

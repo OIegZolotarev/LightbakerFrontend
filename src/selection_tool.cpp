@@ -15,6 +15,8 @@ SelectionTool::SelectionTool() : IEditingTool(EditingToolId::Selection)
     SetBoundCommand(GlobalCommands::ActivateSelectionTool);
     SetToolIcon(CommonIcons::SelectTool);
     SetDescritpion("Selection tool");
+
+    m_pSelectionBoxColor = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::SelectionBoxColor);
 }
 
 void SelectionTool::Render(float flFrameDelta)
@@ -183,6 +185,8 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
                 }
             }
 
+            int boxColor = ToColorU32(m_pSelectionBoxColor->GetColorRGBA());
+
             auto drawDashedLine = [&](glm::vec2 start, glm::vec2 end) {
                 float dist      = glm::length(end - start);
                 float stepCount = glm::min(dist / 10.f, 1000.f);
@@ -201,7 +205,7 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
                     glm::vec2 pt1 = glm::lerp(start, end, glm::vec2(t1, t1));
                     glm::vec2 pt2 = glm::lerp(start, end, glm::vec2(t2, t2));
 
-                    drawList->AddLine(FromGLMVec2(pt1), FromGLMVec2(pt2), 0xFF0000FF, 2.f);
+                    drawList->AddLine(FromGLMVec2(pt1), FromGLMVec2(pt2), boxColor, 2.f);
                 }
             };
 

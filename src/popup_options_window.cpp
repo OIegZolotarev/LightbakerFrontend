@@ -4,15 +4,15 @@
 */
 
 #include "application.h"
+#include "ui_common.h"
 #include "popup_options_window.h"
 #include "imgui.h"
 #include "imgui_internal.h"
-#include "ui_common.h"
 
-#include "r_camera.h"
 #include "helpers.h"
 #include "imgui_popups.h"
 #include "popup_edit_gameconfiguration.h"
+#include "r_camera.h"
 #include "ui_options_pages.h"
 #include "ui_styles_manager.h"
 #include <xutility>
@@ -31,13 +31,12 @@ void RegisterOptions()
     AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::SelectedObjectColor, "Selection color", PropertiesTypes::ColorRGB);
+    AddOption(ApplicationSettings::SelectionBoxColor, "Selection box color", PropertiesTypes::ColorRGB);
 
     AddGroup("Background");
     AddOption(ApplicationSettings::UseGradientBackground, "Use gradient", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::BackgroundColor1, "Color 1", PropertiesTypes::ColorRGB);
     AddOption(ApplicationSettings::BackgroundColor2, "Color 2 (gradient)", PropertiesTypes::ColorRGB);
-
-    
 
     BeginOptionPage(OptionsPage::Camera, "Camera");
 
@@ -98,7 +97,8 @@ OptionsDialog::OptionsDialog() : IImGUIPopup(PopupWindows::ProgramOptions)
 {
     m_Key = "Preferences";
 
-    m_pGameConfigurationsView = new ListViewEx(new GameConfigurationListBinding, LV_DISABLE_MOVE_ITEMS | LV_DISABLE_SORT_ITEMS);
+    m_pGameConfigurationsView =
+        new ListViewEx(new GameConfigurationListBinding, LV_DISABLE_MOVE_ITEMS | LV_DISABLE_SORT_ITEMS);
 }
 
 OptionsDialog::~OptionsDialog()
@@ -159,7 +159,7 @@ void OptionsDialog::Render()
     {
         if (ImGui::BeginChild("ChildId", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())))
         {
-            RenderOptionsPages(pageToRender);            
+            RenderOptionsPages(pageToRender);
         }
 
         ImGui::EndChild();
@@ -170,7 +170,7 @@ void OptionsDialog::Render()
 
 void OptionsDialog::RenderFooter()
 {
-    //ImGui::Separator();
+    // ImGui::Separator();
 
     if (ImGui::Button("OK"))
         OnOkPressed();
@@ -238,8 +238,6 @@ void OptionsDialog::RenderGameConfigurationsPage()
 
         ImGui::EndChildFrame();
     }
-
-
 }
 
 void OptionsDialog::OnOpen()
@@ -294,12 +292,11 @@ void GameConfigurationListBinding::MoveItemDown()
     if (!m_SelectedConf.lock())
         return;
 
-
     std::list<GameConfigurationPtr>::iterator it =
         std::find(m_ConfigurationItems.begin(), m_ConfigurationItems.end(), m_SelectedConf.lock());
-    
+
     std::list<GameConfigurationPtr>::iterator next_it;
-    
+
     next_it = it;
     next_it++;
 
@@ -307,8 +304,7 @@ void GameConfigurationListBinding::MoveItemDown()
     {
         next_it = m_ConfigurationItems.begin();
     }
-    
-    
+
     std::iter_swap(it, next_it);
 }
 
@@ -317,12 +313,10 @@ void GameConfigurationListBinding::MoveItemUp()
     if (!m_SelectedConf.lock())
         return;
 
-
     std::list<GameConfigurationPtr>::iterator it =
         std::find(m_ConfigurationItems.begin(), m_ConfigurationItems.end(), m_SelectedConf.lock());
 
     std::list<GameConfigurationPtr>::iterator next_it;
-    
 
     if (it == m_ConfigurationItems.begin())
     {
@@ -373,7 +367,6 @@ void GameConfigurationListBinding::SortItems(SortDirection dir)
 
         return false;
     });
-
 }
 
 void GameConfigurationListBinding::SetSelectedItem()

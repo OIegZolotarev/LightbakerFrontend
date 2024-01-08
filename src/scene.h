@@ -88,8 +88,6 @@ public:
 
     bool IsModelLoaded();
 
-    
-
     // Scene scaling
     float GetSceneScale();
     void  SetScale(float f);

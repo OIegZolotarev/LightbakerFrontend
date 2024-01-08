@@ -100,6 +100,9 @@ void PersistentStorage::SetDefaultValues()
 
     setting = GetSetting(ApplicationSettings::SelectedObjectColor);
     setting->SetColorRGBA({1,0,0,1});
+
+    setting = GetSetting(ApplicationSettings::SelectionBoxColor);
+    setting->SetColorRGBA({1, 0, 0, 1});
 }
 
 void PersistentStorage::LoadFromFile(Application *appInstance)
