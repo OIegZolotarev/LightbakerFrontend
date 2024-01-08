@@ -42,6 +42,8 @@ void SelectionTool::RenderUI()
     else
         ImGui::Text("Not hovering above viewport...");
 
+    ImGui::Text("Ctrl status: %d", m_bCtrlHeld);
+
     // Hack to make sure window fits longer titles
     // https://discourse.dearimgui.org/t/how-can-make-window-size-elongate-with-the-long-title/128/2
     ImGui::SetCursorPosX(ImGui::CalcTextSize(GetDescrition()).x + 30);
@@ -51,6 +53,14 @@ void SelectionTool::RenderUI()
 
 int SelectionTool::HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    switch (e.type)
+    {
+    case SDL_KEYDOWN:
+        return HandleKeydownEvent(e, flFrameDelta);
+    case SDL_KEYUP:
+        return HandleKeyupEvent(e, flFrameDelta);
+    }
+
     return 0;
 }
 
@@ -64,16 +74,13 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
 
         if (buttons & SDL_BUTTON_LMASK)
             return HandleLeftClick();
-
-        return 0;
-
     case SDL_MOUSEBUTTONUP:
 
         if (buttons & SDL_BUTTON_LMASK)
             return HandleLeftRelease();
-
-        return 0;
     }
+
+    return 0;
 }
 
 int SelectionTool::HandleLeftRelease()
@@ -87,6 +94,8 @@ int SelectionTool::HandleLeftRelease()
             return EVENT_CONSUMED;
         }
     }
+
+    return 0;
 }
 
 int SelectionTool::HandleLeftClick()
@@ -95,22 +104,15 @@ int SelectionTool::HandleLeftClick()
     {
     case Picker: {
         assert(m_pActiveViewport);
-        m_pActiveViewport->FlagUpdate();
+        assert(m_pActiveDocument);
 
-        auto sr    = Application::GetMainWindow()->GetSceneRenderer();
-        auto scene = sr->GetScene();
 
-        auto obj = scene->GetEntityBySerialNumber(m_pActiveViewport->GetHoveredObjectID());
-        auto ptr = obj.lock();
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
 
-        if (ptr)
-        {
-            ptr->OnSelect(obj);
-        }
-        else
-        {
-            ObjectPropertiesEditor::Instance()->UnloadObject();
-        }
+        // If got there - we are definitly hovered
+        if (canSelect)
+            SelectHoveredObject();
+
     }
     break;
     case BoxSelection: {
@@ -126,6 +128,24 @@ int SelectionTool::HandleLeftClick()
         break;
     default:
         break;
+    }
+
+    return 0;
+}
+
+void SelectionTool::SelectHoveredObject()
+{
+    auto obj = m_pActiveDocument->GetEntityBySerialNumber(m_pActiveViewport->GetHoveredObjectID());
+    
+
+    if (!obj.expired())
+    {
+        ObjectPropertiesEditor::Instance()->LoadObject(obj, m_bCtrlHeld);
+        m_pActiveViewport->FlagUpdate();
+    }
+    else
+    {
+        ObjectPropertiesEditor::Instance()->UnloadObject();
     }
 }
 
@@ -196,6 +216,32 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
             drawDashedLine(pt4, pt1);
         }
     }
+}
+
+int SelectionTool::HandleKeydownEvent(const SDL_Event &e, const float flFrameDelta)
+{
+    auto scancode = e.key.keysym.scancode;
+
+    if (scancode == SDL_SCANCODE_LCTRL || scancode == SDL_SCANCODE_RCTRL)
+    {
+        m_bCtrlHeld = true;
+        return EVENT_CONSUMED;
+    }
+
+    return 0;
+}
+
+int SelectionTool::HandleKeyupEvent(const SDL_Event &e, const float flFrameDelta)
+{
+    auto scancode = e.key.keysym.scancode;
+    
+    if (scancode == SDL_SCANCODE_LCTRL || scancode == SDL_SCANCODE_RCTRL)
+    {
+        m_bCtrlHeld = false;
+        return EVENT_CONSUMED;
+    }
+
+    return 0;
 }
 
 void SelectionTool::RenderModeSelectorUI()

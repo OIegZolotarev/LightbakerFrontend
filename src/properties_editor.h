@@ -65,7 +65,7 @@ public:
     // Object manipulation
 
     GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
-    void                                     LoadObject(SceneEntityWeakPtr &pObject);
+    void LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection);
 
     void UnloadObject();
 

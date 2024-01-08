@@ -385,22 +385,6 @@ void Viewport::OutputDebug()
         // int id = ReadPixel(ratPos.x, ratPos.y);
         ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, m_hoveredObjectId);
 
-        static float zNear = 0.f;
-        static float zFar  = 1.f;
-
-//         const glm::vec3 world1 = ScreenToWorld(ratPos, zNear);
-//         ImGui::Text("World 1: %.3f %.3f %.3f", world1.x, world1.y, world1.z);
-
-
-//         for (int i = 0; i <= 30; i++)
-//         {
-//             const glm::vec3 world2 = ScreenToWorld(ratPos, -1.0f + (i / 30.f) * 2);
-//             ImGui::Text("World %f: %.3f %.3f %.3f", -1.0f + (i/30.f) * 2,world2.x, world2.y, world2.z);
-//         }
-// 
-// 
-//         // ImGui::SliderFloat("Z-Near", &zNear,-1,1);
-//         ImGui::InputFloat("Z-Far", &zFar, 0, 0, "%.6f");
     }
 
     

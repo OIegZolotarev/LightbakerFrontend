@@ -32,6 +32,8 @@ void EditingToolbox::Initialize()
     {
         it->RegisterBoundCommand();
     }
+
+    SelectTool(EditingToolId::Selection);
 }
 
 void EditingToolbox::SelectTool(EditingToolId toolId)

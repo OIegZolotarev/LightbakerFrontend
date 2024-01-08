@@ -11,6 +11,7 @@
 #include "r_camera.h"
 #include "scene_renderer.h"
 #include "mod_manager.h"
+#include "viewports_orchestrator.h"
 
 using namespace GoldSource;
 
@@ -105,6 +106,8 @@ void BSPWorld::OnLevelLoaded()
     auto locked = ptr.lock();
     m_pScene->OnEntityRegistered(locked);
     
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 GoldSource::BSPModelRenderCookiePtr BSPWorld::GetBSPModelRenderCookie(size_t idx)

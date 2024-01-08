@@ -212,7 +212,7 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
         if (bindings)
         {
-            ObjectPropertiesEditor::Instance()->LoadObject(weakRef);
+            // ObjectPropertiesEditor::Instance()->LoadObject(weakRef, m_);
             // bindings->AddObject(weakRef);
         }
         else
@@ -224,41 +224,6 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
         }
     }
 }
-
-// void BSPEntity::RenderUnshaded()
-// {
-//     const IModelWeakPtr model = GetModel();
-//
-//     auto sr = Application::GetMainWindow()->GetSceneRenderer();
-//
-//     if (auto ptr = model.lock())
-//     {
-//         ptr->Render(this, RenderMode::Unshaded);
-//         return;
-//     }
-//
-//     const BoundingBox &relativeBbox = GetRelativeBoundingBox();
-//
-//     if (m_pEditorSprite)
-//     {
-//         // TODO: cache this?
-//         auto prop = FindProperty(SpecialKeys::Key_Light());
-//
-//         glm::vec3 tint = {1, 1, 1};
-//
-//         if (prop)
-//             tint = prop->GetColorRGB();
-//
-//         const glm::vec3 size = relativeBbox.Size();
-//
-//         sr->DrawBillboard(GetPosition(), size.xy, m_pEditorSprite, tint, GetSerialNumber());
-//     }
-//     else
-//     {
-//         sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), GetRenderColor(),
-//                                      GetSerialNumber());
-//     }
-// }
 
 glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
 {

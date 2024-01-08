@@ -51,14 +51,17 @@ void ObjectPropertiesEditor::RenderEditor()
     RenderFlagsEditor();
 }
 
-void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &ptr)
+void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection)
 {
-    auto ref = ptr.lock();
+    auto ref = pObject.lock();
 
     if (!ref)
         return;
 
-    m_pPropertiesBinding->AddObject(ptr);
+    if (!addToSelection)
+        m_pPropertiesBinding->ClearObjects();
+
+    m_pPropertiesBinding->AddObject(pObject);
 
     auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
 

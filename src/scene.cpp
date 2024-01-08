@@ -407,6 +407,8 @@ void Scene::OnEntityRegistered(SceneEntityPtr &it)
     auto wptr = SceneEntityWeakPtr(it);
     
     m_pBVHTree->InsertEntity(it);
+
+    
 }
 
 void Scene::UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute)

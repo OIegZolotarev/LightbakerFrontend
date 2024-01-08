@@ -407,9 +407,6 @@
     <ClCompile Include="mod_primitive.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
-    <ClCompile Include="gl_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
     <ClCompile Include="gl_backend.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
@@ -472,6 +469,9 @@
     </ClCompile>
     <ClCompile Include="properties_editor.cpp">
       <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_shader.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
