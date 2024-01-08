@@ -30,6 +30,13 @@ class SelectionTool : public IEditingTool
     int  HandleKeyupEvent(const SDL_Event &e, const float flFrameDelta);
     bool m_bCtrlHeld = false;
 
+    int HandleLeftRelease();
+    int HandleLeftClick();
+
+    void SelectHoveredObject();
+
+    VariantValue *m_pSelectionBoxColor;
+
 public:
     SelectionTool();
 
@@ -41,14 +48,5 @@ public:
     int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
     int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
-    int HandleLeftRelease();
-
-    int HandleLeftClick();
-
-    void SelectHoveredObject();
-
     void RenderViewportUI(Viewport *pViewport) override;
-
-private:
-    VariantValue *m_pSelectionBoxColor;
 };
