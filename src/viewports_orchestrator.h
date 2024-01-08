@@ -26,6 +26,7 @@ public:
 
     void FlagRepaintAll();
 
+    void OnNewApplicationTick();
     void RenderViewports(IPlatformWindow *pWindow, float flFrameDelta);
     void DisplayViewports(IPlatformWindow *pWindow);
 

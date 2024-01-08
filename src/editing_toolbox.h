@@ -23,6 +23,8 @@ public:
     void Initialize();
     void SelectTool(EditingToolId toolId);
        
+    void RenderToolViewportUI(Viewport * pViewport);
+    void RenderToolViewport2DGraphics(float flFrameDelta);
 
     void RenderTool(float flFrameDelta);
     void RenderToolUI();

@@ -64,8 +64,11 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
         
         if (buttons & SDL_BUTTON_LMASK)
         {
+            m_pDragViewport     = m_pActiveViewport;
             m_bMouseDragValid   = true;
+            m_bMouseDragged     = true;
             m_vecMouseDragStart = m_pActiveViewport->CalcRelativeMousePos();
+            m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
             return EVENT_CONSUMED;    
         }
 
@@ -75,15 +78,46 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
 
         if (buttons & SDL_BUTTON_LMASK)
         {
-            //m_bMouseDragValid = true;
-            m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
-            return EVENT_CONSUMED;
+            if (m_bMouseDragged)
+            {
+                m_bMouseDragged   = false;
+                m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
+                return EVENT_CONSUMED;
+            }
         }
 
         return 0;
     }
 
     return 0;
+}
+
+void SelectionTool::RenderViewportUI(Viewport* pViewport)
+{
+    if (!m_pActiveViewport)
+    {
+        m_bMouseDragged = false; 
+    }
+    
+    if (m_pActiveViewport == m_pDragViewport)
+    {
+        if (m_bMouseDragged)
+        {
+            m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
+        }
+    }
+
+
+    if (pViewport == m_pDragViewport)
+    {
+        if (m_bMouseDragValid)
+        {
+            glm::vec2 p = pViewport->GetClientAreaPosAbs();
+
+            ImGui::GetWindowDrawList()->AddRect(FromGLMVec2( p + m_vecMouseDragStart), FromGLMVec2( p +m_vecMouseDragEnd),
+                                                0xFF0000FF);
+        }
+    }
 }
 
 void SelectionTool::RenderModeSelectorUI()

@@ -15,6 +15,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/mat4x4.hpp>
 
+
 enum class PlaneTypes
 {
     X = 0,
@@ -84,7 +85,5 @@ public:
     void        ApplyScale(glm::vec3 matrixScale);
 };
 
-
-
-
 glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles);
+

@@ -37,12 +37,15 @@ void ViewportsOrchestrator::FlagRepaintAll()
     }
 }
 
+void ViewportsOrchestrator::OnNewApplicationTick()
+{
+    // m_pHoveredViewport = nullptr;
+}
+
 void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFrameDelta)
 {
     BT_PROFILE("ViewportsOrchestrator::RenderViewports()");
-
-    m_pHoveredViewport = nullptr;
-
+    
     for (auto &it : m_lstViewports)
     {
         if (!it->IsVisible())
@@ -53,8 +56,12 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 
         if (it->GetMouseHoveringStatus() == ViewportMouseHover::Hovered)
         {
-            assert(!m_pHoveredViewport && "Error in hovering logic - multiple viewports seems to be hovered");
+            //assert((m_pHoveredViewport == it) && "Error in hovering logic - multiple viewports seems to be hovered");
             m_pHoveredViewport = it;
+        }
+        else if (it == m_pHoveredViewport)
+        {
+            m_pHoveredViewport = nullptr;
         }
 
         it->RenderFrame(flFrameDelta);

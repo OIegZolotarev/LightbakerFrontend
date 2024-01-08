@@ -17,6 +17,7 @@ enum class EditingToolId
     None
 };
 
+
 class IEditingTool
 {
     EditingToolId  m_id           = EditingToolId::None;
@@ -29,7 +30,6 @@ class IEditingTool
     void RegisterBoundCommand();
 
 protected:
-
     Viewport *m_pActiveViewport;
     Scene *   m_pActiveDocument;
 
@@ -44,6 +44,9 @@ public:
 
     virtual int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta);
     virtual int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta);
+
+    virtual void RenderViewportUI(Viewport* pViewport) {};
+    virtual void RenderViewport2DGraphics(float flFrameDelta){};
 
     virtual void Render(float flFrameDelta);
     virtual void RenderUI();

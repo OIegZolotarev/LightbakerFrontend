@@ -532,10 +532,34 @@ void Camera::CopyOrientation(Camera *param1)
 const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const
 {
 
-    glm::mat4 unprojectionMatrix = glm::inverse(m_matProjection * m_matModelView);
+// Projection matrix seems fine...
+#if 0
+    double fov = glm::radians(m_pFov->GetFloat());
 
+    glm::vec2 vp = m_pViewport->GetClientArea();
+
+    float m_iWidth  = vp[0];
+    float m_iHeight = vp[1];
+
+    double aspect = m_iWidth / m_iHeight;
+    double fov_y  = 2 * atan(tan(fov / 2) / aspect); // Ìîÿ ôîðìóëà - ïëàâàåò?
+    double dbg    = glm::degrees(fov_y);
+
+    glm::mat4 proj = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
+
+#endif
+
+
+    glm::mat4 unprojectionMatrix = glm::inverse(m_matProjection * m_matModelView);
     glm::vec4 result = unprojectionMatrix * glm::vec4(normalizedDeviceCoords, 1);
-    result /= result.w;
+
+    result *=  1 / result.w;
+
+    glm::vec4 test = (m_matProjection * (m_matModelView * result));
+    
+    float error = glm::length(normalizedDeviceCoords - test.xyz);
+
+    
 
     return glm::vec3(result.xyz);
 }

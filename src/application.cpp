@@ -124,6 +124,8 @@ void Application::Run()
 
     do
     {
+        ViewportsOrchestrator::Instance()->OnNewApplicationTick();
+
         m_lstWindows.remove_if([](IPlatformWindow *wind) {
             if (wind->IsTerminated())
             {

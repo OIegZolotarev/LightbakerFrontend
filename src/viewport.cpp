@@ -11,10 +11,13 @@
 #include "properties_editor.h"
 #include "viewports_orchestrator.h"
 
-glm::vec2 Viewport::CalcRelativeMousePos()
+glm::vec2 Viewport::CalcRelativeMousePos(bool yAtTop)
 {
     ImVec2 s = ImGui::GetMousePos();
-    return {s.x - m_DisplayWidgetPosition.x, m_ClientAreaSize.y - (s.y - m_DisplayWidgetPosition.y)};
+    if (yAtTop)
+        return {s.x - m_DisplayWidgetPosition.x, (s.y - m_DisplayWidgetPosition.y)};
+    else
+        return {s.x - m_DisplayWidgetPosition.x, m_ClientAreaSize.y - (s.y - m_DisplayWidgetPosition.y)};
 }
 
 bool Viewport::PointInClientRect(glm::vec2 pt)
@@ -191,9 +194,11 @@ void Viewport::DisplayRenderedFrame()
         }
 
         UpdateDisplayWidgetPos();
-        DisplayViewportUI(pos);
 
+        DisplayViewportUI(pos);
         RenderGuizmo();
+        
+        EditingToolbox::Instance()->RenderToolViewportUI(this);
     }
 
     OutputDebug();
@@ -285,6 +290,7 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
 
         if (ImGui::MenuItem("Clone to new window"))
         {
+            // FIXME: when extra window is opened - viepwort cloned to second to last window
             auto cmd = Application::CommandsRegistry()->FindCommandByGlobalId(GlobalCommands::OpenNewWindow);
             cmd->Execute();
 
@@ -378,9 +384,22 @@ void Viewport::OutputDebug()
         int id = ReadPixel(ratPos.x, ratPos.y);
         ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, id);
 
-        const glm::vec3 world = ScreenToWorld(ratPos, 0.5f);
-        ImGui::Text("World: %.3f %.3f %.3f", world.x, world.y, world.z);
+        static float zNear = 0.f;
+        static float zFar  = 1.f;
 
+//         const glm::vec3 world1 = ScreenToWorld(ratPos, zNear);
+//         ImGui::Text("World 1: %.3f %.3f %.3f", world1.x, world1.y, world1.z);
+
+
+//         for (int i = 0; i <= 30; i++)
+//         {
+//             const glm::vec3 world2 = ScreenToWorld(ratPos, -1.0f + (i / 30.f) * 2);
+//             ImGui::Text("World %f: %.3f %.3f %.3f", -1.0f + (i/30.f) * 2,world2.x, world2.y, world2.z);
+//         }
+// 
+// 
+//         // ImGui::SliderFloat("Z-Near", &zNear,-1,1);
+//         ImGui::InputFloat("Z-Far", &zFar, 0, 0, "%.6f");
     }
 
     
@@ -457,20 +476,30 @@ ViewportMouseHover Viewport::GetMouseHoveringStatus()
     return ViewportMouseHover::Hovered;
 }
 
-glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction)
+const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction) const
 {
-    assert(depthFraction >= -1 && depthFraction <= 1);
+ 
+    #if 0
+     glm::vec3 winCoords = glm::vec3(viewportCoords.xy, depthFraction);
+     glm::vec4 viewport  = {0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y};
+ 
+     return glm::unProject(winCoords, m_pCamera->GetViewMatrix(), m_pCamera->GetProjectionMatrix(), viewport);
+     #endif
+
+
+    // assert(depthFraction >= -1 && depthFraction <= 1);
 
     glm::vec3 ndc = {};
 
-    ndc.x = viewportCoords.x / m_ClientAreaSize.y;
-    ndc.y = (1 - (viewportCoords.y / m_ClientAreaSize.y));
+    ndc.x = viewportCoords.x / m_ClientAreaSize.x;
+    ndc.y = viewportCoords.y / m_ClientAreaSize.y;
     ndc.z = depthFraction;
 
     // Convert from [0,1] to [-1,1] range
     ndc.x = (ndc.x - 0.5f) * 2;
     ndc.y = (ndc.y - 0.5f) * 2;
 
+    //return ndc;
     return m_pCamera->ScreenToWorld(ndc);
 }
 

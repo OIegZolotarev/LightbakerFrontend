@@ -102,8 +102,8 @@ public:
     bool IsVisible();
 
     // Mouse
-    glm::vec2          CalcRelativeMousePos();
+    glm::vec2          CalcRelativeMousePos(bool yAtTop = true);
     ViewportMouseHover GetMouseHoveringStatus();
 
-    glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction);
+    const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction) const;
 };

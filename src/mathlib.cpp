@@ -73,6 +73,8 @@ glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles)
     return transform;
 }
 
+
+
 void plane_s::CalcSignBits()
 {
     signbits = 0;

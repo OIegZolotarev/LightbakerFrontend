@@ -470,6 +470,9 @@
     <ClCompile Include="toolbox_panel.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="ui_common.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">

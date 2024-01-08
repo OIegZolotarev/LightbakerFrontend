@@ -17,12 +17,16 @@ class SelectionTool : public IEditingTool
 {
     SelectionModes m_SelectionMode = Picker;
 
-    bool m_bMouseDragValid = false;
+    bool      m_bMouseDragValid = false;
+    bool      m_bMouseDragged   = false;
+
+    Viewport *m_pDragViewport;
     glm::vec2 m_vecMouseDragStart;
     glm::vec2 m_vecMouseDragEnd;
 
-public:
+    void RenderModeSelectorUI();
 
+public:
     SelectionTool();
 
     // Rendering and UI
@@ -33,6 +37,5 @@ public:
     int HandleKeyboardEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
     int HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
-private:
-    void RenderModeSelectorUI();
+    void RenderViewportUI(Viewport* pViewport) override;
 };

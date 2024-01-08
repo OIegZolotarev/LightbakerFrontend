@@ -40,6 +40,22 @@ void EditingToolbox::SelectTool(EditingToolId toolId)
     m_pCurrentTool      = pTool;
 }
 
+void EditingToolbox::RenderToolViewportUI(Viewport * pViewport)
+{
+    if (!m_pCurrentTool)
+        return;
+
+    m_pCurrentTool->RenderViewportUI(pViewport);
+}
+
+void EditingToolbox::RenderToolViewport2DGraphics(float flFrameDelta)
+{
+    if (!m_pCurrentTool)
+        return;
+
+    m_pCurrentTool->RenderViewport2DGraphics(flFrameDelta);
+}
+
 void EditingToolbox::RenderTool(float flFrameDelta)
 {
     if (!m_pCurrentTool)

@@ -271,6 +271,7 @@ build.bat
     <ClCompile Include="r_octree.cpp" />
     <ClCompile Include="secondary_window.cpp" />
     <ClCompile Include="commands_toolbar_panel.cpp" />
+    <ClCompile Include="ui_common.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="viewports_orchestrator.cpp" />
     <ClCompile Include="world_entity.cpp" />
