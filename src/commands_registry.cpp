@@ -280,10 +280,7 @@ CCommand::CCommand(GlobalCommands id, const char *description, const char *keySt
     else
         *m_szKeyStroke = 0;
 
-    for (auto &it : m_rKeys)
-        it = -1;
-
-    
+    ParseKeyStroke();
 }
 
 void CCommand::SetId(GlobalCommands id)

@@ -3,7 +3,6 @@
     (c) 2022 CrazyRussian
 */
 
-
 #include "application.h"
 #include "common.h"
 #include "r_camera.h"
@@ -395,7 +394,7 @@ void Camera::UpdateOrientation(float flFrameDelta)
                     (m_CurrentMoveSpeeds[1] * flFrameDelta) * m_vRight +
                     (m_CurrentMoveSpeeds[2] * flFrameDelta) * m_vUp;
 
-        if (glm::length2(old-m_Origin) > 1.f)
+        if (glm::length2(old - m_Origin) > 1.f)
             recalcPosition = true;
     }
     else
@@ -547,7 +546,6 @@ void Camera::CopyOrientation(Camera *param1)
 
 const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const
 {
-
 // Projection matrix seems fine...
 #if 0
     double fov = glm::radians(m_pFov->GetFloat());
@@ -565,17 +563,14 @@ const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) co
 
 #endif
 
-
     glm::mat4 unprojectionMatrix = glm::inverse(m_matProjection * m_matModelView);
-    glm::vec4 result = unprojectionMatrix * glm::vec4(normalizedDeviceCoords, 1);
+    glm::vec4 result             = unprojectionMatrix * glm::vec4(normalizedDeviceCoords, 1);
 
-    result *=  1 / result.w;
+    result *= 1 / result.w;
 
     glm::vec4 test = (m_matProjection * (m_matModelView * result));
-    
-    float error = glm::length(normalizedDeviceCoords - test.xyz);
 
-    
+    float error = glm::length(normalizedDeviceCoords - test.xyz);
 
     return glm::vec3(result.xyz);
 }
@@ -716,8 +711,6 @@ int Camera::MouseMotionEvent(const SDL_Event &_event, const float flFrameDelta)
         break;
     }
 
-    
-
     return 0;
 }
 
@@ -834,6 +827,20 @@ void Camera::SetupPerspectiveMatrix()
     double dbg    = glm::degrees(fov_y);
 
     m_matProjection = glm::perspective(fov_y, aspect, (double)m_pZNear->GetFloat(), (double)m_pZFar->GetFloat());
+
+#if 0
+
+    // Achieving orthogonal camera like in Fusion-360
+    // using glm::ortho yields more or less good results,
+    // although some thing should be kept in mind:
+    // 1) Depth axis becomes de-facto absent,
+    // 2) Moving through depth axis should be handled by zooming
+    // 3) Zooming in and out should be handled by scaling ortho viewport (kinda like changing fov)
+    // 4) Viewport::ScreenToWorld seems work fine and seems to output prediactable z-values in linear fashion
+
+    glm::vec2 ext = m_pViewport->GetClientArea() / 2.f;
+    m_matProjection = glm::ortho(-ext.x / 2, ext.x / 2.f, -ext.y / 2.f, ext.y / 2.f, m_pZNear->GetFloat(), m_pZFar->GetFloat());
+#endif
 
 #ifdef OLD_GL
     glMatrixMode(GL_PROJECTION);

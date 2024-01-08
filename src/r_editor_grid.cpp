@@ -27,8 +27,6 @@ void GridRenderer::Init()
 
     CreateMesh();
 
-    // TODO: крашится на русской раскладке
-
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
         GlobalCommands::IncreaseGridStep, "Increase grid step", "]", 0, CMD_ONLY_TEXT, [&]() { StepUpGrid(); }));
 

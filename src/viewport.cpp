@@ -198,7 +198,7 @@ void Viewport::DisplayRenderedFrame()
 
         DisplayViewportUI(pos);
         RenderGuizmo();
-        
+
         EditingToolbox::Instance()->RenderToolViewportUI(this);
     }
 
@@ -368,15 +368,14 @@ RenderMode Viewport::GetRenderMode()
 void Viewport::OutputDebug()
 {
     auto      position = m_pCamera->GetOrigin();
-    glm::vec3 angles = m_pCamera->GetAngles();
+    glm::vec3 angles   = m_pCamera->GetAngles();
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    
-
-    ImGui::Text("%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d",
-                m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered, m_bHoveredImGUI,
-                m_bDocked);
+    ImGui::Text(
+        "%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d",
+        m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered,
+        m_bHoveredImGUI, m_bDocked);
 
     auto ratPos = CalcRelativeMousePos(false);
 
@@ -385,9 +384,18 @@ void Viewport::OutputDebug()
         // int id = ReadPixel(ratPos.x, ratPos.y);
         ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, m_hoveredObjectId);
 
-    }
+#if 0
+        const glm::vec3 world2 = ScreenToWorld(ratPos, -1.f);
+        ImGui::Text("World(-1.f): %.3f %.3f %.3f", world2.x, world2.y, world2.z);
 
-    
+        const glm::vec3 world = ScreenToWorld(ratPos, 0.5f);
+        ImGui::Text("World(0.5f): %.3f %.3f %.3f", world.x, world.y, world.z);
+
+        const glm::vec3 world3 = ScreenToWorld(ratPos, 1.f);
+        ImGui::Text("World(1.f): %.3f %.3f %.3f", world3.x, world3.y, world3.z);
+#endif
+
+    }
 }
 
 const char *Viewport::Name()
@@ -468,14 +476,12 @@ ViewportMouseHover Viewport::GetMouseHoveringStatus()
 
 const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction) const
 {
- 
-    #if 0
+#if 0
      glm::vec3 winCoords = glm::vec3(viewportCoords.xy, depthFraction);
      glm::vec4 viewport  = {0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y};
  
      return glm::unProject(winCoords, m_pCamera->GetViewMatrix(), m_pCamera->GetProjectionMatrix(), viewport);
-     #endif
-
+#endif
 
     // assert(depthFraction >= -1 && depthFraction <= 1);
 
@@ -489,7 +495,7 @@ const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFra
     ndc.x = (ndc.x - 0.5f) * 2;
     ndc.y = (ndc.y - 0.5f) * 2;
 
-    //return ndc;
+    // return ndc;
     return m_pCamera->ScreenToWorld(ndc);
 }
 
