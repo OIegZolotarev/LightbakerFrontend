@@ -281,7 +281,7 @@ void ModelOBJ::OnUnhovered()
 {
 }
 
-void ModelOBJ::Render(RenderMode mode, ShaderProgram* shader)
+void ModelOBJ::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
 {
 }
 

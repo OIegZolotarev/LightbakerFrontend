@@ -24,7 +24,7 @@ BSPModelAdapter::~BSPModelAdapter()
 {
 }
 
-void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
+void BSPModelAdapter::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     auto model = m_Model.lock();
 
@@ -34,9 +34,19 @@ void BSPModelAdapter::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMod
     auto pMesh = model->GetDrawMesh();
     pMesh->Bind();
 
-    auto it = currentShader->UniformByKind(UniformKind::ObjectSerialNumber);
-    if (it)
-        it->SetInt(pEntity->GetSerialNumber());
+
+    for (auto & it : currentShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(pEntity->GetSerialNumber());
+            break;
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(pEntity, it);
+            break;
+        }
+    }
 
     auto &lists = model->GetDisplayList();
 

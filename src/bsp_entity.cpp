@@ -59,12 +59,10 @@ void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
     }
 }
 
-void BSPEntity::Render(RenderMode mode, ShaderProgram *shader)
+void GoldSource::BSPEntity::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
 {
     const IModelWeakPtr model = GetModel();
-
-    auto sr = Application::GetMainWindow()->GetSceneRenderer();
-     
+         
     // TODO: move this somewhere to BSPEntityProperty::Update
     auto prop = FindProperty(SpecialKeys::Key_Light());
     if (prop)

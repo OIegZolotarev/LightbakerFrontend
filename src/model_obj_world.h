@@ -43,7 +43,7 @@ public:
 	void        OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions) override;
 
-	void Render(RenderMode mode, ShaderProgram* shader) override;
+	void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
 
 
 	bool IsDataLoaded() override;

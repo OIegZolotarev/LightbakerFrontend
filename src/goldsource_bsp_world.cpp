@@ -45,13 +45,26 @@ BSPWorld::~BSPWorld()
 {
 }
 
-void BSPWorld::Render(RenderMode mode, ShaderProgram* shader)
+void BSPWorld::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
 {
     if (!m_pRenderer)
         return;
 
-    auto      sr        = Application::GetMainWindow()->GetSceneRenderer();
     glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetOrigin();
+
+
+    for (auto & it: shader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(this, it);
+            break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(GetSerialNumber());
+            break;
+        }
+    }
 
     m_pRenderer->RenderWorld(cameraPos);
     //    sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, {1, 0, 1});

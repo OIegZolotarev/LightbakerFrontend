@@ -30,11 +30,14 @@ void RegisterOptions()
     AddGroup("Scene");
     AddOption(ApplicationSettings::RebakeSceneAfterChanges, "Auto-rebake after changes", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::ShowGround, "Display ground", PropertiesTypes::Bool);
+    AddOption(ApplicationSettings::SelectedObjectColor, "Selection color", PropertiesTypes::ColorRGB);
 
     AddGroup("Background");
     AddOption(ApplicationSettings::UseGradientBackground, "Use gradient", PropertiesTypes::Bool);
     AddOption(ApplicationSettings::BackgroundColor1, "Color 1", PropertiesTypes::ColorRGB);
     AddOption(ApplicationSettings::BackgroundColor2, "Color 2 (gradient)", PropertiesTypes::ColorRGB);
+
+    
 
     BeginOptionPage(OptionsPage::Camera, "Camera");
 

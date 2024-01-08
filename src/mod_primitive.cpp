@@ -56,7 +56,7 @@ const std::optional<BoundingBox> PrimitiveModel::GetBoundingBox() const
     return BoundingBox(1);
 }
 
-void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
+void PrimitiveModel::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     BT_PROFILE("PrimitiveModel::Render()");
 
@@ -83,6 +83,9 @@ void PrimitiveModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode
             break;
         case UniformKind::ObjectSerialNumber:
             it->SetInt(pEntity->GetSerialNumber());
+            break;
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(pEntity, it);
             break;
         }
     }

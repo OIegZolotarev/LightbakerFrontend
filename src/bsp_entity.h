@@ -54,7 +54,7 @@ public:
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
-    void Render(RenderMode mode, ShaderProgram *shader) override;
+    void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
     void UpdatePropertyPosition(BSPEntityProperty *p, glm::vec3 delta);
 };
 

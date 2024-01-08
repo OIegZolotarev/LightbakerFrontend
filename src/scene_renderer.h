@@ -90,7 +90,9 @@ public:
 
     void AddTransparentEntity(SceneEntityWeakPtr pEntity);
 
-    void DrawBillboardMesh();
+    void DrawBillboardMesh() const;
+
+    void ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const;
 
 private:
     RenderChain m_TransparentEntitiesChain;
@@ -105,6 +107,7 @@ private:
     Scene *     m_pScene;
 
     VariantValue *m_pShowGround;
+    VariantValue *m_pSelectedObjectColor;
 
     // Helper meshes
     DrawMesh *m_pBillBoard;
@@ -136,4 +139,6 @@ private:
 
     
     void FillSortListsBVH(BVHTree * pTree, BVHNode * pNode, Frustum* pFrustum, glm::vec3 eyesPos, FrustumVisiblity parentVisiblity = FrustumVisiblity::Partial);
+
+
 };

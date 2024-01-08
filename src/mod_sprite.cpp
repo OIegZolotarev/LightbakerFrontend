@@ -24,7 +24,7 @@ SpriteModel::~SpriteModel()
 {
 }
 
-void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
+void SpriteModel::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     BT_PROFILE("SpriteModel::Render");
 
@@ -50,6 +50,9 @@ void SpriteModel::Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mo
             break;
         case UniformKind::ObjectSerialNumber:
             it->SetInt(pEntity->GetSerialNumber());
+            break;
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(pEntity, it);            
             break;
         }
     }

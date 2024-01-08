@@ -42,7 +42,7 @@ public:
     ;
 
     bool         IsTransparent();
-    virtual void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) = 0;
+    virtual void Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) = 0;
 
     size_t Hash();
     void   SetHash(size_t hash);

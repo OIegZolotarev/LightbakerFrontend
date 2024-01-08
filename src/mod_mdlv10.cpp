@@ -141,8 +141,6 @@ StudioModelV10::~StudioModelV10()
 
 StudioEntityState state;
 
-
-
 int StudioModelV10::SetBodygroup(int iGroup, int iValue)
 {
     if (iGroup > m_vBodyParts.size())
@@ -504,7 +502,7 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
     return bodyPart->SubModel(index);
 }
 
-void StudioModelV10::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode mode, ShaderProgram *currentShader)
+void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
     BT_PROFILE("StudioModelV10::Render()");
 
@@ -514,20 +512,30 @@ void StudioModelV10::Render(SceneEntity *pEntity, SceneRenderer *sr, RenderMode 
     m_EntityState->angles       = pEntity->GetAngles();
 
     m_EntityState->worldTransform = pEntity->GetTransform();
+    m_EntityState                 = &state;
 
-        
-
-    m_EntityState = &state;
-
-    // AdvanceFrame(Application::GetMainWindow()->FrameDelta());
+    // TODO: fix this
     glCullFace(GL_FRONT);
 
     SetupBones();
 
+    for (auto &it : currentShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(pEntity, it);
+            break;
+        case UniformKind::BonesTransform:
+            it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
+            break;
+        }
+    }
+
     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
     {
         const StudioSubModelV10 *subModel = SetupModel(i);
-        subModel->DrawPoints(m_EntityState,currentShader);
+        subModel->DrawPoints(m_EntityState, currentShader);
     }
 
     // OverlayBones();
@@ -1023,10 +1031,9 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState, ShaderProg
     {
         switch (it->Kind())
         {
-        
-        case UniformKind::TransformMatrix: 
+        case UniformKind::TransformMatrix:
             it->SetMat4(pState->worldTransform);
-        break;
+            break;
         case UniformKind::ObjectSerialNumber:
             it->SetInt(pState->serialNumber);
             break;
@@ -1076,11 +1083,6 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
 
 void StudioSubModelV10::DrawPoints(StudioEntityState *pState, ShaderProgram *currentShader) const
 {
-    auto it = currentShader->UniformByKind(UniformKind::BonesTransform);
-
-    if (it)
-        it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
-
     for (auto &it : m_vMeshes)
     {
         it->DrawPoints(pState, currentShader);

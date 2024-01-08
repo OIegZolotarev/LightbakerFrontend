@@ -93,6 +93,7 @@ typedef struct sentvars_s
 
 } sentvars_t;
 
+
 class Scene;
 class ShaderProgram;
 class OctreeNode;
@@ -125,7 +126,7 @@ public:
     SceneEntity(Scene *pScene);
     SceneEntity(SceneEntity &other);
 
-    virtual void Render(RenderMode mode, ShaderProgram *shader){};
+    virtual void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader){};
 
     virtual bool IsDataLoaded();
 

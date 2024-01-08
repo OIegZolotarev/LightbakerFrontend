@@ -97,6 +97,9 @@ void PersistentStorage::SetDefaultValues()
 
     setting = GetSetting(ApplicationSettings::CameraMouseSensivityZooming);
     setting->SetInt(1.f);
+
+    setting = GetSetting(ApplicationSettings::SelectedObjectColor);
+    setting->SetColorRGBA({1,0,0,1});
 }
 
 void PersistentStorage::LoadFromFile(Application *appInstance)

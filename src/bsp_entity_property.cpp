@@ -209,7 +209,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         break;
     case PropertyMetatype::Flags:
         break;
-    case PropertyMetatype::Light:
+    case PropertyMetatype::Light:   
         break;
     case PropertyMetatype::Wad:
         break;

@@ -26,9 +26,9 @@ uberShaderDefs_t g_UberShaderTable[] = {
     {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "FLATSHADED"}  , nullptr}    ,    
     {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr}    ,
     {ModelType::StaticLightmapped , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "FLATSHADED"}  , nullptr}    ,
-    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
-    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
-    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          ,"SOLID_COLOR"   , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
     {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
@@ -52,23 +52,17 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
 
     auto pers     = Application::Instance()->GetPersistentStorage();
     m_pShowGround = pers->GetSetting(ApplicationSettings::ShowGround);
+    m_pSelectedObjectColor = pers->GetSetting(ApplicationSettings::SelectedObjectColor);
 
     m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
 
-    Con_Printf("==== Building uber shader permutations ====\n");
 
     for (auto &it : g_UberShaderTable)
     {
-        Con_Printf("Building permutation: ");
-        for (auto & it: it.defines)
-            Con_Printf(" %s", it);
-
-        Con_Printf("\n");
-
         it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
     }
 
-    Con_Printf("==== Uber shader permutations done ====\n");
+    
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -556,6 +550,17 @@ void SceneRenderer::FillSortListsBVH(BVHTree *pTree, BVHNode *pNode, Frustum *pF
 
 }
 
+void SceneRenderer::ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const
+{
+    assert(m_pSelectedObjectColor);
+
+
+    if (pEntity->IsSelected())
+        it->SetFloat4(glm::vec4(m_pSelectedObjectColor->GetColorRGB(),1));
+    else
+        it->SetFloat4({1, 1, 1, 1});
+}
+
 void SceneRenderer::FillSortListsLinear(const std::list<SceneEntityPtr> &ents, Frustum *frustum, glm::vec3 eyesPos)
 {
     BT_PROFILE("SceneRenderer::FillSortListsLinear");
@@ -612,7 +617,7 @@ void SceneRenderer::RenderEntitiesChain(const sSortInfo *pData, const size_t nEn
         }
 
         stats->nEntitiesRendered++;
-        info->pEntity->Render(m_RenderMode, currentShader);
+        info->pEntity->Render(m_RenderMode, this, currentShader);
     }
 }
 
@@ -722,7 +727,7 @@ void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
     m_TransparentEntitiesChain.AddDistanceSorted(pEntity);
 }
 
-void SceneRenderer::DrawBillboardMesh()
+void SceneRenderer::DrawBillboardMesh() const
 {
     m_pBillBoard->Draw();
 }

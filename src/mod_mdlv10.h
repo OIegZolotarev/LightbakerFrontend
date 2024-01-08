@@ -390,7 +390,7 @@ public:
     short             GetSkinRef(int skinref);
     StudioTextureV10 *GetTexture(short textureIdx);
 
-    void Render(SceneEntity *pEntity, SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
+    void Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
 };
 
 } // namespace GoldSource

@@ -5,12 +5,10 @@
 
 #pragma once
 #include "bsp_entities_properties_binding.h"
-#include "toolui_panel.h"
 #include "object_props.h"
+#include "toolui_panel.h"
 
 class Viewport;
-
-
 
 class ObjectPropertiesEditor : public ToolUIPanel
 {
@@ -18,7 +16,7 @@ class ObjectPropertiesEditor : public ToolUIPanel
 
     ObjectPropertiesEditor();
 
-    std::unordered_map<uint32_t,glm::vec3>                              m_mapRelativeObjectsPos;
+    std::unordered_map<uint32_t, glm::vec3>  m_mapRelativeObjectsPos;
     GoldSource::BSPEntitiesPropertiesBinder *m_pPropertiesBinding = nullptr;
 
     // Properties
@@ -58,6 +56,8 @@ class ObjectPropertiesEditor : public ToolUIPanel
 
     void RenderEditor();
 
+    void UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
+
 public:
     static ObjectPropertiesEditor *Instance();
     ~ObjectPropertiesEditor();
@@ -66,8 +66,6 @@ public:
 
     GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
     void                                     LoadObject(SceneEntityWeakPtr &pObject);
-
-    
 
     void UnloadObject();
 
@@ -79,12 +77,8 @@ public:
 
     void RenderGuizmo(Viewport *pViewport);
     void Render() override;
-    
-    void ReloadPropertiesFromBinder();
-
-private:
-    void UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
-
-public:
     void RenderDebugOctree();
+
+    void ReloadPropertiesFromBinder();
+    
 };

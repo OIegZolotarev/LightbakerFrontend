@@ -68,6 +68,9 @@ void main()
 #include "common_fragment.h"
 
 
+// Color 2 used to distinct selected objects
+uniform vec4 u_Color2;
+
 #ifdef SOLID_COLOR
 // Solid color (for point entities)
 uniform vec4 u_Color;
@@ -112,7 +115,7 @@ void main()
 	outColor *= u_Color;
 #endif
 
-	oFragColor = outColor;
+	oFragColor = outColor * u_Color2;
 	
 	oSelColor = u_ObjectSerialNumber;  
 	//oSelColor = 0;  

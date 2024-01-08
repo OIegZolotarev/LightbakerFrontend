@@ -431,9 +431,6 @@
     <ClCompile Include="r_bvh.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="properties_editor.cpp">
-      <Filter>Исходные файлы\Panels</Filter>
-    </ClCompile>
     <ClCompile Include="debug_panel.cpp">
       <Filter>Исходные файлы\Panels</Filter>
     </ClCompile>
@@ -472,6 +469,9 @@
     </ClCompile>
     <ClCompile Include="ui_common.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="properties_editor.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -829,9 +829,6 @@
     <ClInclude Include="r_bvh_boundingbox.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="properties_editor.h">
-      <Filter>Исходные файлы\Panels</Filter>
-    </ClInclude>
     <ClInclude Include="debug_panel.h">
       <Filter>Исходные файлы\Panels</Filter>
     </ClInclude>
@@ -860,6 +857,9 @@
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
     <ClInclude Include="toolbox_panel.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="properties_editor.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
   </ItemGroup>

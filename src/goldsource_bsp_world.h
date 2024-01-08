@@ -28,7 +28,7 @@ class BSPWorld: public IWorldEntity
     void        OnLevelLoaded();
     GoldSource::BSPModelRenderCookiePtr GetBSPModelRenderCookie(size_t idx);
 
-    void Render(RenderMode mode, ShaderProgram* shader) override;
+    void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
 };
 }
 

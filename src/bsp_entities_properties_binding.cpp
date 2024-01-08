@@ -30,6 +30,8 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
             return;
     }
 
+    rawBSP->SetSelected(true);
+
     m_lstSelectedObjects.push_back(ptr);
 
     RebuildPropertiesList();
@@ -152,6 +154,17 @@ void BSPEntitiesPropertiesBinder::UpdatePropertyPositionDelta(VariantValue *prop
 
 void BSPEntitiesPropertiesBinder::ClearObjects()
 {
+    for (auto & it: m_lstSelectedObjects)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        ptr->SetSelected(false);
+    }
+
+
     m_lstSelectedObjects.clear();
 }
 
