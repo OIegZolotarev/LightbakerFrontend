@@ -85,7 +85,7 @@ public:
     void InsertEntity(SceneEntityPtr & entity);
 
     /// Return the number of particles in the tree.
-    unsigned int nParticles();
+    size_t nParticles();
 
     //! Remove a particle from the tree.
     /*! \param particle

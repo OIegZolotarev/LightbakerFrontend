@@ -86,7 +86,7 @@ void BVHTree::InsertEntity(SceneEntityPtr &entity)
     m_vecNodes[node].entity = entity;
 }
 
-unsigned int BVHTree::nParticles()
+size_t BVHTree::nParticles()
 {
     return m_EntitiesMap.size();
 }
