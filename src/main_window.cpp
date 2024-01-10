@@ -260,9 +260,7 @@ void MainWindow::InitBackend()
         printf("[INFO] GLAD Initialized\n");
 
 #ifdef GL_DEBUG
-
-#define GL_DEBUG_OUTPUT 0x92E0
-
+    #define GL_DEBUG_OUTPUT 0x92E0
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallbackARB(DebugMessageCallback, 0);
 #endif

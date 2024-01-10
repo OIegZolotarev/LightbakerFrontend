@@ -149,6 +149,7 @@ void Viewport::DisplayRenderedFrame()
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
         m_bDocked = ImGui::IsWindowDocked();
+        m_bFocused = ImGui::IsWindowFocused();
 
         auto r = GLScreenSpace2DRenderer::Instance();
 
@@ -346,6 +347,10 @@ void Viewport::UpdateDisplayWidgetPos()
 
 int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    if (!(m_bHovered && m_bHoveredImGUI) && !m_pCamera->IsFPSNavigationEngaged())
+        return 0;
+    
+
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
     {

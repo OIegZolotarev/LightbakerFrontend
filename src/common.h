@@ -31,6 +31,7 @@
 
 #define CheckCorruption() assert(_CrtCheckMemory())
 
-#define GL_DEBUG
+//#define GL_DEBUG
+
 #define BT_ENABLE_PROFILE
 #include "btQuickProf.h"

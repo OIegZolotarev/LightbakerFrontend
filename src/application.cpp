@@ -398,12 +398,17 @@ void Application::ParseLightBakerProgressMessage(std::string &captured)
 }
 
 void Application::ShowMouseCursor()
-{    
+{   
+    if (!m_bMouseCursorVisible)
+        Con_Printf("Application::ShowMouseCursor()\n");
     m_bMouseCursorVisible = true;
 }
 
 void Application::HideMouseCursor()
 {
+    if (m_bMouseCursorVisible)
+        Con_Printf("Application::HideMouseCursor()\n");
+
     m_bMouseCursorVisible = false;    
 }
 

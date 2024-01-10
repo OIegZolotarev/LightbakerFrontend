@@ -108,4 +108,7 @@ public:
     ViewportMouseHover GetMouseHoveringStatus();
 
     const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const;
+
+private:
+    bool m_bFocused;
 };

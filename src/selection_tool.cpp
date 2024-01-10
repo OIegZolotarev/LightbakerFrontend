@@ -97,6 +97,8 @@ int SelectionTool::HandleLeftRelease()
             ValidateMinsMaxs();
             UpdateBoxSelectionFrustum();
 
+            SelectItemsInSelectionFrustum();
+
             return EVENT_CONSUMED;
         }
     }
@@ -112,13 +114,11 @@ int SelectionTool::HandleLeftClick()
         assert(m_pActiveViewport);
         assert(m_pActiveDocument);
 
-
         bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
 
         // If got there - we are definitly hovered
         if (canSelect)
             SelectHoveredObject();
-
     }
     break;
     case BoxSelection: {
@@ -142,7 +142,6 @@ int SelectionTool::HandleLeftClick()
 void SelectionTool::SelectHoveredObject()
 {
     auto obj = m_pActiveDocument->GetEntityBySerialNumber(m_pActiveViewport->GetHoveredObjectID());
-    
 
     if (!obj.expired())
     {
@@ -164,30 +163,26 @@ void SelectionTool::UpdateBoxSelectionFrustum()
         {0, 1}, // bottom left
     };
 
-    
-
     glm::vec2 screenPoints[2] = {m_vecMouseDragStart, m_vecMouseDragEnd};
     glm::vec3 nearestPoints[4];
     glm::vec3 farthestPoints[4];
 
     glm::vec2 p = m_pActiveViewport->GetClientAreaPosAbs();
 
-    for (int i = 0 ; i < 4; i++)
+    for (int i = 0; i < 4; i++)
     {
         glm::vec2 testPoint = {screenPoints[lookupIndicies[i][0]].x, screenPoints[lookupIndicies[i][1]].y};
 
         // testPoint -= p;
 
-        nearestPoints[i] = m_pActiveViewport->ScreenToWorld(testPoint, -1, false);
+        nearestPoints[i]  = m_pActiveViewport->ScreenToWorld(testPoint, -1, false);
         farthestPoints[i] = m_pActiveViewport->ScreenToWorld(testPoint, 1, false);
-
     }
 
-    #define TOP_LEFT 0
-    #define TOP_RIGHT 1
-    #define BOTTOM_RIGHT 2
-    #define BOTTOM_LEFT 3
-
+#define TOP_LEFT     0
+#define TOP_RIGHT    1
+#define BOTTOM_RIGHT 2
+#define BOTTOM_LEFT  3
 
     glm::vec3 p1, p2, p3;
 
@@ -196,7 +191,6 @@ void SelectionTool::UpdateBoxSelectionFrustum()
     p3 = farthestPoints[BOTTOM_LEFT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Left, p1, p2, p3);
-
 
     p1 = nearestPoints[TOP_RIGHT];
     p2 = farthestPoints[TOP_RIGHT];
@@ -210,20 +204,17 @@ void SelectionTool::UpdateBoxSelectionFrustum()
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Top, p1, p2, p3);
 
-
     p1 = nearestPoints[BOTTOM_LEFT];
     p2 = nearestPoints[BOTTOM_RIGHT];
     p3 = farthestPoints[BOTTOM_RIGHT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Bottom, p1, p2, p3);
 
-
     p1 = nearestPoints[TOP_LEFT];
     p2 = nearestPoints[TOP_RIGHT];
     p3 = nearestPoints[BOTTOM_RIGHT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::NearZ, p1, p2, p3);
-
 
     p1 = farthestPoints[TOP_LEFT];
     p2 = farthestPoints[TOP_RIGHT];
@@ -232,6 +223,57 @@ void SelectionTool::UpdateBoxSelectionFrustum()
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::FarZ, p1, p2, p3);
 
 
+
+    m_BoxSelectionFrustum.LimitFarZDist(100.f);
+}
+
+void SelectionTool::SelectItemsInSelectionFrustum()
+{
+    assert(m_pActiveDocument);
+
+    BVHTree *pTree = m_pActiveDocument->GetBVHTree();
+    BVHNode *pNode = pTree->GetRootNode();
+
+    if (!pNode)
+        return;
+
+    FrustumVisiblity visibility = m_BoxSelectionFrustum.CullBoxEx(pNode->aabb);
+
+    if (visibility != FrustumVisiblity::None)
+    {
+        TraverseSelectionBoxFrustum(pTree, pNode, visibility);
+    }
+
+    m_pActiveViewport->FlagUpdate();
+}
+
+void SelectionTool::TraverseSelectionBoxFrustum(BVHTree *pTree, BVHNode *pNode, FrustumVisiblity parentVisibility)
+{
+    FrustumVisiblity myVisilibity = parentVisibility;
+
+    // If our parent not completely visible - we need to check further if we are visible
+    // otherwise it is not necessary and slows down execution
+    if (myVisilibity != FrustumVisiblity::Complete)
+    {
+        myVisilibity = m_BoxSelectionFrustum.CullBoxEx(pNode->aabb);
+
+        if (myVisilibity == FrustumVisiblity::None)
+            return;
+    }
+
+    if (pNode->IsLeaf())
+    {
+        SceneEntityWeakPtr p = pNode->entity;
+        ObjectPropertiesEditor::Instance()->LoadObject(p, m_bCtrlHeld);
+    }
+    else
+    {
+        if (pNode->left != -1)
+            TraverseSelectionBoxFrustum(pTree, pTree->GetNodePtr(pNode->left), myVisilibity);
+
+        if (pNode->right != -1)
+            TraverseSelectionBoxFrustum(pTree, pTree->GetNodePtr(pNode->right), myVisilibity);
+    }
 }
 
 void SelectionTool::ValidateMinsMaxs()
@@ -259,7 +301,7 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
         if (m_bMouseDragged)
         {
             m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
-            ValidateMinsMaxs();
+            // ValidateMinsMaxs();
         }
     }
 
@@ -325,7 +367,7 @@ int SelectionTool::HandleKeydownEvent(const SDL_Event &e, const float flFrameDel
 int SelectionTool::HandleKeyupEvent(const SDL_Event &e, const float flFrameDelta)
 {
     auto scancode = e.key.keysym.scancode;
-    
+
     if (scancode == SDL_SCANCODE_LCTRL || scancode == SDL_SCANCODE_RCTRL)
     {
         m_bCtrlHeld = false;

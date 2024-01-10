@@ -30,6 +30,7 @@ public:
     void SetPlane(int i, const glm::vec3 &vecNormal, float dist);
     void SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm::vec3 p3);
     
+    void LimitFarZDist(float dist);
 
     void InitPerspective(class Camera * pCamera);    
     void InitPerspective(const glm::vec3 & origin, 

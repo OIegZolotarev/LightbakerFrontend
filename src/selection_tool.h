@@ -15,7 +15,7 @@ enum SelectionModes
 
 class SelectionTool : public IEditingTool
 {
-    SelectionModes m_SelectionMode = Picker;
+    SelectionModes m_SelectionMode = BoxSelection;
 
     bool m_bMouseDragValid = false;
     bool m_bMouseDragged   = false;
@@ -40,6 +40,9 @@ class SelectionTool : public IEditingTool
     Frustum m_BoxSelectionFrustum;
 
     void UpdateBoxSelectionFrustum();
+    
+    void SelectItemsInSelectionFrustum();
+    void TraverseSelectionBoxFrustum(BVHTree * pTree, BVHNode * pNode, FrustumVisiblity parentVisibility);
 
     void ValidateMinsMaxs();
 

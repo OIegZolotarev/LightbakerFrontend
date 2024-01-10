@@ -42,6 +42,13 @@ void Frustum::SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm:
     p->CalcSignBits();
 }
 
+void Frustum::LimitFarZDist(float dist)
+{
+    
+
+    m_Planes[FrustumPlanes::FarZ].dist = m_Planes[FrustumPlanes::NearZ].dist - dist;
+}
+
 void Frustum::InitPerspective(Camera *pCamera)
 {
     const float aspect = pCamera->AspectRatio();
