@@ -201,7 +201,9 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="brush_world.cpp" />
     <ClCompile Include="camera_tool.cpp" />
+    <ClCompile Include="color.cpp" />
     <ClCompile Include="editing_tool.cpp" />
     <ClCompile Include="bsp_entities_properties_binding.cpp" />
     <ClCompile Include="bsp_entity_property.cpp" />
@@ -323,6 +325,8 @@ build.bat
     <ClInclude Include="..\include\sdl-event-to-string\sdl_event_to_string.h" />
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
+    <ClInclude Include="brush_face.h" />
+    <ClInclude Include="brush_world.h" />
     <ClInclude Include="camera_tool.h" />
     <ClInclude Include="editing_tool.h" />
     <ClInclude Include="bsp_entities_properties_binding.h" />

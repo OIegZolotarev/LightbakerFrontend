@@ -474,7 +474,7 @@ ViewportMouseHover Viewport::GetMouseHoveringStatus()
     return ViewportMouseHover::Hovered;
 }
 
-const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction) const
+const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const
 {
 #if 0
      glm::vec3 winCoords = glm::vec3(viewportCoords.xy, depthFraction);
@@ -490,6 +490,9 @@ const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFra
     ndc.x = viewportCoords.x / m_ClientAreaSize.x;
     ndc.y = viewportCoords.y / m_ClientAreaSize.y;
     ndc.z = depthFraction;
+
+    if (!yAtBottom)
+        ndc.y = 1 - ndc.y;
 
     // Convert from [0,1] to [-1,1] range
     ndc.x = (ndc.x - 0.5f) * 2;

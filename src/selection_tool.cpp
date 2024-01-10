@@ -21,7 +21,7 @@ SelectionTool::SelectionTool() : IEditingTool(EditingToolId::Selection)
 
 void SelectionTool::Render(float flFrameDelta)
 {
-    // throw std::logic_error("The method or operation is not implemented.");
+    m_BoxSelectionFrustum.DrawDebug();
 }
 
 void SelectionTool::RenderUI()
@@ -93,6 +93,10 @@ int SelectionTool::HandleLeftRelease()
         {
             m_bMouseDragged   = false;
             m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
+
+            ValidateMinsMaxs();
+            UpdateBoxSelectionFrustum();
+
             return EVENT_CONSUMED;
         }
     }
@@ -151,6 +155,98 @@ void SelectionTool::SelectHoveredObject()
     }
 }
 
+void SelectionTool::UpdateBoxSelectionFrustum()
+{
+    int lookupIndicies[4][2] = {
+        {0, 0}, // top left
+        {1, 0}, // top right
+        {1, 1}, // bottom right
+        {0, 1}, // bottom left
+    };
+
+    
+
+    glm::vec2 screenPoints[2] = {m_vecMouseDragStart, m_vecMouseDragEnd};
+    glm::vec3 nearestPoints[4];
+    glm::vec3 farthestPoints[4];
+
+    glm::vec2 p = m_pActiveViewport->GetClientAreaPosAbs();
+
+    for (int i = 0 ; i < 4; i++)
+    {
+        glm::vec2 testPoint = {screenPoints[lookupIndicies[i][0]].x, screenPoints[lookupIndicies[i][1]].y};
+
+        // testPoint -= p;
+
+        nearestPoints[i] = m_pActiveViewport->ScreenToWorld(testPoint, -1, false);
+        farthestPoints[i] = m_pActiveViewport->ScreenToWorld(testPoint, 1, false);
+
+    }
+
+    #define TOP_LEFT 0
+    #define TOP_RIGHT 1
+    #define BOTTOM_RIGHT 2
+    #define BOTTOM_LEFT 3
+
+
+    glm::vec3 p1, p2, p3;
+
+    p1 = nearestPoints[TOP_LEFT];
+    p2 = farthestPoints[TOP_LEFT];
+    p3 = farthestPoints[BOTTOM_LEFT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Left, p1, p2, p3);
+
+
+    p1 = nearestPoints[TOP_RIGHT];
+    p2 = farthestPoints[TOP_RIGHT];
+    p3 = farthestPoints[BOTTOM_RIGHT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Right, p1, p2, p3);
+
+    p1 = nearestPoints[TOP_LEFT];
+    p2 = nearestPoints[TOP_RIGHT];
+    p3 = farthestPoints[TOP_RIGHT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Top, p1, p2, p3);
+
+
+    p1 = nearestPoints[BOTTOM_LEFT];
+    p2 = nearestPoints[BOTTOM_RIGHT];
+    p3 = farthestPoints[BOTTOM_RIGHT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Bottom, p1, p2, p3);
+
+
+    p1 = nearestPoints[TOP_LEFT];
+    p2 = nearestPoints[TOP_RIGHT];
+    p3 = nearestPoints[BOTTOM_RIGHT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::NearZ, p1, p2, p3);
+
+
+    p1 = farthestPoints[TOP_LEFT];
+    p2 = farthestPoints[TOP_RIGHT];
+    p3 = farthestPoints[BOTTOM_RIGHT];
+
+    m_BoxSelectionFrustum.SetPlane(FrustumPlanes::FarZ, p1, p2, p3);
+
+
+}
+
+void SelectionTool::ValidateMinsMaxs()
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (m_vecMouseDragStart[i] > m_vecMouseDragEnd[i])
+        {
+            float t                = m_vecMouseDragEnd[i];
+            m_vecMouseDragEnd[i]   = m_vecMouseDragStart[i];
+            m_vecMouseDragStart[i] = t;
+        }
+    }
+}
+
 void SelectionTool::RenderViewportUI(Viewport *pViewport)
 {
     if (!m_pActiveViewport)
@@ -163,6 +259,7 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
         if (m_bMouseDragged)
         {
             m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
+            ValidateMinsMaxs();
         }
     }
 
@@ -174,16 +271,6 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
 
             glm::vec2 mins = (p + m_vecMouseDragStart);
             glm::vec2 maxs = (p + m_vecMouseDragEnd);
-
-            for (int i = 0; i < 2; i++)
-            {
-                if (mins[i] > maxs[i])
-                {
-                    float t = maxs[i];
-                    maxs[i] = mins[i];
-                    mins[i] = t;
-                }
-            }
 
             int boxColor = ToColorU32(m_pSelectionBoxColor->GetColorRGBA());
 

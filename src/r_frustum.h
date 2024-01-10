@@ -23,10 +23,15 @@ class Frustum
 {
     plane_t m_Planes[FrustumPlanes::_size()];
     
-    void SetPlane(int i, const glm::vec3 &vecNormal, float dist);
-public:
-    void InitPerspective(class Camera * pCamera);
+    void ComputeFrustumCorners(glm::vec3 *bbox);
     
+
+public:
+    void SetPlane(int i, const glm::vec3 &vecNormal, float dist);
+    void SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm::vec3 p3);
+    
+
+    void InitPerspective(class Camera * pCamera);    
     void InitPerspective(const glm::vec3 & origin, 
                          const glm::vec3 & forward,
                          const glm::vec3 & right,
@@ -43,6 +48,5 @@ public:
 
     void DrawDebug();
 
-private:
-    void ComputeFrustumCorners(glm::vec3 *bbox);
+
 };

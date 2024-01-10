@@ -107,5 +107,5 @@ public:
     glm::vec2          CalcRelativeMousePos(bool yAtTop = true);
     ViewportMouseHover GetMouseHoveringStatus();
 
-    const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction) const;
+    const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const;
 };

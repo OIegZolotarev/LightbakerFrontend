@@ -37,6 +37,12 @@ class SelectionTool : public IEditingTool
 
     VariantValue *m_pSelectionBoxColor;
 
+    Frustum m_BoxSelectionFrustum;
+
+    void UpdateBoxSelectionFrustum();
+
+    void ValidateMinsMaxs();
+
 public:
     SelectionTool();
 

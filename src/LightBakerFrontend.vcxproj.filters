@@ -111,6 +111,9 @@
     <Filter Include="Исходные файлы\ImGUI\ImGUIFileDialog">
       <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\BrushWorld">
+      <UniqueIdentifier>{0b25770f-ccd0-49c8-8300-500ccbcd303e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -472,6 +475,12 @@
     </ClCompile>
     <ClCompile Include="gl_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="brush_world.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -861,6 +870,12 @@
     </ClInclude>
     <ClInclude Include="properties_editor.h">
       <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="brush_world.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="brush_face.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

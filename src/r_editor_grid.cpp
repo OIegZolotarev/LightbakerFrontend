@@ -93,12 +93,13 @@ void GridRenderer::Render()
 
 #endif
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+    glDepthMask(GL_FALSE);
+    GLBackend::SetBlending(true);
+
     m_pGridMesh->BindAndDraw();
     
-    glDisable(GL_BLEND);
+    GLBackend::SetBlending(false);
+    glDepthMask(GL_TRUE);
 
 #ifdef USE_OLD_SHADER
     shader->Unbind();
