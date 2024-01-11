@@ -6,9 +6,15 @@
 #include "application.h"
 #include "common.h"
 
+#include "gl_backend.h"
 #include "properties_editor.h"
 #include "selection_tool.h"
 #include "viewports_orchestrator.h"
+#include "world_entity.h"
+
+#ifdef DBG_FRUSTUM_BUILDING
+int g_testPlane = 0;
+#endif
 
 SelectionTool::SelectionTool() : IEditingTool(EditingToolId::Selection)
 {
@@ -21,7 +27,9 @@ SelectionTool::SelectionTool() : IEditingTool(EditingToolId::Selection)
 
 void SelectionTool::Render(float flFrameDelta)
 {
-    m_BoxSelectionFrustum.DrawDebug();
+#ifdef DBG_FRUSTUM_BUILDING
+    DebugSelectionFrustum();
+#endif
 }
 
 void SelectionTool::RenderUI()
@@ -45,6 +53,10 @@ void SelectionTool::RenderUI()
         ImGui::Text("Not hovering above viewport...");
 
     ImGui::Text("Ctrl status: %d", m_bCtrlHeld);
+
+#ifdef DBG_FRUSTUM_BUILDING
+    ImGui::SliderInt("Test plane", &g_testPlane, 0, 5);
+#endif
 
     // Hack to make sure window fits longer titles
     // https://discourse.dearimgui.org/t/how-can-make-window-size-elongate-with-the-long-title/128/2
@@ -87,7 +99,7 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
 
 int SelectionTool::HandleLeftRelease()
 {
-    if (m_SelectionMode == BoxSelection)
+    if (m_SelectionMode == SelectionModes::BoxSelection)
     {
         if (m_bMouseDragged)
         {
@@ -110,7 +122,7 @@ int SelectionTool::HandleLeftClick()
 {
     switch (m_SelectionMode)
     {
-    case Picker: {
+    case SelectionModes::Picker: {
         assert(m_pActiveViewport);
         assert(m_pActiveDocument);
 
@@ -121,7 +133,7 @@ int SelectionTool::HandleLeftClick()
             SelectHoveredObject();
     }
     break;
-    case BoxSelection: {
+    case SelectionModes::BoxSelection: {
         m_pDragViewport     = m_pActiveViewport;
         m_bMouseDragValid   = true;
         m_bMouseDragged     = true;
@@ -130,7 +142,7 @@ int SelectionTool::HandleLeftClick()
         return EVENT_CONSUMED;
     }
     break;
-    case Paint:
+    case SelectionModes::Paint:
         break;
     default:
         break;
@@ -150,7 +162,7 @@ void SelectionTool::SelectHoveredObject()
     }
     else
     {
-        ObjectPropertiesEditor::Instance()->UnloadObject();
+        ObjectPropertiesEditor::Instance()->UnloadObjects();
     }
 }
 
@@ -193,8 +205,8 @@ void SelectionTool::UpdateBoxSelectionFrustum()
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Left, p1, p2, p3);
 
     p1 = nearestPoints[TOP_RIGHT];
-    p2 = farthestPoints[TOP_RIGHT];
-    p3 = farthestPoints[BOTTOM_RIGHT];
+    p3 = farthestPoints[TOP_RIGHT];
+    p2 = farthestPoints[BOTTOM_RIGHT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Right, p1, p2, p3);
 
@@ -205,14 +217,14 @@ void SelectionTool::UpdateBoxSelectionFrustum()
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Top, p1, p2, p3);
 
     p1 = nearestPoints[BOTTOM_LEFT];
-    p2 = nearestPoints[BOTTOM_RIGHT];
-    p3 = farthestPoints[BOTTOM_RIGHT];
+    p3 = nearestPoints[BOTTOM_RIGHT];
+    p2 = farthestPoints[BOTTOM_RIGHT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::Bottom, p1, p2, p3);
 
     p1 = nearestPoints[TOP_LEFT];
-    p2 = nearestPoints[TOP_RIGHT];
-    p3 = nearestPoints[BOTTOM_RIGHT];
+    p3 = nearestPoints[TOP_RIGHT];
+    p2 = nearestPoints[BOTTOM_RIGHT];
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::NearZ, p1, p2, p3);
 
@@ -222,9 +234,41 @@ void SelectionTool::UpdateBoxSelectionFrustum()
 
     m_BoxSelectionFrustum.SetPlane(FrustumPlanes::FarZ, p1, p2, p3);
 
+#ifdef DBG_FRUSTUM_BUILDING
 
+    // m_BoxSelectionFrustum.LimitFarZDist(100.f);
 
-    m_BoxSelectionFrustum.LimitFarZDist(100.f);
+    struct dbg_info_s
+    {
+        int a, b;
+        int plane;
+    };
+
+    dbg_info_s inf[6] = {
+
+        // clang-format off
+        {TOP_LEFT    , BOTTOM_LEFT  , FrustumPlanes::Left},
+        {TOP_RIGHT   , BOTTOM_RIGHT , FrustumPlanes::Right},
+        {TOP_LEFT    , TOP_RIGHT    , FrustumPlanes::Top},
+        {BOTTOM_LEFT , BOTTOM_RIGHT , FrustumPlanes::Bottom},
+        {BOTTOM_LEFT , TOP_RIGHT, FrustumPlanes::NearZ},
+        {BOTTOM_LEFT , TOP_RIGHT, FrustumPlanes::FarZ},
+        // clang-format on
+    };
+
+    for (int i = 0; i < 6; i++)
+    {
+        dbg_info_s *cur = &inf[i];
+
+        glm::vec3 midPtNear = (nearestPoints[cur->b] + (nearestPoints[cur->a] - nearestPoints[cur->b]) * 0.5f);
+        glm::vec3 midPtFar  = (farthestPoints[cur->b] + (farthestPoints[cur->a] - farthestPoints[cur->b]) * 0.5f);
+
+        m_DebugNormalsStart[i] = midPtNear + glm::normalize(midPtFar - midPtNear) * 50.f;
+
+        auto plane           = m_BoxSelectionFrustum.GetPlane(cur->plane);
+        m_DebugNormalsEnd[i] = m_DebugNormalsStart[i] + plane->normal * 20.f;
+    }
+#endif
 }
 
 void SelectionTool::SelectItemsInSelectionFrustum()
@@ -236,6 +280,9 @@ void SelectionTool::SelectItemsInSelectionFrustum()
 
     if (!pNode)
         return;
+
+    if (!m_bCtrlHeld)
+        ObjectPropertiesEditor::Instance()->UnloadObjects();
 
     FrustumVisiblity visibility = m_BoxSelectionFrustum.CullBoxEx(pNode->aabb);
 
@@ -264,7 +311,19 @@ void SelectionTool::TraverseSelectionBoxFrustum(BVHTree *pTree, BVHNode *pNode, 
     if (pNode->IsLeaf())
     {
         SceneEntityWeakPtr p = pNode->entity;
-        ObjectPropertiesEditor::Instance()->LoadObject(p, m_bCtrlHeld);
+
+        auto ptr = p.lock();
+
+        if (!ptr)
+            return;
+
+        if (instanceof <IWorldEntity>(ptr.get()))
+            return;
+
+        auto vis = m_BoxSelectionFrustum.CullBoxEx(ptr->GetAbsoulteBoundingBox());
+
+        if (vis != FrustumVisiblity::None)
+            ObjectPropertiesEditor::Instance()->AddObject(p);
     }
     else
     {
@@ -401,4 +460,63 @@ void SelectionTool::RenderModeSelectorUI()
             }
         }
     }
+}
+
+void SelectionTool::DebugSelectionFrustum()
+{
+#ifdef DBG_FRUSTUM_BUILDING
+    m_BoxSelectionFrustum.DrawDebug();
+
+    static ShaderProgram *shader = GLBackend::Instance()->QueryShader("res/glprogs/pervertex_color_geom.glsl", {});
+    shader->Bind();
+
+    auto drawLine = [](glm::vec3 start, glm::vec3 end) {
+        // auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4({1, 0, 0, 1});
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4x4(1.f));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(0);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        mesh.Begin(GL_LINES);
+
+        mesh.Color3f(1, 0, 0);
+        mesh.Vertex3fv((float *)&start);
+
+        mesh.Color3f(0, 1, 0);
+        mesh.Vertex3fv((float *)&end);
+
+        mesh.End();
+        mesh.BindAndDraw();
+
+        // shader->Unbind();
+    };
+
+#if 0
+	    for (int i = 0; i < 6; i++)
+	    {
+	        drawLine(m_DebugNormalsStart[i], m_DebugNormalsEnd[i]);
+	    }
+#else
+
+    drawLine(m_DebugNormalsStart[g_testPlane], m_DebugNormalsEnd[g_testPlane]);
+
+#endif
+#endif
 }

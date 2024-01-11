@@ -6,16 +6,18 @@
 #pragma once
 #include "editing_tool.h"
 
-enum SelectionModes
+enum class SelectionModes
 {
     Picker,
     BoxSelection,
     Paint
 };
 
+// #define DBG_FRUSTUM_BUILDING
+
 class SelectionTool : public IEditingTool
 {
-    SelectionModes m_SelectionMode = BoxSelection;
+    SelectionModes m_SelectionMode = SelectionModes::BoxSelection;
 
     bool m_bMouseDragValid = false;
     bool m_bMouseDragged   = false;
@@ -39,12 +41,21 @@ class SelectionTool : public IEditingTool
 
     Frustum m_BoxSelectionFrustum;
 
+    #ifdef DBG_FRUSTUM_BUILDING
+
+    glm::vec3 m_DebugNormalsStart[6];
+    glm::vec3 m_DebugNormalsEnd[6];
+
+    #endif
+
     void UpdateBoxSelectionFrustum();
     
     void SelectItemsInSelectionFrustum();
     void TraverseSelectionBoxFrustum(BVHTree * pTree, BVHNode * pNode, FrustumVisiblity parentVisibility);
 
     void ValidateMinsMaxs();
+
+    void DebugSelectionFrustum();
 
 public:
     SelectionTool();
@@ -59,3 +70,5 @@ public:
 
     void RenderViewportUI(Viewport *pViewport) override;
 };
+
+

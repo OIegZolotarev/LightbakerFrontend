@@ -192,7 +192,7 @@ bool SelectionManager::SelectHoveredObject()
 
 void SelectionManager::UnSelect()
 {
-    ObjectPropertiesEditor::Instance()->UnloadObject();
+    ObjectPropertiesEditor::Instance()->UnloadObjects();
 
 // 	if (auto ptr = m_pLastSelectedObject.lock())
 // 	{

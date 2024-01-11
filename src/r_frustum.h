@@ -46,8 +46,9 @@ public:
     bool CullBox(const BoundingBox & bbox);
     
     FrustumVisiblity CullBoxEx(const BoundingBox &bbox);
+    FrustumVisiblity CullBoxEx2(const BoundingBox &bbox);
 
     void DrawDebug();
-
+    const plane_t *GetPlane(int idx) const;
 
 };

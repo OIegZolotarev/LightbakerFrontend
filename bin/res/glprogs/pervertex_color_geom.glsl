@@ -2,9 +2,12 @@
 
 #include "common_vertex.h"
 
+out vec4 oColor;
+
 void main()
 {
 	gl_Position = _transform();	
+	oColor = color;
 }
 
 #endif
@@ -14,11 +17,11 @@ void main()
 
 #include "common_fragment.h"
 
-uniform vec4 u_Color;
+in vec4 oColor;
 
 void main()
 {
-	oFragColor = u_Color;
+	oFragColor = oColor;
 	oSelColor = u_ObjectSerialNumber;
 } 
 

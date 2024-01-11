@@ -1,96 +1,93 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "common.h"
 #include "ui_common.h"
 #include "scene_objects_panel.h"
-#include "application.h"
 
 void SceneObjectPanel::RenderSceneObjectsPanel()
 {
-	if (ImGui::Begin(m_strPanelTitle))
-	{
-		auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
-		auto scene = sceneRenderer->GetScene();
+    if (ImGui::Begin(m_strPanelTitle))
+    {
+        auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
+        auto scene         = sceneRenderer->GetScene();
 
-		if (ImGui::Button("Add"))
-		{
+        if (ImGui::Button("Add"))
+        {
+        }
 
-		}
+        ImGui::SameLine();
 
-		ImGui::SameLine();
+        if (ImGui::Button("Delete"))
+        {
+            scene->DoDeleteSelection();
+        }
 
-		if (ImGui::Button("Delete"))
-		{
-			scene->DoDeleteSelection();
-		}
+        auto &sceneObjects = scene->GetSceneObjects();
 
-		auto &sceneObjects = scene->GetSceneObjects();
+        if (ImGui::TreeNode("root") && sceneObjects.size() > 0)
+        {
+            auto worldSpawn = sceneObjects.begin();
 
-		if (ImGui::TreeNode("root") && sceneObjects.size() > 0)
-		{
-			
+            if (ImGui::Selectable((*worldSpawn)->Description(), (*worldSpawn)->IsSelected()))
+            {
+                (*worldSpawn)->InvokeSelect();
+                sceneRenderer->FocusCameraOnObject((*worldSpawn));
+            }
 
-			auto worldSpawn = sceneObjects.begin();
+            if (ImGui::TreeNode("Lights"))
+            {
+                for (auto &it : sceneObjects)
+                {
+                    // 					if (!it->IsLightEntity())
+                    // 						continue;
 
-			
+                    if (!it)
+                        continue;
 
+                    ImGui::PushID((void *)it.get());
 
-			if (ImGui::Selectable((*worldSpawn)->Description(), (*worldSpawn)->IsSelected()))
-			{
-				(*worldSpawn)->InvokeSelect();
-				sceneRenderer->FocusCameraOnObject((*worldSpawn));
-			}
+                    auto col = it->GetRenderColor();
 
-			if (ImGui::TreeNode("Lights"))
-			{
-				for (auto& it : sceneObjects)
-				{
-// 					if (!it->IsLightEntity())
-// 						continue;
+                    // ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
 
-					ImGui::PushID((void*)it.get());
+                    ImGui::ColorEdit3("ColorPreview", (float *)&col,
+                                      ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip |
+                                          ImGuiColorEditFlags_NoPicker | ImGuiColorEditFlags_NoLabel);
+                    ImGui::SameLine();
 
-					auto col = it->GetRenderColor();
+                    if (ImGui::Selectable(it->Description(), it->IsSelected()))
+                    {
+                        it->InvokeSelect();
+                        sceneRenderer->FocusCameraOnObject(it);
+                    }
 
-					//ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(it->color[0],it->color[1],it->color[2],1));
+                    // ImGui::PopStyleColor();
+                    ImGui::PopID();
+                }
 
-					ImGui::ColorEdit3("ColorPreview", (float*)&col, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoTooltip  |ImGuiColorEditFlags_NoPicker  | ImGuiColorEditFlags_NoLabel);
-					ImGui::SameLine();
+                ImGui::TreePop();
+            }
 
-					if (ImGui::Selectable(it->Description(), it->IsSelected()))
-					{
-						it->InvokeSelect();
-						sceneRenderer->FocusCameraOnObject(it);
-					}
-
-					//ImGui::PopStyleColor();
-					ImGui::PopID();
-				}
-
-				ImGui::TreePop();
-			}
-
-			ImGui::TreePop();
-		}
-
-	}
-	ImGui::End();
+            ImGui::TreePop();
+        }
+    }
+    ImGui::End();
 }
 
 SceneObjectPanel::SceneObjectPanel() : ToolUIPanel(ToolUIPanelID::SceneObjects, (char *)"Scene objects")
 {
-
 }
 
 DockPanels SceneObjectPanel::GetDockSide()
 {
-	return DockPanels::RightBottom;
+    return DockPanels::RightBottom;
 }
 
 void SceneObjectPanel::Render()
 {
-	RenderSceneObjectsPanel();
+    RenderSceneObjectsPanel();
 }

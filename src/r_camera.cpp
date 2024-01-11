@@ -189,7 +189,7 @@ void Camera::SetupCommonKeystrokesCallbacks()
     callbackToggleFPSNavigation = pfnKeyStrokeCallback([&](bool bHit, const SDL_Event &event) -> void {
         // if (bHit)
         
-        Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
+        // Con_Printf("callbackToggleFPSNavigation(hit=%d) (%s)\n", bHit, m_pViewport->Name());
 
         if (bHit)
         {

@@ -323,7 +323,7 @@ void Lb3kLightEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 
 void Lb3kLightEntity::OnUnSelect()
 {
-	ObjectPropertiesEditor::Instance()->UnloadObject();
+	ObjectPropertiesEditor::Instance()->UnloadObjects();
 }
 
 const char* Lb3kLightEntity::Description()

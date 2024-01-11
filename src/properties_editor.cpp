@@ -65,6 +65,8 @@ void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &pObject, bool addToS
 
     auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
 
+    
+
     if (selected_objects.size() > 1)
         m_AllObjectsBounds.AddBoundingBox(ref->GetAbsoulteBoundingBox());
     else
@@ -72,6 +74,26 @@ void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &pObject, bool addToS
 
     UpdateRelativePositions();
 
+    SetupGuizmo();
+}
+
+void ObjectPropertiesEditor::AddObject(SceneEntityWeakPtr &pObject)
+{
+    auto ref = pObject.lock();
+
+    if (!ref)
+        return;
+
+    m_pPropertiesBinding->AddObject(pObject);
+
+    auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
+
+    if (selected_objects.size() > 1)
+        m_AllObjectsBounds.AddBoundingBox(ref->GetAbsoulteBoundingBox());
+    else
+        m_AllObjectsBounds = ref->GetAbsoulteBoundingBox();
+
+    UpdateRelativePositions();
     SetupGuizmo();
 }
 
@@ -149,16 +171,17 @@ void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
     EditTransform(pViewport, true);
 }
 
-void ObjectPropertiesEditor::UnloadObject()
+void ObjectPropertiesEditor::UnloadObjects()
 {
     if (m_pPropertiesBinding)
     {
         m_lstProperties.clear();
-
         m_pPropertiesBinding->ClearObjects();
     }
 
     SetupGuizmo();
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 DockPanels ObjectPropertiesEditor::GetDockSide()
@@ -346,6 +369,9 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
                 ImGui::EndTable();
             }
+
+            if (m_pPropertiesBinding)
+                m_pPropertiesBinding->RenderFooter();
         }
         else
         {
@@ -355,8 +381,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
                 ImGui::Text("Object has no properties");
         }
 
-        if (m_pPropertiesBinding)
-            m_pPropertiesBinding->RenderFooter();
+        
     }
     ImGui::End();
 }

@@ -65,9 +65,10 @@ public:
     // Object manipulation
 
     GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
-    void LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection);
+    void                                     LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection);
+    void                                     AddObject(SceneEntityWeakPtr &pObject);
 
-    void UnloadObject();
+    void UnloadObjects();
 
     void ReloadPropertyValue(int id);
 
@@ -80,5 +81,4 @@ public:
     void RenderDebugOctree();
 
     void ReloadPropertiesFromBinder();
-    
 };

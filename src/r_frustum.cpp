@@ -40,12 +40,11 @@ void Frustum::SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm:
     p->normal = glm::normalize(p->normal);
     p->dist   = glm::dot(t3, p->normal);
     p->CalcSignBits();
+    p->type = (int)PlaneTypes::AnyZ;
 }
 
 void Frustum::LimitFarZDist(float dist)
 {
-    
-
     m_Planes[FrustumPlanes::FarZ].dist = m_Planes[FrustumPlanes::NearZ].dist - dist;
 }
 
@@ -145,6 +144,48 @@ FrustumVisiblity Frustum::CullBoxEx(const BoundingBox &bbox)
         return FrustumVisiblity::Partial;
 }
 
+FrustumVisiblity Frustum::CullBoxEx2(const BoundingBox &bbox)
+{
+    int r = 0;
+
+    const glm::vec3 &mins = bbox.Mins();
+    const glm::vec3 &maxs = bbox.Maxs();
+
+    Con_Printf("CullBoxEx2 --->\n");
+
+    for (auto &it : FrustumPlanes::_values())
+    {
+        int idx  = it._to_integral();
+
+        int flag = m_Planes[idx].BoxOnPlaneSide(mins, maxs);
+
+        switch (flag)
+        {
+        case 1:
+            Con_Printf("CullBoxEx2: %s = BPS_FRONT\n", it._to_string());
+            break;
+        case 2:
+            Con_Printf("CullBoxEx2: %s = BPS_BACK\n", it._to_string());
+            break;
+        case 3:
+            Con_Printf("CullBoxEx2: %s = BPS_BETWEEN\n", it._to_string());
+            break;
+        }
+
+        if (flag == BPS_BACK)
+            return FrustumVisiblity::None;
+        else if (flag == BPS_FRONT)
+            r++;
+    }
+
+    Con_Printf("<--- CullBoxEx2 = %d\n", r);
+
+    if (r == 6)
+        return FrustumVisiblity::Complete;
+    else
+        return FrustumVisiblity::Partial;
+}
+
 // Based on void CFrustum :: DrawFrustumDebug( void )
 // From PrimeXT's gl_frustum.cpp https://github.com/SNMetamorph/PrimeXT/blob/master/client/render/gl_frustum.cpp
 void Frustum::DrawDebug()
@@ -199,6 +240,12 @@ void Frustum::DrawDebug()
     mesh.BindAndDraw();
 
     shader->Unbind();
+}
+
+const plane_t *Frustum::GetPlane(int idx) const
+{
+    assert(idx >= 0 && idx < 6);
+    return &m_Planes[idx];
 }
 
 void Frustum::ComputeFrustumCorners(glm::vec3 *corners)

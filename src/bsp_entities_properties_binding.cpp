@@ -30,6 +30,9 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
             return;
     }
 
+
+    //Con_Printf("SelectEntity(): %s\n", rawBSP->GetClassName().c_str());
+
     rawBSP->SetSelected(true);
 
     m_lstSelectedObjects.push_back(ptr);

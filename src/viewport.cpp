@@ -242,7 +242,7 @@ void Viewport::HandlePicker()
             }
             else
             {
-                ObjectPropertiesEditor::Instance()->UnloadObject();
+                ObjectPropertiesEditor::Instance()->UnloadObjects();
             }
         }
     }

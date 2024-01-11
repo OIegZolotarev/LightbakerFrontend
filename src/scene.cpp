@@ -76,7 +76,7 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
     auto predicate = [&](SceneEntityPtr &it) -> bool { return it == ptr; };
 
     auto pos = std::remove_if(m_SceneEntities.begin(), m_SceneEntities.end(), predicate);
-    m_SceneEntities.remove(*pos);
+    // m_SceneEntities.remove(*pos);
 }
 
 void Scene::DoDeleteSelection()
@@ -216,7 +216,7 @@ void Scene::RescaleLightPositions(float m_flScaleOriginal, float m_flScale)
         it->SetPosition(pos);
     }
 
-    ObjectPropertiesEditor::Instance()->UnloadObject();
+    ObjectPropertiesEditor::Instance()->UnloadObjects();
 
     // Not really necessary
     // Application::ScheduleCompilationIfNecceseary();
