@@ -77,24 +77,16 @@ void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &pObject, bool addToS
     SetupGuizmo();
 }
 
-void ObjectPropertiesEditor::AddObject(SceneEntityWeakPtr &pObject)
+void ObjectPropertiesEditor::AddObjectBoxSelection(SceneEntityWeakPtr &pObject)
 {
     auto ref = pObject.lock();
 
     if (!ref)
         return;
 
-    m_pPropertiesBinding->AddObject(pObject);
+    m_pPropertiesBinding->AddObjectBoxSelection(pObject);
 
-    auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
 
-    if (selected_objects.size() > 1)
-        m_AllObjectsBounds.AddBoundingBox(ref->GetAbsoulteBoundingBox());
-    else
-        m_AllObjectsBounds = ref->GetAbsoulteBoundingBox();
-
-    UpdateRelativePositions();
-    SetupGuizmo();
 }
 
 void ObjectPropertiesEditor::ResetGuizmoScaling()
@@ -169,6 +161,38 @@ void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
     ImGuizmo::BeginFrame();
 
     EditTransform(pViewport, true);
+}
+
+void ObjectPropertiesEditor::FinishAddingBoxSelectionObject()
+{
+    
+
+    auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
+        
+    bool bInitialized  = false;
+    m_AllObjectsBounds = BoundingBox(1);
+
+    for (auto &it : selected_objects)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        if (!bInitialized)
+        {
+            m_AllObjectsBounds = ptr->GetAbsoulteBoundingBox();
+            bInitialized       = true;
+        }
+        else
+            m_AllObjectsBounds.AddBoundingBox(ptr->GetAbsoulteBoundingBox());
+    }
+
+    m_pPropertiesBinding->FinishBoxSelection();
+    UpdateRelativePositions();
+    SetupGuizmo();
+
+    
 }
 
 void ObjectPropertiesEditor::UnloadObjects()

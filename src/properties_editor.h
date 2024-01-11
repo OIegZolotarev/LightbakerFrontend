@@ -66,7 +66,9 @@ public:
 
     GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
     void                                     LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection);
-    void                                     AddObject(SceneEntityWeakPtr &pObject);
+
+    void AddObjectBoxSelection(SceneEntityWeakPtr &pObject);
+    void FinishAddingBoxSelectionObject();
 
     void UnloadObjects();
 

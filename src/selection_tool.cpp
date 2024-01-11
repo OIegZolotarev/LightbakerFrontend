@@ -87,7 +87,10 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
     case SDL_MOUSEBUTTONDOWN:
 
         if (buttons & SDL_BUTTON_LMASK)
+        {
             return HandleLeftClick();
+        }
+
     case SDL_MOUSEBUTTONUP:
 
         if (buttons & SDL_BUTTON_LMASK)
@@ -99,27 +102,48 @@ int SelectionTool::HandleMouseEvent(bool bWasHandled, const SDL_Event &e, const 
 
 int SelectionTool::HandleLeftRelease()
 {
-    if (m_SelectionMode == SelectionModes::BoxSelection)
+    float l = glm::length(m_vecMouseDragStart - m_vecMouseDragEnd);
+
+    if (m_SelectionMode == SelectionModes::BoxSelection && l > 1)
     {
         if (m_bMouseDragged)
         {
             m_bMouseDragged   = false;
             m_vecMouseDragEnd = m_pActiveViewport->CalcRelativeMousePos();
 
-            ValidateMinsMaxs();
-            UpdateBoxSelectionFrustum();
-
-            SelectItemsInSelectionFrustum();
+            FinishBoxSelection();
 
             return EVENT_CONSUMED;
         }
+    }
+    else
+    {
+        m_bMouseDragged = false;
+        m_bMouseDragValid = false;
+
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
+
+        if (canSelect && m_pActiveDocument)
+            SelectHoveredObject();
     }
 
     return 0;
 }
 
+void SelectionTool::FinishBoxSelection()
+{
+    ValidateMinsMaxs();
+    UpdateBoxSelectionFrustum();
+    SelectItemsInSelectionFrustum();
+
+    m_bMouseDragValid = false;
+}
+
 int SelectionTool::HandleLeftClick()
 {
+    if (SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver())
+        return 0;
+
     switch (m_SelectionMode)
     {
     case SelectionModes::Picker: {
@@ -291,6 +315,7 @@ void SelectionTool::SelectItemsInSelectionFrustum()
         TraverseSelectionBoxFrustum(pTree, pNode, visibility);
     }
 
+    ObjectPropertiesEditor::Instance()->FinishAddingBoxSelectionObject();
     m_pActiveViewport->FlagUpdate();
 }
 
@@ -323,7 +348,7 @@ void SelectionTool::TraverseSelectionBoxFrustum(BVHTree *pTree, BVHNode *pNode, 
         auto vis = m_BoxSelectionFrustum.CullBoxEx(ptr->GetAbsoulteBoundingBox());
 
         if (vis != FrustumVisiblity::None)
-            ObjectPropertiesEditor::Instance()->AddObject(p);
+            ObjectPropertiesEditor::Instance()->AddObjectBoxSelection(p);
     }
     else
     {
@@ -352,7 +377,11 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
 {
     if (!m_pActiveViewport)
     {
-        m_bMouseDragged = false;
+        if (m_bMouseDragValid && m_bMouseDragged)
+        {
+            m_bMouseDragged = false;
+            FinishBoxSelection();
+        }
     }
 
     if (m_pActiveViewport == m_pDragViewport)

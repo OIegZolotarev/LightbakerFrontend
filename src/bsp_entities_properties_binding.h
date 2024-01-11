@@ -38,7 +38,10 @@ public:
 
 
     void        SelectEntity(SceneEntityWeakPtr ptr);
-    void        FillProperties(std::list<VariantValue *> &collection) ;
+
+    void BuildSelectionRepresentation();
+
+    void        FillProperties(std::list<VariantValue *> &collection);
     const char *ObjectClassname() ;
     void        OnPropertyChangeSavedToHistory() ;
 
@@ -50,11 +53,14 @@ public:
 
     SceneEntity *GetEntity(int param1) ;
 
-    void AddObject(SceneEntityWeakPtr weakRef) ;
+    void AddObject(SceneEntityWeakPtr weakRef);
     void ClearObjects();
     void UpdatePropertyPositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
     
     void OnSelectionResized(std::unordered_map<uint32_t, glm::vec3> &relativePositions, glm::vec3 scale, glm::vec3 centerPos);
+    
+    void AddObjectBoxSelection(SceneEntityWeakPtr &pObject);
+    void FinishBoxSelection();
 };
 
 } // namespace GoldSource

@@ -33,6 +33,9 @@ class SelectionTool : public IEditingTool
     bool m_bCtrlHeld = false;
 
     int HandleLeftRelease();
+
+    void FinishBoxSelection();
+
     int HandleLeftClick();
 
     void SelectHoveredObject();
