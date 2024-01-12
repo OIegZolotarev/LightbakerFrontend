@@ -10,7 +10,7 @@
 #include "common_resources.h"
 #include "draw_utils.h"
 #include "properties_editor.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "r_editor_grid.h"
 #include "scene.h"
 #include "selection_3d.h"
@@ -328,7 +328,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
     m_pBillBoard->Draw();
 }
 
-Camera *SceneRenderer::GetCamera()
+CameraController *SceneRenderer::GetCamera()
 {
     return m_pCamera;
 }
@@ -455,7 +455,7 @@ void SceneRenderer::SortRenderLists()
 
     auto &ents = m_pScene->GetEntities();
 
-    glm::vec3 eyesPos = m_pCamera->GetOrigin();
+    glm::vec3 eyesPos = m_pCamera->GetPosition();
 
     if (g_useBVH)
     {
@@ -690,7 +690,7 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
 glm::vec3 SceneRenderer::GetRenderPos()
 {
     if (m_pCamera)
-        return m_pCamera->GetOrigin();
+        return m_pCamera->GetPosition();
     else
         return {0, 0, 0};
 }
@@ -756,5 +756,5 @@ Scene *SceneRenderer::GetScene()
 
 glm::vec3 SceneRenderer::GetNewLightPos()
 {
-    return m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
+    return m_pCamera->GetPosition() + m_pCamera->GetForwardVector() * 10.f;
 }

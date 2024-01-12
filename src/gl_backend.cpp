@@ -6,7 +6,7 @@
 // clang-format off
 #include "application.h"
 #include "gl_backend.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include <stddef.h>
 // clang-format on
 
@@ -158,7 +158,7 @@ void GLBackend::BindTexture(int unit, GLuint texture)
 
 void GLBackend::SetUniformValue(ShaderUniform *it)
 {
-    Camera *camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+    CameraController *camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 
     switch (it->Kind())
     {

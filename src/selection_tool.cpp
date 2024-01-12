@@ -396,6 +396,8 @@ void SelectionTool::RenderViewportUI(Viewport *pViewport)
         }
     }
 
+    // Con_Printf("m_bMouseDragValid = %d\n", m_bMouseDragValid);
+
     if (pViewport == m_pDragViewport)
     {
         if (m_bMouseDragValid)

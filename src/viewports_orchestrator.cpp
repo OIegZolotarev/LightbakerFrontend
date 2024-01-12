@@ -54,7 +54,7 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
         if (it->GetPlatformWindow() != pWindow)
             continue;
 
-        if (it->GetMouseHoveringStatus() == ViewportMouseHover::Hovered)
+        if (it->GetMouseHoveringStatus() != ViewportMouseHover::NotHovered)
         {
             //assert((m_pHoveredViewport == it) && "Error in hovering logic - multiple viewports seems to be hovered");
             m_pHoveredViewport = it;

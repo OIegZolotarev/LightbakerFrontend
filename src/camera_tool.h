@@ -6,6 +6,8 @@
 #pragma once
 #include "editing_tool.h"
 
+
+
 class CameraTool: public IEditingTool
 {
 public:

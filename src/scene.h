@@ -10,17 +10,12 @@
 #include "lb3k_wrapper.h"
 #include "mod_manager.h"
 #include "model_obj.h"
+#include "r_bvh.h"
+#include "r_octree.h"
 #include "scene_entity.h"
 #include "serial_counter.h"
-#include "r_octree.h"
-#include "r_bvh.h"
 
-enum class LevelFormat
-{
-    Unknown = 0,
-    WavefrontOBJ,
-    BSP
-};
+// Forward declarations start
 
 namespace GoldSource
 {
@@ -29,8 +24,29 @@ class StudioModelV10;
 
 class IWorldEntity;
 
+// Forward declarations end
+
+enum class LevelFormat
+{
+    Unknown = 0,
+    WavefrontOBJ,
+    BSP
+};
+
+typedef struct sceneCameraDescriptor_s
+{
+    std::string description;
+    glm::vec3   position;
+    glm::vec3   angles;
+
+} sceneCameraDescriptor_t;
+
+typedef std::list<sceneCameraDescriptor_t> CameraDescriptorsList;
+
 class Scene
 {
+    friend class SceneRenderer;
+
     lightBakerSettings_s        m_lightBakerParams;
     SerialCounter<unsigned int> m_ObjectsCounter;
 
@@ -45,22 +61,20 @@ class Scene
     // TODO: review
     float m_flSceneScale = 1.0f;
 
-    CEditHistory *     m_pEditHistory;
-    SceneEntityWeakPtr m_pCurrentSelection;
+    CEditHistory *m_pEditHistory;
 
     void ClearEntities();
     void LoadLevel(const char *levelName);
 
-    IModelWeakPtr pTestModel;
-
-    friend class SceneRenderer;
-
+    IModelWeakPtr                    pTestModel;
     const std::list<SceneEntityPtr> &GetEntities() const;
 
     // OctreeNode *m_pOctree;
     BVHTree *m_pBVHTree;
-   
-    
+
+
+    // Camera tool
+    CameraDescriptorsList m_lstEditorCameras;
 
 public:
     Scene();
@@ -68,19 +82,20 @@ public:
 
     void LoadLevel(const char *levelName, int loadFlags);
 
-    void DoDeleteSelection();
-
     // Scene objects
-    SceneEntityPtr             AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);    
-    SceneEntityPtr             AddNewSceneEntity(SceneEntity *entity);
-    void                       AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);
+    SceneEntityPtr AddNewLight(glm::vec3 pos, LightTypes type, bool interactive = true);
+    SceneEntityPtr AddNewSceneEntity(SceneEntity *entity);
+    void           AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn);    
     
-    std::list<SceneEntityPtr> &GetSceneObjects();               
-    SceneEntityWeakPtr GetEntityBySerialNumber(size_t serialNumber);
+    void           UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute);
+    void           OnEntityRegistered(SceneEntityPtr &it);
 
-    void               DeleteEntityWithSerialNumber(size_t serialNumber);
-    void               DeleteEntity(SceneEntityWeakPtr l);
+    std::list<SceneEntityPtr> &GetSceneObjects();
+    SceneEntityWeakPtr         GetEntityBySerialNumber(size_t serialNumber);
 
+    // Editing
+    void          DeleteEntityWithSerialNumber(size_t serialNumber);
+    void          DeleteEntity(SceneEntityWeakPtr l);
     CEditHistory *GetEditHistory() const;
 
     bool IsModelLoaded();
@@ -104,10 +119,16 @@ public:
 
     size_t TotalEntities();
 
-    void DebugRenderBVH();
-    void DebugRenderBVHUI();
-    BVHTree* GetBVHTree();
+    void     DebugRenderBVH();
+    void     DebugRenderBVHUI();
+    BVHTree *GetBVHTree();
 
-    void OnEntityRegistered(SceneEntityPtr &it);
-    void UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute);
+    void DoDeleteSelection();
+
+    // Camera tool
+    const CameraDescriptorsList &GetSceneCamerasDescriptors() const;
+    void                         AddSceneCameraDescriptor(sceneCameraDescriptor_t &newDescritor);
+    void                         DeleteSceneCameraDescriptor(size_t idx);
+    void                         UpdateSceneCameraDescriptor(size_t idx, sceneCameraDescriptor_t &newDescriptor);
+    sceneCameraDescriptor_t      & GetSceneCameraDescriptor(size_t selected);
 };

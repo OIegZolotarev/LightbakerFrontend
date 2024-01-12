@@ -7,7 +7,7 @@
 
 #include "common.h"
 #include <better-enums/enum.h>
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "mathlib.h"
 
 BETTER_ENUM(FrustumPlanes, int, Right, Left, Top, Bottom, NearZ, FarZ);
@@ -32,7 +32,7 @@ public:
     
     void LimitFarZDist(float dist);
 
-    void InitPerspective(class Camera * pCamera);    
+    void InitPerspective(class CameraController * pCamera);    
     void InitPerspective(const glm::vec3 & origin, 
                          const glm::vec3 & forward,
                          const glm::vec3 & right,

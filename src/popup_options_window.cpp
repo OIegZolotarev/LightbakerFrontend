@@ -12,7 +12,7 @@
 #include "helpers.h"
 #include "imgui_popups.h"
 #include "popup_edit_gameconfiguration.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "ui_options_pages.h"
 #include "ui_styles_manager.h"
 #include <xutility>

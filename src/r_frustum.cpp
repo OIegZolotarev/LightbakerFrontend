@@ -6,7 +6,7 @@
 #include "application.h"
 #include "common.h"
 #include "r_frustum.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 
 void Frustum::SetPlane(int i, const glm::vec3 &vecNormal, float dist)
 {
@@ -48,7 +48,7 @@ void Frustum::LimitFarZDist(float dist)
     m_Planes[FrustumPlanes::FarZ].dist = m_Planes[FrustumPlanes::NearZ].dist - dist;
 }
 
-void Frustum::InitPerspective(Camera *pCamera)
+void Frustum::InitPerspective(CameraController *pCamera)
 {
     const float aspect = pCamera->AspectRatio();
 
@@ -61,7 +61,7 @@ void Frustum::InitPerspective(Camera *pCamera)
     const float halfVSide = zFar * tanf(fovY * .5f);
     const float halfHSide = halfVSide * aspect;
 
-    InitPerspective(pCamera->GetOrigin(), pCamera->GetForwardVector(), pCamera->GetRightVector(),
+    InitPerspective(pCamera->GetPosition(), pCamera->GetForwardVector(), pCamera->GetRightVector(),
                     pCamera->GetUpVector(), zNear, zFar, fovX, fovY);
 }
 

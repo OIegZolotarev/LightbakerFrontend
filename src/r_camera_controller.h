@@ -72,7 +72,7 @@ class CameraCommandKeyStroke
 
 typedef std::vector<CameraCommandKeyStroke *> KeystrokeList;
 
-class Camera : public IEventHandler
+class CameraController : public IEventHandler
 {
     CameraMouseModes m_Mode = CameraMouseModes::None;
 
@@ -160,11 +160,11 @@ class Camera : public IEventHandler
 
   public:
 
-    Camera(class Viewport * pViewport);
-    ~Camera();
+    CameraController(class Viewport * pViewport);
+    ~CameraController();
 
     const glm::vec3 &GetAngles() const;
-    const glm::vec3 &GetOrigin() const;
+    const glm::vec3 &GetPosition() const;
 
     void SetOrigin(const glm::vec3 newPos);
     void SetAngles(const glm::vec3 newAngles);
@@ -199,7 +199,7 @@ class Camera : public IEventHandler
     Frustum *GetFrustum();
     glm::vec3 GetMoveSpeed();
     bool      IsFPSNavigationEngaged();
-    void      CopyOrientation(Camera *param1);
+    void      CopyOrientation(CameraController *param1);
 
     const glm::vec3 ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const;
 

@@ -5,12 +5,12 @@
 
 #include "application.h"
 #include "common.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include <algorithm>
 
 //#define OLD_GL
 
-Camera::Camera(Viewport *pViewport)
+CameraController::CameraController(Viewport *pViewport)
 {
     auto settings = Application::Instance()->GetPersistentStorage();
 
@@ -37,21 +37,21 @@ Camera::Camera(Viewport *pViewport)
     m_pViewport = pViewport;
 }
 
-Camera::~Camera()
+CameraController::~CameraController()
 {
     ClearPointersVector(m_vKeyStrokesBlenderTouchpad);
     ClearPointersVector(m_vKeyStrokesBlender);
     ClearPointersVector(m_vKeyStrokesVHE);
 }
 
-void Camera::SetupKeystrokes()
+void CameraController::SetupKeystrokes()
 {
     SetupKeystrokesBlenderTouchpad();
     SetupKeystrokesBlender();
     SetupKeystrokesVHE();
 }
 
-void Camera::SetupKeystrokesBlenderTouchpad()
+void CameraController::SetupKeystrokesBlenderTouchpad()
 {
     CameraCommandKeyStroke *keystrokeRotate = new CameraCommandKeyStroke();
     keystrokeRotate->AddMouseKey(SDL_BUTTON_LMASK);
@@ -94,7 +94,7 @@ void Camera::SetupKeystrokesBlenderTouchpad()
     m_vKeyStrokesBlenderTouchpad.push_back(keystrokeZoomOut);
 }
 
-void Camera::SetupKeystrokesBlender()
+void CameraController::SetupKeystrokesBlender()
 {
     // Rotate
 
@@ -137,7 +137,7 @@ void Camera::SetupKeystrokesBlender()
     m_vKeyStrokesBlender.push_back(keystrokeZoomOut);
 }
 
-void Camera::SetupCommonKeystrokesCallbacks()
+void CameraController::SetupCommonKeystrokesCallbacks()
 {
 #define DEBUG_KEYSTROKES
 
@@ -259,27 +259,27 @@ void Camera::SetupCommonKeystrokesCallbacks()
     });
 }
 
-const glm::vec3 &Camera::GetAngles() const
+const glm::vec3 &CameraController::GetAngles() const
 {
     return m_Angles;
 }
 
-const glm::vec3 &Camera::GetOrigin() const
+const glm::vec3 &CameraController::GetPosition() const
 {
     return m_Origin;
 }
 
-void Camera::SetOrigin(const glm::vec3 newPos)
+void CameraController::SetOrigin(const glm::vec3 newPos)
 {
     m_Origin = newPos;
 }
 
-void Camera::SetAngles(const glm::vec3 newAngles)
+void CameraController::SetAngles(const glm::vec3 newAngles)
 {
     m_Angles = newAngles;
 }
 
-void Camera::Apply(float flFrameDelta)
+void CameraController::Apply(float flFrameDelta)
 {
     UpdateOrientation(flFrameDelta);
 
@@ -299,39 +299,39 @@ void Camera::Apply(float flFrameDelta)
     m_Frustum.InitPerspective(this);
 }
 
-void Camera::Reset()
+void CameraController::Reset()
 {
 }
 
-void Camera::PopMatrices(int which, bool bApply)
+void CameraController::PopMatrices(int which, bool bApply)
 {
 }
 
-void Camera::PushMatrices(int which)
+void CameraController::PushMatrices(int which)
 {
 }
 
-const glm::mat4 Camera::GetViewMatrix() const
+const glm::mat4 CameraController::GetViewMatrix() const
 {
     return m_matModelView;
 }
 
-const glm::mat4 Camera::GetProjectionMatrix() const
+const glm::mat4 CameraController::GetProjectionMatrix() const
 {
     return m_matProjection;
 }
 
-float *Camera::GetViewMatrixPtr() const
+float *CameraController::GetViewMatrixPtr() const
 {
     return (float *)&m_matModelView[0][0];
 }
 
-float *Camera::GetProjectionMatrixPtr() const
+float *CameraController::GetProjectionMatrixPtr() const
 {
     return (float *)&m_matProjection[0][0];
 }
 
-int Camera::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
+int CameraController::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
     switch (e.type)
     {
@@ -352,7 +352,7 @@ int Camera::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFram
     return 0;
 }
 
-void Camera::UpdateOrientation(float flFrameDelta)
+void CameraController::UpdateOrientation(float flFrameDelta)
 {
     if (m_bInTransition)
     {
@@ -409,7 +409,7 @@ void Camera::UpdateOrientation(float flFrameDelta)
     }
 }
 
-bool Camera::CalcMovementSpeeds(float flFrameDelta)
+bool CameraController::CalcMovementSpeeds(float flFrameDelta)
 {
     if (!m_bFPSNavigation)
         for (int i = 0; i < 3; i++)
@@ -458,12 +458,12 @@ bool Camera::CalcMovementSpeeds(float flFrameDelta)
     return recalcPosition;
 }
 
-void Camera::LookAtPoint(glm::vec3 pos)
+void CameraController::LookAtPoint(glm::vec3 pos)
 {
     m_Origin = pos - m_vForward * 30.f;
 }
 
-void Camera::FormatControlsTip(std::string &dst)
+void CameraController::FormatControlsTip(std::string &dst)
 {
     CameraControlScheme scheme = (CameraControlScheme)m_pCameraControlsScheme->GetEnumValue();
 
@@ -485,18 +485,18 @@ void Camera::FormatControlsTip(std::string &dst)
     }
 }
 
-const float Camera::GetZFar()
+const float CameraController::GetZFar()
 {
     return m_pZFar->GetFloat();
 }
 
-const float Camera::GetFOVY(const float aspect)
+const float CameraController::GetFOVY(const float aspect)
 {
     double fov = glm::radians(m_pFov->GetFloat());
     return glm::degrees(2 * atan(tan(fov / 2) / aspect)); // Ìîÿ ôîðìóëà - ïëàâàåò?
 }
 
-const float Camera::AspectRatio()
+const float CameraController::AspectRatio()
 {
     glm::vec2 vp = m_pViewport->GetClientArea();
 
@@ -510,38 +510,38 @@ const float Camera::AspectRatio()
     return aspect;
 }
 
-const float Camera::GetZNear()
+const float CameraController::GetZNear()
 {
     return m_pZNear->GetFloat();
 }
 
-const float Camera::getFOVX()
+const float CameraController::getFOVX()
 {
     return m_pFov->GetFloat();
 }
 
-Frustum *Camera::GetFrustum()
+Frustum *CameraController::GetFrustum()
 {
     return &m_Frustum;
 }
 
-glm::vec3 Camera::GetMoveSpeed()
+glm::vec3 CameraController::GetMoveSpeed()
 {
     return (m_IdealMoveSpeeds);
 }
 
-bool Camera::IsFPSNavigationEngaged()
+bool CameraController::IsFPSNavigationEngaged()
 {
     return m_bFPSNavigation;
 }
 
-void Camera::CopyOrientation(Camera *param1)
+void CameraController::CopyOrientation(CameraController *param1)
 {
     SetOrigin(param1->m_Origin);
     SetAngles(param1->m_Angles);
 }
 
-const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const
+const glm::vec3 CameraController::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) const
 {
 // Projection matrix seems fine...
 #if 0
@@ -572,7 +572,7 @@ const glm::vec3 Camera::ScreenToWorld(const glm::vec3 normalizedDeviceCoords) co
     return glm::vec3(result.xyz);
 }
 
-void Camera::ExecuteTransition(glm::vec3 targetAngles)
+void CameraController::ExecuteTransition(glm::vec3 targetAngles)
 {
     m_TranstionStartingAngles = m_Angles;
     m_TranstionoEndingAngles  = targetAngles;
@@ -581,22 +581,22 @@ void Camera::ExecuteTransition(glm::vec3 targetAngles)
     m_flTransitionProgress = 0;
 }
 
-glm::vec3 Camera::GetRightVector()
+glm::vec3 CameraController::GetRightVector()
 {
     return m_vRight;
 }
 
-glm::vec3 Camera::GetUpVector()
+glm::vec3 CameraController::GetUpVector()
 {
     return m_vUp;
 }
 
-glm::vec3 Camera::GetForwardVector()
+glm::vec3 CameraController::GetForwardVector()
 {
     return m_vForward;
 }
 
-void Camera::SetupKeystrokesVHE()
+void CameraController::SetupKeystrokesVHE()
 {
     CameraCommandKeyStroke *keystrokeMoveForward = new CameraCommandKeyStroke();
     keystrokeMoveForward->AddKeyboardKey("W");
@@ -643,22 +643,22 @@ void Camera::SetupKeystrokesVHE()
     m_vKeyStrokesVHE.push_back(keystrokeZoomOut);
 }
 
-void Camera::SetForwardSpeed(const int moveSpeed)
+void CameraController::SetForwardSpeed(const int moveSpeed)
 {
     m_IdealMoveSpeeds[0] = moveSpeed;
 }
 
-void Camera::SetStrafeSpeed(const int moveSpeed)
+void CameraController::SetStrafeSpeed(const int moveSpeed)
 {
     m_IdealMoveSpeeds[1] = moveSpeed;
 }
 
-void Camera::SetUpSpeed(const int moveSpeed)
+void CameraController::SetUpSpeed(const int moveSpeed)
 {
     m_IdealMoveSpeeds[2] = moveSpeed;
 }
 
-int Camera::MouseMotionEvent(const SDL_Event &_event, const float flFrameDelta)
+int CameraController::MouseMotionEvent(const SDL_Event &_event, const float flFrameDelta)
 {
     auto  event  = _event.motion;
     float flDist = m_pMoveSpeed->GetFloat();
@@ -711,7 +711,7 @@ int Camera::MouseMotionEvent(const SDL_Event &_event, const float flFrameDelta)
     return 0;
 }
 
-int Camera::ButtonEvent(const SDL_Event &_event)
+int CameraController::ButtonEvent(const SDL_Event &_event)
 {
     auto event = _event.button;
 
@@ -757,7 +757,7 @@ int Camera::ButtonEvent(const SDL_Event &_event)
         return 0;
 }
 
-int Camera::MouseWheelEvent(const SDL_Event &_event, const float flFrameDelta)
+int CameraController::MouseWheelEvent(const SDL_Event &_event, const float flFrameDelta)
 {
     auto  event  = _event.motion;
     float flDist = glm::length(m_Origin);
@@ -807,7 +807,7 @@ int Camera::MouseWheelEvent(const SDL_Event &_event, const float flFrameDelta)
     return 0;
 }
 
-void Camera::SetupPerspectiveMatrix()
+void CameraController::SetupPerspectiveMatrix()
 {
     double fov = glm::radians(m_pFov->GetFloat());
 
@@ -845,7 +845,7 @@ void Camera::SetupPerspectiveMatrix()
 #endif
 }
 
-void Camera::SetupModelViewMatrix()
+void CameraController::SetupModelViewMatrix()
 {
     m_matModelView = glm::mat4(1);
 
@@ -964,12 +964,12 @@ bool CameraCommandKeyStroke::CanBeExecuteFromMouseWheel(int direction)
         return sameSign;
 }
 
-void Camera::DoZoomIn()
+void CameraController::DoZoomIn()
 {
     m_Origin += m_vForward * std::max(glm::length(m_Origin) / 2.f, 1.f);
 }
 
-void Camera::DoZoomOut()
+void CameraController::DoZoomOut()
 {
     m_Origin -= m_vForward * std::max(glm::length(m_Origin) / 2.f, 1.f);
 }

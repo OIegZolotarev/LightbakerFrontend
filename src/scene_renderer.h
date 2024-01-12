@@ -24,7 +24,7 @@
 
 #define LRF_LOAD_ALL (LRF_RELOAD_TEXTURES | LRF_RELOAD_LIGHTMAPS)
 
-class Camera;
+class CameraController;
 class MainWindow;
 class Frustum;
 class BVHTree;
@@ -53,7 +53,7 @@ public:
 
     void RegisterRendermodesCommands();
 
-    class Camera *GetCamera();
+    class CameraController *GetCamera();
     void          FocusCameraOnObject(SceneEntityPtr it);
 
     // Rendering
@@ -102,7 +102,7 @@ private:
 
     void Debug_DrawGround();
 
-    Camera *    m_pCamera;
+    CameraController *    m_pCamera;
     MainWindow *m_pTargetWindow;
     Scene *     m_pScene;
 

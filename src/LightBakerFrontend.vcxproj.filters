@@ -311,7 +311,7 @@
     <ClCompile Include="img_goldsource_spr.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
-    <ClCompile Include="r_camera.cpp">
+    <ClCompile Include="r_camera_controller.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="r_frustum.cpp">
@@ -481,6 +481,12 @@
     </ClCompile>
     <ClCompile Include="gl_backend.cpp">
       <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="io_scene.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="io_scene_lm2.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -709,7 +715,7 @@
     <ClInclude Include="spritegn.h">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="r_camera.h">
+    <ClInclude Include="r_camera_controller.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="r_frustum.h">
@@ -876,6 +882,12 @@
     </ClInclude>
     <ClInclude Include="brush_face.h">
       <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="io_scene.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="io_scene_lm2.h">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -30,8 +30,8 @@ class IEditingTool
     void RegisterBoundCommand();
 
 protected:
-    Viewport *m_pActiveViewport;
-    Scene *   m_pActiveDocument;
+    Viewport *m_pActiveViewport = nullptr;
+    Scene *   m_pActiveDocument = nullptr;
 
     void        SetBoundCommand(GlobalCommands cmd);
     void        SetToolIcon(CommonIcons icon);

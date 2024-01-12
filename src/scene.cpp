@@ -3,8 +3,8 @@
     (c) 2023 CrazyRussian
 */
 
-#include "scene.h"
 #include "application.h"
+#include "scene.h"
 #include "gl_backend.h"
 #include "goldsource_bsp_world.h"
 #include "mod_mdlv10.h"
@@ -12,7 +12,7 @@
 #include "mod_obj_atlas_gen.h"
 #include "model_obj_world.h"
 #include "properties_editor.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "viewports_orchestrator.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
@@ -49,9 +49,9 @@ const std::list<SceneEntityPtr> &Scene::GetEntities() const
 Scene::Scene()
 {
     m_pEditHistory = new CEditHistory;
-    
+
     // TODO: review extents
-    m_pBVHTree = new BVHTree(0.05, {8192,8192,8192});
+    m_pBVHTree = new BVHTree(0.05, {8192, 8192, 8192});
 }
 
 Scene::~Scene()
@@ -82,15 +82,14 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
 
 void Scene::DoDeleteSelection()
 {
-    auto & objects = ObjectPropertiesEditor::Instance()->GetBindings()->GetSelectedObjects();
+    auto &objects = ObjectPropertiesEditor::Instance()->GetBindings()->GetSelectedObjects();
 
     if (objects.size() == 0)
         return;
 
-
     EditTransaction *pTransaction = new EditTransaction;
 
-    for (auto & it: objects)
+    for (auto &it : objects)
     {
         auto ptr = it.lock();
 
@@ -98,26 +97,66 @@ void Scene::DoDeleteSelection()
             continue;
 
         pTransaction->AddAction(new CDeleteLightAction(ptr));
-        
-        auto predicate = [&](SceneEntityPtr &it) -> bool 
-        {             
+
+        auto predicate = [&](SceneEntityPtr &it) -> bool {
             if (it == ptr)
             {
                 m_pBVHTree->RemoveEntity(it);
             }
 
-            return it == ptr; 
+            return it == ptr;
         };
-        
-        m_SceneEntities.remove_if(predicate);
 
+        m_SceneEntities.remove_if(predicate);
     }
 
     m_pEditHistory->PushAction(pTransaction);
 
-    ObjectPropertiesEditor::Instance()->UnloadObjects();    
+    ObjectPropertiesEditor::Instance()->UnloadObjects();
     ViewportsOrchestrator::Instance()->FlagRepaintAll();
     Application::ScheduleCompilationIfNecceseary();
+}
+
+const CameraDescriptorsList &Scene::GetSceneCamerasDescriptors() const
+{
+    return m_lstEditorCameras;
+}
+
+void Scene::AddSceneCameraDescriptor(sceneCameraDescriptor_t &newDescritor)
+{
+    m_lstEditorCameras.push_back(newDescritor);
+}
+
+void Scene::DeleteSceneCameraDescriptor(size_t idx)
+{
+    if (idx >= m_lstEditorCameras.size())
+        return;
+
+    auto it = m_lstEditorCameras.begin();
+    std::advance(it, idx);
+
+    m_lstEditorCameras.erase(it);
+}
+
+void Scene::UpdateSceneCameraDescriptor(size_t idx, sceneCameraDescriptor_t &newDescriptor)
+{
+    if (idx >= m_lstEditorCameras.size())
+        return;
+
+    auto it = m_lstEditorCameras.begin();
+    std::advance(it, idx);
+
+    (*it).angles      = newDescriptor.angles;
+    (*it).angles      = newDescriptor.position;
+    (*it).description = newDescriptor.description;
+}
+
+sceneCameraDescriptor_t &Scene::GetSceneCameraDescriptor(size_t selected)
+{
+    auto it = m_lstEditorCameras.begin();
+    std::advance(it, selected);
+
+    return *it;
 }
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
@@ -157,8 +196,6 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
     return AddNewSceneEntity(newLight);
 }
 
-
-
 SceneEntityPtr Scene::AddNewSceneEntity(SceneEntity *entity)
 {
     auto result = SceneEntityPtr(entity);
@@ -188,7 +225,7 @@ bool Scene::IsModelLoaded()
 
 void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn)
 {
-    it->SetSerialNumber(sn);    
+    it->SetSerialNumber(sn);
     m_SceneEntities.push_back(it);
 
     OnEntityRegistered(it);
@@ -319,8 +356,8 @@ void Scene::LoadLevel(const char *levelName)
     else
         m_SceneEntities.push_back(pLevelEntity);
 
-    //pLevelEntity->OnAdditionToScene(this);
-    //OnEntityRegistered(pLevelEntity);
+    // pLevelEntity->OnAdditionToScene(this);
+    // OnEntityRegistered(pLevelEntity);
 
     Application::GetMainWindow()->UpdateStatusbar(FL_UPDATE_ALL_STATUS_FIELDS);
 }
@@ -401,7 +438,6 @@ size_t Scene::TotalEntities()
     return m_SceneEntities.size();
 }
 
-
 void Scene::DebugRenderBVH()
 {
     extern int nodeToRender;
@@ -413,7 +449,7 @@ void Scene::DebugRenderBVHUI()
     m_pBVHTree->DebugRenderTreeUI();
 }
 
-BVHTree* Scene::GetBVHTree()
+BVHTree *Scene::GetBVHTree()
 {
     return m_pBVHTree;
 }
@@ -422,15 +458,13 @@ void Scene::OnEntityRegistered(SceneEntityPtr &it)
 {
     it->FlagRegisteredInScene(true);
     auto wptr = SceneEntityWeakPtr(it);
-    
-    m_pBVHTree->InsertEntity(it);
 
-    
+    m_pBVHTree->InsertEntity(it);
 }
 
 void Scene::UpdateEntityBVH(const uint32_t serialNumber, const BVHBoundingBox &bboxAbsolute)
-{    
-     m_pBVHTree->UpdateEntity(serialNumber, bboxAbsolute);
+{
+    m_pBVHTree->UpdateEntity(serialNumber, bboxAbsolute);
 }
 
 // void Scene::RenderEntities(RenderMode mode, SceneRenderer *sr)

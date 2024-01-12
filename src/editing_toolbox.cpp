@@ -47,6 +47,7 @@ void EditingToolbox::RenderToolViewportUI(Viewport * pViewport)
     if (!m_pCurrentTool)
         return;
 
+    // InitializeToolContext();
     m_pCurrentTool->RenderViewportUI(pViewport);
 }
 
@@ -55,6 +56,7 @@ void EditingToolbox::RenderToolViewport2DGraphics(float flFrameDelta)
     if (!m_pCurrentTool)
         return;
 
+    // InitializeToolContext();
     m_pCurrentTool->RenderViewport2DGraphics(flFrameDelta);
 }
 
@@ -63,6 +65,7 @@ void EditingToolbox::RenderTool(float flFrameDelta)
     if (!m_pCurrentTool)
         return;
 
+    // InitializeToolContext();
     m_pCurrentTool->Render(flFrameDelta);
 }
 
@@ -71,6 +74,7 @@ void EditingToolbox::RenderToolUI()
     if (!m_pCurrentTool)
         return;
 
+    // InitializeToolContext();
     m_pCurrentTool->RenderUI();
 }
 
@@ -79,11 +83,7 @@ int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const floa
     if (!m_pCurrentTool)
         return 0;
 
-    auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
-    auto scene    = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-
-    m_pCurrentTool->SetActiveViewport(viewport);
-    m_pCurrentTool->SetActiveDocument(scene);
+    InitializeToolContext();
 
     switch (e.type)
     {
@@ -96,6 +96,15 @@ int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const floa
     }
 
     return 0;
+}
+
+void EditingToolbox::InitializeToolContext()
+{
+    auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+    auto scene    = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+
+    m_pCurrentTool->SetActiveViewport(viewport);
+    m_pCurrentTool->SetActiveDocument(scene);
 }
 
 const std::list<IEditingTool *> &EditingToolbox::GetAllTools() const

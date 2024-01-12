@@ -9,7 +9,7 @@
 #include "imgui_helpers.h"
 #include "lights.h"
 #include "object_props.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "ui_common.h"
 #include "viewports_orchestrator.h"
 

@@ -8,7 +8,7 @@
 
 #include "goldsource_bsp_asynch_loader.h"
 #include "goldsource_bsp_world.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "scene_renderer.h"
 #include "mod_manager.h"
 #include "viewports_orchestrator.h"
@@ -56,7 +56,7 @@ void BSPWorld::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *
     if (!m_pRenderer)
         return;
 
-    glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetOrigin();
+    glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetPosition();
 
 
     for (auto & it: shader->Uniforms())

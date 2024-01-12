@@ -9,7 +9,7 @@
 #include "gl_framebuffer_object.h"
 #include "mathlib.h"
 #include "platform_window.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "scene_renderer.h"
 #include "viewport_rendermodes.h"
 #include <nlohmann/json.hpp>
@@ -39,17 +39,17 @@ class Viewport : public IEventHandler
     // State
     bool m_bHovered      = false;
     bool m_bHoveredImGUI = false;
-
-    bool m_bForceUndock = false;
-    bool m_bDocked      = false;
-    bool m_bVisible     = true;
+    bool m_bFocused      = false;
+    bool m_bForceUndock  = false;
+    bool m_bDocked       = false;
+    bool m_bVisible      = true;
 
     bool m_bNeedUpdate = true;
 
     void DoCloneViewport();
 
     // Rendering
-    Camera *             m_pCamera;
+    CameraController *   m_pCamera;
     GLFramebufferObject *m_pFBO;
     RenderMode           m_RenderMode = RenderMode::Lightshaded;
     int                  ReadPixel(unsigned int x, unsigned int y);
@@ -80,9 +80,9 @@ public:
     int HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
     // Getters
-    Camera *         GetCamera();
-    RenderMode       GetRenderMode();
-    IPlatformWindow *GetPlatformWindow();
+    CameraController *GetCamera();
+    RenderMode        GetRenderMode();
+    IPlatformWindow * GetPlatformWindow();
 
     void        OutputDebug();
     const char *Name();
@@ -109,6 +109,5 @@ public:
 
     const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const;
 
-private:
-    bool m_bFocused;
+    void LookAt(const sceneCameraDescriptor_t &it);
 };

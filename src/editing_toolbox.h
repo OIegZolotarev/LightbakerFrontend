@@ -31,6 +31,8 @@ public:
 
     int HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
 
+    void InitializeToolContext();
+
     const std::list<IEditingTool *> & GetAllTools() const;
     const EditingToolId                    SelectedToolId() const;
 

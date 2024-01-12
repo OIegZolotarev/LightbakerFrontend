@@ -61,7 +61,7 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
 
     m_strNamePopupKey = m_strName + "_popup";
 
-    m_pCamera = new Camera(this);
+    m_pCamera = new CameraController(this);
 
     if (pCopyFrom)
     {
@@ -360,7 +360,7 @@ int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFr
     return 0;
 }
 
-Camera *Viewport::GetCamera()
+CameraController *Viewport::GetCamera()
 {
     return m_pCamera;
 }
@@ -372,7 +372,7 @@ RenderMode Viewport::GetRenderMode()
 
 void Viewport::OutputDebug()
 {
-    auto      position = m_pCamera->GetOrigin();
+    auto      position = m_pCamera->GetPosition();
     glm::vec3 angles   = m_pCamera->GetAngles();
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
@@ -505,6 +505,12 @@ const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFra
 
     // return ndc;
     return m_pCamera->ScreenToWorld(ndc);
+}
+
+void Viewport::LookAt(const sceneCameraDescriptor_t &it)
+{
+    m_pCamera->SetOrigin(it.position);
+    m_pCamera->SetAngles(it.angles);
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()

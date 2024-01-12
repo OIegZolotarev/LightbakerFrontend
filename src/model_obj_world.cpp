@@ -7,7 +7,7 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "goldsource_bsp_level.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 
 ModelObjWorld::ModelObjWorld(const char *fileName, Scene *pScene) : IWorldEntity(pScene)
 {
