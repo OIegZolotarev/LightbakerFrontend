@@ -11,10 +11,10 @@
 
 #include "common.h"
 #include "goldsource_game_configuration.h"
+#include "mod_primitive.h"
 #include "properties_editor.h"
 #include "text_utils.h"
 #include "wad_textures.h"
-#include "mod_primitive.h"
 
 using namespace GoldSource;
 
@@ -59,10 +59,25 @@ void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
     }
 }
 
-void GoldSource::BSPEntity::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
+BSPEntity::BSPEntity(BSPEntity *pOther) : SceneEntity(pOther)
+{
+    m_pFGDClass      = pOther->m_pFGDClass;
+    m_World          = pOther->m_World;
+    
+    for (auto &it : pOther->m_lstProperties)
+    {
+        BSPEntityProperty* pNewProp = new BSPEntityProperty(it, this);        
+        m_lstProperties.push_back(pNewProp);
+    }
+    
+    
+    m_bIsTransparent = pOther->m_bIsTransparent;
+}
+
+void GoldSource::BSPEntity::Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader)
 {
     const IModelWeakPtr model = GetModel();
-         
+
     // TODO: move this somewhere to BSPEntityProperty::Update
     auto prop = FindProperty(SpecialKeys::Key_Light());
     if (prop)
@@ -71,10 +86,14 @@ void GoldSource::BSPEntity::Render(RenderMode mode, const SceneRenderer * sr, Sh
     auto ptr = model.lock();
 
     assert(ptr && "Should always have a model for an entity");
-    ptr->Render(this, sr, mode, shader);    
+    ptr->Render(this, sr, mode, shader);
 }
 
-
+SceneEntity *BSPEntity::Clone()
+{
+    BSPEntity *pClone = new BSPEntity(this);
+    return pClone;
+}
 
 void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
 {
@@ -99,8 +118,6 @@ BSPEntityProperty *BSPEntity::FindProperty(size_t prophash)
 
 void BSPEntity::PopulateScene()
 {
-
-
     auto classPtr = m_pFGDClass.lock();
 
     if (classPtr)
@@ -206,7 +223,7 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
     if (ptr)
     {
         SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
-        m_pScene->HintSelected(weakRef);
+        // m_pScene->HintSelected(weakRef);
 
         auto bindings = ObjectPropertiesEditor::Instance()->GetBindings();
 
@@ -218,9 +235,9 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
         else
         {
             // TODO: make binder singletons?
-//             BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
-//             pBinder->SelectEntity(weakRef);
-//            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+            //             BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
+            //             pBinder->SelectEntity(weakRef);
+            //            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
         }
     }
 }

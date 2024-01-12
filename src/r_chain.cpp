@@ -7,6 +7,8 @@
 #include "common.h"
 #include "r_chain.h"
 
+#if 0
+
 RenderChain::RenderChain()
 {
     m_EyePos = {0, 0, 0};
@@ -84,3 +86,5 @@ void RenderChain::AddDistanceSorted(SceneEntityWeakPtr &pEntity)
         m_ChainStart = pEntity;
     }
 }
+
+#endif 

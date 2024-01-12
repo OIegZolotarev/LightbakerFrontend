@@ -42,6 +42,11 @@ BSPWorld::BSPWorld(const char *levelName, Scene *pScene) : IWorldEntity(pScene)
     m_pRenderer = 0;
 }
 
+BSPWorld::BSPWorld(BSPWorld *pOther) : IWorldEntity(m_pScene)
+{
+    assert(false && "Implement BSPLevel && BSPRenderer shared ptrs first!!1");
+}
+
 BSPWorld::~BSPWorld()
 {
 }
@@ -113,4 +118,9 @@ void BSPWorld::OnLevelLoaded()
 GoldSource::BSPModelRenderCookiePtr BSPWorld::GetBSPModelRenderCookie(size_t idx)
 {
     return m_pRenderer->GetBSPModelRenderCookie(idx);
+}
+
+SceneEntity *BSPWorld::Clone()
+{
+    return new BSPWorld(this);
 }

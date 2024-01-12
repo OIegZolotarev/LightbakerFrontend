@@ -3,15 +3,20 @@
     (c) 2023 CrazyRussian
 */
 
-#include "imgui_helpers.h"
 #include "application.h"
+
+#include "imgui_helpers.h"
 #include "imgui_internal.h"
+
 #include "lb3k_imgui_icons.cpp"
 #include "lb3k_imgui_icons.h"
+
 #include "ui_common.h"
 
 GLTexture *g_pToolbarIconsSheet;
 
+
+extern ImVec4 g_CommonIconsRects[39];
 
 void ImGuiHelpers::Init()
 {

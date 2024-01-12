@@ -13,6 +13,7 @@
 #include "model_obj_world.h"
 #include "properties_editor.h"
 #include "r_camera.h"
+#include "viewports_orchestrator.h"
 
 LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
 {
@@ -81,15 +82,41 @@ void Scene::DeleteEntity(SceneEntityWeakPtr l)
 
 void Scene::DoDeleteSelection()
 {
-    auto sel = GetSelection();
-    auto ptr = sel.lock();
+    auto & objects = ObjectPropertiesEditor::Instance()->GetBindings()->GetSelectedObjects();
 
-    if (!ptr)
+    if (objects.size() == 0)
         return;
 
-    m_pEditHistory->PushAction(new CDeleteLightAction(ptr));
 
-    DeleteEntity(sel);
+    EditTransaction *pTransaction = new EditTransaction;
+
+    for (auto & it: objects)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        pTransaction->AddAction(new CDeleteLightAction(ptr));
+        
+        auto predicate = [&](SceneEntityPtr &it) -> bool 
+        {             
+            if (it == ptr)
+            {
+                m_pBVHTree->RemoveEntity(it);
+            }
+
+            return it == ptr; 
+        };
+        
+        m_SceneEntities.remove_if(predicate);
+
+    }
+
+    m_pEditHistory->PushAction(pTransaction);
+
+    ObjectPropertiesEditor::Instance()->UnloadObjects();    
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
     Application::ScheduleCompilationIfNecceseary();
 }
 
@@ -148,16 +175,6 @@ std::list<SceneEntityPtr> &Scene::GetSceneObjects()
 CEditHistory *Scene::GetEditHistory() const
 {
     return m_pEditHistory;
-}
-
-void Scene::HintSelected(SceneEntityWeakPtr weakRef)
-{
-    m_pCurrentSelection = weakRef;
-}
-
-SceneEntityWeakPtr Scene::GetSelection()
-{
-    return m_pCurrentSelection;
 }
 
 bool Scene::IsModelLoaded()

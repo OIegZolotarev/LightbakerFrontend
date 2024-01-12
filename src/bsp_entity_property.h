@@ -70,7 +70,11 @@ class BSPEntityProperty : public VariantValue
     void        ParseModel(const std::string &value);
 
 public:
+    
     BSPEntityProperty(const BSPEntityProperty *pOther);
+    BSPEntityProperty(const BSPEntityProperty *pOther, BSPEntity * pNewOwner);
+
+
     BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr);
     BSPEntityProperty(const BSPEntity *pOwner, const std::string &name, const std::string &value,
                       const FGDPropertyDescriptor *pDescr);

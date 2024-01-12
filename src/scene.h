@@ -83,9 +83,6 @@ public:
 
     CEditHistory *GetEditHistory() const;
 
-    void               HintSelected(SceneEntityWeakPtr weakRef);
-    SceneEntityWeakPtr GetSelection();
-
     bool IsModelLoaded();
 
     // Scene scaling

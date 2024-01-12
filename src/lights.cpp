@@ -393,3 +393,8 @@ void Lb3kLightEntity::Render(RenderMode mode, const SceneRenderer * sr, ShaderPr
 {
     throw std::logic_error("The method or operation is not implemented.");
 }
+
+SceneEntity* Lb3kLightEntity::Clone()
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}

@@ -4,31 +4,35 @@
 */
 
 #pragma once
-#include "world_entity.h"
 #include "goldsource_bsp_level.h"
 #include "goldsource_bsp_renderer.h"
+#include "world_entity.h"
 
 namespace GoldSource
 {
-class BSPWorld: public IWorldEntity
+class BSPWorld : public IWorldEntity
 {
-    BSPLevel *m_pLevel = nullptr;
+    BSPLevel *   m_pLevel    = nullptr;
     BSPRenderer *m_pRenderer = nullptr;
 
-  public:
-    BSPWorld(const char* levelName, Scene* pScene);    
+public:
+    BSPWorld(const char *levelName, Scene *pScene);
+
+    BSPWorld(BSPWorld *pOther);
+
     ~BSPWorld();
 
     void ReloadLightmaps() override;
-    void OnAdditionToScene(Scene * pScene) override;
-    
+    void OnAdditionToScene(Scene *pScene) override;
+
     bool IsDataLoaded() override;
 
     std::string ExportForCompiling(const char *newPath, lightBakerSettings_t *lb3kOptions) override;
     void        OnLevelLoaded();
+
     GoldSource::BSPModelRenderCookiePtr GetBSPModelRenderCookie(size_t idx);
+    void Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader) override;
 
-    void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
+    SceneEntity *Clone() override;
 };
-}
-
+} // namespace GoldSource

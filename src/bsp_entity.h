@@ -34,7 +34,7 @@ class BSPEntity : public SceneEntity
 
 public:
     // Delete for now, implement later if necceseary
-    BSPEntity(BSPEntity *pOther) = delete;
+    BSPEntity(BSPEntity *pOther);
     BSPEntity(Scene *pScene);
     ~BSPEntity();
 
@@ -56,6 +56,8 @@ public:
 
     void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
     void UpdatePropertyPosition(BSPEntityProperty *p, glm::vec3 delta);
+
+    SceneEntity *Clone() override;
 };
 
 } // namespace GoldSource

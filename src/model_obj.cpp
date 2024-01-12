@@ -426,6 +426,11 @@ void ModelOBJ::FlagHasLMMesh()
     BuildDrawMesh();
 }
 
+SceneEntity *ModelOBJ::Clone()
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
 const char *ModelOBJ::Description()
 {
     return "<world - obj model>";

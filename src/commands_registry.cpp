@@ -178,6 +178,24 @@ void CCommandsRegistry::InitializeAllCommands()
     //     newCommand->SetFlags(0);
     //     newCommand->SetCallback([&]() {});
     //     Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::DeleteSelection);
+    newCommand->SetDescription("Paste selection");
+    newCommand->SetKeyStroke("Delete");    
+    newCommand->SetFlags(0);
+    newCommand->SetCallback(
+        [&]() {
+            
+                Scene *pActiveDocument = Application::GetActiveDocument();
+                assert(pActiveDocument);
+
+                pActiveDocument->DoDeleteSelection();
+        
+        });
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
 }
 
 void CCommandsRegistry::RegisterCameraTurningCommands()

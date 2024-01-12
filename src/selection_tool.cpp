@@ -192,6 +192,9 @@ void SelectionTool::SelectHoveredObject()
 
 void SelectionTool::UpdateBoxSelectionFrustum()
 {
+    if (!m_pActiveViewport)
+        return;
+
     int lookupIndicies[4][2] = {
         {0, 0}, // top left
         {1, 0}, // top right

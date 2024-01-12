@@ -95,6 +95,11 @@ void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWi
     }
 }
 
+Scene *Application::GetActiveDocument()
+{
+    return Instance()->m_pMainWindow->GetSceneRenderer()->GetScene();
+}
+
 Application::~Application()
 {
     // if (m_pMainWindow) delete m_pMainWindow;

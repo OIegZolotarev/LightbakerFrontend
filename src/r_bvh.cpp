@@ -434,6 +434,9 @@ void BVHTree::FreeNode(unsigned int node)
 
     m_vecNodes[node].next   = m_uiFreeList;
     m_vecNodes[node].height = -1;
+
+    m_vecNodes[node].entity = SceneEntityPtr();
+
     m_uiFreeList            = node;
     m_uiNodeCount--;
 }

@@ -135,17 +135,13 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
     m_RenderMode = pViewport->GetRenderMode();
     GL_CheckForErrors();
 
-    ResetTransparentChain();
+    
     GL_CheckForErrors();
 
     Application::GetMainWindow()->ClearBackground(true);
     GL_CheckForErrors();
 
     // Render visible stuff
-
-    // ObjectPropertiesEditor::Instance()->Render3DBoundingBox();
-
-    // RenderPointEntityDefault(bbox.Center(), bboxRel.Mins(), bboxRel.Maxs(), {1, 0, 0}, 0);
 
     if (m_pScene)
     {
@@ -193,8 +189,7 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
          glEnable(GL_CULL_FACE);
          glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-
-    
+     
     
 
     if (m_pShowGround->GetAsBool())
@@ -202,11 +197,6 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
         GridRenderer::Instance()->Render();
         GL_CheckForErrors();
     }
-}
-
-void SceneRenderer::ResetTransparentChain()
-{
-    m_TransparentEntitiesChain.Reset(m_pCamera->GetOrigin());
 }
 
 void SceneRenderer::RenderHelperGeometry()
@@ -720,11 +710,6 @@ glm::vec3 SceneRenderer::GetRenderPos()
         return m_pCamera->GetOrigin();
     else
         return {0, 0, 0};
-}
-
-void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
-{
-    m_TransparentEntitiesChain.AddDistanceSorted(pEntity);
 }
 
 void SceneRenderer::DrawBillboardMesh() const

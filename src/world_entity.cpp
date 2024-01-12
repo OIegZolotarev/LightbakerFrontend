@@ -6,3 +6,8 @@
 #include "application.h"
 #include "common.h"
 #include "world_entity.h"
+
+SceneEntity *IWorldEntity::Clone()
+{
+    return nullptr;
+}

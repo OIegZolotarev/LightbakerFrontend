@@ -1,85 +1,86 @@
 /*
-	LightBaker3000 Frontend project,
-	(c) 2022 CrazyRussian
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
 */
 
 #pragma once
-#include "fs_core.h"
-#include "gl_texture.h"
-#include "scene_renderer.h"
-#include "gl_backend.h"
+
+
 #include "mtl_library.h"
 #include "mod_obj_data.h"
-#include "scene_entity.h"
+
+#include "fs_core.h"
+#include "gl_backend.h"
+#include "gl_texture.h"
 #include "lb3k_wrapper.h"
 
-class ModelOBJ: public SceneEntity
+
+#include "scene_entity.h"
+#include "scene_renderer.h"
+
+class ModelOBJ : public SceneEntity
 {
+    mobjdata_t m_ModelData;
+    mobjdata_t m_LightmapModelData;
+
+    std::string m_strModelName;
+    std::string m_strDiffuseName;
+
+    DrawMesh    mesh;
+    bool        m_hasLMMesh = false;
+    std::string m_strLMModelPath;
+    void        PrepareLights();
+
 public:
-	ModelOBJ(const char* fileName, Scene * pScene);
-	~ModelOBJ();
+    ModelOBJ(const char *fileName, Scene *pScene);
+    ~ModelOBJ();
 
+    void LoadLMMesh();
+    void DrawDebug();
 
-	void LoadLMMesh();
-	void DrawDebug();
+    std::string GetModelFileName();
+    std::string GetModelTextureName();
 
-	std::string GetModelFileName();
-	std::string GetModelTextureName();
+    void ReloadTextures();
 
-	void ReloadTextures();
+    void ReloadLightmapTextures();
 
-	void ReloadLightmapTextures();
+    // Возвращает путь к файлу ЛМ-модели
+    std::string &Export(const char *fileName, lightBakerSettings_t *lb3kOptions, glm::vec3 envColor);
 
-	// Возвращает путь к файлу ЛМ-модели
-	std::string & Export(const char* fileName, lightBakerSettings_t * lb3kOptions, glm::vec3 envColor);
+    void UpdateLMMesh();
 
-	void UpdateLMMesh();
+    void ClearLightDefinitions();
+    void AddLight(lightDefPtr_t &it);
 
-	void ClearLightDefinitions();
-	void AddLight(lightDefPtr_t& it);
+    void SetLightmapDimensions(int w, int h);
 
-	void SetLightmapDimensions(int w, int h);
+    DrawMesh *GetDrawMesh();
+    void      BuildDrawMesh();
 
-	DrawMesh* GetDrawMesh();
-	void BuildDrawMesh();
+    void ValidateLightmap();
 
-	void ValidateLightmap();
+    float GetSceneScale();
 
-	float GetSceneScale();
-
-	// Selectable object
-	void OnHovered() override;
-	void OnMouseMove(glm::vec2 delta) override;
+    // Selectable object
+    void OnHovered() override;
+    void OnMouseMove(glm::vec2 delta) override;
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
-	void OnUnSelect() override;
-	void OnUnhovered() override;
-	
-	// Scene entity
-    void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
+    void OnUnSelect() override;
+    void OnUnhovered() override;
 
-	void CommonDrawGeometryWithShader(const ISceneShader* shader);
+    // Scene entity
+    void Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader) override;
 
+    void CommonDrawGeometryWithShader(const ISceneShader *shader);
 
-	
-	const char* Description() override;
+    const char *Description() override;
 
-	mobjdata_t* GetModelData();
-	mobjdata_t* GetLMData();
+    mobjdata_t *GetModelData();
+    mobjdata_t *GetLMData();
 
-	void AddLightsIntoScene();
-	void FlagHasLMMesh();
+    void AddLightsIntoScene();
+    void FlagHasLMMesh();
 
-	
-
-private:
-	mobjdata_t m_ModelData;
-	mobjdata_t m_LightmapModelData;
-
-	std::string m_strModelName;
-	std::string m_strDiffuseName;
-		
-	DrawMesh mesh;
-	bool m_hasLMMesh = false;
-	std::string m_strLMModelPath;
-	void PrepareLights();
+    SceneEntity *Clone() override;
 };

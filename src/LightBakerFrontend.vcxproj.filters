@@ -410,9 +410,6 @@
     <ClCompile Include="mod_primitive.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
-    <ClCompile Include="gl_backend.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
-    </ClCompile>
     <ClCompile Include="popup_messagebox.cpp">
       <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
@@ -481,6 +478,9 @@
     </ClCompile>
     <ClCompile Include="color.cpp">
       <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

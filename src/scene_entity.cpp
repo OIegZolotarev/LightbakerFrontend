@@ -48,25 +48,6 @@ const std::string &SceneEntity::GetClassName() const
     return m_EntVars.classname;
 }
 
-
-std::weak_ptr<SceneEntity> SceneEntity::Next()
-{
-    return m_pNext;
-}
-
-void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
-{
-
-#ifdef PARANOID
-    auto ptr = pOther.lock();
-
-    if (ptr.get() == this)
-        __debugbreak();
-#endif
-
-    m_pNext = pOther;
-}
-
 void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
 {
     m_EntVars.transform = m_matGuizmo;
@@ -160,12 +141,21 @@ SceneEntity::SceneEntity(Scene *pScene)
 SceneEntity::SceneEntity(SceneEntity &other)
 {
     m_pScene   = other.m_pScene;
-    
-    m_EntVars.bboxRelative = other.m_EntVars.bboxRelative;
-    m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
-    
-    m_EntVars.rendercolor = other.m_EntVars.rendercolor;
+
+    m_EntVars = other.m_EntVars;
+    m_bDataLoaded = other.m_bDataLoaded;
+    m_EntityClass = other.m_EntityClass;    
+    m_pScene             = other.m_pScene;    
 }
+
+ SceneEntity::SceneEntity(SceneEntity *other) : SceneEntity(*other)
+{
+}
+
+SceneEntity::~SceneEntity()
+{
+     Con_Printf("~SceneEntity(): %s (serial=%d)\n", m_EntVars.classname.c_str(), m_EntVars.serialNumber);
+ }
 
 bool SceneEntity::IsDataLoaded()
 {

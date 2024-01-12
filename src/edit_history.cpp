@@ -7,6 +7,7 @@
 #include <xutility>
 #include "application.h"
 #include "properties_editor.h"
+#include "viewports_orchestrator.h"
 
 
 
@@ -103,7 +104,6 @@ void CEditHistory::PushAction(IEditAction* pAction)
 
 void CEditHistory::Undo()
 {
-
 	if (m_Position == -1)
 		return;
 
@@ -113,6 +113,7 @@ void CEditHistory::Undo()
 	(*it)->Undo();
 	m_Position--;
 
+	ViewportsOrchestrator::Instance()->FlagRepaintAll();
 	Application::ScheduleCompilationIfNecceseary();
 }
 
@@ -128,13 +129,14 @@ void CEditHistory::Redo()
 	
 
 	(*it)->Redo();
-	
+
+	ViewportsOrchestrator::Instance()->FlagRepaintAll();
 	Application::ScheduleCompilationIfNecceseary();
 }
  
 CDeleteLightAction::CDeleteLightAction(SceneEntityPtr pObject)
  {
- 	m_Object = new SceneEntity(*pObject);
+ 	m_Object = pObject->Clone();
  	m_Object->SetSelected(false);
  }
 
@@ -154,7 +156,7 @@ void CDeleteLightAction::Undo()
 {
 	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
 
-	auto objPtr = std::make_shared<SceneEntity>(*m_Object);
+	auto objPtr = std::shared_ptr<SceneEntity>(m_Object->Clone());
 
 	scene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
 }
@@ -180,7 +182,9 @@ void EditTransaction::Redo()
 void EditTransaction::Undo()
 {
     for (auto &it : m_lstActions)
+    {
         it->Undo();
+    }
 }
 
 bool EditTransaction::Empty()

@@ -116,15 +116,21 @@ protected:
     void SetClassName(const char *name);
     // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
-    // For transparent sorting
-    std::weak_ptr<SceneEntity> m_pNext;
 
     Scene *m_pScene             = nullptr;
     bool   m_bRegisteredInScene = false;
 
+
 public:
     SceneEntity(Scene *pScene);
+    
     SceneEntity(SceneEntity &other);
+    SceneEntity(SceneEntity *other);
+
+    virtual ~SceneEntity();
+
+    virtual SceneEntity* Clone() = 0;
+    
 
     virtual void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader){};
 
@@ -175,9 +181,6 @@ public:
     void                  FlagDataLoaded();
 
     template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef);
-
-    std::weak_ptr<SceneEntity> Next();
-    void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
 
     void Debug_RenderTransform();
 

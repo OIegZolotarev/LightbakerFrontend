@@ -59,7 +59,7 @@ public:
     // Rendering
     void RenderScene(Viewport *pViewport);
 
-    void ResetTransparentChain();
+    
 
     void RenderHelperGeometry();
     void RenderGenericEntity(SceneEntity *pEntity);
@@ -88,14 +88,14 @@ public:
     glm::vec3 GetNewLightPos();
     glm::vec3 GetRenderPos();
 
-    void AddTransparentEntity(SceneEntityWeakPtr pEntity);
+    
 
     void DrawBillboardMesh() const;
 
     void ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const;
 
 private:
-    RenderChain m_TransparentEntitiesChain;
+    // RenderChain m_TransparentEntitiesChain;
 
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
     bool       m_bWireframeOverlay = false;

@@ -4,6 +4,7 @@
 */
 
 #pragma once
+
 #include "common_icons.h"
 #include "gl_texture.h"
 

@@ -108,6 +108,11 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyD
     m_Type = AdaptPropertyType();
 }
 
+BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther, BSPEntity *pNewOwner) : BSPEntityProperty(pOther)
+{
+    m_pOwner = pNewOwner;
+}
+
 size_t BSPEntityProperty::CalcHash(const std::string &val)
 {
     return std::hash<std::string>{}(val);

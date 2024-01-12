@@ -49,4 +49,3 @@ enum class CommonIcons
 	None
 };
 
-extern ImVec4 g_CommonIconsRects[39];
