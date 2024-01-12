@@ -61,16 +61,15 @@ void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
 
 BSPEntity::BSPEntity(BSPEntity *pOther) : SceneEntity(pOther)
 {
-    m_pFGDClass      = pOther->m_pFGDClass;
-    m_World          = pOther->m_World;
-    
+    m_pFGDClass = pOther->m_pFGDClass;
+    m_World     = pOther->m_World;
+
     for (auto &it : pOther->m_lstProperties)
     {
-        BSPEntityProperty* pNewProp = new BSPEntityProperty(it, this);        
+        BSPEntityProperty *pNewProp = new BSPEntityProperty(it, this);
         m_lstProperties.push_back(pNewProp);
     }
-    
-    
+
     m_bIsTransparent = pOther->m_bIsTransparent;
 }
 

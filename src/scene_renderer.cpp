@@ -3,10 +3,10 @@
     (c) 2022 CrazyRussian
 */
 
-#include "scene_renderer.h"
-#include "..\include\ImGuizmo\ImGuizmo.h"
 #include "application.h"
 #include "common.h"
+#include "scene_renderer.h"
+#include "..\include\ImGuizmo\ImGuizmo.h"
 #include "common_resources.h"
 #include "draw_utils.h"
 #include "properties_editor.h"
@@ -50,19 +50,16 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
 
     GridRenderer::Instance()->Init();
 
-    auto pers     = Application::Instance()->GetPersistentStorage();
-    m_pShowGround = pers->GetSetting(ApplicationSettings::ShowGround);
+    auto pers              = Application::Instance()->GetPersistentStorage();
+    m_pShowGround          = pers->GetSetting(ApplicationSettings::ShowGround);
     m_pSelectedObjectColor = pers->GetSetting(ApplicationSettings::SelectedObjectColor);
 
     m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
-
 
     for (auto &it : g_UberShaderTable)
     {
         it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
     }
-
-    
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -135,7 +132,6 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
     m_RenderMode = pViewport->GetRenderMode();
     GL_CheckForErrors();
 
-    
     GL_CheckForErrors();
 
     Application::GetMainWindow()->ClearBackground(true);
@@ -176,21 +172,16 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
             GL_CheckForErrors();
         }
 
-
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         glDisable(GL_CULL_FACE);
-        
+
         if (m_pScene)
             m_pScene->DebugRenderBVH();
         // ObjectPropertiesEditor::Instance()->RenderDebugOctree();
-        
-        
 
-         glEnable(GL_CULL_FACE);
-         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
-     
-    
 
     if (m_pShowGround->GetAsBool())
     {
@@ -230,25 +221,25 @@ void SceneRenderer::RenderHelperGeometry()
     m_pBillBoard->Unbind();
 
     glDisable(GL_CULL_FACE);
-    //glUseProgram(0);
+    // glUseProgram(0);
 #endif
 
-//     for (auto &it : m_pScene->GetLightDefs())
-//     {
-//         //         if (!it)
-//         //             return;
-//         //
-//         //         if (!it->IsLightEntity())
-//         //             continue;
-//         //
-//         //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
-//         //                       it->GetSerialNumber());
-//         //
-//         //         if (it->IsSelected())
-//         //         {
-//         //             selection = it;
-//         //         }
-//     }
+    //     for (auto &it : m_pScene->GetLightDefs())
+    //     {
+    //         //         if (!it)
+    //         //             return;
+    //         //
+    //         //         if (!it->IsLightEntity())
+    //         //             continue;
+    //         //
+    //         //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+    //         //                       it->GetSerialNumber());
+    //         //
+    //         //         if (it->IsSelected())
+    //         //         {
+    //         //             selection = it;
+    //         //         }
+    //     }
 
     if (selection.lock() && false)
     {
@@ -271,8 +262,10 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char *dropped_filedir, int loadFlags)
 {
-    if (!m_pScene)
-        m_pScene = new Scene;
+    if (m_pScene)
+        delete m_pScene;
+
+    m_pScene = new Scene;
 
     m_pScene->LoadLevel(dropped_filedir, loadFlags);
 
@@ -472,9 +465,6 @@ void SceneRenderer::SortRenderLists()
     else
         FillSortListsLinear(ents, frustum, eyesPos);
 
-    
-
-
     std::sort(m_vSortedSolidEntities.begin(), m_vSortedSolidEntities.end(),
               [](sSortInfo &a, sSortInfo &b) -> bool { return a.modType > b.modType; });
 
@@ -510,11 +500,10 @@ void SceneRenderer::FillSortListsBVH(BVHTree *pTree, BVHNode *pNode, Frustum *pF
             return;
     }
 
-
     if (pNode->IsLeaf())
     {
-        auto & it    = pNode->entity;        
-        auto model = it->GetModel();
+        auto &it    = pNode->entity;
+        auto  model = it->GetModel();
 
         if (model.expired())
             return;
@@ -530,23 +519,21 @@ void SceneRenderer::FillSortListsBVH(BVHTree *pTree, BVHNode *pNode, Frustum *pF
             m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
     }
     else
-    {        
+    {
         if (pNode->left != -1)
             FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->left), pFrustum, eyesPos, myVisilibity);
 
         if (pNode->right != -1)
             FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->right), pFrustum, eyesPos, myVisilibity);
     }
-
 }
 
 void SceneRenderer::ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const
 {
     assert(m_pSelectedObjectColor);
 
-
     if (pEntity->IsSelected())
-        it->SetFloat4(glm::vec4(m_pSelectedObjectColor->GetColorRGB(),1));
+        it->SetFloat4(glm::vec4(m_pSelectedObjectColor->GetColorRGB(), 1));
     else
         it->SetFloat4({1, 1, 1, 1});
 }
@@ -631,7 +618,6 @@ ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentTyp
             {
                 switch (it->Kind())
                 {
-
                 case UniformKind::ProjectionMatrix:
                     it->SetMat4(m_pCamera->GetProjectionMatrix());
                     break;
@@ -657,12 +643,9 @@ ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentTyp
             return it.shader;
         }
     }
-    
+
     return nullptr;
-
 }
-
-
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
                                              const glm::vec3 &m_Maxs, const glm::vec3 &m_Color,
