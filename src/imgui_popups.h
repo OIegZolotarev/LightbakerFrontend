@@ -12,7 +12,7 @@
 enum class PopupWindows
 {
 	LightBaker3KConfig = 0,
-	LoadfileDialog,
+	FileDialog,
 	SceneScaleDialog,
 	ProgramOptions,
 	EditGameConfiguration,

@@ -24,7 +24,7 @@ class BSPEntity : public SceneEntity
 
     std::shared_ptr<BSPWorld> m_World;
     
-    std::list<GoldSource::BSPEntityProperty *> m_lstProperties;
+    
 
     bool m_bIsTransparent = false;
 

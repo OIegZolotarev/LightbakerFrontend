@@ -11,7 +11,7 @@
 
 typedef std::function<void(std::string &fileName)> pfnOnSelectCallback;
 
-class LoadFileDialog : public IImGUIPopup
+class FileDialog : public IImGUIPopup
 {
     std::string m_Title;
     std::string m_Filters;
@@ -19,8 +19,8 @@ class LoadFileDialog : public IImGUIPopup
     pfnOnSelectCallback m_LoadCallback;
 
   public:
-    LoadFileDialog();
-    ~LoadFileDialog();
+    FileDialog();
+    ~FileDialog();
 
     void Render() override;
 
@@ -28,7 +28,7 @@ class LoadFileDialog : public IImGUIPopup
     void SetFilters(const char *filters);
     void SetOnSelectCallback(pfnOnSelectCallback callback);
 
-    static LoadFileDialog *Instance();
+    static FileDialog *Instance();
 
     void Show();
 

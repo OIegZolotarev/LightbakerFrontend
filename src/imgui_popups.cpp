@@ -8,7 +8,7 @@
 #include "custom_font.h"
 #include "popup_edit_gameconfiguration.h"
 #include "popup_lb3k_config.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 #include "popup_options_window.h"
 #include "popup_scene_scale.h"
 #include "ui_common.h"
@@ -97,7 +97,7 @@ PopupsManager::PopupsManager()
 {
     m_vPopups.clear();
     m_vPopups.push_back(new LB3kConfigPopup());
-    m_vPopups.push_back(new LoadFileDialog());
+    m_vPopups.push_back(new FileDialog());
     m_vPopups.push_back(new SceneScaleDialog());
     m_vPopups.push_back(new OptionsDialog());
     m_vPopups.push_back(new PopupEditGameconfiguration());

@@ -158,7 +158,7 @@
     <ClCompile Include="imgui_popups.cpp">
       <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
-    <ClCompile Include="popup_loadfile_dialog.cpp">
+    <ClCompile Include="popup_file_dialog.cpp">
       <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
     <ClCompile Include="popup_lb3k_config.cpp">
@@ -488,6 +488,12 @@
     <ClCompile Include="io_scene_lm2.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
+    <ClCompile Include="StringPool.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="string_pool.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -550,7 +556,7 @@
     <ClInclude Include="scene_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
     </ClInclude>
-    <ClInclude Include="popup_loadfile_dialog.h">
+    <ClInclude Include="popup_file_dialog.h">
       <Filter>Исходные файлы\Popups</Filter>
     </ClInclude>
     <ClInclude Include="popup_lb3k_config.h">
@@ -889,6 +895,7 @@
     <ClInclude Include="io_scene_lm2.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
+    <ClInclude Include="string_pool.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

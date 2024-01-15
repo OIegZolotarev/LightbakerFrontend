@@ -22,7 +22,7 @@
 #include "r_editor_grid.h"
 
 #include "gl_screenspace_2d_renderer.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 #include "scene_renderer.h"
 #include "secondary_window.h"
 #include "viewport.h"

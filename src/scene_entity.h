@@ -116,6 +116,7 @@ protected:
     void SetClassName(const char *name);
     // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
+    std::list<GoldSource::BSPEntityProperty *> m_lstProperties;
 
     Scene *m_pScene             = nullptr;
     bool   m_bRegisteredInScene = false;
@@ -185,6 +186,7 @@ public:
     void Debug_RenderTransform();
 
     void FlagRegisteredInScene(bool state);
+    const std::list<GoldSource::BSPEntityProperty *> &GetProperties() const;
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

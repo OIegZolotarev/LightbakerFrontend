@@ -4,23 +4,23 @@
 */
 
 #include "ui_common.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 #include "application.h"
 
 
-LoadFileDialog::LoadFileDialog() : IImGUIPopup(PopupWindows::LoadfileDialog)
+FileDialog::FileDialog() : IImGUIPopup(PopupWindows::FileDialog)
 {
     m_Key = "LoadmodelDlgKey";
     m_Title = "Load model";
     m_Filters = ".obj, .bsp";
 }
 
-LoadFileDialog::~LoadFileDialog()
+FileDialog::~FileDialog()
 {
 
 }
 
-void LoadFileDialog::Render()
+void FileDialog::Render()
 {
     ImVec2 minSize = ImVec2(1280 / 2, 720 / 2);
 
@@ -42,27 +42,27 @@ void LoadFileDialog::Render()
 	}
 }
 
-void LoadFileDialog::SetTitle(const char *title)
+void FileDialog::SetTitle(const char *title)
 {
     m_Key = title;
 }
 
-void LoadFileDialog::SetFilters(const char *filters)
+void FileDialog::SetFilters(const char *filters)
 {
     m_Filters = filters;
 }
 
-void LoadFileDialog::SetOnSelectCallback(pfnOnSelectCallback callback)
+void FileDialog::SetOnSelectCallback(pfnOnSelectCallback callback)
 {
     m_LoadCallback = callback;
 }
 
-LoadFileDialog *LoadFileDialog::Instance()
+FileDialog *FileDialog::Instance()
 {
-    return (LoadFileDialog*)PopupsManager::Instance()->FindPopupByID(PopupWindows::LoadfileDialog);
+    return (FileDialog*)PopupsManager::Instance()->FindPopupByID(PopupWindows::FileDialog);
 }
 
-void LoadFileDialog::OpenPopup()
+void FileDialog::OpenPopup()
 {
     if (m_bSchedulePopupOpen)
     {
@@ -73,7 +73,7 @@ void LoadFileDialog::OpenPopup()
     }        
 }
 
-void LoadFileDialog::Show()
+void FileDialog::Show()
 {
     PopupsManager::Instance()->ShowPopup(Id());
 }

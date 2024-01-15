@@ -261,6 +261,8 @@ build.bat
     <ClCompile Include="helper_geometry_shader.cpp" />
     <ClCompile Include="Icosphere.cpp" />
     <ClCompile Include="selection_tool.cpp" />
+    <ClCompile Include="StringPool.cpp" />
+    <ClCompile Include="string_pool.cpp" />
     <ClCompile Include="toolbox_panel.cpp" />
     <ClCompile Include="toolui_panel.cpp" />
     <ClCompile Include="imgui_helpers.cpp" />
@@ -297,7 +299,7 @@ build.bat
     <ClCompile Include="model_obj.cpp" />
     <ClCompile Include="persistent.cpp" />
     <ClCompile Include="popup_lb3k_config.cpp" />
-    <ClCompile Include="popup_loadfile_dialog.cpp" />
+    <ClCompile Include="popup_file_dialog.cpp" />
     <ClCompile Include="properties_editor.cpp" />
     <ClCompile Include="scene_objects_panel.cpp" />
     <ClCompile Include="scene_renderer.cpp" />
@@ -394,6 +396,7 @@ build.bat
     <ClInclude Include="helper_geometry_shader.h" />
     <ClInclude Include="Icosphere.h" />
     <ClInclude Include="selection_tool.h" />
+    <ClInclude Include="string_pool.h" />
     <ClInclude Include="toolbox_panel.h" />
     <ClInclude Include="toolui_panel.h" />
     <ClInclude Include="imgui_enum_combobox.h" />
@@ -426,7 +429,7 @@ build.bat
     <ClInclude Include="scene_shader.h" />
     <ClInclude Include="persistent.h" />
     <ClInclude Include="popup_lb3k_config.h" />
-    <ClInclude Include="popup_loadfile_dialog.h" />
+    <ClInclude Include="popup_file_dialog.h" />
     <ClInclude Include="properties_editor.h" />
     <ClInclude Include="object_props.h" />
     <ClInclude Include="lb3k_wrapper.h" />
