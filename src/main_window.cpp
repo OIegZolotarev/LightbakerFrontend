@@ -29,7 +29,11 @@
 #include "viewports_orchestrator.h"
 #include "wad_textures.h"
 #include <list>
+#include "commands_toolbar_panel.h"
+#include "toolbox_panel.h"
+#include "editing_toolbox.h"
 
+bool g_bShowDemo          = false;
 bool DEBUG_3D_SELECTION = false;
 
 const char *strDockspace     = "DockSpace";
@@ -39,25 +43,15 @@ SDL_Cursor *g_EmptyCursor;
 char        g_IMGuiIniPath[1024];
 
 MainWindow::MainWindow(const char *title, glm::vec2 defaultSize)
-    
+
 {
     m_iWindowWidth = (defaultSize.x);
-    
+
     m_iWindowHeight = (defaultSize.y);
 
     m_strTitle = title;
 
     // InitStuff();
-
-    m_vPanels.push_back(ObjectPropertiesEditor::Instance());
-    m_vPanels.push_back(new SceneObjectPanel);
-    m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
-    m_vPanels.push_back(new DebugPanel);
-
-    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
-    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground =
-        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
     // SecondaryWindow *pWindow = new SecondaryWindow("Test-test");
 }
@@ -72,6 +66,34 @@ void MainWindow::InitStuff()
     InitCommonResources();
     InitCommands();
     InitTimers();
+
+    m_vPanels.push_back(ObjectPropertiesEditor::Instance());
+    m_vPanels.push_back(new SceneObjectPanel);
+    m_vPanels.push_back(new ConsoleOutputPanel(&m_Console));
+    m_vPanels.push_back(new DebugPanel);
+
+    CommandsToolbar *mainToolbar = new CommandsToolbar(ToolUIPanelID::MainToolbar, "Main toolbar");
+
+    mainToolbar->AddCommand(GlobalCommands::NewFile);
+    mainToolbar->AddCommand(GlobalCommands::LoadFile);
+    mainToolbar->AddCommand(GlobalCommands::SaveFile);
+    mainToolbar->AddSeparator();
+    mainToolbar->AddCommand(GlobalCommands::Cut);
+    mainToolbar->AddCommand(GlobalCommands::Copy);
+    mainToolbar->AddCommand(GlobalCommands::Paste);
+
+    mainToolbar->SetDefaultDockSide(DockPanels::Top);
+    m_vPanels.push_back(mainToolbar);
+
+
+    CommandsToolbar *editingtoolsBar = new ToolboxPanel(ToolUIPanelID::EditingTools, "Editing tools");
+    editingtoolsBar->SetDefaultDockSide(DockPanels::Left);
+    m_vPanels.push_back(editingtoolsBar);
+
+    EditingToolbox::Instance()->Initialize();
+    AddEventHandler(EditingToolbox::Instance());
+
+    GL_CheckForErrors();
 }
 
 MainWindow::~MainWindow()
@@ -81,7 +103,7 @@ MainWindow::~MainWindow()
 
     delete TextureManager::Instance();
 
-    FreeGLTextures();
+    // FreeGLTextures();
 
     delete m_pSceneRenderer;
 
@@ -96,6 +118,100 @@ MainWindow::~MainWindow()
     SDL_GL_DeleteContext(m_pGLContext);
     SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Quit();
+}
+
+void GLAPIENTRY DebugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
+                                     const GLchar *message, const void *userParam)
+{
+    // Convert enums into a humen readable text
+    // See: https://www.opengl.org/registry/specs/ARB/debug_output.txt
+
+    const char *sourceText = "Unknown";
+    switch (source)
+    {
+    case GL_DEBUG_SOURCE_API_ARB:
+        // The GL
+        sourceText = "API";
+        break;
+        // The GLSL shader compiler or compilers for other extension - provided languages
+    case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+        sourceText = "Shader compiler";
+        break;
+        // The window system, such as WGL or GLX
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+        sourceText = "Window system";
+        break;
+        // External debuggers or third-party middleware libraries
+    case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+        sourceText = "Third party";
+        break;
+        // The application
+    case GL_DEBUG_SOURCE_APPLICATION_ARB:
+        sourceText = "Application";
+        break;
+        // Sources that do not fit to any of the ones listed above
+    case GL_DEBUG_SOURCE_OTHER_ARB:
+        sourceText = "Other";
+        break;
+    }
+
+    const char *typeText = "Unknown";
+    switch (type)
+    {
+        // Events that generated an error
+    case GL_DEBUG_TYPE_ERROR_ARB:
+        typeText = "Error";
+        break;
+        // Behavior that has been marked for deprecation
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+        typeText = "Deprecated behavior";
+        break;
+        // Behavior that is undefined according to the specification
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+        typeText = "Undefined behavior";
+        break;
+        // Implementation-dependent performance warnings
+    case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+        typeText = "Performance";
+        break;
+        // Use of extensions or shaders in a way that is highly vendor - specific
+    case GL_DEBUG_TYPE_PORTABILITY_ARB:
+        typeText = "Portability";
+        break;
+        // Types of events that do not fit any of the ones listed above
+    case GL_DEBUG_TYPE_OTHER_ARB:
+        typeText = "Other";
+        break;
+    }
+
+    const char *severityText = "Unknown";
+    switch (severity)
+    {
+        // Any GL error; dangerous undefined behavior; any GLSL or ARB shader compiler and linker errors;
+    case GL_DEBUG_SEVERITY_HIGH_ARB:
+        severityText = "High";
+        break;
+        // Severe performance warnings; GLSL or other shader compiler and linker warnings; use of currently deprecated
+        // behavior
+    case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+        severityText = "Medium";
+        break;
+        // Performance warnings from redundant state changes; trivial undefined behavior
+    case GL_DEBUG_SEVERITY_LOW_ARB:
+        severityText = "Low";
+        break;
+    }
+
+    if (severity == 33387)
+        return;
+
+    // Unused params
+    (void)id;
+    (void)length;
+    (void)userParam;
+
+    // Replace LogDebug with your logging function
+    Con_Printf("[OpenGL:source='%s', type='%s', severity='%s'] %s\n", sourceText, typeText, severityText, message);
 }
 
 void MainWindow::InitBackend()
@@ -125,9 +241,14 @@ void MainWindow::InitBackend()
 
     SDL_GL_SetAttribute(SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 1);
 
+#ifdef GL_DEBUG
+    // Debug context
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_DEBUG_FLAG);
+#endif
+
     m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
-    
+
     // enable VSync
     SDL_GL_SetSwapInterval(1);
 
@@ -137,6 +258,12 @@ void MainWindow::InitBackend()
     }
     else
         printf("[INFO] GLAD Initialized\n");
+
+#ifdef GL_DEBUG
+    #define GL_DEBUG_OUTPUT 0x92E0
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallbackARB(DebugMessageCallback, 0);
+#endif
 
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
@@ -176,8 +303,8 @@ void MainWindow::InitBackend()
     ImGuiHelpers::Init();
 
     int32_t cursorData[2] = {0, 0};
-    // g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
-    // SDL_SetCursor(g_EmptyCursor);
+    g_EmptyCursor         = SDL_CreateCursor((Uint8 *)cursorData, (Uint8 *)cursorData, 8, 8, 4, 4);
+    SDL_SetCursor(g_EmptyCursor);
 
     // Force backend to initialize
     GLBackend::Instance();
@@ -189,6 +316,7 @@ void MainWindow::InitBackend()
     TextureManager::Instance()->OnGLInit();
 
     InitViewports();
+    GL_CheckForErrors();
 }
 
 void MainWindow::InitImGUISDL2Platform()
@@ -208,6 +336,10 @@ bool MainWindow::HandleEvent(SDL_Event &event)
 
 void MainWindow::InitBackgroundRenderer()
 {
+    m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
+    m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
+    m_pUseGradientBackground = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+
     m_pBackgroundShader = GLBackend::Instance()->QueryShader("res/glprogs/background.glsl", {});
 
     // TODO: try some more intersting ways described here:
@@ -242,20 +374,23 @@ void MainWindow::InitDocks()
     ImGui::DockBuilderSetNodeSize(gIDMainDockspace, viewport->Size);
 
     auto idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockUpLeft,
-                                &m_defaultDockSides.idDockUpRight);
+     // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f, &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
 
     auto idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Right, 0.5f, &m_defaultDockSides.idDockBottomLeft,
-                                &m_defaultDockSides.idDockBottomRight);
+    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockBottomLeft, &m_defaultDockSides.idDockBottomRight);
 
     auto idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockLeftTop,
-                                &m_defaultDockSides.idDockLeftBottom);
+    //ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
 
     auto idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockRightTop,
+    ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockRightTop,
                                 &m_defaultDockSides.idDockRightBottom);
+
+    m_defaultDockSides.idDockTop = idDockUp;
+    m_defaultDockSides.idDockBottom = idDockDown;
+    m_defaultDockSides.idDockLeft = idDockLeft;
+    m_defaultDockSides.idDockRight = idDockRight;
+    m_defaultDockSides.idDockCenter = gIDMainDockspace;
 
     // m_idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
     // m_idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
@@ -304,6 +439,10 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
 
     auto c = ImGui::DockBuilderGetCentralNode(gIDMainDockspace);
 
+    int oldViewport[4];
+    for (int i = 0; i < 4; i++)
+        oldViewport[i] = m_i3DViewport[i];
+
     if (c)
     {
         m_i3DViewport[0] = (int)c->Pos.x;
@@ -317,6 +456,15 @@ ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags
         m_i3DViewport[1] = 0;
         m_i3DViewport[2] = m_iWindowWidth;
         m_i3DViewport[3] = m_iWindowWidth;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (m_i3DViewport[i] != oldViewport[i])
+        {
+            ViewportsOrchestrator::Instance()->FlagRepaintAll();
+            break;
+        }
     }
 
     ImGui::End();
@@ -421,20 +569,30 @@ int MainWindow::GetFPS()
 
 void MainWindow::IterateUpdate()
 {
+    BT_PROFILE("MainWindow::IterateUpdate()");
+    GL_CheckForErrors();
+
     SDL_GL_MakeCurrent(m_pSDLWindow, m_pGLContext);
 
     GLBackend::Instance()->NewFrame();
+    GL_CheckForErrors();
     Application::Instance()->CheckIfBakngFinished();
+    GL_CheckForErrors();
 
     UpdateTimers();
+    GL_CheckForErrors();
     GL_BeginFrame();
+    GL_CheckForErrors();
 
     ViewportsOrchestrator::Instance()->RenderViewports(this, m_TimersData.frame_delta / 1000);
+    GL_CheckForErrors();
     LoaderThread::Instance()->ExecuteEndCallbacks(10);
+    GL_CheckForErrors();
 
     RenderGUI();
+    GL_CheckForErrors();
 
-    SDL_GL_SwapWindow(m_pSDLWindow);    
+    SDL_GL_SwapWindow(m_pSDLWindow);
 }
 
 void MainWindow::InitTimers()
@@ -476,24 +634,21 @@ SceneRenderer *MainWindow::GetSceneRenderer()
     return m_pSceneRenderer;
 }
 
-
-
 void MainWindow::InitCommands()
 {
-    auto callbackLoadModel = [](std::string &fileName) {
-        Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
-    };
+    Application::CommandsRegistry()->InitializeAllCommands();
 
-    Application::CommandsRegistry()->RegisterCommand(new CCommand(
-        GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR, [&]() {
-            auto lfd = LoadFileDialog::Instance();
-
-            lfd->SetTitle("Load map\\scene");
-            lfd->SetFilters(".obj,.bsp");
-            lfd->SetOnSelectCallback(callbackLoadModel);
-
-            PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
-        }));
+    //     Application::CommandsRegistry()->RegisterCommand(new CCommand(
+    //         GlobalCommands::LoadFile, "Load...", 0, GetCommonIcon(CommonTextures::LoadFile), CMD_ON_MAINTOOLBAR,
+    //         [&]() {
+    //             auto lfd = LoadFileDialog::Instance();
+    //
+    //             lfd->SetTitle("Load map\\scene");
+    //             lfd->SetFilters(".obj,.bsp");
+    //             lfd->SetOnSelectCallback(callbackLoadModel);
+    //
+    //             PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+    //         }));
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::AddDirectLight, "+Direct", 0, GetCommonIcon(CommonTextures::DirectLight),
@@ -592,14 +747,32 @@ float MainWindow::RenderMainMenu()
 
                     for (auto &it : mru)
                     {
-                        auto file = FileSystem::Instance()->ExtractFileName(it.first.c_str());
-                        auto path = FileSystem::Instance()->ExtractFilePath(it.first.c_str());
+                        auto fs = FileSystem::Instance();
+
+                        auto file = fs->ExtractFileName(it.first.c_str());
+                        auto path = fs->ExtractFilePath(it.first.c_str());
 
                         file = std::format("{0}. {1}", ++index, file);
 
                         if (ImGui::MenuItem(file.c_str(), path.c_str()))
                         {
-                            m_pSceneRenderer->LoadModel((char *)it.first.c_str(), LRF_LOAD_ALL);
+                            auto &filePath = it.first;
+
+                            if (fs->FileExists(filePath.c_str()))
+                                m_pSceneRenderer->LoadModel(filePath.c_str(), LRF_LOAD_ALL);
+                            else
+                            {
+                                PopupMessageBox *pMessageBox = new PopupMessageBox;
+                                pMessageBox->SetTitle("Error");
+                                pMessageBox->SetMessage("File does not exist anymore\nand will be removed from list");
+                                pMessageBox->SetIcon(MessageBoxIcons::Warning);
+                                pMessageBox->SetButtons(MSG_BOX_OK);
+
+                                pMessageBox->Show();
+
+                                Application::GetPersistentStorage()->RemoveMRUItem(filePath);
+                                break;
+                            }
                         }
                     }
                 }
@@ -646,6 +819,20 @@ float MainWindow::RenderMainMenu()
 
         if (ImGui::BeginMenu("View"))
         {
+            if (ImGui::BeginMenu("Position camera"))
+            {
+                COMMAND_ITEM(GlobalCommands::CameraLookFromTop);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromBottom);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromLeft);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromRight);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromFront);
+                COMMAND_ITEM(GlobalCommands::CameraLookFromBack);
+                ImGui::EndMenu();
+            }
+
+
+            ImGui::Separator();
+
 #ifdef _DEBUG
             COMMAND_ITEM(GlobalCommands::DebugSelection);
 #endif
@@ -683,6 +870,11 @@ float MainWindow::RenderMainMenu()
             // 				//m_pPopupsManager->ShowPopup(PopupWindows::StyleChooser);
             // 			}
 
+            if (ImGui::MenuItem("Show ImGUI demo"))
+            {
+                g_bShowDemo = true;
+            }
+
             ImGui::EndMenu();
         }
 
@@ -694,30 +886,79 @@ float MainWindow::RenderMainMenu()
     return size;
 }
 
+
 float MainWindow::RenderMainToolbar(float menuHeight)
 {
-    ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
-    ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));
+    // Looks good enough
+    static int  size      = 21;
+    static bool m_bDocked = false;
 
-    ImGui::Begin("##MainÅoolbar", 0, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
+    /*ImGui::SetNextWindowPos(ImVec2(0, menuHeight));
+    ImGui::SetNextWindowSize(ImVec2((float)m_iWindowWidth, 0));*/
 
-    auto toolbarCommands = Application::CommandsRegistry()->GetMainToolbarCommands();
-
-    for (auto &it : toolbarCommands)
+    if (m_bDocked)
     {
-        auto cmd = Application::CommandsRegistry()->GetCommandByInternalIndex(it);
-        cmd->RenderImGUI(23);
+        ImGuiWindowClass window_class;
+        window_class.DockNodeFlagsOverrideSet = ImGuiDockNodeFlags_NoTabBar;
+
+        ImGui::SetNextWindowClass(&window_class);
     }
 
-    float r = ImGui::GetWindowHeight();
+    int flags_docked = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+    int flags        = m_bDocked ? flags_docked : 0;
 
-    ImGui::End();
+    //     if (m_bForceUndock)
+    //     {
+    //         flags |= ImGuiWindowFlags_NoDocking;
+    //         m_bForceUndock = false;
+    //     }
+
+       //ImGui::Docking
+
+    if (ImGui::Begin("Main toolbar", 0, flags))
+    {
+        if (ImGui::IsWindowDocked())
+            m_bDocked = true;
+
+        int toolbarStructure[] = {
+            (int)GlobalCommands::NewFile, (int)GlobalCommands::LoadFile, (int)GlobalCommands::SaveFile, -1,
+            (int)GlobalCommands::Cut,     (int)GlobalCommands::Copy,     (int)GlobalCommands::Paste};
+
+        for (auto &it : toolbarStructure)
+        {
+            if (it == -1)
+            {
+                ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical);
+                ImGui::SameLine();
+            }
+            else
+            {
+                auto cmd = Application::CommandsRegistry()->FindCommandByGlobalId((GlobalCommands)it);
+
+                if (!cmd)
+                    continue;
+
+                if (ImGuiHelpers::ButtonWithCommonIcon(cmd->GetCommonIcon(), cmd->GetDescription(), size))
+                {
+                    cmd->Execute();
+                }
+
+                ImGui::SameLine();
+            }
+        }
+
+        ImGui::End();
+    }
+
+    float r = 0;
 
     return r;
 }
 
 void MainWindow::RenderGUI()
 {
+    BT_PROFILE("MainWindow::RenderGUI()");
+
     glViewport(0, 0, m_iWindowWidth, m_iWindowHeight);
 
     // start the Dear ImGui frame
@@ -742,18 +983,29 @@ void MainWindow::RenderGUI()
         if (delayInit == 0)
         {
             if (pers->IsFreshFile())
+            {
                 InitDocks();
+                
 
+                for (auto &it : m_vPanels)
+                {
+                    it->InvalidatePosition();
+                }
+            }
+
+            ViewportsOrchestrator::Instance()->EnsureAtLeastOneViewportExists();
             ViewportsOrchestrator::Instance()->FlagRepaintAll();
 
             Application::Instance()->FlagDelayedInitDone();
         }
     }
 
-    float menuHeight    = RenderMainMenu();
-    float toolbarHeight = RenderMainToolbar(menuHeight);
+    float menuHeight = RenderMainMenu();
 
+    float toolbarHeight = 0;
     DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
+
+    // RenderMainToolbar(menuHeight);
 
     for (auto &it : m_vPanels)
         it->InvokeRender();
@@ -767,11 +1019,13 @@ void MainWindow::RenderGUI()
     }
 
     DrawLoadingBanner();
-
     DrawStatusBar();
 
-#ifdef _DEBUG
-    ImGui::ShowDemoWindow();
+    EditingToolbox::Instance()->RenderToolUI();
+
+#ifdef _DEBUG    
+    if (g_bShowDemo)
+        ImGui::ShowDemoWindow(&g_bShowDemo);
 #endif
 
     ViewportsOrchestrator::Instance()->DisplayViewports(this);
@@ -900,11 +1154,6 @@ bool MainWindow::RenderToolbarIcon(GLuint iconId)
     return ImGui::ImageButton((ImTextureID)iconId, ImVec2(16, 16));
 }
 
-
-
-
-
-
 void MainWindow::GL_BeginFrame()
 {
     glViewport(m_i3DViewport[0], m_i3DViewport[1], m_i3DViewport[2], m_i3DViewport[3]);
@@ -914,31 +1163,42 @@ void MainWindow::GL_BeginFrame()
 
     glClearDepth(1);
 
+    GL_CheckForErrors();
+
     glDisable(GL_MULTISAMPLE);
+
+    GL_CheckForErrors();
 
     // glClearColor(0.25, .25, .25, 1);
 
-    ClearBackground();
+    ClearBackground(true);
+    GL_CheckForErrors();
 
     glClear(GL_DEPTH_BUFFER_BIT);
 
     GLScreenSpace2DRenderer::Instance()->NewFrame(m_i3DViewport);
+    GL_CheckForErrors();
 }
 
-void MainWindow::ClearBackground()
+void MainWindow::ClearBackground(bool rebindShader)
 {
     auto col1 = m_pBackgroudColorSetting1->GetColorRGB();
     auto col2 = m_pBackgroudColorSetting2->GetColorRGB();
 
     glClearColor(col1[0], col1[1], col1[2], 1);
     glClear(GL_DEPTH_BUFFER_BIT);
+    GL_CheckForErrors();
 
     if (m_pUseGradientBackground->GetAsBool())
     {
         glDepthMask(0);
+        GL_CheckForErrors();
 
-        m_pBackgroundShader->Bind();
-        m_pBackgroundMesh->Bind();
+        if (rebindShader)
+        {
+            m_pBackgroundShader->Bind();
+            m_pBackgroundMesh->Bind();
+        }
 
         for (auto &it : m_pBackgroundShader->Uniforms())
         {
@@ -946,9 +1206,11 @@ void MainWindow::ClearBackground()
             {
             case UniformKind::Color:
                 it->SetFloat4({col1.xyz, 1});
+                GL_CheckForErrors();
                 break;
             case UniformKind::Color2:
                 it->SetFloat4({col2.xyz, 1});
+                GL_CheckForErrors();
                 break;
             default:
                 __debugbreak();
@@ -956,12 +1218,18 @@ void MainWindow::ClearBackground()
             }
         }
 
+        GL_CheckForErrors();
         m_pBackgroundMesh->Draw();
+        GL_CheckForErrors();
 
         glDepthMask(1);
+        GL_CheckForErrors();
     }
     else
+    {
         glClear(GL_COLOR_BUFFER_BIT);
+        GL_CheckForErrors();
+    }
 }
 
 void MainWindow::UpdateTimers()

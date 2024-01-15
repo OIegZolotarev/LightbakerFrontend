@@ -14,6 +14,10 @@ class ViewportsOrchestrator: public Singleton<ViewportsOrchestrator>
     std::list<Viewport *> m_lstViewports;
     nlohmann::json m_savedViewports;
 
+    int CountViewports(const IPlatformWindow *it);
+
+    Viewport *m_pHoveredViewport;
+
 public:
     ~ViewportsOrchestrator();
 
@@ -22,10 +26,16 @@ public:
 
     void FlagRepaintAll();
 
+    void OnNewApplicationTick();
     void RenderViewports(IPlatformWindow *pWindow, float flFrameDelta);
     void DisplayViewports(IPlatformWindow *pWindow);
 
     void SaveViewports(nlohmann::json & persistentData);
     bool LoadViewports();
     void DestroyWindowViewports(IPlatformWindow *wind);
+    void CloneViewportToLeastClutteredWindow(Viewport *param1);
+
+    void EnsureAtLeastOneViewportExists();
+
+    Viewport *GetHoveredViewport();
 };

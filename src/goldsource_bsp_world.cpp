@@ -8,8 +8,10 @@
 
 #include "goldsource_bsp_asynch_loader.h"
 #include "goldsource_bsp_world.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "scene_renderer.h"
+#include "mod_manager.h"
+#include "viewports_orchestrator.h"
 
 using namespace GoldSource;
 
@@ -21,7 +23,7 @@ void BSPWorld::ReloadLightmaps()
 
 void BSPWorld::OnAdditionToScene(Scene *pScene)
 {
-    m_pLevel->PopulateScene(pScene);
+    // m_pLevel->PopulateScene(pScene);
 }
 
 BSPWorld::BSPWorld(const char *levelName, Scene *pScene) : IWorldEntity(pScene)
@@ -40,17 +42,35 @@ BSPWorld::BSPWorld(const char *levelName, Scene *pScene) : IWorldEntity(pScene)
     m_pRenderer = 0;
 }
 
+BSPWorld::BSPWorld(BSPWorld *pOther) : IWorldEntity(m_pScene)
+{
+    assert(false && "Implement BSPLevel && BSPRenderer shared ptrs first!!1");
+}
+
 BSPWorld::~BSPWorld()
 {
 }
 
-void BSPWorld::RenderLightshaded()
+void BSPWorld::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
 {
     if (!m_pRenderer)
         return;
 
-    auto      sr        = Application::GetMainWindow()->GetSceneRenderer();
-    glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetOrigin();
+    glm::vec3 cameraPos = Application::GetMainWindow()->GetSceneRenderer()->GetCamera()->GetPosition();
+
+
+    for (auto & it: shader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(this, it);
+            break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(GetSerialNumber());
+            break;
+        }
+    }
 
     m_pRenderer->RenderWorld(cameraPos);
     //    sr->RenderPointEntityDefault(m_Position, m_Mins, m_Maxs, {1, 0, 1});
@@ -78,13 +98,29 @@ void BSPWorld::OnLevelLoaded()
     SetBoundingBox(BoundingBox(minsmaxs));
     SetPosition(glm::vec3{0, 0, 0});
 
+    auto worldModel = ModelsManager::Instance()->LookupModel("*0");
+
+    SetModel(worldModel);
+
     ModelsManager::Instance()->OnSceneLoaded(m_pScene); 
 
     m_pLevel->PopulateScene(m_pScene);
+
+
+    auto ptr = m_pScene->GetEntityWeakRef(this);
+    auto locked = ptr.lock();
+    m_pScene->OnEntityRegistered(locked);
     
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 GoldSource::BSPModelRenderCookiePtr BSPWorld::GetBSPModelRenderCookie(size_t idx)
 {
     return m_pRenderer->GetBSPModelRenderCookie(idx);
+}
+
+SceneEntity *BSPWorld::Clone()
+{
+    return new BSPWorld(this);
 }

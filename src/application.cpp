@@ -22,6 +22,7 @@
 #include "r_editor_grid.h"
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
+#include "editing_toolbox.h"
 
 Application::Application()
 {
@@ -94,6 +95,11 @@ void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWi
     }
 }
 
+Scene *Application::GetActiveDocument()
+{
+    return Instance()->m_pMainWindow->GetSceneRenderer()->GetScene();
+}
+
 Application::~Application()
 {
     // if (m_pMainWindow) delete m_pMainWindow;
@@ -109,16 +115,22 @@ Application::~Application()
     delete m_pPersistentStorage;
     delete m_pLightBakerApplication;
     delete GameConfigurationsManager::Instance();
+
+    delete EditingToolbox::Instance();
 }
 
 #include <sdl-event-to-string\sdl_event_to_string.h>
 
 void Application::Run()
-{
+{    
+    CProfileManager::Reset();
+
     bool loop = false;
 
     do
     {
+        ViewportsOrchestrator::Instance()->OnNewApplicationTick();
+
         m_lstWindows.remove_if([](IPlatformWindow *wind) {
             if (wind->IsTerminated())
             {
@@ -147,6 +159,7 @@ void Application::Run()
                 case SDL_KEYDOWN:
                 case SDL_KEYUP:
                 case SDL_MOUSEBUTTONUP:
+                case SDL_MOUSEMOTION:
                 case SDL_MOUSEBUTTONDOWN:
                     for (auto &it : m_lstWindows)
                     {
@@ -188,9 +201,13 @@ void Application::Run()
 
         for (auto &it : m_lstWindows)
         {
+            it->UpdateCursorVisibility(m_bMouseCursorVisible);
+
             if (!it->IsTerminated())
                 it->IterateUpdate();
         }
+
+        CProfileManager::Increment_Frame_Counter();
 
     } while (loop && !m_bTerminated);
 }
@@ -200,6 +217,8 @@ void Application::InitMainWindow()
     m_pPersistentStorage = PersistentStorage::Instance();
     m_pMainWindow        = new MainWindow("LightBaker3000 FrontEnd", glm::vec2(1280, 720));
     m_pMainWindow->InitStuff();
+
+    ShowMouseCursor();
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() 
@@ -384,13 +403,18 @@ void Application::ParseLightBakerProgressMessage(std::string &captured)
 }
 
 void Application::ShowMouseCursor()
-{
-    ImGui::GetIO().MouseDrawCursor = true;
+{   
+    if (!m_bMouseCursorVisible)
+        Con_Printf("Application::ShowMouseCursor()\n");
+    m_bMouseCursorVisible = true;
 }
 
 void Application::HideMouseCursor()
 {
-    ImGui::GetIO().MouseDrawCursor = false;
+    if (m_bMouseCursorVisible)
+        Con_Printf("Application::HideMouseCursor()\n");
+
+    m_bMouseCursorVisible = false;    
 }
 
 const char *date     = __DATE__;
@@ -444,7 +468,7 @@ void Application::Terminate()
 
 bool Application::IsMouseCursorVisible()
 {
-    return ImGui::GetIO().MouseDrawCursor;
+    return m_bMouseCursorVisible;
 }
 
 float Application::GetBakingProgress()

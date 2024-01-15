@@ -62,6 +62,11 @@ const char *IImGUIPopup::GetKey()
     return m_Key.c_str();
 }
 
+bool IImGUIPopup::IsPersistent()
+{
+    return m_bPersistent;
+}
+
 void IImGUIPopup::SchedulePopupOpen()
 {
     m_bSchedulePopupOpen = true;
@@ -106,7 +111,13 @@ PopupsManager *PopupsManager::Instance()
 
 PopupsManager::~PopupsManager()
 {
-    ClearPointersVector(m_vPopups);
+    // ClearPointersVector(m_vPopups);
+
+    for (auto &it : m_vPopups)
+        delete it;
+
+    m_vPopups.clear();
+
 }
 
 void PopupsManager::ApplyFileDialogSkins()
@@ -130,26 +141,30 @@ void PopupsManager::ShowPopup(PopupWindows id)
     m_lstOpenedPopups.push_back(p);
 }
 
+void PopupsManager::ShowPopup(IImGUIPopup *pPopup)
+{
+    m_vPopups.push_back(pPopup);
+        
+    pPopup->SetVisible(true);
+    pPopup->SchedulePopupOpen();
+    pPopup->m_bDontProcessThisFrame = true;
+  
+    m_lstOpenedPopups.push_back(pPopup);
+}
+
 void PopupsManager::RenderPopups()
 {
-    // 	// TODO: [s]make actual popup stack, since ImGUI can't stack ones[/s]
-    //     // check "stacked modal" in demo
-    //
-    // 	for (auto& it : m_vPopups)
-    // 	{
-    // 		if (it->IsVisible())
-    //         {
-    //             ImGui::PushID(it);
-    //             it->Render();
-    //             ImGui::PopID();
-    //         }
-    //
-    // 	}
-
     int depth = 0;
 
     for (auto it = m_lstOpenedPopups.begin(); it != m_lstOpenedPopups.end(); ++it)
     {
+        if ((*it)->m_bDontProcessThisFrame)
+        {
+            (*it)->m_bDontProcessThisFrame = false;
+            continue;
+        }
+        
+
         auto ptr = *it;
         
         if (!ptr->IsVisible())
@@ -178,4 +193,7 @@ void PopupsManager::RenderPopups()
 
     for (int i = 0; i < depth; i++)
         ImGui::EndPopup();
+
+    m_vPopups.remove_if([&](IImGUIPopup *test) { return !test->IsVisible() && !test->IsPersistent();
+        });
 }

@@ -9,6 +9,7 @@
 #include "imgui_internal.h"
 #include "selection_3d.h"
 #include "ui_common.h"
+#include "viewports_orchestrator.h"
 
 bool IPlatformWindow::CheckImGuiEvent(SDL_Event &event)
 {
@@ -22,7 +23,17 @@ bool IPlatformWindow::CheckImGuiEvent(SDL_Event &event)
     case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
         if (ImGui::GetIO().WantCaptureMouse)
-            return true;
+        {
+
+            // If we hovering any viewport - pass mouse events to it,
+            //  kinda quirky behavior alas
+            auto vp = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+
+            if (!vp)
+                return true;
+            else
+                return false;
+        }
         break;
     }
 
@@ -51,23 +62,9 @@ bool IPlatformWindow::CommonHandleEvent(SDL_Event &event)
 
     case SDL_MOUSEMOTION:
     case SDL_MOUSEBUTTONDOWN:
-
-        if (event.button.button & SDL_BUTTON_LEFT)
-        {
-            if (!ImGui::GetHoveredID())
-            {
-                if (SelectionManager::Instance()->SelectHoveredObject())
-                {
-                    break;
-                }
-            }
-        }
-
     case SDL_MOUSEBUTTONUP:
     case SDL_MOUSEWHEEL:
     case SDL_KEYUP:
-        // TODO: implement
-
         PropagateControlsEvent(event);
         return true;
 
@@ -162,7 +159,7 @@ bool IPlatformWindow::PropagateControlsEvent(SDL_Event &event)
     {
         int result = it->HandleEvent(bWasHandled, event, m_TimersData.frame_delta / 1000);
 
-        bWasHandled = bWasHandled | result & EVENT_HANDLED;
+        bWasHandled = bWasHandled || result & EVENT_HANDLED;
 
         if (result & EVENT_CONSUMED)
             break;
@@ -174,6 +171,26 @@ bool IPlatformWindow::PropagateControlsEvent(SDL_Event &event)
 bool IPlatformWindow::IsMainWindow()
 {
     return false;
+}
+
+bool IPlatformWindow::HasMouseCursorInside()
+{
+    int mx, my;
+    SDL_GetGlobalMouseState(&mx, &my);
+
+    glm::ivec2 pos = {0, 0}, size = {0,0};
+
+    SDL_GetWindowPosition(m_pSDLWindow, &pos.x, &pos.y);
+    SDL_GetWindowSize(m_pSDLWindow, &size.x, &size.y);
+
+    if (mx >= pos.x && mx < pos.x + size.x)
+    {
+        if (my >= pos.y && my < pos.y + size.y)
+            return true;
+    }
+
+    return false;
+
 }
 
 IPlatformWindow::~IPlatformWindow()
@@ -251,4 +268,19 @@ glm::ivec2 IPlatformWindow::CenterPointGlobal()
 void IPlatformWindow::ScheduleImGuiStyleUpdate()
 {
     m_bUpdateImGuiStyleNextFrame = true;
+}
+
+void IPlatformWindow::UpdateCursorVisibility(bool m_bMouseCursorVisible)
+{
+    m_bHasMouse = HasMouseCursorInside();
+
+    if (m_bMouseCursorVisible)
+    {
+        if (m_bHasMouse)        
+            m_pImGUIContext->IO.MouseDrawCursor = true;        
+        else
+            m_pImGUIContext->IO.MouseDrawCursor = false;
+    }
+    else 
+            m_pImGUIContext->IO.MouseDrawCursor = false;
 }

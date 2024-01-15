@@ -6,7 +6,7 @@
 // clang-format off
 #include "application.h"
 #include "gl_backend.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include <stddef.h>
 // clang-format on
 
@@ -43,6 +43,8 @@ GLBackend::~GLBackend()
 
 ShaderProgram *GLBackend::QueryShader(std::string fileName, std::list<const char *> defines)
 {
+    //BT_PROFILE("GLBackend::QueryShader()");
+
     ShaderProgram *result = nullptr;
     size_t hashVal        = ShaderProgram::CalculateHash(fileName, defines);
 
@@ -60,27 +62,9 @@ ShaderProgram *GLBackend::QueryShader(std::string fileName, std::list<const char
 
 void GLBackend::DeleteAllShaders()
 {
-    if (m_pLightmappedSceneShader)
-        delete m_pLightmappedSceneShader;
     if (m_pSpotlightConeShader)
         delete m_pSpotlightConeShader;
-    if (m_pDiffuseSceneShader)
-        delete m_pDiffuseSceneShader;
-}
 
-const LightMappedSceneShaderProgram *GLBackend::LightMappedSceneShader() const
-{
-    return m_pLightmappedSceneShader;
-}
-
-const DiffuseSceneShaderProgram *GLBackend::DiffuseSceneShader() const
-{
-    return m_pDiffuseSceneShader;
-}
-
-const GroupShadedSceneShaderProgram *GLBackend::GroupShadedSceneShader() const
-{
-    return m_pGroupShadedSceneShader;
 }
 
 const SpotlightConeShaderProgram *GLBackend::SpotlightConeShader() const
@@ -99,20 +83,24 @@ void GLBackend::ReloadAllShaders()
 
     m_pSolidGeometryShader     = QueryShader("res/glprogs/solidcolor_geom.glsl", {});
 
-    m_pLightmappedSceneShader  = new LightMappedSceneShaderProgram;
+    
     m_pSpotlightConeShader     = new SpotlightConeShaderProgram;
 
-    m_pGroupShadedSceneShader = new GroupShadedSceneShaderProgram;
-    m_pDiffuseSceneShader     = new DiffuseSceneShaderProgram;
-
+    
     for (auto it : m_LoadedShaders)
         it->Reload();
 }
 
 void GLBackend::NewFrame()
 {
+
     m_RenderStats.nDrawCalls = 0;
     m_RenderStats.nTriangles = 0;
+
+
+    m_RenderStats.nShaderBinds            = 0;
+    m_RenderStats.nUnnecessaryShaderBinds = 0;
+    m_RenderStats.idLastShader            = 0;
 }
 
 renderStats_t *GLBackend::RenderStats()
@@ -170,7 +158,7 @@ void GLBackend::BindTexture(int unit, GLuint texture)
 
 void GLBackend::SetUniformValue(ShaderUniform *it)
 {
-    Camera *camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
+    CameraController *camera = Application::GetMainWindow()->GetSceneRenderer()->GetCamera();
 
     switch (it->Kind())
     {
@@ -224,3 +212,29 @@ void GLBackend::SetBlending(bool enable)
     }
 }
 
+static const char *GL_GetErrorString(int errorCode)
+{
+    switch (errorCode)
+    {
+    case GL_INVALID_ENUM:
+        return "GL_INVALID_ENUM";
+    case GL_INVALID_VALUE:
+        return "GL_INVALID_VALUE";
+    case GL_INVALID_OPERATION:
+        return "GL_INVALID_OPERATION";
+    case GL_OUT_OF_MEMORY:
+        return "GL_OUT_OF_MEMORY";
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        return "GL_INVALID_FRAMEBUFFER_OPERATION";
+    default:
+        return "UNKNOWN ERROR";
+    }
+}
+
+void _GL_CheckForErrors(const char *filename, int line)
+{
+    for (int code = glGetError(); code != GL_NO_ERROR; code = glGetError())
+    {
+        Con_Printf("%s (at %s:%i)\n", GL_GetErrorString(code), filename, line);
+    }
+}

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "fs_core.h"
+#include "mod_manager.h"
 
 class GLTexture;
 
@@ -73,8 +74,12 @@ typedef struct FGDFlagsValue_s
 
 typedef std::list<FGDFlagsValue_t> FGDFlagsList;
 
+class FGDEntityClass;
+
 class FGDPropertyDescriptor
 {
+
+
 protected:
     std::string m_Name              = "";
     std::string m_Descr             = "";
@@ -83,6 +88,8 @@ protected:
     std::string m_PropertyHelp      = "";
 
     int m_Type;
+
+    const FGDEntityClass *m_pBaseClass;
 
 public:
     FGDPropertyDescriptor(FGDPropertyDescriptor *pOther);
@@ -97,6 +104,16 @@ public:
     virtual FGDPropertyDescriptor *Clone()
     {
         return new FGDPropertyDescriptor(this);
+    }
+
+    void SetBaseClass(const FGDEntityClass * pClass)
+    {
+        m_pBaseClass = pClass;
+    }
+
+    const FGDEntityClass *GetBaseClass() const
+    {
+        return m_pBaseClass;
     }
 };
 
@@ -165,7 +182,7 @@ public:
 
     void SetBaseClasses(std::list<std::string> classes);
     
-    const std::string &GetModel() const;
+    const std::string &GetModelName() const;
     const std::string &ClassName() const;
     const std::string &Description() const;
 
@@ -173,7 +190,7 @@ public:
 
     glm::vec4 GetColor();
 
-    GLTexture *GetEditorSpite();
+    IModelWeakPtr GetEditorSpite();
 
     FGDPropertyDescriptor *  FindProperty(const std::string &propertyName) const;
     const FGDPropertiesList &GetProperties() const;
@@ -181,7 +198,7 @@ public:
 private:
     HammerFGDFile *m_pOwner;
 
-    FGDEntityClassType m_Type;
+    FGDEntityClassType m_PrimitiveKind;
 
     int m_CtorDefinitionFlags;
 
@@ -206,7 +223,7 @@ private:
 
     void RelinkInheritedProperties(class HammerFGDFile *pFile);
 
-    GLTexture *m_pEditorSprite = nullptr;
+    IModelWeakPtr m_pEditorSprite;
 
 };
 

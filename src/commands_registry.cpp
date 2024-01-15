@@ -3,14 +3,19 @@
     (c) 2022 CrazyRussian
 */
 
+#include "application.h"
 #include "commands_registry.h"
+
 #include "common.h"
 #include "ui_common.h"
 
-#include "application.h"
 #include "imgui_helpers.h"
 #include "imgui_internal.h"
+#include "imgui_popups.h"
+
+#include "popup_loadfile_dialog.h"
 #include "text_utils.h"
+#include "viewports_orchestrator.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -82,22 +87,166 @@ bool CCommandsRegistry::OnKeyDown()
     return false;
 }
 
-CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
-                   pfnCommandCallback callback)
-    : m_eCommandId(id), m_pIcon(icon), m_iFlags(flags), m_pfnCallback(callback)
+void CCommandsRegistry::InitializeAllCommands()
 {
-    strcpy_s(m_szDescription, description);
-    if (keyStroke)
-        strcpy_s(m_szKeyStroke, keyStroke);
-    else
-        *m_szKeyStroke = 0;
+    auto callbackLoadModel = [](std::string &fileName) {
+        Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
+    };
 
+    CCommand *newCommand;
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::NewFile);
+    newCommand->SetDescription("New file...");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::NewFile);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::LoadFile);
+    newCommand->SetDescription("Load...");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Open);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {
+        auto lfd = LoadFileDialog::Instance();
+
+        lfd->SetTitle("Load map\\scene");
+        lfd->SetFilters(".obj,.bsp");
+        lfd->SetOnSelectCallback(callbackLoadModel);
+
+        PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+    });
+
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::SaveFile);
+    newCommand->SetDescription("Save file");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Save);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Cut);
+    newCommand->SetDescription("Cut selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Cut);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Copy);
+    newCommand->SetDescription("Copy selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Copy);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::Paste);
+    newCommand->SetDescription("Paste selection");
+    newCommand->SetKeyStroke(nullptr);
+    newCommand->SetCommonIcon(CommonIcons::Paste);
+    newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
+    newCommand->SetCallback([&]() {});
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+    RegisterCameraTurningCommands();
+
+    //     newCommand = new CCommand;
+    //     newCommand->SetId(GlobalCommands::ActivateSelectionTool);
+    //     newCommand->SetDescription("Selection tool");
+    //     newCommand->SetKeyStroke(nullptr);
+    //     newCommand->SetCommonIcon(CommonIcons::SelectTool);
+    //     newCommand->SetFlags(0);
+    //     newCommand->SetCallback([&]() {});
+    //     Application::CommandsRegistry()->RegisterCommand(newCommand);
+    //
+    //     newCommand = new CCommand;
+    //     newCommand->SetId(GlobalCommands::ActivateCameraTool);
+    //     newCommand->SetDescription("Camera tool");
+    //     newCommand->SetKeyStroke(nullptr);
+    //     newCommand->SetCommonIcon(CommonIcons::CameraTool);
+    //     newCommand->SetFlags(0);
+    //     newCommand->SetCallback([&]() {});
+    //     Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+
+    newCommand = new CCommand;
+    newCommand->SetId(GlobalCommands::DeleteSelection);
+    newCommand->SetDescription("Paste selection");
+    newCommand->SetKeyStroke("Delete");    
+    newCommand->SetFlags(0);
+    newCommand->SetCallback(
+        [&]() {
+            
+                Scene *pActiveDocument = Application::GetActiveDocument();
+                assert(pActiveDocument);
+
+                pActiveDocument->DoDeleteSelection();
+        
+        });
+    Application::CommandsRegistry()->RegisterCommand(newCommand);
+
+}
+
+void CCommandsRegistry::RegisterCameraTurningCommands()
+{
+    struct cmdDescriptor_s
+    {
+        GlobalCommands id;
+        glm::vec3      angles;
+        const char *   descr;
+        const char *   key;
+    };
+
+    cmdDescriptor_s commands[] = {
+        // clang-format off
+        {GlobalCommands::CameraLookFromFront  , {0   , 90  , 0} , "Front"  , "Keypad 8"} ,
+        {GlobalCommands::CameraLookFromBack   , {0   , 270 , 0} , "Back"   , "Keypad 2"} ,
+        {GlobalCommands::CameraLookFromLeft   , {0   , 180 , 0} , "Left"   , "Keypad 4"} ,
+        {GlobalCommands::CameraLookFromRight  , {0   , 0   , 0} , "Right"  , "Keypad 6"} ,
+        {GlobalCommands::CameraLookFromTop    , {-90 , 0   , 0} , "Top"    , "Keypad 7"} ,
+        {GlobalCommands::CameraLookFromBottom , {90  , 0   , 0} , "Bottom" , "Keypad 3"} ,
+        // clang-format on
+    };
+
+    for (auto &it : commands)
+    {
+        CCommand *newCommand = new CCommand;
+        newCommand->SetId(it.id);
+        newCommand->SetDescription(it.descr);
+        newCommand->SetKeyStroke(it.key);
+        newCommand->SetCommonIcon(CommonIcons::None);
+        newCommand->SetFlags(0);
+        newCommand->SetCallback([=]() {
+            auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+            if (!viewport)
+                return;
+
+            viewport->GetCamera()->ExecuteTransition(it.angles);
+        });
+        
+        RegisterCommand(newCommand);
+    }
+}
+
+void CCommand::ParseKeyStroke()
+{
     for (auto &it : m_rKeys)
         it = -1;
 
-    if (keyStroke)
+    if (*m_szKeyStroke)
     {
-        auto items = TextUtils::SplitTextSimple(keyStroke, strlen(keyStroke), '-');
+        auto items = TextUtils::SplitTextSimple(m_szKeyStroke, strlen(m_szKeyStroke), '-');
 
         auto addKey = [&](int keyId) -> bool {
             int i = 0;
@@ -138,9 +287,68 @@ CCommand::CCommand(GlobalCommands id, const char *description, const char *keySt
     }
 }
 
+CCommand::CCommand(GlobalCommands id, const char *description, const char *keyStroke, GLTexture *icon, int flags,
+                   pfnCommandCallback callback)
+    : m_eCommandId(id), m_pIcon(icon), m_iFlags(flags), m_pfnCallback(callback)
+{
+    strcpy_s(m_szDescription, description);
+
+    if (keyStroke)
+        strcpy_s(m_szKeyStroke, keyStroke);
+    else
+        *m_szKeyStroke = 0;
+
+    ParseKeyStroke();
+}
+
+void CCommand::SetId(GlobalCommands id)
+{
+    m_eCommandId = id;
+}
+
+void CCommand::SetDescription(const char *descr)
+{
+    strlcpy(m_szDescription, descr, sizeof(m_szDescription));
+}
+
+void CCommand::SetKeyStroke(const char *keyStroke)
+{
+    if (!keyStroke)
+        *m_szKeyStroke = 0;
+    else
+        strlcpy(m_szKeyStroke, keyStroke, sizeof(m_szKeyStroke));
+
+    ParseKeyStroke();
+}
+
+void CCommand::SetCustomIcon(GLTexture *pIcon)
+{
+    m_pIcon = pIcon;
+}
+
+void CCommand::SetCommonIcon(CommonIcons icon)
+{
+    m_CommonIcon = icon;
+}
+
+void CCommand::SetFlags(int flags)
+{
+    m_iFlags = flags;
+}
+
+void CCommand::SetCallback(pfnCommandCallback callback)
+{
+    m_pfnCallback = callback;
+}
+
 void CCommand::Execute()
 {
     m_pfnCallback();
+}
+
+int CCommand::Flags()
+{
+    return m_iFlags;
 }
 
 void CCommand::RenderImGUI(int size)
@@ -205,4 +413,9 @@ bool CCommand::IsKeystrokeActive(const uint8_t *kbState)
 const char *CCommand::GetShortcutDescription()
 {
     return m_szKeyStroke;
+}
+
+CommonIcons CCommand::GetCommonIcon()
+{
+    return m_CommonIcon;
 }

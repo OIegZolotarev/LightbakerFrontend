@@ -4,10 +4,15 @@
 */
 
 #pragma once
+#include "bsp_entity_property.h"
 #include "gl_texture.h"
 #include "mod_manager.h"
 #include "object_props.h"
 #include "selection_3d.h"
+#include "viewport_rendermodes.h"
+
+#include "mathlib.h"
+#include "r_bvh_boundingbox.h"
 
 enum class EntityClasses
 {
@@ -22,12 +27,13 @@ typedef struct sentvars_s
     // Transformation
     glm::vec3 origin;
     glm::vec3 angles;
-
     glm::vec3 scale;
+
+    glm::mat4 transform;
 
     // Bounding boxes
     BoundingBox bboxRelative;
-    BoundingBox bboxAbsolute;
+    BVHBoundingBox bboxAbsolute;
 
     // Displaying
     ColorRGBA rendercolor;
@@ -35,7 +41,6 @@ typedef struct sentvars_s
 
     // Models
     IModelWeakPtr model;
-    GLTexture *   editor_icon; // TODO: make sprite-models later
 
     // Studio models
     int   bodynum;
@@ -59,13 +64,12 @@ typedef struct sentvars_s
         scale  = {1, 1, 1};
 
         bboxRelative = BoundingBox(8);
-        bboxAbsolute = BoundingBox(8);
+        bboxAbsolute = BVHBoundingBox(8);
 
         rendercolor    = {1, 1, 1, 1};
         wireframecolor = {1, 1, 1, 1};
 
-        model       = IModelWeakPtr();
-        editor_icon = nullptr;
+        model = IModelWeakPtr();
 
         bodynum  = 0;
         skin     = 0;
@@ -83,11 +87,22 @@ typedef struct sentvars_s
 
         classname_hash = 0;
         classname      = "";
+
+        transform = glm::mat4(1);
     }
 
 } sentvars_t;
 
+
 class Scene;
+class ShaderProgram;
+class OctreeNode;
+namespace GoldSource
+{
+class BSPEntityProperty;
+}
+
+
 
 class SceneEntity : public ISelectableObject
 {
@@ -98,78 +113,78 @@ class SceneEntity : public ISelectableObject
     void RecalcAbsBBox();
 
 protected:
-    const BoundingBox &GetRelativeBoundingBox() const;
-    const BoundingBox &GetAbsoulteBoundingBox() const;
-
     void SetClassName(const char *name);
-    void LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder);
+    // void LoadPropertiesToPropsEditor(class IObjectPropertiesBinding *binder);
 
-    // For transparent sorting
-    std::weak_ptr<SceneEntity> m_pNext;
 
-    Scene *m_pScene;
+    Scene *m_pScene             = nullptr;
+    bool   m_bRegisteredInScene = false;
+
 
 public:
     SceneEntity(Scene *pScene);
+    
     SceneEntity(SceneEntity &other);
+    SceneEntity(SceneEntity *other);
 
-    virtual void RenderLightshaded(); // С лайтмапой
-    virtual void RenderUnshaded();    // Без лайтмапы
-    virtual void RenderBoundingBox(); //
-    virtual void RenderDebug();       // Отладочная отрисовка
-    virtual void RenderGroupShaded();
+    virtual ~SceneEntity();
+
+    virtual SceneEntity* Clone() = 0;
+    
+
+    virtual void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader){};
 
     virtual bool IsDataLoaded();
 
-    // DECLARE_PROPERTY(uint32_t      , SerialNumber);
-
-    void SetSerialNumber(const uint32_t newNum);
+    // Common properties
+    void           SetSerialNumber(const uint32_t newNum);
     const uint32_t GetSerialNumber() const;
 
     const glm::vec3 GetAngles() const;
     void            SetAngles(const glm::vec3 &angles);
 
-    void SetPosition(const glm::vec3 &pos);
+    void            SetPosition(const glm::vec3 &pos);
     const glm::vec3 GetPosition() const;
 
+    const glm::mat4 GetTransform();
+
     void SetBoundingBox(const BoundingBox &bbox);
-    
-    void SetRenderColor(const ColorRGBA &color);
+
+    void            SetRenderColor(const ColorRGBA &color);
     const ColorRGBA GetRenderColor() const;
-    
-    const GLTexture *GetEditorIcon() const;
-    void SetEditorIcon(GLTexture *pTexture);
 
     IModelWeakPtr GetModel() const;
-    void SetModel(IModelWeakPtr &model);
+    void          SetModel(IModelWeakPtr &model);
 
-    void SetFrame(const float newVal);
+    void        SetFrame(const float newVal);
     const float GetFrame() const;
 
+    const BoundingBox &GetRelativeBoundingBox() const;
+    const BVHBoundingBox &GetAbsoulteBoundingBox() const;
+
+    void SetTransform(glm::mat4 m_matGuizmo);
+
+    // Selectable object
     void OnHovered() override;
     void OnMouseMove(glm::vec2 delta) override;
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
     void OnUnSelect() override;
     void OnUnhovered() override;
+    void InvokeSelect();
 
     virtual const char *Description();
     virtual bool        IsLightEntity();
-    virtual void        OnAdditionToScene(class Scene *pScene);;
+    virtual void        OnAdditionToScene(class Scene *pScene);
 
+    const std::string &   GetClassName() const;
     virtual EntityClasses EntityClass();
     void                  FlagDataLoaded();
 
-    void               InvokeSelect();
-    const std::string &GetClassName() const;
-
     template <class T> static T *GetRawSafest(std::weak_ptr<SceneEntity> &weakRef);
 
-    virtual bool IsTransparent();
+    void Debug_RenderTransform();
 
-    std::weak_ptr<SceneEntity> Next();
-    void                       SetNext(std::weak_ptr<SceneEntity> &pOther);
-    const BoundingBox &        AbsoulteBoundingBox() const;
-    
+    void FlagRegisteredInScene(bool state);
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)
@@ -189,4 +204,3 @@ template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weak
 
 typedef std::shared_ptr<SceneEntity> SceneEntityPtr;
 typedef std::weak_ptr<SceneEntity>   SceneEntityWeakPtr;
-

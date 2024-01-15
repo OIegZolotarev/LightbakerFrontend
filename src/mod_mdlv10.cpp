@@ -42,6 +42,8 @@ int StudioBoneV10::GetParent()
 
 StudioModelV10::StudioModelV10(FileData *fd) : IModel(fd->Name().c_str())
 {
+    SetType(ModelType::StudioV10);
+
     dstudiohdrv10_t *hdr = (dstudiohdrv10_t *)fd->Data();
 
     if (hdr->version != 10)
@@ -138,28 +140,6 @@ StudioModelV10::~StudioModelV10()
 }
 
 StudioEntityState state;
-
-void StudioModelV10::DebugRender()
-{
-    // memset(&state, 0, sizeof(state));
-
-    m_EntityState = &state;
-
-    AdvanceFrame(Application::GetMainWindow()->FrameDelta());
-    glCullFace(GL_FRONT);
-
-    SetupBones();
-
-    for (int i = 0; i < (int)m_vBodyParts.size(); i++)
-    {
-        const StudioSubModelV10 *subModel = SetupModel(i);
-        subModel->DrawPoints(m_EntityState);
-    }
-
-    // OverlayBones();
-
-    glCullFace(GL_BACK);
-}
 
 int StudioModelV10::SetBodygroup(int iGroup, int iValue)
 {
@@ -261,6 +241,8 @@ void R_ConcatTransforms(const glm::mat4x4 &in1, const glm::mat4x4 &in2, glm::mat
 
 void StudioModelV10::SetupBones(void)
 {
+    BT_PROFILE("StudioModelV10::SetupBones()");
+
     static glm::vec3 pos[MAXSTUDIOBONES];
     static glm::quat q[MAXSTUDIOBONES];
 
@@ -520,34 +502,45 @@ const StudioSubModelV10 *GoldSource::StudioModelV10::SetupModel(int bodypart) co
     return bodyPart->SubModel(index);
 }
 
-void StudioModelV10::Render(SceneEntity *pEntity, RenderMode mode)
+void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader)
 {
+    BT_PROFILE("StudioModelV10::Render()");
+
     m_EntityState               = &state;
     m_EntityState->origin       = pEntity->GetPosition();
     m_EntityState->serialNumber = pEntity->GetSerialNumber();
     m_EntityState->angles       = pEntity->GetAngles();
 
-    // glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+    m_EntityState->worldTransform = pEntity->GetTransform();
+    m_EntityState                 = &state;
 
-    glm::mat4 transform = glm::mat4(1);
+    // TODO: fix this
+    glCullFace(GL_FRONT);
 
-    auto concatRotate = [&](float deg, float x, float y, float z) {
-        glm::mat4 ident = glm::mat4(1);
-        ident           = glm::rotate(ident, glm::radians(deg), glm::vec3(x, y, z));
-        transform *= ident;
-    };
+    SetupBones();
 
-    // same order as R_RotateForEntity from Quake
+    for (auto &it : currentShader->Uniforms())
+    {
+        switch (it->Kind())
+        {
+        case UniformKind::Color2:
+            sr->ApplySelectedObjectColor(pEntity, it);
+            break;
+        case UniformKind::BonesTransform:
+            it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
+            break;
+        }
+    }
 
-    transform = glm::translate(transform, m_EntityState->origin);
+    for (int i = 0; i < (int)m_vBodyParts.size(); i++)
+    {
+        const StudioSubModelV10 *subModel = SetupModel(i);
+        subModel->DrawPoints(m_EntityState, currentShader);
+    }
 
-    concatRotate(m_EntityState->angles[1], 0, 0, 1);
-    concatRotate(-m_EntityState->angles[0], 0, 1, 0);
-    concatRotate(m_EntityState->angles[2], 1, 0, 0);
+    // OverlayBones();
 
-    m_EntityState->worldTransform = transform;
-
-    DebugRender();
+    glCullFace(GL_BACK);
 }
 
 void StudioModelV10::AdvanceFrame(float dt)
@@ -955,7 +948,7 @@ void StudioMeshV10::BuildDrawMesh()
     auto &verts   = m_pSubmodel->GetVertices();
     auto &normals = m_pSubmodel->GetNormals();
 
-    size_t numVerts = 0;
+    uint32_t numVerts = 0;
 
     while (i = *triCmds++)
     {
@@ -1026,38 +1019,23 @@ void StudioMeshV10::BuildDrawMesh()
     m_pDrawMesh->End();
 }
 
-void StudioMeshV10::DrawPoints(StudioEntityState *pState)
+void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState, ShaderProgram *currentShader)
 {
-    auto shader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
+    BT_PROFILE("StudioMeshV10::DrawPoints()");
 
     short             textureIdx = m_pModel->GetSkinRef(skinref);
     StudioTextureV10 *pTexture   = m_pModel->GetTexture(textureIdx);
     GLBackend::BindTexture(0, pTexture->GetGLTexture());
 
-    shader->Bind();
-
-    for (auto &it : shader->Uniforms())
+    for (auto &it : currentShader->Uniforms())
     {
         switch (it->Kind())
         {
-        case UniformKind::BonesTransform:
-            // TODO: send actual bones count
-            it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
-            break;
-        case UniformKind::TransformMatrix: {
-            // glm::mat4 offset = glm::translate(glm::mat4(1.f), pState->origin);
+        case UniformKind::TransformMatrix:
             it->SetMat4(pState->worldTransform);
-        }
-
-        break;
-        case UniformKind::Diffuse:
-            it->SetInt(0);
             break;
         case UniformKind::ObjectSerialNumber:
             it->SetInt(pState->serialNumber);
-            break;
-        default:
-            GLBackend::SetUniformValue(it);
             break;
         }
     }
@@ -1103,11 +1081,11 @@ StudioSubModelV10::StudioSubModelV10(StudioModelV10 *pMainModel, dstudiomodel10_
     }
 }
 
-void StudioSubModelV10::DrawPoints(StudioEntityState *pState) const
+void StudioSubModelV10::DrawPoints(StudioEntityState *pState, ShaderProgram *currentShader) const
 {
     for (auto &it : m_vMeshes)
     {
-        it->DrawPoints(pState);
+        it->DrawPoints(pState, currentShader);
     }
 }
 

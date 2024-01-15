@@ -6,6 +6,9 @@ AlignConsecutiveDeclarations: 'true'
 KeepEmptyLinesAtTheStartOfBlocks: 'false'
 Language: Cpp
 AccessModifierOffset: -4
+IncludeCategories:
+- Regex:           "application.h"
+		Priority:        -200
+- Regex:           "common.h"
+		Priority:        -100
 ...
-
-

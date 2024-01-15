@@ -44,6 +44,7 @@ enum class UniformKind
     Viewport,
     ObjectSerialNumber,
     BonesTransform,
+    RenderMode,
 };
 
 enum class UniformDataType
@@ -56,7 +57,7 @@ enum class UniformDataType
     IntVec2,
     IntVec3,
     IntVec4,
-    Bool,    
+    Bool,
     Bool2,
     Bool3,
     Bool4,
@@ -81,26 +82,26 @@ enum class UniformDataType
 
 typedef struct uniformDecl_s
 {
-    const char *uniformName;
-    UniformKind kind;
+    const char *    uniformName;
+    UniformKind     kind;
     UniformDataType datatype;
-    uint32_t flags;
+    uint32_t        flags;
 } uniformDecl_t;
 
 class ShaderUniform
 {
     union {
-        glm::vec1 valFloat;
-        glm::vec2 valFloat2;
-        glm::vec3 valFloat3;
-        glm::vec4 valFloat4;
+        glm::vec1  valFloat;
+        glm::vec2  valFloat2;
+        glm::vec3  valFloat3;
+        glm::vec4  valFloat4;
         glm::ivec1 valInt;
         glm::ivec2 valInt2;
         glm::ivec3 valInt3;
         glm::ivec4 valInt4;
-        glm::mat2 valMat2;
-        glm::mat3 valMat3;
-        glm::mat4 valMat4;
+        glm::mat2  valMat2;
+        glm::mat3  valMat3;
+        glm::mat4  valMat4;
 
         int valSampler1D;
         int valSampler2D;
@@ -109,23 +110,24 @@ class ShaderUniform
         int valSampler1DShadow;
         int valSampler2DShadow;
         int valSampler2DRect;
-        int valSampler2DRectShadow;        
+        int valSampler2DRectShadow;
     } m_ValueCached;
 
     uniformDecl_t *m_pDecl;
-    GLuint m_Location;
-          
+    GLuint         m_Location;
+    GLuint         m_ProgramId;
+
     void UpdateUniformValue();
 
-  public:
-    ShaderUniform(uniformDecl_t * decl, GLuint location);
+public:
+    ShaderUniform(uniformDecl_t *decl, GLuint location, GLuint programId);
     ~ShaderUniform();
 
     const char *Name() const
     {
         return m_pDecl->uniformName;
     }
-    
+
     void SetFloat(float newVal);
     void SetFloat2(glm::vec2 newVal);
     void SetFloat3(glm::vec3 newVal);
@@ -150,13 +152,13 @@ class ShaderUniform
     void SetSampler2DShadow(int newVal);
     void SetSampler2DRect(int newVal);
     void SetSampler2DRectShadow(int newVal);
-    
+
     UniformKind Kind();
 };
 
 class ShaderProgram
 {
-  protected:
+protected:
     GLuint m_uiProgramId = 0;
 
     GLuint m_uiVertexShader   = 0;
@@ -165,23 +167,22 @@ class ShaderProgram
 
     GLuint MakeShader(const char *fileName, GLuint type);
 
-  private:
+private:
+    std::vector<ShaderUniform *> m_vecUniforms;
+    void                         ParseProgramUniforms();
 
-    std::vector<ShaderUniform*> m_vecUniforms;
-    void ParseProgramUniforms();
-
-    std::string PreprocessIncludes(FileData *fd);
-    GLuint MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines);    
+    std::string             PreprocessIncludes(FileData *fd);
+    GLuint                  MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines);
     std::list<const char *> m_Defines;
 
     void LoadAndParseShader();
 
     size_t m_Hash;
 
-  public:
+public:
     // Uber shader
     ShaderProgram(std::string fileName, std::list<const char *> defs);
-    ShaderProgram(); 
+    ShaderProgram();
     virtual ~ShaderProgram();
 
     size_t Hash();
@@ -195,12 +196,12 @@ class ShaderProgram
     void Bind() const;
     void Unbind() const;
 
-    std::vector<ShaderUniform *> & Uniforms();
-    ShaderUniform *UniformByKind(UniformKind kind);
+    std::vector<ShaderUniform *> &Uniforms();
+    ShaderUniform *               UniformByKind(UniformKind kind);
 
     void Reload();
-    
-    static size_t CalculateHash(std::string & fileName, std::list<const char *> & defs);
+
+    static size_t CalculateHash(std::string &fileName, std::list<const char *> &defs);
 
 private:
     std::string m_FileName;

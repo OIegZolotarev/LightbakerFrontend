@@ -51,7 +51,7 @@ void ListViewEx::RenderToolbar()
     {
         if (visibility[i])
         {
-            if (ImGuiHelpers::ButtonWithCommonIcon(CommonTextures(startingIcon + i), labelsPtr[i], iconsSize, tinting[i]))
+            if (ImGuiHelpers::ButtonWithCommonTextureIcon(CommonTextures(startingIcon + i), labelsPtr[i], iconsSize, tinting[i]))
                 OnToolBarItemClicked(ToolbarButtons(i));
 
             nextLine = true;

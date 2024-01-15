@@ -136,17 +136,6 @@ private:
 
 #include "img_goldsource_spr.h"
 
-// Old API
-
-GLTexture *LoadGLTexture(const char *fileName, bool force = false);
-GLTexture *LoadGLTexture(FileData *pFileData, bool force = false);
-
-void GLReloadTexture(GLTexture *);
-void FreeGLTextures();
-void FreeGLTexture(GLTexture *t);
-
-// Old api
-
 // Asynchronouse loader
 //
 class AsynchTextureLoadResult : public ITaskStepResult

@@ -54,14 +54,14 @@ void InputFieldEx::RenderGui()
     if (m_iFlags & FL_CHOOSE_FILE_BUTTON)
     {
         ImGui::SameLine();
-        if (ImGuiHelpers::ButtonWithCommonIcon(CommonTextures::InputFieldMore, "###SelectFile", LV_TOOLBAR_ICON_SIZE))
+        if (ImGuiHelpers::ButtonWithCommonTextureIcon(CommonTextures::InputFieldMore, "###SelectFile", LV_TOOLBAR_ICON_SIZE))
             OnButtonPressed(Buttons::ChooseFile);
     }
 
     if (m_iFlags & FL_CLEAR_BUTTON)
     {
         ImGui::SameLine();
-        if (ImGuiHelpers::ButtonWithCommonIcon(CommonTextures::InputFieldClear, "###ClearFile", LV_TOOLBAR_ICON_SIZE))
+        if (ImGuiHelpers::ButtonWithCommonTextureIcon(CommonTextures::InputFieldClear, "###ClearFile", LV_TOOLBAR_ICON_SIZE))
             OnButtonPressed(Buttons::Clear);
     }
 

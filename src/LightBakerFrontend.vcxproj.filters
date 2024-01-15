@@ -15,14 +15,8 @@
     <Filter Include="Исходные файлы\GLAD">
       <UniqueIdentifier>{3d599df9-3a49-403a-ad28-2b9a13fa5f5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Исходные файлы\ImGUIFileDialog">
-      <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\tiny-proccess-library">
       <UniqueIdentifier>{bba0812e-0c84-49d1-a57e-f6832ee12063}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\ImGuizmo">
-      <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Исходные файлы\Popups">
       <UniqueIdentifier>{79dfe3a4-2732-4f60-b6c1-af22b80a52a5}</UniqueIdentifier>
@@ -105,6 +99,21 @@
     <Filter Include="Исходные файлы\Models\Goldsource MDL">
       <UniqueIdentifier>{e9079897-9dfa-4533-a464-f4dd450b4249}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Bullet Profiler">
+      <UniqueIdentifier>{e7d48034-89f9-492f-bc55-ce6ac9a1982f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Panels">
+      <UniqueIdentifier>{28d57d6c-c6b7-4e58-81dd-2f8d205a4a84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\ImGuizmo">
+      <UniqueIdentifier>{279e1d0b-1dca-472f-8f8d-f952e001a19e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\ImGUI\ImGUIFileDialog">
+      <UniqueIdentifier>{981dcac1-a9d0-47fe-b631-18714ca3df6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\BrushWorld">
+      <UniqueIdentifier>{0b25770f-ccd0-49c8-8300-500ccbcd303e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -113,9 +122,6 @@
     <ClCompile Include="..\lib\glad\glad.c">
       <Filter>Исходные файлы\GLAD</Filter>
     </ClCompile>
-    <ClCompile Include="application.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="main_window.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -123,7 +129,7 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="..\include\ImGuiFileDialog\ImGuiFileDialog.cpp">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClCompile>
     <ClCompile Include="common_resources.cpp">
       <Filter>Исходные файлы</Filter>
@@ -141,15 +147,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="draw_utils.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="..\include\ImGuizmo\ImGuizmo.cpp">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
-    </ClCompile>
-    <ClCompile Include="console_output_panel.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="debug_panel.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="text_utils.cpp">
@@ -180,9 +177,6 @@
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="scene_renderer.cpp">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="scene_objects_panel.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="scene.cpp">
@@ -245,22 +239,13 @@
     <ClCompile Include="edit_history.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="properties_editor.cpp">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="persistent.cpp">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClCompile>
     <ClCompile Include="Icosphere.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="gl_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
-    </ClCompile>
     <ClCompile Include="spotlight_cone_shader.cpp">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClCompile>
-    <ClCompile Include="lightmapped_scene_shader.cpp">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClCompile>
     <ClCompile Include="helper_geometry_shader.cpp">
@@ -277,9 +262,6 @@
     </ClCompile>
     <ClCompile Include="goldsource_bsp_world.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClCompile>
-    <ClCompile Include="igui_panel.cpp">
-      <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClCompile>
     <ClCompile Include="imgui_helpers.cpp">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
@@ -329,7 +311,7 @@
     <ClCompile Include="img_goldsource_spr.cpp">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClCompile>
-    <ClCompile Include="r_camera.cpp">
+    <ClCompile Include="r_camera_controller.cpp">
       <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
     <ClCompile Include="r_frustum.cpp">
@@ -337,9 +319,6 @@
     </ClCompile>
     <ClCompile Include="mathlib.cpp">
       <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="gl_backend.cpp">
-      <Filter>Исходные файлы\OpenGL Backend</Filter>
     </ClCompile>
     <ClCompile Include="selection_3d.cpp">
       <Filter>Исходные файлы\Viewports</Filter>
@@ -407,20 +386,107 @@
     <ClCompile Include="fs_file_handle.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
     </ClCompile>
-    <ClCompile Include="fs_file_data.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="fs_quake1_pak.cpp">
       <Filter>Исходные файлы\Filesystem</Filter>
-    </ClCompile>
-    <ClCompile Include="fs_folder_mount.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="mod_manager.cpp">
       <Filter>Исходные файлы\Models</Filter>
     </ClCompile>
     <ClCompile Include="mod_bsp.cpp">
       <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_file_data.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="fs_folder_mount.cpp">
+      <Filter>Исходные файлы\Filesystem</Filter>
+    </ClCompile>
+    <ClCompile Include="r_chain.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_sprite.cpp">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="mod_primitive.cpp">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_messagebox.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="common_icons.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGuizmo.cpp">
+      <Filter>Исходные файлы\ImGUI\ImGuizmo</Filter>
+    </ClCompile>
+    <ClCompile Include="r_octree.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="r_bvh_boundingbox.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="r_bvh.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="console_output_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="scene_objects_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="commands_toolbar_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="btQuickProf.cpp">
+      <Filter>Исходные файлы\Bullet Profiler</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="toolui_panel.cpp">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="editing_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="editing_toolbox.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="selection_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="camera_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="toolbox_panel.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="ui_common.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="properties_editor.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_shader.cpp">
+      <Filter>Исходные файлы\OpenGL Backend\shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="brush_world.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="color.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="gl_backend.cpp">
+      <Filter>Исходные файлы\OpenGL Backend</Filter>
+    </ClCompile>
+    <ClCompile Include="io_scene.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="io_scene_lm2.cpp">
+      <Filter>Исходные файлы\Scene</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -446,10 +512,10 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialogConfig.h">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClInclude>
     <ClInclude Include="..\include\ImGuiFileDialog\ImGuiFileDialog.h">
-      <Filter>Исходные файлы\ImGUIFileDialog</Filter>
+      <Filter>Исходные файлы\ImGUI\ImGUIFileDialog</Filter>
     </ClInclude>
     <ClInclude Include="common_resources.h">
       <Filter>Исходные файлы</Filter>
@@ -472,19 +538,10 @@
     <ClInclude Include="draw_utils.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\ImGuizmo\ImGuizmo.h">
-      <Filter>Исходные файлы\ImGuizmo</Filter>
-    </ClInclude>
     <ClInclude Include="enum_iterator.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="..\include\better-enums\enum.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="console_output_panel.h">
-      <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="debug_panel.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="text_utils.h">
@@ -512,9 +569,6 @@
       <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="scene_renderer.h">
-      <Filter>Исходные файлы\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="scene_objects_panel.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="scene.h">
@@ -583,9 +637,6 @@
     <ClInclude Include="edit_history.h">
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="properties_editor.h">
-      <Filter>Исходные файлы\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="persistent.h">
       <Filter>Исходные файлы\PersistentParameters</Filter>
     </ClInclude>
@@ -596,9 +647,6 @@
       <Filter>GLSL</Filter>
     </ClInclude>
     <ClInclude Include="spotlight_cone_shader.h">
-      <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
-    </ClInclude>
-    <ClInclude Include="lightmapped_scene_shader.h">
       <Filter>Исходные файлы\OpenGL Backend\shaders\Derived</Filter>
     </ClInclude>
     <ClInclude Include="helper_geometry_shader.h">
@@ -615,9 +663,6 @@
     </ClInclude>
     <ClInclude Include="goldsource_bsp_world.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
-    </ClInclude>
-    <ClInclude Include="igui_panel.h">
-      <Filter>Исходные файлы\ImGUI\helpers</Filter>
     </ClInclude>
     <ClInclude Include="imgui_helpers.h">
       <Filter>Исходные файлы\ImGUI\helpers</Filter>
@@ -670,7 +715,7 @@
     <ClInclude Include="spritegn.h">
       <Filter>Исходные файлы\OpenGL Backend\Textures</Filter>
     </ClInclude>
-    <ClInclude Include="r_camera.h">
+    <ClInclude Include="r_camera_controller.h">
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="r_frustum.h">
@@ -769,6 +814,81 @@
     <ClInclude Include="mod_bsp.h">
       <Filter>Исходные файлы\Models</Filter>
     </ClInclude>
+    <ClInclude Include="r_chain.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="btQuickProf.h">
+      <Filter>Исходные файлы\Bullet Profiler</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_sprite.h">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="mod_primitive.h">
+      <Filter>Исходные файлы\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_messagebox.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="common_icons.h">
+      <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGuizmo.h">
+      <Filter>Исходные файлы\ImGUI\ImGuizmo</Filter>
+    </ClInclude>
+    <ClInclude Include="r_octree.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="r_bvh.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="r_bvh_boundingbox.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="console_output_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="scene_objects_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="commands_toolbar_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="toolui_panel.h">
+      <Filter>Исходные файлы\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="editing_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="editing_toolbox.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="selection_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="camera_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="toolbox_panel.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="properties_editor.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="brush_world.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="brush_face.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="io_scene.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="io_scene_lm2.h">
+      <Filter>Исходные файлы\Scene</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -782,22 +902,10 @@
     <None Include="..\bin\res\glprogs\object_selection.vert">
       <Filter>GLSL</Filter>
     </None>
-    <None Include="..\bin\res\glprogs\scene_ligtmapped.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene.vert">
-      <Filter>GLSL</Filter>
-    </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="..\bin\res\glprogs\spotlight_cone.vert">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene_diffuse.frag">
-      <Filter>GLSL</Filter>
-    </None>
-    <None Include="..\bin\res\glprogs\scene_groupshaded.frag">
       <Filter>GLSL</Filter>
     </None>
     <None Include="hammer_fgd\hammer_fgd.y">

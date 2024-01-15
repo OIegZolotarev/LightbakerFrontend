@@ -17,7 +17,7 @@ public:
     BSPModelAdapter(const char *modelName);
     ~BSPModelAdapter();
 
-    void Render(SceneEntity *pEntity, RenderMode mode) override;
+    void Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
     void OnSceneLoaded(Scene *pScene) override;
 
     const std::optional<BoundingBox> GetBoundingBox() const override;

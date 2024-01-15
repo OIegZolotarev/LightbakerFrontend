@@ -23,18 +23,18 @@ class BSPEntity : public SceneEntity
     static glm::vec4 ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity);
 
     std::shared_ptr<BSPWorld> m_World;
+    
+    std::list<GoldSource::BSPEntityProperty *> m_lstProperties;
 
-    std::list<BSPEntityProperty *> m_lstProperties;
-
-    GLTexture *m_pEditorSprite = nullptr;
+    bool m_bIsTransparent = false;
 
     friend class BSPEntityProperty;
 
-    BSPEntityProperty *FindProperty(size_t prophash);
+    
 
 public:
     // Delete for now, implement later if necceseary
-    BSPEntity(BSPEntity *pOther) = delete;
+    BSPEntity(BSPEntity *pOther);
     BSPEntity(Scene *pScene);
     ~BSPEntity();
 
@@ -43,25 +43,21 @@ public:
 
     void Export(FILE *fp);
 
-    void RenderBoundingBox() override;
-    void RenderGroupShaded() override;
-    void RenderLightshaded() override;
-    void RenderUnshaded() override;
-
     void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 
+    BSPEntityProperty *             FindProperty(size_t prophash);
     bool                            HasProperty(size_t hash);
     std::list<BSPEntityProperty *> &GetBSPProperties();
 
-    void SetFGDClass(FGDEntityClassWeakPtr pClass);
+    void                  SetFGDClass(FGDEntityClassWeakPtr pClass);
     FGDEntityClassWeakPtr GetFGDClass();
 
     void UpdateProperty(BSPEntityProperty *pNewProperty);
 
-    bool IsTransparent() override;
+    void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
+    void UpdatePropertyPosition(BSPEntityProperty *p, glm::vec3 delta);
 
-
-
+    SceneEntity *Clone() override;
 };
 
 } // namespace GoldSource

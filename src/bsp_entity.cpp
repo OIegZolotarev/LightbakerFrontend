@@ -11,6 +11,7 @@
 
 #include "common.h"
 #include "goldsource_game_configuration.h"
+#include "mod_primitive.h"
 #include "properties_editor.h"
 #include "text_utils.h"
 #include "wad_textures.h"
@@ -29,7 +30,7 @@ BSPEntity::~BSPEntity()
     m_lstProperties.clear();
 }
 
-void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
+void BSPEntity::SetKeyValue(const std::string &key, const std::string &value)
 {
     FGDPropertyDescriptor *propDescr = nullptr;
 
@@ -58,9 +59,39 @@ void GoldSource::BSPEntity::SetKeyValue(const std::string &key, const std::strin
     }
 }
 
-bool BSPEntity::IsTransparent()
+BSPEntity::BSPEntity(BSPEntity *pOther) : SceneEntity(pOther)
 {
-    return m_pEditorSprite != nullptr;
+    m_pFGDClass = pOther->m_pFGDClass;
+    m_World     = pOther->m_World;
+
+    for (auto &it : pOther->m_lstProperties)
+    {
+        BSPEntityProperty *pNewProp = new BSPEntityProperty(it, this);
+        m_lstProperties.push_back(pNewProp);
+    }
+
+    m_bIsTransparent = pOther->m_bIsTransparent;
+}
+
+void GoldSource::BSPEntity::Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader)
+{
+    const IModelWeakPtr model = GetModel();
+
+    // TODO: move this somewhere to BSPEntityProperty::Update
+    auto prop = FindProperty(SpecialKeys::Key_Light());
+    if (prop)
+        SetRenderColor(prop->GetColorRGBA());
+
+    auto ptr = model.lock();
+
+    assert(ptr && "Should always have a model for an entity");
+    ptr->Render(this, sr, mode, shader);
+}
+
+SceneEntity *BSPEntity::Clone()
+{
+    BSPEntity *pClone = new BSPEntity(this);
+    return pClone;
 }
 
 void BSPEntity::UpdateProperty(BSPEntityProperty *pNewProperty)
@@ -99,24 +130,35 @@ void BSPEntity::PopulateScene()
         else
             SetBoundingBox(bbox);
 
-        // if (!m_bIsSetColor)
         SetRenderColor(classPtr->GetColor());
 
         auto model = GetModel();
 
         if (model.expired())
         {
-            m_pEditorSprite = classPtr->GetEditorSpite();
-
-            auto &studioModel = classPtr->GetModel();
+            auto  editorSprite = classPtr->GetEditorSpite();
+            auto &studioModel  = classPtr->GetModelName();
 
             if (!studioModel.empty())
             {
                 IModelWeakPtr model = ModelsManager::Instance()->LookupModel(studioModel.c_str(), false);
                 if (!model.expired())
+                    SetModel(model);
+                else
                 {
+                    auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
                     SetModel(model);
                 }
+            }
+            else if (!editorSprite.expired())
+            {
+                SetModel(editorSprite);
+                SetRenderColor({1, 1, 1, 1});
+            }
+            else
+            {
+                auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
+                SetModel(model);
             }
         }
         else
@@ -126,20 +168,22 @@ void BSPEntity::PopulateScene()
 
             if (boundingBox.has_value())
             {
-                SetBoundingBox(boundingBox.value());                
+                SetBoundingBox(boundingBox.value());
             }
         }
     }
     else
     {
         SetBoundingBox(BoundingBox(8));
-
-        // if (!m_bIsSetColor)
         SetRenderColor({1, 0, 1, 1});
+
+        auto model = PrimitiveModel::LookupByType(CommonPrimitives::Box);
+        SetModel(model);
     }
 
-    std::shared_ptr<SceneEntity> ptr(this);
-    m_pScene->AddNewSceneEntity(ptr);
+    assert(!GetModel().expired());
+
+    m_pScene->AddNewSceneEntity(this);
 }
 
 void BSPEntity::Export(FILE *fp)
@@ -178,62 +222,23 @@ void BSPEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
     if (ptr)
     {
         SceneEntityWeakPtr weakRef = std::dynamic_pointer_cast<SceneEntity>(myWeakRef.lock());
-        m_pScene->HintSelected(weakRef);
+        // m_pScene->HintSelected(weakRef);
 
-        // TODO: make binder singletons?
-        BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
-        pBinder->SelectEntity(weakRef);
-        ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+        auto bindings = ObjectPropertiesEditor::Instance()->GetBindings();
+
+        if (bindings)
+        {
+            // ObjectPropertiesEditor::Instance()->LoadObject(weakRef, m_);
+            // bindings->AddObject(weakRef);
+        }
+        else
+        {
+            // TODO: make binder singletons?
+            //             BSPEntitiesPropertiesBinder *pBinder = new BSPEntitiesPropertiesBinder();
+            //             pBinder->SelectEntity(weakRef);
+            //            ObjectPropertiesEditor::Instance()->LoadObject(pBinder);
+        }
     }
-}
-
-void BSPEntity::RenderUnshaded()
-{
-    const IModelWeakPtr model = GetModel();
-
-    auto sr = Application::GetMainWindow()->GetSceneRenderer();
-
-    if (auto ptr = model.lock())
-    {
-        ptr->Render(this, RenderMode::Unshaded);
-        return;
-    }
-
-    const BoundingBox &relativeBbox = GetRelativeBoundingBox();
-
-    if (m_pEditorSprite)
-    {
-        // TODO: cache this?
-        auto prop = FindProperty(SpecialKeys::Key_Light());
-
-        glm::vec3 tint = {1, 1, 1};
-
-        if (prop)
-            tint = prop->GetColorRGB();
-
-        const glm::vec3 size = relativeBbox.Size();
-
-        sr->DrawBillboard(GetPosition(), size.xy, m_pEditorSprite, tint, GetSerialNumber());
-    }
-    else
-    {
-        sr->RenderPointEntityDefault(GetPosition(), relativeBbox.Mins(), relativeBbox.Maxs(), GetRenderColor(),
-                                     GetSerialNumber());
-    }
-}
-
-void BSPEntity::RenderLightshaded()
-{
-    RenderUnshaded();
-}
-
-void BSPEntity::RenderGroupShaded()
-{
-    RenderUnshaded();
-}
-
-void BSPEntity::RenderBoundingBox()
-{
 }
 
 glm::vec4 BSPEntity::ConvertLightColorAndIntensity(Lb3kLightEntity *pEntity)
@@ -277,4 +282,15 @@ void BSPEntity::SetFGDClass(FGDEntityClassWeakPtr pClass)
 GoldSource::FGDEntityClassWeakPtr BSPEntity::GetFGDClass()
 {
     return m_pFGDClass;
+}
+
+void BSPEntity::UpdatePropertyPosition(BSPEntityProperty *pNewProperty, glm::vec3 delta)
+{
+    auto myProperty = FindProperty(pNewProperty->Hash());
+
+    // Shouldn't be nullptr
+    assert(myProperty);
+
+    myProperty->SetPosition(myProperty->GetPosition() + delta);
+    myProperty->Update(nullptr);
 }

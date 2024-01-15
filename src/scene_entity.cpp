@@ -1,15 +1,16 @@
 /*
     LightBaker3000 Frontend project,
-    (c) 2023 CrazyRussian
+    (c) 2023-2024 CrazyRussian
 */
 
 #include "application.h"
 #include "scene_entity.h"
 #include "properties_editor.h"
 
+
 void SceneEntity::RecalcAbsBBox()
 {
-    m_EntVars.bboxAbsolute = BoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+    m_EntVars.bboxAbsolute = BVHBoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
 }
 
 const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
@@ -17,7 +18,7 @@ const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
     return m_EntVars.bboxRelative;
 }
 
-const BoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
+const BVHBoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
 {
     return m_EntVars.bboxAbsolute;
 }
@@ -47,31 +48,65 @@ const std::string &SceneEntity::GetClassName() const
     return m_EntVars.classname;
 }
 
-bool SceneEntity::IsTransparent()
+void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
 {
-    return false;
+    m_EntVars.transform = m_matGuizmo;
 }
 
-SceneEntityWeakPtr SceneEntity::Next()
+void SceneEntity::Debug_RenderTransform()
 {
-    return m_pNext;
+    BT_PROFILE("SceneEntity::Debug_RenderTransform()");
+
+    auto drawAxis = [](glm::vec3 pos, glm::vec3 dir, float size, glm::vec4 color) {
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4(color);
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4(1));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(0);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        mesh.Begin(GL_LINES);
+
+        auto p2 = (pos + dir * size);
+
+        mesh.Vertex3fv(&pos.x);
+        mesh.Vertex3fv(&p2.x);
+
+        mesh.End();
+        mesh.BindAndDraw();
+
+        shader->Unbind();
+    };
+
+    glm::vec3 forward = m_EntVars.transform[0];
+    glm::vec3 right   = m_EntVars.transform[2];
+    glm::vec3 up      = m_EntVars.transform[1];
+
+    drawAxis(m_EntVars.origin, forward, 100, {1, 0, 0, 1});
+    drawAxis(m_EntVars.origin, right, 100, {0, 1, 0, 1});
+    drawAxis(m_EntVars.origin, up, 100, {0, 0, 1, 1});
 }
 
-void SceneEntity::SetNext(std::weak_ptr<SceneEntity> &pOther)
+void SceneEntity::FlagRegisteredInScene(bool state)
 {
-    auto ptr = pOther.lock();
-
-#ifdef PARANOID
-    if (ptr.get() == this)
-        __debugbreak();
-#endif
-
-    m_pNext = pOther;
-}
-
-const BoundingBox &SceneEntity::AbsoulteBoundingBox() const
-{
-    return m_EntVars.bboxAbsolute;
+    m_bRegisteredInScene = state;
 }
 
 const glm::vec3 SceneEntity::GetAngles() const
@@ -82,64 +117,45 @@ const glm::vec3 SceneEntity::GetAngles() const
 void SceneEntity::SetAngles(const glm::vec3 &angles)
 {
     m_EntVars.angles = angles;
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
-void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
-{
-    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene         = sceneRenderer->GetScene();
-
-    auto weakRef = scene->GetEntityWeakRef(this);
-    scene->HintSelected(weakRef);
-
-    ObjectPropertiesEditor::Instance()->LoadObject(binder);
-}
+// void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
+// {
+//     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+//     auto scene         = sceneRenderer->GetScene();
+// 
+//     auto weakRef = scene->GetEntityWeakRef(this);
+//     scene->HintSelected(weakRef);
+// 
+//     ObjectPropertiesEditor::Instance()->LoadObject(binder);
+// }
 
 SceneEntity::SceneEntity(Scene *pScene)
 {
     m_pScene = pScene;
-    
 
-    // m_Color      = {0, 0, 0};
-    // m_EditorIcon = nullptr;
-
-    SetEditorIcon(nullptr);
     SetRenderColor({1, 1, 1, 1});
 }
 
 SceneEntity::SceneEntity(SceneEntity &other)
 {
     m_pScene   = other.m_pScene;
-    
-    m_EntVars.bboxRelative = other.m_EntVars.bboxRelative;
-    m_EntVars.bboxAbsolute = other.m_EntVars.bboxAbsolute;
-    
-    m_EntVars.rendercolor = other.m_EntVars.rendercolor;
-    m_EntVars.editor_icon = other.m_EntVars.editor_icon;
 
+    m_EntVars = other.m_EntVars;
+    m_bDataLoaded = other.m_bDataLoaded;
+    m_EntityClass = other.m_EntityClass;    
+    m_pScene             = other.m_pScene;    
 }
 
-void SceneEntity::RenderLightshaded()
-{
-    auto sceneRenderer = Application::GetMainWindow()->GetSceneRenderer();
-    sceneRenderer->RenderGenericEntity(this);
-}
-
-void SceneEntity::RenderUnshaded()
+ SceneEntity::SceneEntity(SceneEntity *other) : SceneEntity(*other)
 {
 }
 
-void SceneEntity::RenderBoundingBox()
+SceneEntity::~SceneEntity()
 {
-}
-
-void SceneEntity::RenderDebug()
-{
-}
-
-void SceneEntity::RenderGroupShaded()
-{
-}
+     Con_Printf("~SceneEntity(): %s (serial=%d)\n", m_EntVars.classname.c_str(), m_EntVars.serialNumber);
+ }
 
 bool SceneEntity::IsDataLoaded()
 {
@@ -160,11 +176,22 @@ void SceneEntity::SetPosition(const glm::vec3 &pos)
 {
     m_EntVars.origin = pos;
     RecalcAbsBBox();
+
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
+
+    if (m_pScene)
+        m_pScene->UpdateEntityBVH(m_EntVars.serialNumber, m_EntVars.bboxAbsolute);
+
 }
 
 const glm::vec3 SceneEntity::GetPosition() const
 {
     return m_EntVars.origin;
+}
+
+const glm::mat4 SceneEntity::GetTransform()
+{
+    return m_EntVars.transform;
 }
 
 void SceneEntity::SetBoundingBox(const BoundingBox &bbox)
@@ -181,16 +208,6 @@ void SceneEntity::SetRenderColor(const ColorRGBA &color)
 const ColorRGBA SceneEntity::GetRenderColor() const
 {
     return m_EntVars.rendercolor;
-}
-
-const GLTexture *SceneEntity::GetEditorIcon() const
-{
-    return m_EntVars.editor_icon;
-}
-
-void SceneEntity::SetEditorIcon(GLTexture *pTexture)
-{
-    m_EntVars.editor_icon = pTexture;
 }
 
 IModelWeakPtr SceneEntity::GetModel() const
@@ -223,7 +240,7 @@ void SceneEntity::OnMouseMove(glm::vec2 delta)
 
 void SceneEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
-    ObjectPropertiesEditor::Instance()->UnloadObject();
+    ObjectPropertiesEditor::Instance()->UnloadObjects();
 }
 
 void SceneEntity::OnUnSelect()

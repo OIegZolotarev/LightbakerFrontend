@@ -29,5 +29,9 @@
 
 #define NICE_LINES
 
-
 #define CheckCorruption() assert(_CrtCheckMemory())
+
+//#define GL_DEBUG
+
+#define BT_ENABLE_PROFILE
+#include "btQuickProf.h"

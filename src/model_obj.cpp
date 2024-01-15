@@ -7,7 +7,7 @@
 
 #include "application.h"
 #include "model_obj.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "common_resources.h"
 #include "gl_backend.h"
 #include "mod_obj_asynch_exporter.h"
@@ -16,6 +16,7 @@
 #include "text_utils.h"
 #include <algorithm>
 #include <intsafe.h>
+#include "world_entity.h"
 
 #define WHITE_PNG "res/textures/white.png"
 #define DUMMY_PNG "res/textures/dummy.png"
@@ -48,13 +49,15 @@ void ModelOBJ::LoadLMMesh()
 
 ModelOBJ::~ModelOBJ()
 {
-    for (auto &it : m_ModelData.meshes)
-    {
-        FreeGLTexture(it.diffuse_texture);
 
-        for (int i = 0; i < MAX_LIGHT_STYLES; i++)
-            FreeGLTexture(it.lightmap_texture[i]);
-    }
+    // TODO: FIXME
+//     for (auto &it : m_ModelData.meshes)
+//     {
+//         FreeGLTexture(it.diffuse_texture);
+// 
+//         for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+//             FreeGLTexture(it.lightmap_texture[i]);
+//     }
 
     FreeVector(m_ModelData.faces);
     FreeVector(m_ModelData.normals);
@@ -143,6 +146,9 @@ void ModelOBJ::BuildDrawMesh()
 
     pMaterial->first_face = mesh.CurrentElement();
 
+    BoundingBox bbox(4);
+
+
     mesh.Begin(GL_TRIANGLES);
     mesh.Color4f(1, 1, 1, 1);
 
@@ -201,12 +207,20 @@ void ModelOBJ::BuildDrawMesh()
         float *p = &m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize];
         // Con_Printf("%f %f %f\n", p[0], p[1], p[2]);
 
-        mesh.Vertex3fv(&m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize]);
+        float *v = &m_ModelData.verts[(face.vert - 1) * m_ModelData.vertSize];
+        mesh.Vertex3f(v[0], v[2], v[1]);
+        bbox.AddPoint(glm::vec3(v[0], v[2], v[1]));
+        
     }
 
     pMaterial->num_faces = mesh.CurrentElement() - pMaterial->first_face;
 
     mesh.End();
+
+    SetBoundingBox(bbox);
+
+    IWorldEntity* ent = m_pScene->GetWorldEntity();
+    ent->SetBoundingBox(bbox);
 
     FlagDataLoaded();
 }
@@ -267,21 +281,11 @@ void ModelOBJ::OnUnhovered()
 {
 }
 
-void ModelOBJ::RenderBoundingBox()
+void ModelOBJ::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
 {
-    // throw std::logic_error("The method or operation is not implemented.");
 }
 
-void ModelOBJ::RenderDebug()
-{
-    DrawDebug();
-}
 
-void ModelOBJ::RenderLightshaded()
-{
-    auto shader = GLBackend::Instance()->LightMappedSceneShader();
-    CommonDrawGeometryWithShader(shader);
-}
 
 void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader *shader)
 {
@@ -333,62 +337,62 @@ void ModelOBJ::CommonDrawGeometryWithShader(const ISceneShader *shader)
     mesh.Unbind();
 }
 
-void ModelOBJ::RenderUnshaded()
-{
-    auto shader = GLBackend::Instance()->DiffuseSceneShader();
-    CommonDrawGeometryWithShader(shader);
-}
-
-void ModelOBJ::RenderGroupShaded()
-{
-    auto shader = GLBackend::Instance()->GroupShadedSceneShader();
-
-    mesh.Bind();
-
-    auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-    auto scene         = sceneRenderer->GetScene();
-
-    shader->Bind();
-    shader->SetScale(scene->GetSceneScale());
-    shader->SetDefaultCamera();
-    shader->SetTransformIdentity();
-
-    shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    // for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
-
-    size_t index = 0;
-
-    for (auto &it : m_ModelData.meshes)
-    {
-        // auto it = m_ModelData.meshes[i];
-
-        if (it.num_faces == 0)
-        {
-            continue;
-        }
-
-        int hash = (it.num_faces * it.first_face * index * (int)&it) % 360;
-
-        float hue = (float)hash / 360.f;
-
-        glm::vec3 rgb;
-
-        ImGui::ColorConvertHSVtoRGB(hue, 1, 1, rgb[0], rgb[1], rgb[2]);
-
-        shader->SetObjectColor(glm::vec4(rgb, 1));
-
-        mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
-        index++;
-    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    shader->Unbind();
-    mesh.Unbind();
-}
+// void ModelOBJ::RenderUnshaded()
+// {
+//     auto shader = GLBackend::Instance()->DiffuseSceneShader();
+//     CommonDrawGeometryWithShader(shader);
+// }
+// 
+// void ModelOBJ::RenderGroupShaded()
+// {
+//     auto shader = GLBackend::Instance()->GroupShadedSceneShader();
+// 
+//     mesh.Bind();
+// 
+//     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+//     auto scene         = sceneRenderer->GetScene();
+// 
+//     shader->Bind();
+//     shader->SetScale(scene->GetSceneScale());
+//     shader->SetDefaultCamera();
+//     shader->SetTransformIdentity();
+// 
+//     shader->SetObjectColor(glm::vec4(0, 1, 0, 1));
+// 
+//     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+// 
+//     // for (int i = 5 ;  i < m_ModelData.meshes.size() - 1; i++)
+// 
+//     size_t index = 0;
+// 
+//     for (auto &it : m_ModelData.meshes)
+//     {
+//         // auto it = m_ModelData.meshes[i];
+// 
+//         if (it.num_faces == 0)
+//         {
+//             continue;
+//         }
+// 
+//         int hash = (it.num_faces * it.first_face * index * (int)&it) % 360;
+// 
+//         float hue = (float)hash / 360.f;
+// 
+//         glm::vec3 rgb;
+// 
+//         ImGui::ColorConvertHSVtoRGB(hue, 1, 1, rgb[0], rgb[1], rgb[2]);
+// 
+//         shader->SetObjectColor(glm::vec4(rgb, 1));
+// 
+//         mesh.Draw((uint32_t)it.first_face, (uint32_t)it.num_faces);
+//         index++;
+//     }
+// 
+//     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+// 
+//     shader->Unbind();
+//     mesh.Unbind();
+// }
 
 mobjdata_t *ModelOBJ::GetModelData()
 {
@@ -422,6 +426,11 @@ void ModelOBJ::FlagHasLMMesh()
     BuildDrawMesh();
 }
 
+SceneEntity *ModelOBJ::Clone()
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
 const char *ModelOBJ::Description()
 {
     return "<world - obj model>";
@@ -429,26 +438,27 @@ const char *ModelOBJ::Description()
 
 void ModelOBJ::PrepareLights()
 {
-    auto scene  = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-    auto lights = scene->GetLightDefs();
-
-    m_ModelData.lightDefs.clear();
-    m_LightmapModelData.lightDefs.clear();
-
-    for (auto light = lights.begin(); light != lights.end(); light++)
-    {
-        auto lightPointer = std::dynamic_pointer_cast<Lb3kLightEntity>(*light);
-
-        if (lightPointer)
-        {
-            // Наверное тупой подход
-            Lb3kLightEntity *l1 = new Lb3kLightEntity(*lightPointer);
-            Lb3kLightEntity *l2 = new Lb3kLightEntity(*lightPointer);
-
-            m_LightmapModelData.lightDefs.push_back(l1);
-            m_ModelData.lightDefs.push_back(l2);
-        }
-    }
+    // TODO: fixme
+    //     auto scene  = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
+//     auto lights = scene->GetLightDefs();
+// 
+//     m_ModelData.lightDefs.clear();
+//     m_LightmapModelData.lightDefs.clear();
+// 
+//     for (auto light = lights.begin(); light != lights.end(); light++)
+//     {
+//         auto lightPointer = std::dynamic_pointer_cast<Lb3kLightEntity>(*light);
+// 
+//         if (lightPointer)
+//         {
+//             // Наверное тупой подход
+//             Lb3kLightEntity *l1 = new Lb3kLightEntity(*lightPointer);
+//             Lb3kLightEntity *l2 = new Lb3kLightEntity(*lightPointer);
+// 
+//             m_LightmapModelData.lightDefs.push_back(l1);
+//             m_ModelData.lightDefs.push_back(l2);
+//         }
+//     }
 }
 
 void ModelOBJ::ReloadTextures()
@@ -461,29 +471,29 @@ void ModelOBJ::ReloadTextures()
 
 void ModelOBJ::ReloadLightmapTextures()
 {
-    for (auto &it : m_LightmapModelData.meshes)
-    {
-        if (it.diffuse_texture)
-            GLReloadTexture(it.diffuse_texture);
-        else
-        {
-            it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
-
-            if (it.diffuse_texture)
-                if (it.diffuse_texture->Width() == -1)
-                    it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
-        }
-
-        for (int i = 0; i < MAX_LIGHT_STYLES; i++)
-        {
-            if (it.lightmap_texture[i])
-                GLReloadTexture(it.lightmap_texture[i]);
-            else
-            {
-                it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
-            }
-        }
-    }
+  //  for (auto &it : m_LightmapModelData.meshes)
+//    {
+//         if (it.diffuse_texture)
+//             GLReloadTexture(it.diffuse_texture);
+//         else
+//         {
+//             it.diffuse_texture = LoadGLTexture(it.diffuse_texture_path.c_str());
+// 
+//             if (it.diffuse_texture)
+//                 if (it.diffuse_texture->Width() == -1)
+//                     it.diffuse_texture = LoadGLTexture(DUMMY_PNG);
+//         }
+// 
+//         for (int i = 0; i < MAX_LIGHT_STYLES; i++)
+//         {
+//             if (it.lightmap_texture[i])
+//                 GLReloadTexture(it.lightmap_texture[i]);
+//             else
+//             {
+//                 it.lightmap_texture[i] = LoadGLTexture(it.lightmap_texture_path[i].c_str());
+//             }
+//         }
+//     }
 }
 
 std::string &ModelOBJ::Export(const char *fileName, lightBakerSettings_t *lb3kOptions, glm::vec3 envColor)

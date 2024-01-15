@@ -4,7 +4,6 @@
 
 void main()
 {
-
 	gl_Position = _transform();	
 }
 

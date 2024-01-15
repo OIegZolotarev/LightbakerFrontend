@@ -1094,6 +1094,7 @@ void BSPLevel::PopulateScene(Scene * pScene)
     {
         it->SetSerialNumber(pScene->AllocSerialNumber());
         it->PopulateScene();
+
     }
 
 	

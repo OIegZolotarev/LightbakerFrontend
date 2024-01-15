@@ -4,10 +4,10 @@
 */
 
 #pragma once
-#include "igui_panel.h"
+#include "toolui_panel.h"
 #include "console.h"
 
-class ConsoleOutputPanel: public IGUIPanel
+class ConsoleOutputPanel: public ToolUIPanel
 {
 	DebugConsole* m_pConsole = 0;
 public:

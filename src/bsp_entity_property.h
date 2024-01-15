@@ -6,6 +6,7 @@
 #pragma once
 
 #include "common.h"
+#include "object_props.h"
 
 class VariantValue;
 enum class PropertiesTypes;
@@ -56,13 +57,28 @@ class BSPEntityProperty : public VariantValue
     static glm::vec3 ConvertOriginToSceneSpace(glm::vec3 &bspSpaceOrigin);
     static glm::vec3 ConvertOriginFromSceneSpace(glm::vec3 &pos);
 
+    void ParseOrigin(const std::string &value);
+    void ParseLight(const std::string &value);
+    void ParseWad(const std::string &value);
+    void ParseClassname(const std::string &value);
+
+    void ParseFlags(const std::string &value);
+    void RebuildFlagsList();
+
+    void        ParseAngles(const std::string &value);
+    std::string SerializeValue();
+    void        ParseModel(const std::string &value);
+
 public:
+    
     BSPEntityProperty(const BSPEntityProperty *pOther);
+    BSPEntityProperty(const BSPEntityProperty *pOther, BSPEntity * pNewOwner);
+
 
     BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyDescriptor *pDescr);
-
     BSPEntityProperty(const BSPEntity *pOwner, const std::string &name, const std::string &value,
                       const FGDPropertyDescriptor *pDescr);
+
     ~BSPEntityProperty();
 
     std::string &Name();
@@ -75,24 +91,9 @@ public:
 
     void SetDescriptor(const FGDPropertyDescriptor *descr);
 
-
     void Update(BSPEntityProperty *pNewProperty);
 
     void ParseValue(const std::string &value);
-
-private:
-    void ParseOrigin(const std::string &value);
-    void ParseLight(const std::string &value);
-    void ParseWad(const std::string &value);
-    void ParseClassname(const std::string &value);
-
-    void ParseFlags(const std::string &value);
-    void RebuildFlagsList();
-
-
-void ParseAngles(const std::string &value);
-    std::string SerializeValue();
-void ParseModel(const std::string &value);
 };
 
 } // namespace GoldSource

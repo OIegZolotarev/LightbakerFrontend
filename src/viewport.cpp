@@ -3,16 +3,22 @@
     (c) 2023 CrazyRussian
 */
 
-#include "viewport.h"
 #include "application.h"
+#include "viewport.h"
+#include "editing_toolbox.h"
 #include "gl_screenspace_2d_renderer.h"
 #include "imgui_internal.h"
 #include "properties_editor.h"
+#include "viewports_orchestrator.h"
 
-glm::vec2 Viewport::CalcRelativeMousePos()
+glm::vec2 Viewport::CalcRelativeMousePos(bool yAtTop)
 {
     ImVec2 s = ImGui::GetMousePos();
-    return {s.x - m_DisplayWidgetPosition.x, m_ClientAreaSize.y - (s.y - m_DisplayWidgetPosition.y)};
+
+    if (yAtTop)
+        return {s.x - m_DisplayWidgetPosition.x, (s.y - m_DisplayWidgetPosition.y)};
+    else
+        return {s.x - m_DisplayWidgetPosition.x, m_ClientAreaSize.y - (s.y - m_DisplayWidgetPosition.y)};
 }
 
 bool Viewport::PointInClientRect(glm::vec2 pt)
@@ -55,7 +61,12 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
 
     m_strNamePopupKey = m_strName + "_popup";
 
-    m_pCamera = new Camera(this);
+    m_pCamera = new CameraController(this);
+
+    if (pCopyFrom)
+    {
+        m_pCamera->CopyOrientation(pCopyFrom->GetCamera());
+    }
 }
 
 Viewport::~Viewport()
@@ -66,13 +77,15 @@ Viewport::~Viewport()
 
 void Viewport::RenderFrame(float flFrameDelta)
 {
+    BT_PROFILE("Viewport::RenderFrame()");
+
     m_pCamera->Apply(flFrameDelta);
 
     if (!m_bNeedUpdate)
         return;
 
     m_pFBO->Enable();
-    
+    GL_CheckForErrors();
 
 // Debug FBO usage
 #if DEBUG_FBO_AREA_USAGE
@@ -85,10 +98,12 @@ void Viewport::RenderFrame(float flFrameDelta)
     glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
 
     sr->RenderScene(this);
+    GL_CheckForErrors();
 
-    // RenderGuizmo();
+    EditingToolbox::Instance()->RenderTool(flFrameDelta);
 
     m_pFBO->Disable();
+    GL_CheckForErrors();
 
     m_bNeedUpdate = false;
 }
@@ -98,9 +113,7 @@ void Viewport::RenderGuizmo()
     if (!SelectionManager::IsGizmoEnabled())
         return;
 
-
     ObjectPropertiesEditor::Instance()->RenderGuizmo(this);
-
 }
 
 void Viewport::DisplayRenderedFrame()
@@ -131,12 +144,12 @@ void Viewport::DisplayRenderedFrame()
         m_bForceUndock = false;
     }
 
+    // flags |= ImGuiWindowFlags_NoInputs;
+
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
         m_bDocked = ImGui::IsWindowDocked();
-
-        if (Application::Instance()->IsMouseCursorVisible())
-            m_bHovered = ImGui::IsWindowHovered();
+        m_bFocused = ImGui::IsWindowFocused();
 
         auto r = GLScreenSpace2DRenderer::Instance();
 
@@ -147,6 +160,9 @@ void Viewport::DisplayRenderedFrame()
         auto textureId = m_pFBO->ColorTexture()->GLTextureNum(0);
 
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
+
+        if (abs(viewportSize.x - m_ClientAreaSize.x) > 0.5f || abs(viewportSize.y - m_ClientAreaSize.y) > 0.5f)
+            m_bNeedUpdate = true;
 
         m_ClientAreaSize = {viewportSize.x, viewportSize.y};
 
@@ -161,12 +177,30 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
-        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1,1,1,1});
+        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1, 1, 1, 1});
+        // ImGui::SetHoveredID((ImGuiID) this);
+
+        if (Application::Instance()->IsMouseCursorVisible())
+            m_bHoveredImGUI = ImGui::IsItemHovered();
+
+        auto ratPos = CalcRelativeMousePos();
+
+        if (PointInClientRect(ratPos))
+        {
+            m_bHovered = true;
+        }
+        else
+        {
+            m_bHovered      = false;
+            m_bHoveredImGUI = false;
+        }
 
         UpdateDisplayWidgetPos();
-        DisplayViewportUI(pos);
 
+        DisplayViewportUI(pos);
         RenderGuizmo();
+
+        EditingToolbox::Instance()->RenderToolViewportUI(this);
     }
 
     OutputDebug();
@@ -180,18 +214,20 @@ void Viewport::DisplayRenderedFrame()
 
 void Viewport::HandlePicker()
 {
-    auto ratPos = CalcRelativeMousePos();
+    BT_PROFILE("Viewport::HandlePicker()");
+
+    auto ratPos = CalcRelativeMousePos(false);
 
     if (PointInClientRect(ratPos))
     {
         m_hoveredObjectId = ReadPixel(ratPos.x, ratPos.y);
 
-        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
+        bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver()) && m_bHovered && m_bHoveredImGUI;
 
-        
+        canSelect = false;
+
         if (ImGui::IsMouseClicked(ImGuiMouseButton_Left) && canSelect)
         {
-            
             FlagUpdate();
 
             auto sr    = Application::GetMainWindow()->GetSceneRenderer();
@@ -206,9 +242,8 @@ void Viewport::HandlePicker()
             }
             else
             {
-                ObjectPropertiesEditor::Instance()->UnloadObject();
+                ObjectPropertiesEditor::Instance()->UnloadObjects();
             }
-                
         }
     }
 }
@@ -222,21 +257,24 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
         ImGui::OpenPopup(m_strNamePopupKey.c_str());
     }
 
+    if (ImGui::IsItemHovered())
+        m_bHoveredImGUI = false;
+
     if (ImGui::BeginPopup(m_strNamePopupKey.c_str()))
     {
         ImGui::SeparatorText("Shading");
 
         std::pair<RenderMode, const char *> menuItems[] = {{RenderMode::Lightshaded, "Lightshaded"},
                                                            {RenderMode::Unshaded, "Unshaded"},
-                                                           {RenderMode::Groups, "Groups shaded"},
-                                                           {RenderMode::WireframeShaded, "Wireframe shaded"},
-                                                           {RenderMode::WireframeUnshaded, "Wireframe unshaded"}};
+                                                           {RenderMode::Flatshaded, "Flatshaded"},
+                                                           {RenderMode::Wireframe, "Wireframe shaded"}};
 
         for (auto &it : menuItems)
         {
             if (ImGui::MenuItem(it.second, 0, m_RenderMode == it.first))
             {
-                m_RenderMode = it.first;
+                m_RenderMode  = it.first;
+                m_bNeedUpdate = true;
             }
         }
 
@@ -252,13 +290,22 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             DoCloneViewport();
         }
 
+        if (ImGui::MenuItem("Clone to new window"))
+        {
+            // FIXME: when extra window is opened - viepwort cloned to second to last window
+            auto cmd = Application::CommandsRegistry()->FindCommandByGlobalId(GlobalCommands::OpenNewWindow);
+            cmd->Execute();
+
+            DoCloneViewport();
+        }
+
         if (ImGui::BeginMenu("Send to other window"))
         {
-            auto & lstWindow = Application::Instance()->GetAllWindows();
+            auto &lstWindow = Application::Instance()->GetAllWindows();
 
-            for (auto & it: lstWindow)
+            for (auto &it : lstWindow)
             {
-                if (ImGui::MenuItem(it->GetDescription(),0, it == m_pPlatformWindow))
+                if (ImGui::MenuItem(it->GetDescription(), 0, it == m_pPlatformWindow))
                 {
                     if (it != m_pPlatformWindow)
                     {
@@ -270,7 +317,6 @@ void Viewport::DisplayViewportUI(ImVec2 pos)
             }
 
             ImGui::EndMenu();
-
         }
 
         if (m_bDocked)
@@ -299,8 +345,12 @@ void Viewport::UpdateDisplayWidgetPos()
     m_DisplayWidgetPosition = {vMin.x, vMin.y};
 }
 
-int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
+int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+    if (!(m_bHovered && m_bHoveredImGUI) && !m_pCamera->IsFPSNavigationEngaged())
+        return 0;
+    
+
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
     {
@@ -310,7 +360,7 @@ int Viewport::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
     return 0;
 }
 
-Camera *Viewport::GetCamera()
+CameraController *Viewport::GetCamera()
 {
     return m_pCamera;
 }
@@ -322,20 +372,34 @@ RenderMode Viewport::GetRenderMode()
 
 void Viewport::OutputDebug()
 {
-    auto      pos = m_pCamera->GetOrigin();
-    glm::vec3 spd = m_pCamera->GetAngles();
+    auto      position = m_pCamera->GetPosition();
+    glm::vec3 angles   = m_pCamera->GetAngles();
 
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
-    ImGui::Text("%s : cam at [%f %f %f], ang: [%f %f %f], fps_nav: %d, hov: %d, docked: %d", m_strName.c_str(), pos.x,
-                pos.y, pos.z, spd.x, spd.y, spd.z, bFPSNav, m_bHovered, m_bDocked);
+    ImGui::Text(
+        "%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d",
+        m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered,
+        m_bHoveredImGUI, m_bDocked);
 
-    auto ratPos = CalcRelativeMousePos();
+    auto ratPos = CalcRelativeMousePos(false);
 
     if (PointInClientRect(ratPos))
     {
-        int id = ReadPixel(ratPos.x, ratPos.y);
-        ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, id);
+        // int id = ReadPixel(ratPos.x, ratPos.y);
+        ImGui::Text("Mouse: %f %f (%d)", ratPos.x, ratPos.y, m_hoveredObjectId);
+
+#if 0
+        const glm::vec3 world2 = ScreenToWorld(ratPos, -1.f);
+        ImGui::Text("World(-1.f): %.3f %.3f %.3f", world2.x, world2.y, world2.z);
+
+        const glm::vec3 world = ScreenToWorld(ratPos, 0.5f);
+        ImGui::Text("World(0.5f): %.3f %.3f %.3f", world.x, world.y, world.z);
+
+        const glm::vec3 world3 = ScreenToWorld(ratPos, 1.f);
+        ImGui::Text("World(1.f): %.3f %.3f %.3f", world3.x, world3.y, world3.z);
+#endif
+
     }
 }
 
@@ -390,6 +454,65 @@ glm::vec2 Viewport::GetClientAreaPosAbs()
     return m_DisplayWidgetPosition + m_ClientAreaPos;
 }
 
+void Viewport::FlagUpdate()
+{
+    m_bNeedUpdate = true;
+}
+
+size_t Viewport::GetHoveredObjectID()
+{
+    return m_hoveredObjectId;
+}
+
+void Viewport::SetVisible(bool flag)
+{
+    m_bVisible = true;
+}
+
+ViewportMouseHover Viewport::GetMouseHoveringStatus()
+{
+    if (!m_bHovered && !m_bHoveredImGUI)
+        return ViewportMouseHover::NotHovered;
+    else if (m_bHovered && !m_bHoveredImGUI)
+        return ViewportMouseHover::HoveredButObstructedWithUI;
+
+    return ViewportMouseHover::Hovered;
+}
+
+const glm::vec3 Viewport::ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const
+{
+#if 0
+     glm::vec3 winCoords = glm::vec3(viewportCoords.xy, depthFraction);
+     glm::vec4 viewport  = {0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y};
+ 
+     return glm::unProject(winCoords, m_pCamera->GetViewMatrix(), m_pCamera->GetProjectionMatrix(), viewport);
+#endif
+
+    // assert(depthFraction >= -1 && depthFraction <= 1);
+
+    glm::vec3 ndc = {};
+
+    ndc.x = viewportCoords.x / m_ClientAreaSize.x;
+    ndc.y = viewportCoords.y / m_ClientAreaSize.y;
+    ndc.z = depthFraction;
+
+    if (!yAtBottom)
+        ndc.y = 1 - ndc.y;
+
+    // Convert from [0,1] to [-1,1] range
+    ndc.x = (ndc.x - 0.5f) * 2;
+    ndc.y = (ndc.y - 0.5f) * 2;
+
+    // return ndc;
+    return m_pCamera->ScreenToWorld(ndc);
+}
+
+void Viewport::LookAt(const sceneCameraDescriptor_t &it)
+{
+    m_pCamera->SetOrigin(it.position);
+    m_pCamera->SetAngles(it.angles);
+}
+
 IPlatformWindow *Viewport::GetPlatformWindow()
 {
     return m_pPlatformWindow;
@@ -397,5 +520,5 @@ IPlatformWindow *Viewport::GetPlatformWindow()
 
 void Viewport::DoCloneViewport()
 {
-    Application::GetMainWindow()->CloneViewport(this);
+    ViewportsOrchestrator::Instance()->CloneViewportToLeastClutteredWindow(this);
 }

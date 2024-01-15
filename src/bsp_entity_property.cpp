@@ -108,6 +108,11 @@ BSPEntityProperty::BSPEntityProperty(const BSPEntity *pOwner, const FGDPropertyD
     m_Type = AdaptPropertyType();
 }
 
+BSPEntityProperty::BSPEntityProperty(const BSPEntityProperty *pOther, BSPEntity *pNewOwner) : BSPEntityProperty(pOther)
+{
+    m_pOwner = pNewOwner;
+}
+
 size_t BSPEntityProperty::CalcHash(const std::string &val)
 {
     return std::hash<std::string>{}(val);
@@ -194,7 +199,8 @@ void BSPEntityProperty::ParseAngles(const std::string &value)
 
 void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
 {
-    m_Value = pNewProperty->m_Value;
+    if (pNewProperty)
+        m_Value = pNewProperty->m_Value;
 
     switch (m_iSpecialId)
     {
@@ -208,7 +214,7 @@ void BSPEntityProperty::Update(BSPEntityProperty *pNewProperty)
         break;
     case PropertyMetatype::Flags:
         break;
-    case PropertyMetatype::Light:
+    case PropertyMetatype::Light:   
         break;
     case PropertyMetatype::Wad:
         break;
@@ -341,7 +347,7 @@ void BSPEntityProperty::SerializeAsKeyValue(FILE *fp)
     std::string stringValue = SerializeValue();
 
     // Con_Printf("\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
-    fprintf(fp, "\"%s\" \"\%s\"\n", m_Name.c_str(), stringValue.c_str());
+    fprintf(fp, "\"%s\" \"%s\"\n", m_Name.c_str(), stringValue.c_str());
 }
 
 void BSPEntityProperty::ParseClassname(const std::string &value)

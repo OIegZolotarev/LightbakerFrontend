@@ -11,239 +11,239 @@
 #include "properties_editor.h"
 #include "common_resources.h"
 
-
-LightPropertiesBinding::LightPropertiesBinding(lightDefWPtr_t ref)
-{
-	m_pwLightDef = ref;
-}
-
-void LightPropertiesBinding::FillProperties(std::list<VariantValue*>& collection)
-{
-	auto ptr = m_pwLightDef.lock();
-
-	if (!ptr)
-		return;
-
-	// TODO: rework this
-// 	VariantValue p;
-// 	
-// 	MakeLightTypeProperty(p, ptr);
-// 	collection.push_back(p);
 // 
-// 	MakeLightFlagsProperty(p, ptr);
-// 	collection.push_back(p);
+// LightPropertiesBinding::LightPropertiesBinding(lightDefWPtr_t ref)
+// {
+// 	m_pwLightDef = ref;
+// }
 // 
-// 	MakeLightPosProperty(p, ptr);
-// 	collection.push_back(p);
+// void LightPropertiesBinding::FillProperties(std::list<VariantValue*>& collection)
+// {
+// 	auto ptr = m_pwLightDef.lock();
 // 
-// 	MakeLightAnglesProperty(p, ptr);
-// 	collection.push_back(p);
+// 	if (!ptr)
+// 		return;
 // 
-// 	MakeLightColorProperty(p, ptr);
-// 	collection.push_back(p);
+// 	// TODO: rework this
+// // 	VariantValue p;
+// // 	
+// // 	MakeLightTypeProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightFlagsProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightPosProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightAnglesProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightColorProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightIntensityProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeConeAProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeConeBProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeSizeProperty(p, ptr);
+// // 	collection.push_back(p);
+// // 
+// // 	MakeLightStyleProperty(p, ptr);
+// // 	collection.push_back(p);
 // 
-// 	MakeLightIntensityProperty(p, ptr);
-// 	collection.push_back(p);
+// }
 // 
-// 	MakeConeAProperty(p, ptr);
-// 	collection.push_back(p);
+// void LightPropertiesBinding::MakeLightStyleProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Style, PropertiesTypes::Int, "Style");
+// 	p.SetInt(ptr->style);
+// }
 // 
-// 	MakeConeBProperty(p, ptr);
-// 	collection.push_back(p);
+// void LightPropertiesBinding::MakeSizeProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Size, PropertiesTypes::SizeX, "Size");
+// 	p.SetFloat(ptr->size.x);
+// }
 // 
-// 	MakeSizeProperty(p, ptr);
-// 	collection.push_back(p);
+// void LightPropertiesBinding::MakeConeBProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
+// 	p.SetFloat(ptr->cones[1]);
+// }
 // 
-// 	MakeLightStyleProperty(p, ptr);
-// 	collection.push_back(p);
-
-}
-
-void LightPropertiesBinding::MakeLightStyleProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Style, PropertiesTypes::Int, "Style");
-	p.SetInt(ptr->style);
-}
-
-void LightPropertiesBinding::MakeSizeProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Size, PropertiesTypes::SizeX, "Size");
-	p.SetFloat(ptr->size.x);
-}
-
-void LightPropertiesBinding::MakeConeBProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::ConeB, PropertiesTypes::Float, "ConeB");
-	p.SetFloat(ptr->cones[1]);
-}
-
-void LightPropertiesBinding::MakeConeAProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
-	p.SetFloat(ptr->cones[0]);
-}
-
-void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
-	p.SetFloat(ptr->intensity);
-}
-
-void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
-	p.SetColorRGB(ptr->GetRenderColor());
-}
-
-void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
-	p.SetAngles(ptr->anglesDirection);
-}
-
-void LightPropertiesBinding::MakeLightPosProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Pos, PropertiesTypes::Position, "Pos");
-	p.SetPosition(ptr->GetPosition());
-}
-
-void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
-	p.AddEnumValue("Euler", LF_EULER);
-	p.AddEnumValue("Dyn", LF_DYN);
-	p.AddEnumValue("XYZ", LF_XYZ);
-	p.AddEnumValue("Linear", LF_LINEAR);
-	p.AddEnumValue("Disk", LF_DISK);
-	p.AddEnumValue("Rect", LF_RECT);
-	p.SetFlags(ptr->flags);
-}
-
-void LightPropertiesBinding::MakeLightTypeProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
-{
-	p = VariantValue(LightProperties::Type, PropertiesTypes::Enum, "Type");
-
-	p.AddEnumValue("Omni", (int)LightTypes::Omni);
-	p.AddEnumValue("Spot", (int)LightTypes::Spot);
-	p.AddEnumValue("Direct", (int)LightTypes::Direct);
-	p.SetEnumIndexFromValue((int)ptr->type);
-}
-
-void LightPropertiesBinding::UpdateObjectProperties(VariantValue* props, size_t num)
-{
-	auto ptr = m_pwLightDef.lock();
-	if (!ptr)
-		return;
-
-	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
-
-	for (size_t i = 0; i < num; i++)
-	{
-		auto it = props[i];
-
-		VariantValue oldValue;
-
-		switch (it.GetId())
-		{
-		case LightProperties::Type:
-			MakeLightTypeProperty(oldValue, ptr);
-			ptr->SetType((LightTypes)it.GetEnumValue());			
-			break;
-		case LightProperties::Flags:
-			MakeLightFlagsProperty(oldValue, ptr);
-			ptr->flags = it.GetFlags();
-			break;
-		case LightProperties::Pos:
-			MakeLightPosProperty(oldValue, ptr);
-			ptr->SetPosition(it.GetPosition());
-			break;
-		case LightProperties::Color:
-			MakeLightColorProperty(oldValue, ptr);
-			ptr->SetRenderColor(it.GetColorRGBA());
-			break;
-		case LightProperties::Intensity:
-			MakeLightIntensityProperty(oldValue, ptr);
-			ptr->intensity = it.GetFloat();
-			break;
-		case LightProperties::Angles:
-			MakeLightAnglesProperty(oldValue, ptr);
-			ptr->anglesDirection = it.GetAngles();
-			break;
-		case LightProperties::ConeA:
-			MakeConeAProperty(oldValue, ptr);
-			ptr->cones[0] = it.GetFloat();
-			break;
-		case LightProperties::ConeB:
-			MakeConeBProperty(oldValue, ptr);
-			ptr->cones[1] = it.GetFloat();
-			break;
-		case LightProperties::Size:
-			MakeSizeProperty(oldValue, ptr);
-			ptr->size[0] = it.GetFloat();
-			break;
-		case LightProperties::Style:
-			MakeLightStyleProperty(oldValue, ptr);
-			ptr->style = it.GetInt();
-			break;
-		}
-	}
-
-}
-
-bool LightPropertiesBinding::IsObjectValid()
-{
-	return m_pwLightDef.lock() != nullptr;
-}
-
-uint32_t LightPropertiesBinding::GetSerialNumber()
-{
-	auto ptr = m_pwLightDef.lock();
-
-	if (!ptr) return 0;
-
-	return ptr->GetSerialNumber();
-}
-
-void LightPropertiesBinding::OnPropertyChangeSavedToHistory()
-{
-	Application::ScheduleCompilationIfNecceseary();
-}
-
-ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
-{
-	auto ptr = m_pwLightDef.lock();
-
-	if (!ptr)
-		return (ImGuizmo::OPERATION)0;
-
-	switch (ptr->type)
-	{
-	case LightTypes::Spot:		
-		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
-	case LightTypes::Direct:
-		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
-	case LightTypes::Omni:
-		return ImGuizmo::TRANSLATE;
-	}
-
-	return (ImGuizmo::OPERATION)0;
-
-}
-
-const char* LightPropertiesBinding::ObjectClassname()
-{
-	auto ptr = m_pwLightDef.lock();
-
-	if (!ptr)
-		return "";
-
-	return "Light source (LB3k)";
-}
-
-void LightPropertiesBinding::UpdateProperty(VariantValue *prop)
-{
-    
-}
+// void LightPropertiesBinding::MakeConeAProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::ConeA, PropertiesTypes::Float, "ConeA");
+// 	p.SetFloat(ptr->cones[0]);
+// }
+// 
+// void LightPropertiesBinding::MakeLightIntensityProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Intensity, PropertiesTypes::Float, "Intensity");
+// 	p.SetFloat(ptr->intensity);
+// }
+// 
+// void LightPropertiesBinding::MakeLightColorProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Color, PropertiesTypes::ColorRGB, "Color");
+// 	p.SetColorRGB(ptr->GetRenderColor());
+// }
+// 
+// void LightPropertiesBinding::MakeLightAnglesProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Angles, PropertiesTypes::Angles, "Angles");
+// 	p.SetAngles(ptr->anglesDirection);
+// }
+// 
+// void LightPropertiesBinding::MakeLightPosProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Pos, PropertiesTypes::Position, "Pos");
+// 	p.SetPosition(ptr->GetPosition());
+// }
+// 
+// void LightPropertiesBinding::MakeLightFlagsProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Flags, PropertiesTypes::Flags, "Flags");
+// 	p.AddEnumValue("Euler", LF_EULER);
+// 	p.AddEnumValue("Dyn", LF_DYN);
+// 	p.AddEnumValue("XYZ", LF_XYZ);
+// 	p.AddEnumValue("Linear", LF_LINEAR);
+// 	p.AddEnumValue("Disk", LF_DISK);
+// 	p.AddEnumValue("Rect", LF_RECT);
+// 	p.SetFlags(ptr->flags);
+// }
+// 
+// void LightPropertiesBinding::MakeLightTypeProperty(VariantValue& p, std::shared_ptr<Lb3kLightEntity> ptr)
+// {
+// 	p = VariantValue(LightProperties::Type, PropertiesTypes::Enum, "Type");
+// 
+// 	p.AddEnumValue("Omni", (int)LightTypes::Omni);
+// 	p.AddEnumValue("Spot", (int)LightTypes::Spot);
+// 	p.AddEnumValue("Direct", (int)LightTypes::Direct);
+// 	p.SetEnumIndexFromValue((int)ptr->type);
+// }
+// 
+// void LightPropertiesBinding::UpdateObjectProperties(VariantValue* props, size_t num)
+// {
+// 	auto ptr = m_pwLightDef.lock();
+// 	if (!ptr)
+// 		return;
+// 
+// 	auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
+// 
+// 	for (size_t i = 0; i < num; i++)
+// 	{
+// 		auto it = props[i];
+// 
+// 		VariantValue oldValue;
+// 
+// 		switch (it.GetId())
+// 		{
+// 		case LightProperties::Type:
+// 			MakeLightTypeProperty(oldValue, ptr);
+// 			ptr->SetType((LightTypes)it.GetEnumValue());			
+// 			break;
+// 		case LightProperties::Flags:
+// 			MakeLightFlagsProperty(oldValue, ptr);
+// 			ptr->flags = it.GetFlags();
+// 			break;
+// 		case LightProperties::Pos:
+// 			MakeLightPosProperty(oldValue, ptr);
+// 			ptr->SetPosition(it.GetPosition());
+// 			break;
+// 		case LightProperties::Color:
+// 			MakeLightColorProperty(oldValue, ptr);
+// 			ptr->SetRenderColor(it.GetColorRGBA());
+// 			break;
+// 		case LightProperties::Intensity:
+// 			MakeLightIntensityProperty(oldValue, ptr);
+// 			ptr->intensity = it.GetFloat();
+// 			break;
+// 		case LightProperties::Angles:
+// 			MakeLightAnglesProperty(oldValue, ptr);
+// 			ptr->anglesDirection = it.GetAngles();
+// 			break;
+// 		case LightProperties::ConeA:
+// 			MakeConeAProperty(oldValue, ptr);
+// 			ptr->cones[0] = it.GetFloat();
+// 			break;
+// 		case LightProperties::ConeB:
+// 			MakeConeBProperty(oldValue, ptr);
+// 			ptr->cones[1] = it.GetFloat();
+// 			break;
+// 		case LightProperties::Size:
+// 			MakeSizeProperty(oldValue, ptr);
+// 			ptr->size[0] = it.GetFloat();
+// 			break;
+// 		case LightProperties::Style:
+// 			MakeLightStyleProperty(oldValue, ptr);
+// 			ptr->style = it.GetInt();
+// 			break;
+// 		}
+// 	}
+// 
+// }
+// 
+// bool LightPropertiesBinding::IsObjectValid()
+// {
+// 	return m_pwLightDef.lock() != nullptr;
+// }
+// 
+// uint32_t LightPropertiesBinding::GetSerialNumber()
+// {
+// 	auto ptr = m_pwLightDef.lock();
+// 
+// 	if (!ptr) return 0;
+// 
+// 	return ptr->GetSerialNumber();
+// }
+// 
+// void LightPropertiesBinding::OnPropertyChangeSavedToHistory()
+// {
+// 	Application::ScheduleCompilationIfNecceseary();
+// }
+// 
+// ImGuizmo::OPERATION LightPropertiesBinding::GetMeaningfulGizmoOperationMode()
+// {
+// 	auto ptr = m_pwLightDef.lock();
+// 
+// 	if (!ptr)
+// 		return (ImGuizmo::OPERATION)0;
+// 
+// 	switch (ptr->type)
+// 	{
+// 	case LightTypes::Spot:		
+// 		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
+// 	case LightTypes::Direct:
+// 		return ImGuizmo::TRANSLATE | ImGuizmo::ROTATE_X | ImGuizmo::ROTATE_Y;
+// 	case LightTypes::Omni:
+// 		return ImGuizmo::TRANSLATE;
+// 	}
+// 
+// 	return (ImGuizmo::OPERATION)0;
+// 
+// }
+// 
+// const char* LightPropertiesBinding::ObjectClassname()
+// {
+// 	auto ptr = m_pwLightDef.lock();
+// 
+// 	if (!ptr)
+// 		return "";
+// 
+// 	return "Light source (LB3k)";
+// }
+// 
+// void LightPropertiesBinding::UpdateProperty(VariantValue *prop)
+// {
+//     
+// }
 
 Lb3kLightEntity::Lb3kLightEntity(Scene *pScene) : SceneEntity(pScene)
 {
@@ -269,21 +269,23 @@ void Lb3kLightEntity::SetType(LightTypes newType)
 {
 	type = newType;
 
-	switch (type)
-	{
-	case LightTypes::Omni:
-        SetEditorIcon(GetCommonIcon(CommonTextures::OmniLight));
-		break;
-	case LightTypes::Spot:
-        SetEditorIcon(GetCommonIcon(CommonTextures::SpotLight));
-		break;
-	case LightTypes::Direct:
-        SetEditorIcon(GetCommonIcon(CommonTextures::DirectLight));
-		break;
-	default:
-		break;
 
-	}
+// 	// TODO: fixme
+// 	switch (type)
+// 	{
+// // 	case LightTypes::Omni:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::OmniLight));
+// // 		break;
+// // 	case LightTypes::Spot:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::SpotLight));
+// // 		break;
+// // 	case LightTypes::Direct:
+// //         SetEditorIcon(GetCommonIcon(CommonTextures::DirectLight));
+// // 		break;
+// // 	default:
+// // 		break;
+// 
+// 	}
 }
 
 void Lb3kLightEntity::OnHovered()
@@ -303,24 +305,25 @@ void Lb3kLightEntity::OnUnhovered()
 
 void Lb3kLightEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
 {
-	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRenderer->GetScene();
-
-	auto weakRef = scene->GetEntityWeakRef(this);
-	scene->HintSelected(weakRef);
-
-	auto ptr = weakRef.lock();
-	auto lightWeakRef = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
-
-	LightPropertiesBinding* pBinding = new LightPropertiesBinding(lightWeakRef);
-	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
-
-	
+    assert(false && "fixme");
+    // 	auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+// 	auto scene = sceneRenderer->GetScene();
+// 
+// 	auto weakRef = scene->GetEntityWeakRef(this);
+// 	scene->HintSelected(weakRef);
+// 
+// 	auto ptr = weakRef.lock();
+// 	auto lightWeakRef = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
+// 
+// 	LightPropertiesBinding* pBinding = new LightPropertiesBinding(lightWeakRef);
+// 	ObjectPropertiesEditor::Instance()->LoadObject(pBinding);
+// 
+// 	
 }
 
 void Lb3kLightEntity::OnUnSelect()
 {
-	ObjectPropertiesEditor::Instance()->UnloadObject();
+	ObjectPropertiesEditor::Instance()->UnloadObjects();
 }
 
 const char* Lb3kLightEntity::Description()
@@ -384,4 +387,14 @@ EntityClasses Lb3kLightEntity::EntityClass()
 float Lb3kLightEntity::GetIntensity()
 {
 	return intensity;
+}
+
+void Lb3kLightEntity::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader)
+{
+    throw std::logic_error("The method or operation is not implemented.");
+}
+
+SceneEntity* Lb3kLightEntity::Clone()
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }

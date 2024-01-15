@@ -7,6 +7,7 @@
 #include <xutility>
 #include "application.h"
 #include "properties_editor.h"
+#include "viewports_orchestrator.h"
 
 
 
@@ -20,46 +21,48 @@ CPropertyChangeAction::CPropertyChangeAction(size_t serialNumber, VariantValue o
 
 void CPropertyChangeAction::Redo()
 {
-	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRender->GetScene();
-
-	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
-
-	if (auto ptr = pLight.lock())
-	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
-
-		auto b = new LightPropertiesBinding(lightPtr);
-		b->UpdateObjectProperties(&m_NewValue, 1);
-		delete b;
-
-		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
-		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
-		}
-	}
+    assert(false && "fixme");
+    // 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+// 	auto scene = sceneRender->GetScene();
+// 
+// 	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
+// 
+// 	if (auto ptr = pLight.lock())
+// 	{
+// 		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
+// 
+// 		auto b = new LightPropertiesBinding(lightPtr);
+// 		b->UpdateObjectProperties(&m_NewValue, 1);
+// 		delete b;
+// 
+// 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
+// 		{
+// 			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
+// 		}
+// 	}
 }
 
 void CPropertyChangeAction::Undo()
 {
-	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
-	auto scene = sceneRender->GetScene();
-
-	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
-
-	if (auto ptr = pLight.lock())
-	{
-		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
-
-		auto b = new LightPropertiesBinding(lightPtr);
-		b->UpdateObjectProperties(&m_OldValue, 1);
-		delete b;
-
-		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
-		{
-			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
-		}
-	}
+    assert(false && "fixme");
+    // 	auto sceneRender = Application::GetMainWindow()->GetSceneRenderer();
+// 	auto scene = sceneRender->GetScene();
+// 
+// 	SceneEntityWeakPtr pLight = scene->GetEntityBySerialNumber(m_SerialNumber);
+// 
+// 	if (auto ptr = pLight.lock())
+// 	{
+// 		lightDefWPtr_t lightPtr = std::dynamic_pointer_cast<Lb3kLightEntity>(ptr);
+// 
+// 		auto b = new LightPropertiesBinding(lightPtr);
+// 		b->UpdateObjectProperties(&m_OldValue, 1);
+// 		delete b;
+// 
+// 		if (ObjectPropertiesEditor::Instance()->CurrentSerialNumber() == m_SerialNumber)
+// 		{
+// 			ObjectPropertiesEditor::Instance()->ReloadPropertyValue(m_OldValue.GetId());
+// 		}
+// 	}
 }
 
 
@@ -101,7 +104,6 @@ void CEditHistory::PushAction(IEditAction* pAction)
 
 void CEditHistory::Undo()
 {
-
 	if (m_Position == -1)
 		return;
 
@@ -111,6 +113,7 @@ void CEditHistory::Undo()
 	(*it)->Undo();
 	m_Position--;
 
+	ViewportsOrchestrator::Instance()->FlagRepaintAll();
 	Application::ScheduleCompilationIfNecceseary();
 }
 
@@ -126,13 +129,14 @@ void CEditHistory::Redo()
 	
 
 	(*it)->Redo();
-	
+
+	ViewportsOrchestrator::Instance()->FlagRepaintAll();
 	Application::ScheduleCompilationIfNecceseary();
 }
  
 CDeleteLightAction::CDeleteLightAction(SceneEntityPtr pObject)
  {
- 	m_Object = new SceneEntity(*pObject);
+ 	m_Object = pObject->Clone();
  	m_Object->SetSelected(false);
  }
 
@@ -152,7 +156,7 @@ void CDeleteLightAction::Undo()
 {
 	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
 
-	auto objPtr = std::make_shared<SceneEntity>(*m_Object);
+	auto objPtr = std::shared_ptr<SceneEntity>(m_Object->Clone());
 
 	scene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
 }
@@ -178,7 +182,9 @@ void EditTransaction::Redo()
 void EditTransaction::Undo()
 {
     for (auto &it : m_lstActions)
+    {
         it->Undo();
+    }
 }
 
 bool EditTransaction::Empty()

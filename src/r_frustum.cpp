@@ -4,12 +4,14 @@
 */
 
 #include "application.h"
-#include "r_camera.h"
 #include "common.h"
 #include "r_frustum.h"
+#include "r_camera_controller.h"
 
 void Frustum::SetPlane(int i, const glm::vec3 &vecNormal, float dist)
 {
+    assert(i >= 0 && i < 6);
+
     m_Planes[i].normal = vecNormal;
     m_Planes[i].dist   = dist;
     m_Planes[i].type   = (int)PlaneTypes::AnyZ;
@@ -17,11 +19,40 @@ void Frustum::SetPlane(int i, const glm::vec3 &vecNormal, float dist)
     m_Planes[i].CalcSignBits();
 }
 
-void Frustum::InitPerspective(Camera *pCamera)
+void Frustum::SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm::vec3 p3)
+{
+    assert(i >= 0 && i < 6);
+
+    plane_t *p = &m_Planes[i];
+
+    glm::vec3 t1;
+    glm::vec3 t2;
+    glm::vec3 t3;
+
+    for (int i = 0; i < 3; i++)
+    {
+        t1[i] = p1[i] - p2[i];
+        t2[i] = p3[i] - p2[i];
+        t3[i] = p2[i];
+    }
+
+    p->normal = glm::cross(t1, t2);
+    p->normal = glm::normalize(p->normal);
+    p->dist   = glm::dot(t3, p->normal);
+    p->CalcSignBits();
+    p->type = (int)PlaneTypes::AnyZ;
+}
+
+void Frustum::LimitFarZDist(float dist)
+{
+    m_Planes[FrustumPlanes::FarZ].dist = m_Planes[FrustumPlanes::NearZ].dist - dist;
+}
+
+void Frustum::InitPerspective(CameraController *pCamera)
 {
     const float aspect = pCamera->AspectRatio();
 
-    //const float zFar  = pCamera->GetZFar();
+    // const float zFar  = pCamera->GetZFar();
     const float zFar  = 4096;
     const float zNear = pCamera->GetZNear();
     const float fovY  = pCamera->GetFOVY(aspect);
@@ -30,7 +61,7 @@ void Frustum::InitPerspective(Camera *pCamera)
     const float halfVSide = zFar * tanf(fovY * .5f);
     const float halfHSide = halfVSide * aspect;
 
-    InitPerspective(pCamera->GetOrigin(), pCamera->GetForwardVector(), pCamera->GetRightVector(),
+    InitPerspective(pCamera->GetPosition(), pCamera->GetForwardVector(), pCamera->GetRightVector(),
                     pCamera->GetUpVector(), zNear, zFar, fovX, fovY);
 }
 
@@ -84,7 +115,75 @@ bool Frustum::CullBox(const glm::vec3 &mins, const glm::vec3 &maxs)
 
 bool Frustum::CullBox(const BoundingBox &bbox)
 {
+    BT_PROFILE("Frustum::CullBox()");
+
     return CullBox(bbox.Mins(), bbox.Maxs());
+}
+
+FrustumVisiblity Frustum::CullBoxEx(const BoundingBox &bbox)
+{
+    int r = 0;
+
+    const glm::vec3 &mins = bbox.Mins();
+    const glm::vec3 &maxs = bbox.Maxs();
+
+    for (auto &it : FrustumPlanes::_values())
+    {
+        int idx  = it._to_integral();
+        int flag = m_Planes[idx].BoxOnPlaneSide(mins, maxs);
+
+        if (flag == BPS_BACK)
+            return FrustumVisiblity::None;
+        else if (flag == BPS_FRONT)
+            r++;
+    }
+
+    if (r == 6)
+        return FrustumVisiblity::Complete;
+    else
+        return FrustumVisiblity::Partial;
+}
+
+FrustumVisiblity Frustum::CullBoxEx2(const BoundingBox &bbox)
+{
+    int r = 0;
+
+    const glm::vec3 &mins = bbox.Mins();
+    const glm::vec3 &maxs = bbox.Maxs();
+
+    Con_Printf("CullBoxEx2 --->\n");
+
+    for (auto &it : FrustumPlanes::_values())
+    {
+        int idx  = it._to_integral();
+
+        int flag = m_Planes[idx].BoxOnPlaneSide(mins, maxs);
+
+        switch (flag)
+        {
+        case 1:
+            Con_Printf("CullBoxEx2: %s = BPS_FRONT\n", it._to_string());
+            break;
+        case 2:
+            Con_Printf("CullBoxEx2: %s = BPS_BACK\n", it._to_string());
+            break;
+        case 3:
+            Con_Printf("CullBoxEx2: %s = BPS_BETWEEN\n", it._to_string());
+            break;
+        }
+
+        if (flag == BPS_BACK)
+            return FrustumVisiblity::None;
+        else if (flag == BPS_FRONT)
+            r++;
+    }
+
+    Con_Printf("<--- CullBoxEx2 = %d\n", r);
+
+    if (r == 6)
+        return FrustumVisiblity::Complete;
+    else
+        return FrustumVisiblity::Partial;
 }
 
 // Based on void CFrustum :: DrawFrustumDebug( void )
@@ -96,7 +195,7 @@ void Frustum::DrawDebug()
     auto shader = GLBackend::Instance()->SolidColorGeometryShader();
     shader->Bind();
 
-    for (auto & it: shader->Uniforms())
+    for (auto &it : shader->Uniforms())
     {
         switch (it->Kind())
         {
@@ -106,28 +205,24 @@ void Frustum::DrawDebug()
         case UniformKind::TransformMatrix:
             it->SetMat4(glm::mat4x4(1.f));
             break;
+        case UniformKind::ObjectSerialNumber:
+            it->SetInt(0);
+            break;
         default:
             GLBackend::SetUniformValue(it);
             break;
         }
     }
 
-    
-//     shader->SetDefaultCamera();
-//     shader->SetTransformIdentity();
-//     shader->SetColor({1,1,1,1});
-//     shader->SetScale({1,1,1});
-//     shader->SetTransform(glm::mat4x4(1.f));
-
     ComputeFrustumCorners(bbox);
 
     static DrawMesh mesh(DrawMeshFlags::Dynamic);
-    
+
     mesh.Begin(GL_LINES);
 
     for (int i = 0; i < 2; i += 1)
     {
-        mesh.Vertex3fv((float*)&bbox[i + 0]);
+        mesh.Vertex3fv((float *)&bbox[i + 0]);
         mesh.Vertex3fv((float *)&bbox[i + 2]);
         mesh.Vertex3fv((float *)&bbox[i + 4]);
         mesh.Vertex3fv((float *)&bbox[i + 6]);
@@ -143,21 +238,35 @@ void Frustum::DrawDebug()
 
     mesh.End();
     mesh.BindAndDraw();
-        
+
     shader->Unbind();
+}
+
+const plane_t *Frustum::GetPlane(int idx) const
+{
+    assert(idx >= 0 && idx < 6);
+    return &m_Planes[idx];
 }
 
 void Frustum::ComputeFrustumCorners(glm::vec3 *corners)
 {
     memset(corners, 0, sizeof(glm::vec3) * 8);
 
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Top], &m_Planes[FrustumPlanes::FarZ], corners[0]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Top], &m_Planes[FrustumPlanes::FarZ], corners[1]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Bottom], &m_Planes[FrustumPlanes::FarZ], corners[2]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Bottom], &m_Planes[FrustumPlanes::FarZ], corners[3]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Top],
+                               &m_Planes[FrustumPlanes::FarZ], corners[0]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Top],
+                               &m_Planes[FrustumPlanes::FarZ], corners[1]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Bottom],
+                               &m_Planes[FrustumPlanes::FarZ], corners[2]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Bottom],
+                               &m_Planes[FrustumPlanes::FarZ], corners[3]);
 
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Top], &m_Planes[FrustumPlanes::NearZ], corners[4]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Top], &m_Planes[FrustumPlanes::NearZ], corners[5]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Bottom], &m_Planes[FrustumPlanes::NearZ], corners[6]);
-    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Bottom], &m_Planes[FrustumPlanes::NearZ], corners[7]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Top],
+                               &m_Planes[FrustumPlanes::NearZ], corners[4]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Top],
+                               &m_Planes[FrustumPlanes::NearZ], corners[5]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Left], &m_Planes[FrustumPlanes::Bottom],
+                               &m_Planes[FrustumPlanes::NearZ], corners[6]);
+    PlanesGetIntersectionPoint(&m_Planes[FrustumPlanes::Right], &m_Planes[FrustumPlanes::Bottom],
+                               &m_Planes[FrustumPlanes::NearZ], corners[7]);
 }

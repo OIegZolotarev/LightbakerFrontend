@@ -7,13 +7,13 @@
 
 #include "ui_common.h"
 
-#define EVENT_HANDLED (1<<0)
-#define EVENT_CONSUMED (1<<1)
+#define EVENT_HANDLED (1<<0) // Event was handled but should continue propagation
+#define EVENT_CONSUMED (1<<1) // Event was handled and propagation must be stopped
 
 #define EVENT_FINISHED (EVENT_CONSUMED | EVENT_HANDLED)
 
 class IEventHandler
 {
 public:
-	virtual int HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) = 0;
+	virtual int HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) = 0;
 };

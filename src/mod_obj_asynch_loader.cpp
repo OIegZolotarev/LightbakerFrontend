@@ -373,10 +373,11 @@ void ModObjAsynchLoader::ParseFace(std::string& buffer)
 	// Triangulate
 	
 	for (size_t i = 0; i < parsed.size() - 2; i++)
-	{
-		m_Data->faces.push_back(parsed[0]);
-		m_Data->faces.push_back(parsed[i + 1]);
+	{			
+
 		m_Data->faces.push_back(parsed[i + 2]);
+        m_Data->faces.push_back(parsed[i + 1]);
+		m_Data->faces.push_back(parsed[0]);
 	}
 }
 
@@ -429,7 +430,7 @@ void ModObjAsynchLoader::ParseMaterialLib(std::string& buffer)
 
 	if (tokens.size() != 2)
 	{
-		// TODO: имена с пробелами ломают логику
+		// TODO: пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		Con_Printf("Malformed mtllib command: %s\n", buffer.c_str());
 		return;
 	}
@@ -723,8 +724,8 @@ void ModObjAsynchLoader::InitializeLoader()
 
 	m_Data->groups.push_back(grp);
 
-	// Расчитываем интервал отчета о прогрессе таким образом, чтобы не спамить в основной поток
-	// и сделать только 100 отчетов за время загрузки
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+	// пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 100 пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	m_ReportRate = m_pFileData->Length() / 100;
 }
 

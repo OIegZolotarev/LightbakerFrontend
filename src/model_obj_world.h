@@ -43,11 +43,7 @@ public:
 	void        OnSelect(ISelectableObjectWeakRef myWeakRef) override;
 	std::string ExportForCompiling(const char* newPath, lightBakerSettings_t* lb3kOptions) override;
 
-	void RenderBoundingBox() override;
-	void RenderDebug() override;
-	void RenderGroupShaded() override;
-	void RenderLightshaded() override;
-	void RenderUnshaded() override;
+	void Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *shader) override;
 
 
 	bool IsDataLoaded() override;
@@ -55,38 +51,35 @@ public:
 	virtual void ReloadLightmaps();
 
 	void OnAdditionToScene(Scene * pScene) override;
-
-
 	EntityClasses EntityClass() override;
-
 };
 
 
-class WorldspawnPropertiesBinder : public IObjectPropertiesBinding
-{
-	SceneEntityWeakPtr m_ptr;
-
-	enum PropsId
-	{
-		EnvColor = 0
-	};
-
-public:
-
-	WorldspawnPropertiesBinder(SceneEntityWeakPtr ptr)
-	{
-		m_ptr = ptr;
-	}
-
-	void FillProperties(std::list<VariantValue*>& collection) override;
-	bool IsObjectValid() override;
-	void OnPropertyChangeSavedToHistory() override;
-	void UpdateObjectProperties(VariantValue* props, size_t num) override;
-
-
-
-	const char* ObjectClassname() override;
-
-
- void UpdateProperty(VariantValue *prop) override;
-};
+//class WorldspawnPropertiesBinder : public IObjectPropertiesBinding
+//{
+//	SceneEntityWeakPtr m_ptr;
+//
+//	enum PropsId
+//	{
+//		EnvColor = 0
+//	};
+//
+//public:
+//
+//	WorldspawnPropertiesBinder(SceneEntityWeakPtr ptr)
+//	{
+//		m_ptr = ptr;
+//	}
+//
+//	void FillProperties(std::list<VariantValue*>& collection) override;
+//	bool IsObjectValid() override;
+//	void OnPropertyChangeSavedToHistory() override;
+//	void UpdateObjectProperties(VariantValue* props, size_t num) override;
+//
+//
+//
+//	const char* ObjectClassname() override;
+//
+//
+// void UpdateProperty(VariantValue *prop) override;
+//};

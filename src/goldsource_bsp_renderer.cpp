@@ -192,12 +192,6 @@ void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
 {
     // Make Z-Axis look up
     m_vecEyesPosition = cameraPosition.xyz;
-    auto shader       = GLBackend::Instance()->LightMappedSceneShader();
-    
-    shader->Bind();
-    shader->SetDefaultCamera();
-    shader->SetTransform(m_Transform);
-    shader->SetScale(1);
 
     auto inf = m_RenderInfos[0];
 
@@ -206,23 +200,15 @@ void BSPRenderer::RenderWorld(glm::vec3 cameraPosition)
 
     auto &lists = inf->GetDisplayList();
 
+    for (auto &it : lists)
     {
-        shader->SetTransform(m_Transform);
+        GLBackend::BindTexture(1, it.lm);
+        GLBackend::BindTexture(0, it.diffuse);
 
-        for (auto &it : lists)
-        {
-            GLBackend::BindTexture(1, it.lm);
-            GLBackend::BindTexture(0, it.diffuse);
-
-            pMesh->Draw((uint32_t)it.first, (uint32_t)it.count);
-        }
+        pMesh->Draw((uint32_t)it.first, (uint32_t)it.count);
     }
 
     pMesh->Unbind();
-
-    shader->Unbind();
-
-    
 }
 
 void BSPRenderer::RenderBrushPoly(msurface_t *fa)
@@ -301,8 +287,8 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
         t /= lmState->BlockHeight() * 16; // fa->texinfo->texture->height;
 
         dw.ext.color = {s, t, 0, 0};
-
-        dw.xyz = {vec};
+        dw.normal    = fa->plane->normal;
+        dw.xyz       = {vec};
 
         // m_pMesh->Color3f(s, t, 0);
         // m_pMesh->Vertex3fv(&vec.x);
@@ -323,14 +309,17 @@ void BSPRenderer::BuildSurfaceDisplayList(msurface_t *fa, DrawMesh *pMesh)
 
         pMesh->TexCoord2f(v3.uv.x, v3.uv.y);
         pMesh->Color3f(v3.ext.color.r, v3.ext.color.g, v3.ext.color.b);
+        pMesh->Normal3fv(&v3.normal.x);
         pMesh->Vertex3fv((float *)&v3.xyz);
 
         pMesh->TexCoord2f(v2.uv.x, v2.uv.y);
         pMesh->Color3f(v2.ext.color.r, v2.ext.color.g, v2.ext.color.b);
+        pMesh->Normal3fv(&v2.normal.x);
         pMesh->Vertex3fv((float *)&v2.xyz);
 
         pMesh->TexCoord2f(v1.uv.x, v1.uv.y);
         pMesh->Color3f(v1.ext.color.r, v1.ext.color.g, v1.ext.color.b);
+        pMesh->Normal3fv(&v1.normal.x);
         pMesh->Vertex3fv((float *)&v1.xyz);
     }
 
@@ -353,6 +342,8 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
     std::vector<msurface_t *> m_SortedFaces;
     std::vector<msurface_t> & surfaces = m_pLevel->GetFaces();
 
+    bool hasTransparent = false;
+
     for (int i = mod->firstface; i < (mod->firstface + mod->numfaces); i++)
     {
         auto s = &surfaces[i];
@@ -362,6 +353,9 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
 
         if (!s->texinfo->texture->loadedTexture)
             s->texinfo->texture->loadedTexture = TextureManager::GetFallbackTexture();
+
+        if (s->texinfo->texture->name[0] == '{')
+            hasTransparent = true;
 
         m_SortedFaces.push_back(s);
     }
@@ -435,12 +429,12 @@ BSPModelRenderCookie *GoldSource::BSPRenderer::BuildDisplayMesh(const dmodel_t *
     auto lmState = m_pLevel->GetLightmapState();
     lmState->UploadBlock(false);
 
-    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists, mod);
+    BSPModelRenderCookie *pResult = new BSPModelRenderCookie(pMesh, lists, mod, hasTransparent);
 
     return pResult;
 }
 
-GoldSource::BSPModelRenderCookiePtr BSPRenderer::GetBSPModelRenderCookie(size_t idx)
+BSPModelRenderCookiePtr BSPRenderer::GetBSPModelRenderCookie(size_t idx)
 {
     return m_RenderInfos[idx];
 }
@@ -458,14 +452,15 @@ void BSPRenderer::ReloadLightmaps()
     }
 }
 
-BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t * model)
+BSPModelRenderCookie::BSPModelRenderCookie(DrawMesh *pMesh, displayList_t dl, const dmodel_t *model,
+                                           bool hasTransparentFaces)
 {
     m_pMesh       = pMesh;
     m_DisplayList = std::move(dl);
     m_pBSPModel   = model;
-    
 
-    m_BoundingBox = BoundingBox(model->mins, model->maxs);
+    m_bHasTransparentFaces = hasTransparentFaces;
+    m_BoundingBox          = BoundingBox(model->mins, model->maxs);
 }
 
 BSPModelRenderCookie::~BSPModelRenderCookie()
@@ -477,4 +472,9 @@ BSPModelRenderCookie::~BSPModelRenderCookie()
 const BoundingBox BSPModelRenderCookie::GetBoundingBox() const
 {
     return m_BoundingBox;
+}
+
+bool BSPModelRenderCookie::HasTransparentFaces() const
+{
+    return m_bHasTransparentFaces;
 }

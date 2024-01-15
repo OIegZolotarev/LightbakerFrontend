@@ -7,9 +7,9 @@
 #include "gl_shader.h"
 #include "gl_backend.h"
 #include "text_utils.h"
-#include <type_traits>
 #include <boost/functional/hash.hpp>
 #include <string.h>
+#include <type_traits>
 
 static uniformDecl_t g_UniformDecl[]{
 
@@ -32,11 +32,12 @@ static uniformDecl_t g_UniformDecl[]{
     {"u_RightVector"         , UniformKind::RightVector         , UniformDataType::FloatVec3      , 0} ,
     {"u_UpVector"            , UniformKind::UpVector            , UniformDataType::FloatVec3      , 0} ,
     {"u_Forward"             , UniformKind::ForwardVector       , UniformDataType::FloatVec3      , 0} ,
-    {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::Int            , FL_TEXTURE_UNIT0},
-    {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::Int            , FL_TEXTURE_UNIT1},
+    {"u_Diffuse"             , UniformKind::Diffuse             , UniformDataType::Sampler2D      , FL_TEXTURE_UNIT0},
+    {"u_Lightmap"            , UniformKind::Lightmap            , UniformDataType::Sampler2D      , FL_TEXTURE_UNIT1},
     {"u_Viewport"            , UniformKind::Viewport            , UniformDataType::IntVec4        , 0},
     {"u_ObjectSerialNumber"  , UniformKind::ObjectSerialNumber  , UniformDataType::Int            , 0},
-    {"u_BonesTransform"      , UniformKind::BonesTransform      , UniformDataType::FloatMat4Array , 0}
+    {"u_BonesTransform"      , UniformKind::BonesTransform      , UniformDataType::FloatMat4Array , 0},
+    {"u_RenderMode"          , UniformKind::RenderMode          , UniformDataType::Int            , 0}
     // clang-format on
 };
 
@@ -90,9 +91,9 @@ void ShaderProgram::ParseProgramUniforms()
 
     for (int i = 0; i < count; i++)
     {
-        int size;
+        int    size;
         GLuint fmt;
-        char name[MAX_UNIFORM_NAME_LEN];
+        char   name[MAX_UNIFORM_NAME_LEN];
 
         glGetActiveUniform(m_uiProgramId, i, MAX_UNIFORM_NAME_LEN, nullptr, &size, &fmt, name);
 
@@ -105,19 +106,17 @@ void ShaderProgram::ParseProgramUniforms()
         if (end)
             *end = 0;
 
-
         uniformDecl_t *decl = FindUniformDecl(name);
 
         if (!decl)
             continue;
 
         // TODO: check actual uniform type and pass it to constructor
-        m_vecUniforms.push_back(new ShaderUniform(decl, loc));
+        m_vecUniforms.push_back(new ShaderUniform(decl, loc, m_uiProgramId));
 
-        
         if (decl->flags & FL_TEXTURE_UNIT0)
             glUniform1i(loc, 0);
-        
+
         if (decl->flags & FL_TEXTURE_UNIT1)
             glUniform1i(loc, 1);
 
@@ -127,7 +126,7 @@ void ShaderProgram::ParseProgramUniforms()
         if (decl->flags & FL_TEXTURE_UNIT3)
             glUniform1i(loc, 3);
 
-
+        GL_CheckForErrors();
     }
 }
 
@@ -146,8 +145,8 @@ std::string ShaderProgram::PreprocessIncludes(FileData *fd)
             auto fileName = parts[1].substr(1, parts[1].length() - 2);
 
             // TODO: make proper relative paths
-            auto path     = "res/glprogs/" + fileName;
-            FileData *inc = FileSystem::Instance()->LoadFile(path.c_str());
+            auto      path = "res/glprogs/" + fileName;
+            FileData *inc  = FileSystem::Instance()->LoadFile(path.c_str());
 
             result += std::string((const char *)inc->Data());
             result += "\n";
@@ -174,6 +173,8 @@ GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
     GLuint result = glCreateShader(type);
     glShaderSource(result, 1, &ptr, NULL);
     glCompileShader(result);
+
+    GL_CheckForErrors();
 
     int success;
 
@@ -217,6 +218,8 @@ GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::lis
 
     size_t idx = 2;
 
+    GLuint result = glCreateShader(gl_type);
+
     for (auto it : defines)
     {
         definesText[idx - 2] = std::format("#define {0}\n", it);
@@ -226,11 +229,23 @@ GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::lis
 
     ptrs[idx] = source.c_str();
 
-    GLuint result = glCreateShader(gl_type);
+#ifdef SEPARATE_BLOCK
     glShaderSource(result, num_blocks, ptrs, NULL);
+#else
+    std::string combined;
+
+    for (int i = 0; i < num_blocks; i++)
+    {
+        combined += std::string(ptrs[i]) + "\n";
+    }
+
+    const char *s = combined.c_str();
+    glShaderSource(result, 1, &s, NULL);
+
+#endif
     glCompileShader(result);
 
-    int success;
+    int  success;
     char infoLog[512];
     glGetShaderiv(result, GL_COMPILE_STATUS, &success);
 
@@ -294,6 +309,8 @@ ShaderProgram::~ShaderProgram()
 
     glDeleteProgram(m_uiProgramId);
 
+    GL_CheckForErrors();
+
     m_Defines.clear();
     ClearPointersVector(m_vecUniforms);
 }
@@ -324,16 +341,26 @@ bool ShaderProgram::AttachGeometryShader(const char *fileName)
 void ShaderProgram::LinkProgram()
 {
     if (m_uiVertexShader)
+    {
         glAttachShader(m_uiProgramId, m_uiVertexShader);
+        GL_CheckForErrors();
+    }
     if (m_uiFragmentShader)
+    {
         glAttachShader(m_uiProgramId, m_uiFragmentShader);
+        GL_CheckForErrors();
+    }
     if (m_uiGeometryShader)
+    {
         glAttachShader(m_uiProgramId, m_uiGeometryShader);
+        GL_CheckForErrors();
+    }
 
     glLinkProgram(m_uiProgramId);
+    GL_CheckForErrors();
 
     GLint linked;
-    char infoLog[512];
+    char  infoLog[512];
     glGetProgramiv(m_uiProgramId, GL_LINK_STATUS, &linked);
 
     if (!linked)
@@ -341,16 +368,26 @@ void ShaderProgram::LinkProgram()
         glGetProgramInfoLog(m_uiProgramId, 512, NULL, infoLog);
         Con_Printf(infoLog);
     }
+
+    GL_CheckForErrors();
 }
 
 void ShaderProgram::Bind() const
 {
+    auto rs = GLBackend::Instance()->RenderStats();
+
+    if (rs->idLastShader == m_uiProgramId)
+        rs->nUnnecessaryShaderBinds++;
+
+    rs->nShaderBinds++;
+    rs->idLastShader = m_uiProgramId;
+
     glUseProgram(m_uiProgramId);
 }
 
 void ShaderProgram::Unbind() const
 {
-    glUseProgram(0);
+    // glUseProgram(0);
 }
 
 std::vector<ShaderUniform *> &ShaderProgram::Uniforms()
@@ -374,9 +411,9 @@ void ShaderProgram::Reload()
     if (m_uiProgramId)
         glDeleteProgram(m_uiProgramId);
     if (m_uiVertexShader)
-        glDeleteProgram(m_uiVertexShader);
+        glDeleteShader(m_uiVertexShader);
     if (m_uiFragmentShader)
-        glDeleteProgram(m_uiFragmentShader);
+        glDeleteShader(m_uiFragmentShader);
 
     for (auto it : m_vecUniforms)
         delete it;
@@ -384,16 +421,18 @@ void ShaderProgram::Reload()
     m_vecUniforms.clear();
 
     LoadAndParseShader();
+
+    GL_CheckForErrors();
 }
 
 size_t ShaderProgram::CalculateHash(std::string &fileName, std::list<const char *> &defs)
 {
     std::size_t nameHash = std::hash<std::string>{}(fileName);
 
-    for (auto & it: defs)
+    for (auto &it : defs)
     {
-        std::string_view view = std::string_view(it);
-        std::size_t defHash = std::hash<std::string_view>{}(view);
+        std::string_view view    = std::string_view(it);
+        std::size_t      defHash = std::hash<std::string_view>{}(view);
 
         boost::hash_combine(nameHash, defHash);
     }
@@ -401,10 +440,11 @@ size_t ShaderProgram::CalculateHash(std::string &fileName, std::list<const char 
     return nameHash;
 }
 
-ShaderUniform::ShaderUniform(uniformDecl_t *decl, GLuint location)
+ShaderUniform::ShaderUniform(uniformDecl_t *decl, GLuint location, GLuint program)
 {
-    m_pDecl    = decl;
-    m_Location = location;    
+    m_pDecl     = decl;
+    m_Location  = location;
+    m_ProgramId = program;
 }
 
 ShaderUniform::~ShaderUniform()
@@ -677,6 +717,22 @@ UniformKind ShaderUniform::Kind()
 
 void ShaderUniform::UpdateUniformValue()
 {
+#ifdef GL_DEBUG
+    
+    GLint prog = 0;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
+
+    if (prog != m_ProgramId)
+    {
+        assert(false && "Shader is unbound");
+    }
+
+    // glUseProgram
+
+#endif
+
+    GL_CheckForErrors();
+
     switch (m_pDecl->datatype)
     {
     case UniformDataType::Float:
@@ -690,6 +746,7 @@ void ShaderUniform::UpdateUniformValue()
         break;
     case UniformDataType::FloatVec4:
         glUniform4fv(m_Location, 1, &m_ValueCached.valFloat4.x);
+        GL_CheckForErrors();
         break;
     case UniformDataType::Int:
     case UniformDataType::Bool:
@@ -743,4 +800,6 @@ void ShaderUniform::UpdateUniformValue()
     default:
         break;
     }
+
+    GL_CheckForErrors();
 }

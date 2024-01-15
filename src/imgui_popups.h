@@ -15,7 +15,8 @@ enum class PopupWindows
 	LoadfileDialog,
 	SceneScaleDialog,
 	ProgramOptions,
-	EditGameConfiguration
+	EditGameConfiguration,
+	MesasgeBox
 };
 
 class IImGUIPopup
@@ -27,18 +28,21 @@ protected:
 	virtual void OpenPopup();
     bool m_bSchedulePopupOpen = false;
 
-  private:
+	bool m_bPersistent = true;
+
+private:
     
 	PopupWindows m_Id;
+	
+	bool m_bDontProcessThisFrame = false;
 
-	void SchedulePopupOpen();
-    
-
+	void SchedulePopupOpen();    
 	friend class PopupsManager;
 
 public:
 
 	IImGUIPopup(PopupWindows id);
+    virtual ~IImGUIPopup(){};
 
 	virtual bool BeginRendering();
     virtual void EndRendering();
@@ -55,11 +59,12 @@ public:
     const char *GetKey();
     
 	
+bool IsPersistent();
 };
 
 class PopupsManager
 {
-	std::vector<IImGUIPopup*> m_vPopups;
+    std::list<IImGUIPopup *> m_vPopups;
     std::list<IImGUIPopup *> m_lstOpenedPopups;
 
 	PopupsManager();
@@ -72,6 +77,9 @@ public:
 	void ShowPopup(PopupWindows id);
 	void RenderPopups();
 
+	void ShowPopup(IImGUIPopup *pPopup);
+
 	IImGUIPopup *FindPopupByID(PopupWindows id);
 };
 
+#include "popup_messagebox.h"

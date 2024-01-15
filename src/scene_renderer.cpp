@@ -3,20 +3,37 @@
     (c) 2022 CrazyRussian
 */
 
-#include "scene_renderer.h"
-#include "..\include\ImGuizmo\ImGuizmo.h"
 #include "application.h"
 #include "common.h"
+#include "scene_renderer.h"
+#include "..\include\ImGuizmo\ImGuizmo.h"
 #include "common_resources.h"
 #include "draw_utils.h"
 #include "properties_editor.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "r_editor_grid.h"
 #include "scene.h"
 #include "selection_3d.h"
 #include <unordered_set>
 
-#define FAST_BB
+bool g_useBVH = true;
+
+uberShaderDefs_t g_UberShaderTable[] = {
+    // clang-format off
+    {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"} , nullptr},
+    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "FLATSHADED"}  , nullptr}    ,    
+    {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr}    ,
+    {ModelType::StaticLightmapped , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "FLATSHADED"}  , nullptr}    ,
+    {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Unshaded    , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
+    {ModelType::Sprite            , RenderMode::Flatshaded  , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
+    {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    // clang-format on
+};
 
 SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
 {
@@ -29,10 +46,20 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
     m_pSolidCube       = DrawUtils::MakeCube(1);
 
     SetupBuildboardsRenderer();
-
     RegisterRendermodesCommands();
 
     GridRenderer::Instance()->Init();
+
+    auto pers              = Application::Instance()->GetPersistentStorage();
+    m_pShowGround          = pers->GetSetting(ApplicationSettings::ShowGround);
+    m_pSelectedObjectColor = pers->GetSetting(ApplicationSettings::SelectedObjectColor);
+
+    m_pStudioShader = GLBackend::Instance()->QueryShader("res/glprogs/studio.glsl", {"USING_BONES"});
+
+    for (auto &it : g_UberShaderTable)
+    {
+        it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
+    }
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()
@@ -69,10 +96,6 @@ void SceneRenderer::SetupBuildboardsRenderer()
     m_pBillBoard->End();
 
     m_pBillBoardsShader = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", {});
-
-    std::list<const char *> defs;
-    defs.push_back("SELECTION");
-    m_pBillBoardsShaderSel = GLBackend::Instance()->QueryShader("res/glprogs/billboard.glsl", defs);
 }
 
 void SceneRenderer::RegisterRendermodesCommands()
@@ -107,48 +130,64 @@ void SceneRenderer::RenderScene(Viewport *pViewport)
 
     m_pCamera    = pViewport->GetCamera();
     m_RenderMode = pViewport->GetRenderMode();
+    GL_CheckForErrors();
 
-    ResetTransparentChain();
+    GL_CheckForErrors();
 
-    Application::GetMainWindow()->ClearBackground();
+    Application::GetMainWindow()->ClearBackground(true);
+    GL_CheckForErrors();
 
     // Render visible stuff
 
-    auto pers       = Application::Instance()->GetPersistentStorage();
-    auto showGround = pers->GetSetting(ApplicationSettings::ShowGround);
-
     if (m_pScene)
     {
-        switch (m_RenderMode)
+        if (m_RenderMode == RenderMode::Wireframe)
         {
-        case RenderMode::Unshaded:
-            m_pScene->RenderUnshaded();
-            break;
-        case RenderMode::Lightshaded:
-            m_pScene->RenderLightShaded();
-            break;
-        case RenderMode::WireframeUnshaded:
-            break;
-        case RenderMode::WireframeShaded:
-            break;
-        case RenderMode::Groups:
-            m_pScene->RenderGroupsShaded();
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         }
+
+        renderStats_s *stats = GLBackend::Instance()->RenderStats();
+
+        stats->nEntitiesTotal    = m_pScene->TotalEntities();
+        stats->nEntitiesRendered = 0;
+
+        SortRenderLists();
+        GL_CheckForErrors();
+
+        RenderEntitiesChain(m_vSortedSolidEntities.data(), m_vSortedSolidEntities.size(), false);
+        GL_CheckForErrors();
+
+        GLBackend::SetBlending(true, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL_CheckForErrors();
+
+        RenderEntitiesChain(m_vSortedTransparentEntities.data(), m_vSortedTransparentEntities.size(), true);
+        GL_CheckForErrors();
+
+        GLBackend::SetBlending(false);
+        GL_CheckForErrors();
+
+        if (m_RenderMode == RenderMode::Wireframe)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            GL_CheckForErrors();
+        }
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glDisable(GL_CULL_FACE);
+
+        if (m_pScene)
+            m_pScene->DebugRenderBVH();
+        // ObjectPropertiesEditor::Instance()->RenderDebugOctree();
+
+        glEnable(GL_CULL_FACE);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 
-    RenderTransparentChain();
-
-    if (showGround->GetAsBool())
+    if (m_pShowGround->GetAsBool())
     {
         GridRenderer::Instance()->Render();
+        GL_CheckForErrors();
     }
-}
-
-void SceneRenderer::ResetTransparentChain()
-{
-    m_pTransparentChainStart = SceneEntityWeakPtr();
-    m_pTransparentChainEnd   = SceneEntityWeakPtr();
-    m_flClosestEntity = m_flFarthestEntity = 0;
 }
 
 void SceneRenderer::RenderHelperGeometry()
@@ -182,24 +221,25 @@ void SceneRenderer::RenderHelperGeometry()
     m_pBillBoard->Unbind();
 
     glDisable(GL_CULL_FACE);
-    glUseProgram(0);
+    // glUseProgram(0);
 #endif
 
-    for (auto &it : m_pScene->GetLightDefs())
-    {
-        if (!it)
-            return;
-
-        if (!it->IsLightEntity())
-            continue;
-
-        DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(), it->GetSerialNumber());
-
-        if (it->IsSelected())
-        {
-            selection = it;
-        }
-    }
+    //     for (auto &it : m_pScene->GetLightDefs())
+    //     {
+    //         //         if (!it)
+    //         //             return;
+    //         //
+    //         //         if (!it->IsLightEntity())
+    //         //             continue;
+    //         //
+    //         //         DrawBillboard(it->GetPosition(), glm::vec2(8, 8), it->GetEditorIcon(), it->GetRenderColor(),
+    //         //                       it->GetSerialNumber());
+    //         //
+    //         //         if (it->IsSelected())
+    //         //         {
+    //         //             selection = it;
+    //         //         }
+    //     }
 
     if (selection.lock() && false)
     {
@@ -210,7 +250,7 @@ void SceneRenderer::RenderHelperGeometry()
     glDisable(GL_BLEND);
 }
 
-int SceneRenderer::HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta)
+int SceneRenderer::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
     return 0;
 }
@@ -222,8 +262,10 @@ float SceneRenderer::FrameDelta()
 
 void SceneRenderer::LoadModel(const char *dropped_filedir, int loadFlags)
 {
-    if (!m_pScene)
-        m_pScene = new Scene;
+    if (m_pScene)
+        delete m_pScene;
+
+    m_pScene = new Scene;
 
     m_pScene->LoadLevel(dropped_filedir, loadFlags);
 
@@ -238,9 +280,6 @@ void SceneRenderer::LoadModel(const char *dropped_filedir, int loadFlags)
 void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, const GLTexture *texture,
                                   const glm::vec3 tint, const uint32_t objectSerialNumber)
 {
-#ifdef FAST_BB
-
-    // TODO: make render-chains for transparent, billboards, etc
     m_pBillBoardsShader->Bind();
     m_pBillBoard->Bind();
 
@@ -287,37 +326,9 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
     GLBackend::BindTexture(0, texture);
     GLBackend::BindTexture(1, nullptr);
     m_pBillBoard->Draw();
-#else
-
-    auto right = GetCamera()->GetRightVector();
-    auto up    = GetCamera()->GetUpVector();
-
-    glm::vec3 pt;
-
-    int pointDef[4][2] = {
-        {-1, -1},
-        {1, -1},
-        {1, 1},
-        {-1, 1},
-    };
-
-    glBindTexture(GL_TEXTURE_2D, texture->GLTextureNum());
-    glColor3f(tint.x, tint.y, tint.z);
-    glBegin(GL_QUADS);
-
-    for (int i = 0; i < 4; i++)
-    {
-        pt = pos + (right * (size.x / 2) * (float)pointDef[i][0]) + (up * (size.y / 2) * (float)pointDef[i][1]);
-        glTexCoord2f(pointDef[i][0] == -1 ? 0 : 1, pointDef[i][1] == -1 ? 0 : 1);
-        glVertex3f(pt.x, pt.y, pt.z);
-    }
-
-    glEnd();
-
-#endif
 }
 
-Camera *SceneRenderer::GetCamera()
+CameraController *SceneRenderer::GetCamera()
 {
     return m_pCamera;
 }
@@ -353,7 +364,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
             switch (it->Kind())
             {
             case UniformKind::Color:
-                it->SetFloat4(glm::vec4(1, 1, 1,1) - ptr->GetRenderColor());
+                it->SetFloat4(glm::vec4(1, 1, 1, 1) - ptr->GetRenderColor());
                 break;
             case UniformKind::TransformMatrix: {
                 glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
@@ -383,7 +394,7 @@ void SceneRenderer::DrawLightHelperGeometry(SceneEntityWeakPtr pObject)
 
         shader->Bind();
         shader->SetDefaultCamera();
-        shader->SetColor(glm::vec4(1,1,1,1) - ptr->GetRenderColor());
+        shader->SetColor(glm::vec4(1, 1, 1, 1) - ptr->GetRenderColor());
 
         glm::mat4x4 mat = glm::translate(glm::mat4x4(1.f), ptr->GetPosition());
 
@@ -433,33 +444,207 @@ void SceneRenderer::DumpLightmapUV()
     m_pScene->DumpLightmapUV();
 }
 
-void SceneRenderer::RenderTransparentChain()
+void SceneRenderer::SortRenderLists()
 {
-    SceneEntityWeakPtr ptr = m_pTransparentChainStart;
+    BT_PROFILE("SceneRenderer::SortRenderLists()");
 
-    size_t chainLength = 0;
+    auto frustum = GetCamera()->GetFrustum();
 
-    while (!ptr.expired())
+    m_vSortedSolidEntities.clear();
+    m_vSortedTransparentEntities.clear();
+
+    auto &ents = m_pScene->GetEntities();
+
+    glm::vec3 eyesPos = m_pCamera->GetPosition();
+
+    if (g_useBVH)
     {
-        auto lockPtr = ptr.lock();
+        BVHTree *pSceneTree = m_pScene->GetBVHTree();
+        FillSortListsBVH(pSceneTree, pSceneTree->GetRootNode(), frustum, eyesPos);
+    }
+    else
+        FillSortListsLinear(ents, frustum, eyesPos);
 
-        switch (m_RenderMode)
+    std::sort(m_vSortedSolidEntities.begin(), m_vSortedSolidEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool { return a.modType > b.modType; });
+
+    std::sort(m_vSortedTransparentEntities.begin(), m_vSortedTransparentEntities.end(),
+              [](sSortInfo &a, sSortInfo &b) -> bool {
+                  return a.modType > b.modType && a.renderDistance > b.renderDistance;
+              });
+}
+
+void SceneRenderer::FillSortListsBVH(BVHTree *pTree, BVHNode *pNode, Frustum *pFrustum, glm::vec3 eyesPos,
+                                     FrustumVisiblity parentVisiblity)
+{
+    BT_PROFILE("SceneRenderer::FillSortListsBVH");
+
+    if (pNode == nullptr)
+        return;
+
+    FrustumVisiblity myVisilibity = parentVisiblity;
+
+    if (1)
+    {
+        if (parentVisiblity != FrustumVisiblity::Complete)
         {
-        case RenderMode::Unshaded:
-            lockPtr->RenderUnshaded();
-            break;
-        case RenderMode::Lightshaded:
-            lockPtr->RenderLightshaded();
-            break;
-        case RenderMode::Groups:
-            m_pScene->RenderGroupsShaded();
-        }
+            myVisilibity = pFrustum->CullBoxEx(pNode->aabb);
 
-        chainLength++;
-        ptr = lockPtr->Next();
+            if (myVisilibity == FrustumVisiblity::None)
+                return;
+        }
+    }
+    else
+    {
+        if (pFrustum->CullBox(pNode->aabb))
+            return;
     }
 
-    // Con_Printf("Chain length: %d\n", chainLength);
+    if (pNode->IsLeaf())
+    {
+        auto &it    = pNode->entity;
+        auto  model = it->GetModel();
+
+        if (model.expired())
+            return;
+
+        auto ptr = model.lock();
+
+        if (ptr->IsTransparent())
+        {
+            float dist = glm::length2(it->GetPosition() - eyesPos);
+            m_vSortedTransparentEntities.push_back({it.get(), ptr->GetType(), dist});
+        }
+        else
+            m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
+    }
+    else
+    {
+        if (pNode->left != -1)
+            FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->left), pFrustum, eyesPos, myVisilibity);
+
+        if (pNode->right != -1)
+            FillSortListsBVH(pTree, pTree->GetNodePtr(pNode->right), pFrustum, eyesPos, myVisilibity);
+    }
+}
+
+void SceneRenderer::ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const
+{
+    assert(m_pSelectedObjectColor);
+
+    if (pEntity->IsSelected())
+        it->SetFloat4(glm::vec4(m_pSelectedObjectColor->GetColorRGB(), 1));
+    else
+        it->SetFloat4({1, 1, 1, 1});
+}
+
+void SceneRenderer::FillSortListsLinear(const std::list<SceneEntityPtr> &ents, Frustum *frustum, glm::vec3 eyesPos)
+{
+    BT_PROFILE("SceneRenderer::FillSortListsLinear");
+
+    for (auto &it : ents)
+    {
+        if (!it)
+            continue;
+
+        if (!it->IsDataLoaded())
+            continue;
+
+        // assert(it->GetOctreeNode() != nullptr);
+
+        if (frustum->CullBox(it->GetAbsoulteBoundingBox()))
+            continue;
+
+        // TODO: encapsulate model acquisition and fall back to box if original is unloaded?
+        auto model = it->GetModel();
+
+        if (model.expired())
+            continue;
+
+        auto ptr = model.lock();
+
+        if (ptr->IsTransparent())
+        {
+            float dist = glm::length2(it->GetPosition() - eyesPos);
+            m_vSortedTransparentEntities.push_back({it.get(), ptr->GetType(), dist});
+        }
+        else
+            m_vSortedSolidEntities.push_back({it.get(), ptr->GetType(), 0});
+    }
+}
+
+void SceneRenderer::RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const
+{
+    BT_PROFILE(transparent ? "SceneRenderer::RenderEntitiesChain(transparent == true)"
+                           : "SceneRenderer::RenderEntitiesChain(transparent == false)");
+
+    renderStats_s *stats = GLBackend::Instance()->RenderStats();
+
+    ModelType      currentType   = ModelType::Unset;
+    ShaderProgram *currentShader = 0;
+
+    for (size_t i = 0; i < nEntities; i++)
+    {
+        const sSortInfo *info = &pData[i];
+
+        if (info->modType != currentType)
+        {
+            currentType   = info->modType;
+            currentShader = SetupShaderForModelType(currentType);
+        }
+
+        stats->nEntitiesRendered++;
+        info->pEntity->Render(m_RenderMode, this, currentShader);
+    }
+}
+
+ShaderProgram *SceneRenderer::SetupShaderForModelType(const ModelType currentType) const
+{
+    if (currentType == ModelType::Sprite)
+        m_pBillBoard->Bind();
+
+    RenderMode lookupMode = m_RenderMode;
+
+    if (lookupMode == RenderMode::Wireframe)
+        lookupMode = RenderMode::Flatshaded;
+
+    for (auto &it : g_UberShaderTable)
+    {
+        if (it.type == currentType && it.mode == lookupMode)
+        {
+            it.shader->Bind();
+
+            for (auto &it : it.shader->Uniforms())
+            {
+                switch (it->Kind())
+                {
+                case UniformKind::ProjectionMatrix:
+                    it->SetMat4(m_pCamera->GetProjectionMatrix());
+                    break;
+                case UniformKind::ModelViewMatrix:
+                    it->SetMat4(m_pCamera->GetViewMatrix());
+                    break;
+                case UniformKind::Scale:
+                    it->SetFloat3({1, 1, 1});
+                    break;
+                case UniformKind::TransformMatrix:
+                    it->SetMat4(glm::mat4(1));
+                    break;
+                case UniformKind::ObjectSerialNumber:
+                    it->SetInt(0);
+                    break;
+                default:
+                    break;
+                }
+            }
+
+            // glFinish();
+
+            return it.shader;
+        }
+    }
+
+    return nullptr;
 }
 
 void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const glm::vec3 &m_Mins,
@@ -505,139 +690,14 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
 glm::vec3 SceneRenderer::GetRenderPos()
 {
     if (m_pCamera)
-        return m_pCamera->GetOrigin();
+        return m_pCamera->GetPosition();
     else
         return {0, 0, 0};
 }
 
-void SceneRenderer::AddTransparentEntity(SceneEntityWeakPtr pEntity)
+void SceneRenderer::DrawBillboardMesh() const
 {
-#ifdef PARANOID
-    auto printChain = [&](SceneEntityWeakPtr head) {
-        Con_Printf("\n[Chain start]->");
-
-        SceneEntityWeakPtr p = head;
-
-        while (!p.expired())
-        {
-            auto ptr = p.lock();
-
-            if (ptr)
-                Con_Printf("%d->", ptr->GetSerialNumber());
-
-            p = ptr->Next();
-        }
-        Con_Printf("[Chain end]\n");
-    };
-
-    auto dbg_loops = [&](SceneEntityWeakPtr h) -> bool {
-        std::unordered_set<SceneEntity *> s;
-
-        // Con_Printf("\n====================================\n");
-
-        while (!h.expired())
-        {
-            auto ptr = h.lock();
-            auto raw = ptr.get();
-
-            //  Con_Printf("%d->", raw->GetSerialNumber());
-
-            // If this node is already present
-            // in hashmap it means there is a cycle
-            // (Because you will be encountering the
-            // node for the second time).
-            if (s.find(raw) != s.end())
-                return true;
-
-            // If we are seeing the node for
-            // the first time, insert it in hash
-            s.insert(raw);
-
-            h = ptr->Next();
-        }
-
-        return false;
-    };
-#endif
-
-    auto ptr = pEntity.lock();
-
-    if (!ptr)
-        return;
-
-    if (!ptr->Next().expired())
-    {
-        SceneEntityWeakPtr w;
-        ptr->SetNext(w);
-    }
-
-    auto &pos = m_pCamera->GetOrigin();
-
-    if (m_pTransparentChainStart.expired())
-    {
-        m_pTransparentChainStart = pEntity;
-        m_pTransparentChainEnd   = pEntity;
-        m_flClosestEntity        = glm::distance2(pos, ptr->GetPosition());
-        m_flFarthestEntity       = m_flClosestEntity;
-
-        #ifdef PARANOID
-        printChain(m_pTransparentChainStart);
-        #endif
-        return;
-    }
-
-    float flDist = glm::distance2(pos, ptr->GetPosition());
-
-    if (flDist < m_flClosestEntity)
-    {
-        auto chainEnd = m_pTransparentChainEnd.lock();
-
-        // Bail out, chain will rebuild next frame
-        if (!chainEnd)
-            return;
-
-        chainEnd->SetNext(pEntity);
-
-        m_pTransparentChainEnd = pEntity.lock();
-        m_flClosestEntity      = flDist;
-
-        #ifdef PARANOID
-        if (dbg_loops(m_pTransparentChainStart))
-            __debugbreak();
-        #endif
-    }
-    else
-    {
-        auto chainStart = m_pTransparentChainStart.lock();
-
-        // Bail out, chain will rebuild next frame
-        if (!chainStart)
-            return;
-
-
-        auto oldSn = chainStart->GetSerialNumber();
-        auto newSn = ptr->GetSerialNumber();
-
-        ptr->SetNext(m_pTransparentChainStart);
-        m_pTransparentChainStart = pEntity;
-
-#ifdef PARANOID
-               
-        if (SceneEntity::GetRawSafest<SceneEntity>(pEntity) ==
-            SceneEntity::GetRawSafest<SceneEntity>(m_pTransparentChainStart))
-            __debugbreak();
-
-        if (pEntity.expired())
-            __debugbreak();
-
-        if (dbg_loops(m_pTransparentChainStart))
-            __debugbreak();
-#endif
-    }
-
-#ifdef PARANOID
-    printChain(m_pTransparentChainStart);
-    #endif
+    m_pBillBoard->Draw();
 }
 
 void SceneRenderer::SetRenderMode(RenderMode newMode)
@@ -696,5 +756,5 @@ Scene *SceneRenderer::GetScene()
 
 glm::vec3 SceneRenderer::GetNewLightPos()
 {
-    return m_pCamera->GetOrigin() + m_pCamera->GetForwardVector() * 10.f;
+    return m_pCamera->GetPosition() + m_pCamera->GetForwardVector() * 10.f;
 }

@@ -7,6 +7,7 @@
 
 #include "common.h"
 
+
 enum class PropertiesTypes
 {
     Enum,
@@ -27,11 +28,11 @@ typedef std::pair<std::string, int> enumValuePair_t;
 class VariantValue
 {
 protected:
-    PropertiesTypes m_Type;
-    bool m_bInitialized = false;
+    PropertiesTypes              m_Type;
+    bool                         m_bInitialized = false;
     std::vector<enumValuePair_t> m_EnumOrFlagsValues;
 
-        union data {
+    union data {
         int       asEnum;
         int       asFlags;
         glm::vec3 asPosition;
@@ -47,12 +48,9 @@ private:
     std::string m_strHelp = "";
     std::string m_strDisplayName;
 
-    int             m_Id;
-    
-    
-    float m_Limits[2]    = {-FLT_MAX, FLT_MAX};
+    int m_Id;
 
-
+    float m_Limits[2] = {-FLT_MAX, FLT_MAX};
 
     std::string m_StringValue;
 
@@ -70,8 +68,6 @@ public:
     VariantValue(int _id, PropertiesTypes _type, std::string _displayName);
     VariantValue(const VariantValue &pOther);
 
-    
-
     int  FindEnumValueIndex(int enumValue);
     void SetEnumIndexFromValue(int value);
 
@@ -86,8 +82,8 @@ public:
     const float     GetSizeX() const;
     const bool      GetAsBool() const;
     const char *    GetString() const;
-    std::string GetStringStd() const;
-    
+    std::string     GetStringStd() const;
+
     void SetEnumValue(int val);
     void SetFlags(int val);
     void SetPosition(glm::vec3 val);
@@ -95,6 +91,7 @@ public:
     void SetColorRGBA(glm::vec4 val);
     void SetFloat(float val);
     void SetAngles(glm::vec3 val);
+    void SetDeltaAngles(glm::vec3 val);
     void SetInt(int val);
     void SetSizeX(float val);
     void SetBool(bool val);
@@ -125,40 +122,8 @@ public:
 
     void SetHelp(const std::string &str);
 
-    void SetDisplayName(const std::string & dispName, bool updateIfSet = true);
+    void SetDisplayName(const std::string &dispName, bool updateIfSet = true);
 };
 
-class IObjectPropertiesBinding
-{
-public:
-    virtual void FillProperties(std::list<VariantValue *> &collection)   = 0;
+class SceneEntity;
 
-    // Legacy
-    virtual void UpdateObjectProperties(VariantValue *props, size_t num){};
-
-    virtual void UpdateProperty(VariantValue *prop) = 0;
-
-    virtual bool IsObjectValid()
-    {
-        return true;
-    }
-
-    virtual uint32_t GetSerialNumber()
-    {
-        return 0;
-    }
-
-    virtual void OnPropertyChangeSavedToHistory(){};
-
-    virtual ImGuizmo::OPERATION GetMeaningfulGizmoOperationMode()
-    {
-        return (ImGuizmo::OPERATION)0;
-    }
-
-    virtual const char *ObjectClassname()
-    {
-        return "<no classname>";
-    }
-
-    virtual void RenderFooter();
-};

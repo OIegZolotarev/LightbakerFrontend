@@ -3,17 +3,23 @@
     (c) 2022 CrazyRussian
 */
 
-#include "properties_editor.h"
 #include "application.h"
+#include "properties_editor.h"
+
+#include "imgui_helpers.h"
 #include "lights.h"
 #include "object_props.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 #include "ui_common.h"
+#include "viewports_orchestrator.h"
 
-ObjectPropertiesEditor::ObjectPropertiesEditor() : IGUIPanel(PanelsId::ObjectProperties, (char *)"Object properties")
+ObjectPropertiesEditor::ObjectPropertiesEditor()
+    : ToolUIPanel(ToolUIPanelID::ObjectProperties, (char *)"Object properties")
 {
     // LightPropertiesBinding b;
     // b.FillProperties(m_vPropsData);
+
+    m_pPropertiesBinding = new GoldSource::BSPEntitiesPropertiesBinder();
 }
 
 ObjectPropertiesEditor *ObjectPropertiesEditor::Instance()
@@ -27,8 +33,13 @@ ObjectPropertiesEditor::~ObjectPropertiesEditor()
     if (m_pPropertiesBinding)
     {
         delete m_pPropertiesBinding;
-        m_pPropertiesBinding = 0;
+        m_pPropertiesBinding = nullptr;
     }
+}
+
+GoldSource::BSPEntitiesPropertiesBinder *ObjectPropertiesEditor::GetBindings()
+{
+    return m_pPropertiesBinding;
 }
 
 void ObjectPropertiesEditor::RenderEditor()
@@ -40,25 +51,103 @@ void ObjectPropertiesEditor::RenderEditor()
     RenderFlagsEditor();
 }
 
-void ObjectPropertiesEditor::LoadObject(IObjectPropertiesBinding *pBindings)
+void ObjectPropertiesEditor::LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection)
 {
-    if (m_pPropertiesBinding)
-    {
-        delete m_pPropertiesBinding;
-        m_pPropertiesBinding = 0;
-    }
+    auto ref = pObject.lock();
 
-    m_lstProperties.clear();
-    m_pPropertiesBinding = pBindings;
-    m_pPropertiesBinding->FillProperties(m_lstProperties);
+    if (!ref)
+        return;
+
+    if (!addToSelection)
+        m_pPropertiesBinding->ClearObjects();
+
+    m_pPropertiesBinding->AddObject(pObject);
+
+    auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
+
+    
+
+    if (selected_objects.size() > 1)
+        m_AllObjectsBounds.AddBoundingBox(ref->GetAbsoulteBoundingBox());
+    else
+        m_AllObjectsBounds = ref->GetAbsoulteBoundingBox();
+
+    UpdateRelativePositions();
 
     SetupGuizmo();
 }
 
+void ObjectPropertiesEditor::AddObjectBoxSelection(SceneEntityWeakPtr &pObject)
+{
+    auto ref = pObject.lock();
+
+    if (!ref)
+        return;
+
+    m_pPropertiesBinding->AddObjectBoxSelection(pObject);
+
+
+}
+
+void ObjectPropertiesEditor::ResetGuizmoScaling()
+{
+    for (int i = 0; i < 4; i++)
+        m_matGuizmo[i][i] = 1;
+}
+
+void ObjectPropertiesEditor::UpdateAllObjectsBoundingBox()
+{
+    auto &selected_objects2 = m_pPropertiesBinding->GetSelectedObjects();
+
+    if (selected_objects2.size() == 0)
+        return;
+
+    bool bInitialized = false;
+
+    for (auto it : selected_objects2)
+    {
+        auto ptr = it.lock();
+        if (!ptr)
+            continue;
+
+        if (!bInitialized)
+        {
+            m_AllObjectsBounds = ptr->GetAbsoulteBoundingBox();
+            bInitialized       = true;
+        }
+        else
+            m_AllObjectsBounds.AddBoundingBox(ptr->GetAbsoulteBoundingBox());
+    }
+}
+
+void ObjectPropertiesEditor::UpdateRelativePositions()
+{
+    auto &selected_objects2 = m_pPropertiesBinding->GetSelectedObjects();
+
+    glm::vec3 centerPos  = m_AllObjectsBounds.Center();
+    glm::vec3 boundsSize = m_AllObjectsBounds.Size();
+
+    m_mapRelativeObjectsPos.clear();
+
+    for (auto &it : selected_objects2)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        uint32_t  serial       = ptr->GetSerialNumber();
+        glm::vec3 relative_pos = ptr->GetPosition() - centerPos;
+
+        m_mapRelativeObjectsPos.insert(std::pair<uint32_t, glm::vec3>(serial, relative_pos));
+    }
+}
+
 void ObjectPropertiesEditor::UpdateProperty(VariantValue *it)
 {
-    //m_pPropertiesBinding->UpdateObjectProperties(it, 1);
+    // m_pPropertiesBinding->UpdateObjectProperties(it, 1);
     m_pPropertiesBinding->UpdateProperty(it);
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
@@ -71,19 +160,52 @@ void ObjectPropertiesEditor::RenderGuizmo(Viewport *pViewport)
 
     ImGuizmo::BeginFrame();
 
-    EditTransform(pViewport, &m_matGuizmo[0][0], true);
+    EditTransform(pViewport, true);
 }
 
-void ObjectPropertiesEditor::UnloadObject()
+void ObjectPropertiesEditor::FinishAddingBoxSelectionObject()
+{
+    
+
+    auto &selected_objects = m_pPropertiesBinding->GetSelectedObjects();
+        
+    bool bInitialized  = false;
+    m_AllObjectsBounds = BoundingBox(1);
+
+    for (auto &it : selected_objects)
+    {
+        auto ptr = it.lock();
+
+        if (!ptr)
+            continue;
+
+        if (!bInitialized)
+        {
+            m_AllObjectsBounds = ptr->GetAbsoulteBoundingBox();
+            bInitialized       = true;
+        }
+        else
+            m_AllObjectsBounds.AddBoundingBox(ptr->GetAbsoulteBoundingBox());
+    }
+
+    m_pPropertiesBinding->FinishBoxSelection();
+    UpdateRelativePositions();
+    SetupGuizmo();
+
+    
+}
+
+void ObjectPropertiesEditor::UnloadObjects()
 {
     if (m_pPropertiesBinding)
     {
-        delete m_pPropertiesBinding;
-        m_pPropertiesBinding = nullptr;
         m_lstProperties.clear();
+        m_pPropertiesBinding->ClearObjects();
     }
 
     SetupGuizmo();
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 DockPanels ObjectPropertiesEditor::GetDockSide()
@@ -91,17 +213,41 @@ DockPanels ObjectPropertiesEditor::GetDockSide()
     return DockPanels::RightTop;
 }
 
+const BoundingBox ObjectPropertiesEditor::GetAllObjectsBoundingBox() const
+{
+    return m_AllObjectsBounds;
+}
+
 void ObjectPropertiesEditor::Render()
 {
     RenderEditor();
 }
 
-int ObjectPropertiesEditor::CurrentSerialNumber()
+void ObjectPropertiesEditor::ReloadPropertiesFromBinder()
 {
-    if (!m_pPropertiesBinding)
-        return -1;
+    if (m_pPropertiesBinding)
+    {
+        m_lstProperties.clear();
+        m_pPropertiesBinding->FillProperties(m_lstProperties);
+    }
 
-    return (uint32_t)m_pPropertiesBinding->GetSerialNumber();
+    m_pGuizmoPropertyPosition = FindFirstPropertyByType(PropertiesTypes::Position);
+    m_pGuizmoPropertyRotation = FindFirstPropertyByType(PropertiesTypes::Angles);
+}
+
+void ObjectPropertiesEditor::UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta)
+{
+    m_pPropertiesBinding->UpdatePropertyPositionDelta(propertyPosition, delta);
+}
+
+void ObjectPropertiesEditor::RenderDebugOctree()
+{
+    auto entity = m_pPropertiesBinding->GetEntity(0);
+
+    if (entity)
+    {
+        // entity->GetOctreeNode()->DrawDebug(2);
+    }
 }
 
 void ObjectPropertiesEditor::ReloadPropertyValue(int id)
@@ -114,17 +260,8 @@ void ObjectPropertiesEditor::ReloadPropertyValue(int id)
 
 bool ObjectPropertiesEditor::CheckObjectValidity()
 {
-    if (!m_pPropertiesBinding)
-        return false;
-
-    if (!m_pPropertiesBinding->IsObjectValid())
-    {
-        m_lstProperties.clear();
-        delete m_pPropertiesBinding;
-        m_pPropertiesBinding = nullptr;
-        return false;
-    }
-
+    // assert(false && "remove me");
+    // Remove bad objects and return false if empty?
     return true;
 }
 
@@ -159,7 +296,15 @@ void ObjectPropertiesEditor::SetupGuizmo()
 
     glm::vec3 scale = glm::vec3(1.f);
 
-    ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang.x, &scale.x, &m_matGuizmo[0][0]);
+    glm::mat4 transform;
+
+    if (m_pPropertiesBinding->GetSelectedObjects().size() > 1)
+        transform = R_RotateForEntity(m_AllObjectsBounds.Center(), {0, 0, 0});
+    else
+        transform = R_RotateForEntity(m_AllObjectsBounds.Center(), ang);
+
+    memcpy(&m_matGuizmo, &transform, sizeof(float) * 16);
+    // ImGuizmo::RecomposeMatrixFromComponents(&pos.x, &ang2.x, &scale.x, &m_matGuizmo[0][0]);
 }
 
 VariantValue *ObjectPropertiesEditor::FindFirstPropertyByType(PropertiesTypes type)
@@ -203,6 +348,13 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
         if (m_lstProperties.size() > 0)
         {
+            if (ImGuiHelpers::ButtonWithCommonIcon(CommonIcons::SortAlpha, "###Hello there!", 16))
+            {
+                m_lstProperties.sort([](const VariantValue *a, const VariantValue *b) {
+                    return strcasecmp(a->DisplayName(), b->DisplayName()) < 0;
+                });
+            }
+
             if (ImGui::BeginTable("split", 2, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_Resizable))
             {
                 int i = 0;
@@ -241,6 +393,9 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
 
                 ImGui::EndTable();
             }
+
+            if (m_pPropertiesBinding)
+                m_pPropertiesBinding->RenderFooter();
         }
         else
         {
@@ -250,8 +405,7 @@ void ObjectPropertiesEditor::RenderPropetiesPane()
                 ImGui::Text("Object has no properties");
         }
 
-        if (m_pPropertiesBinding)
-            m_pPropertiesBinding->RenderFooter();
+        
     }
     ImGui::End();
 }
@@ -375,31 +529,39 @@ void ObjectPropertiesEditor::RenderPropertyControl(VariantValue *it)
 
         // TODO: refactor for multiple objects edits
 
-        auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
-        history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue, it));
+        // assert(false && "fixme");
+        // auto history = Application::GetMainWindow()->GetSceneRenderer()->GetScene()->GetEditHistory();
+        // history->PushAction(new CPropertyChangeAction(m_pPropertiesBinding->GetSerialNumber(), m_OldPropertyValue,
+        // it));
 
         m_pPropertiesBinding->OnPropertyChangeSavedToHistory();
     }
 }
 
-void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, bool editTransformDecomposition)
+void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransformDecomposition)
 {
+    glm::mat4 &copyOfMain = m_matGuizmo;
+
+    float *matrix      = (float *)&copyOfMain;
+    float *deltaMatrix = (float *)&m_matDeltaGuizmo;
+
     auto   cam              = pViewport->GetCamera();
     float *cameraProjection = cam->GetProjectionMatrixPtr();
     float *cameraView       = cam->GetViewMatrixPtr();
 
-    ImGuizmo::OPERATION mCurrentGizmoOperation = m_pPropertiesBinding->GetMeaningfulGizmoOperationMode();
+    static ImGuizmo::OPERATION mCurrentGizmoOperation = m_pPropertiesBinding->GetMeaningfulGizmoOperationMode();
 
     static ImGuizmo::MODE mCurrentGizmoMode(ImGuizmo::WORLD);
     static bool           useSnap         = false;
     static float          snap[3]         = {1.f, 1.f, 1.f};
-    static float          bounds[]        = {-0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f};
+    static float          bounds[]        = {-5.f, -5.f, -5.f, 5.f, 5.f, 5.f};
     static float          boundsSnap[]    = {0.1f, 0.1f, 0.1f};
     static bool           boundSizing     = false;
     static bool           boundSizingSnap = false;
 
     if (editTransformDecomposition)
     {
+        ImGui::Begin("Edit transform");
         if (ImGui::IsKeyPressed(ImGuiKey_T))
             mCurrentGizmoOperation = ImGuizmo::TRANSLATE;
         if (ImGui::IsKeyPressed(ImGuiKey_R))
@@ -457,6 +619,13 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
             ImGui::InputFloat3("Snap", boundsSnap);
             ImGui::PopID();
         }
+
+        if (ImGui::Button("Reset transform"))
+        {
+            m_matGuizmo = glm::mat4(1);
+        }
+
+        ImGui::End();
     }
 
     ImGuiIO &io                  = ImGui::GetIO();
@@ -465,54 +634,145 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, float *matrix, b
 
     glm::vec2 viewportPos        = pViewport->GetClientAreaPosAbs();
     glm::vec2 viewportClientArea = pViewport->GetClientArea();
-    float       win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
+    float     win[4]             = {viewportPos.x, viewportPos.y, viewportClientArea.x, viewportClientArea.y};
 
     // TODO: check this,
     auto h = 0;
 
     ImGuizmo::AllowAxisFlip(false);
 
-    //ImGuizmo::SetRect(win[0], win[3] - (win[3] - win[1]), win[2], win[3]);
+    // ImGuizmo::SetRect(win[0], win[3] - (win[3] - win[1]), win[2], win[3]);
     ImGuizmo::SetDrawlist();
-    
+
     ImGuizmo::SetRect(win[0], win[1], win[2], win[3]);
-    
+
+    auto   rel     = m_AllObjectsBounds.ConvertToRelative();
+    float *relData = rel.Data();
+
+    for (int i = 0; i < 6; i++)
+        bounds[i] = relData[i];
 
     bool bChanged = ImGuizmo::Manipulate(cameraView, cameraProjection, mCurrentGizmoOperation, mCurrentGizmoMode,
-                                         matrix, NULL, useSnap ? &snap[0] : NULL, boundSizing ? bounds : NULL,
-                                         boundSizingSnap ? boundsSnap : NULL);
+                                         matrix, deltaMatrix, useSnap ? &snap[0] : NULL, m_mapRelativeObjectsPos.size() > 1 ?  bounds : nullptr, nullptr);
+
+    glm::vec3 matrixScale;
+    glm::vec3 matrixScaleDelta;
+    glm::vec3 pos;
+    glm::vec3 posDelta;
+    glm::vec3 unused2;
+
+    ImGuizmo::DecomposeMatrixToComponents(&m_matGuizmo[0][0], &pos.x, &unused2.x, &matrixScale.x);
 
     if (bChanged)
     {
-        HandleGizmoChange(matrix);
-        return;
+        HandleGizmoChange();
+        pViewport->FlagUpdate();
+
+        ResetGuizmoScaling();
+        UpdateAllObjectsBoundingBox();
+
+        UpdateRelativePositions();
+    }
+    else
+    {
+
+        ImGuizmo::DecomposeMatrixToComponents(&m_matDeltaGuizmo[0][0], &posDelta.x, &unused2.x, &matrixScaleDelta.x);
+
+        // TODO: fix this
+        if (glm::length2(matrixScaleDelta) > 0.01)
+        {
+            m_pPropertiesBinding->OnSelectionResized(m_mapRelativeObjectsPos, matrixScale, pos);
+            pViewport->FlagUpdate();
+        }
     }
 }
 
-void ObjectPropertiesEditor::HandleGizmoChange(float *matrix)
+void ObjectPropertiesEditor::HandleGizmoChange()
 {
-    float matrixTranslation[3], matrixRotation[3], matrixScale[3];
-    ImGuizmo::DecomposeMatrixToComponents(matrix, matrixTranslation, matrixRotation, matrixScale);
+    glm::vec3 pos, matrixScale;
+    glm::vec3 matrixRotation;
 
-    m_pGuizmoPropertyPosition->SetPosition(*(glm::vec3 *)matrixTranslation);
+    ImGuizmo::DecomposeMatrixToComponents(&m_matDeltaGuizmo[0][0], &pos.x, &matrixRotation.x, &matrixScale.x);
 
     if (m_pGuizmoPropertyRotation)
     {
-        auto angleMod = [](float f) -> float {
-            if (f < 0)
-                return f + 360;
-            else if (f > 360)
-                return f - 360;
-            return f;
-        };
-
-        for (int i = 0; i < 3; i++)
-            matrixRotation[i] = angleMod(matrixRotation[i]);
-
-        m_pGuizmoPropertyRotation->SetAngles(*(glm::vec3 *)matrixRotation);
-
+        m_pGuizmoPropertyRotation->SetDeltaAngles(matrixRotation.xzy);
         UpdateProperty(m_pGuizmoPropertyRotation);
     }
 
-    UpdateProperty(m_pGuizmoPropertyPosition);
+    glm::vec3 oldCenter = m_AllObjectsBounds.Center();
+    glm::vec3 delta     = m_matGuizmo[3].xyz - oldCenter;
+
+    m_pGuizmoPropertyPosition->SetPosition(m_matGuizmo[3].xyz);
+
+    UpdatePositionDelta(m_pGuizmoPropertyPosition, delta);
+
+    m_AllObjectsBounds.Translate(delta);
 }
+
+/*
+void CalculateTransformsBlenderLike()
+{
+    glm::mat4 &test = m_matGuizmo;
+
+    glm::vec4 forward = test[0];
+    glm::vec4 right   = test[2];
+    glm::vec4 up      = test[1];
+    glm::vec4 pos4    = test[3];
+
+    test[3] = {0, 0, 0, 1};
+
+    glm::vec4 vecs[] = {forward, right, up};
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (abs(matrixRotation[i]) < 0.001f)
+            continue;
+
+        auto r = glm::rotate(glm::mat4(1.0f), glm::radians(matrixRotation[i]), (glm::vec3)vecs[i].xyz);
+        test   = r * test;
+    }
+
+    test[3] = pos4;
+
+    glm::vec3 eulerTest = glm::vec3();
+
+    // glm::extractEulerAngleYZX(test, eulerTest.x, eulerTest.y, eulerTest.z);
+    eulerTest = rotationMatrixToEulerAngles(test);
+    eulerTest = glm::degrees(eulerTest);
+
+    m_pGuizmoPropertyRotation->SetAngles(eulerTest.xyz);
+    UpdateProperty(m_pGuizmoPropertyRotation);
+
+    //         SceneEntity *pEntity = m_pPropertiesBinding->GetEntity(0);
+    //         if (pEntity)
+    //             pEntity->SetTransform(test);
+}
+
+glm::vec3 rotationMatrixToEulerAngles(glm::mat4 in2)
+{
+    glm::vec3 angles;
+
+    glm::mat4 in = glm::transpose(in2);
+
+    float xyDist = sqrt(in[0][0] * in[0][0] + in[0][1] * in[0][1]);
+
+    if (xyDist > 0.001f)
+    {
+        // enough here to get angles?
+        angles[0] = atan2(-in[0][2], xyDist);
+        angles[1] = atan2(in[0][1], in[0][0]);
+        angles[2] = atan2(in[1][2], in[2][2]);
+    }
+    else
+    {
+        // forward is mostly Z, gimbal lock
+        angles[0] = atan2(-in[0][2], xyDist);
+        angles[1] = atan2(-in[1][0], in[1][1]);
+        angles[2] = 0.0f;
+    }
+
+    return angles;
+}
+
+*/

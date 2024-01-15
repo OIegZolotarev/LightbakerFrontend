@@ -5,7 +5,7 @@
 
 #include "scene_shader.h"
 #include "application.h"
-#include "r_camera.h"
+#include "r_camera_controller.h"
 
 void ISceneShader::InitCommonSceneUniforms()
 {
@@ -20,7 +20,7 @@ void ISceneShader::LinkSamplerToUnit(const char* samplerName, GLuint unitNumber)
 	glUseProgram(m_uiProgramId);
 	GLuint uniform = glGetUniformLocation(m_uiProgramId, samplerName);
 	glUniform1i(uniform, unitNumber);
-	glUseProgram(0);
+	//glUseProgram(0);
 }
 
 ISceneShader::ISceneShader()

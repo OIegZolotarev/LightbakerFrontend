@@ -11,9 +11,11 @@
 #include "lights.h"
 #include "main_window.h"
 #include "model_obj.h"
+#include "r_chain.h"
 #include "scene.h"
 #include "viewport.h"
 #include "viewport_rendermodes.h"
+#include "r_frustum.h"
 
 // Load-Reload flags
 #define LRF_RELOAD_TEXTURES  (1 << 0)
@@ -22,8 +24,26 @@
 
 #define LRF_LOAD_ALL (LRF_RELOAD_TEXTURES | LRF_RELOAD_LIGHTMAPS)
 
-class Camera;
+class CameraController;
 class MainWindow;
+class Frustum;
+class BVHTree;
+struct BVHNode;
+
+typedef struct
+{
+    SceneEntity *pEntity;
+    ModelType    modType;
+    float        renderDistance;
+} sSortInfo;
+
+typedef struct uberShaderDefs_s
+{
+    ModelType               type;
+    RenderMode              mode;
+    std::list<const char *> defines;
+    ShaderProgram *         shader;
+} uberShaderDefs_t;
 
 class SceneRenderer : public IEventHandler
 {
@@ -33,13 +53,13 @@ public:
 
     void RegisterRendermodesCommands();
 
-    class Camera *GetCamera();
+    class CameraController *GetCamera();
     void          FocusCameraOnObject(SceneEntityPtr it);
 
     // Rendering
     void RenderScene(Viewport *pViewport);
 
-    void ResetTransparentChain();
+    
 
     void RenderHelperGeometry();
     void RenderGenericEntity(SceneEntity *pEntity);
@@ -51,7 +71,7 @@ public:
     void       SetRenderMode(RenderMode param1);
     RenderMode GetRenderMode();
 
-    int   HandleEvent(bool bWasHandled, SDL_Event &e, float flFrameDelta) override;
+    int   HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
     float FrameDelta();
 
     // Loading
@@ -68,25 +88,26 @@ public:
     glm::vec3 GetNewLightPos();
     glm::vec3 GetRenderPos();
 
-    void AddTransparentEntity(SceneEntityWeakPtr pEntity);
+    
+
+    void DrawBillboardMesh() const;
+
+    void ApplySelectedObjectColor(SceneEntity *pEntity, ShaderUniform *&it) const;
 
 private:
-    
-    SceneEntityWeakPtr m_pTransparentChainStart;
-    SceneEntityWeakPtr m_pTransparentChainEnd;
+    // RenderChain m_TransparentEntitiesChain;
 
-    float        m_flClosestEntity = 0;
-    float        m_flFarthestEntity = 0;
-    
-    
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
     bool       m_bWireframeOverlay = false;
 
     void Debug_DrawGround();
 
-    Camera *    m_pCamera;
+    CameraController *    m_pCamera;
     MainWindow *m_pTargetWindow;
     Scene *     m_pScene;
+
+    VariantValue *m_pShowGround;
+    VariantValue *m_pSelectedObjectColor;
 
     // Helper meshes
     DrawMesh *m_pBillBoard;
@@ -96,8 +117,7 @@ private:
     DrawMesh *m_pSpotlightCone;
 
     // Shaders
-    ShaderProgram *m_pBillBoardsShader    = nullptr;
-    ShaderProgram *m_pBillBoardsShaderSel = nullptr;
+    ShaderProgram *m_pBillBoardsShader = nullptr;
 
     void           DrawLightHelperGeometry(SceneEntityWeakPtr pObject);
     lightDefWPtr_t m_pCurrentSelection;
@@ -105,5 +125,20 @@ private:
     void DumpLightmapMesh();
     void DumpLightmapUV();
 
-    void RenderTransparentChain();
+    std::vector<sSortInfo> m_vSortedSolidEntities;
+    std::vector<sSortInfo> m_vSortedTransparentEntities;
+
+    void SortRenderLists();
+
+    void FillSortListsLinear(const std::list<SceneEntityPtr> &ents, Frustum *frustum, glm::vec3 eyesPos);
+
+    ShaderProgram *m_pStudioShader;
+
+    void           RenderEntitiesChain(const sSortInfo *pData, const size_t nEntities, bool transparent) const;
+    ShaderProgram *SetupShaderForModelType(const ModelType currentType) const;
+
+    
+    void FillSortListsBVH(BVHTree * pTree, BVHNode * pNode, Frustum* pFrustum, glm::vec3 eyesPos, FrustumVisiblity parentVisiblity = FrustumVisiblity::Partial);
+
+
 };

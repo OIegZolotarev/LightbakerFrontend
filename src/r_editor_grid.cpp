@@ -5,6 +5,7 @@
 
 #include "application.h"
 #include "r_editor_grid.h"
+#include "viewports_orchestrator.h"
 
 
 GridRenderer::~GridRenderer()
@@ -25,8 +26,6 @@ void GridRenderer::Init()
     m_GridCustomStep      = persistent->GetSetting(ApplicationSettings::GridCustomStep);
 
     CreateMesh();
-
-    // TODO: крашится на русской раскладке
 
     Application::CommandsRegistry()->RegisterCommand(new CCommand(
         GlobalCommands::IncreaseGridStep, "Increase grid step", "]", 0, CMD_ONLY_TEXT, [&]() { StepUpGrid(); }));
@@ -94,12 +93,13 @@ void GridRenderer::Render()
 
 #endif
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
+    glDepthMask(GL_FALSE);
+    GLBackend::SetBlending(true);
+
     m_pGridMesh->BindAndDraw();
     
-    glDisable(GL_BLEND);
+    GLBackend::SetBlending(false);
+    glDepthMask(GL_TRUE);
 
 #ifdef USE_OLD_SHADER
     shader->Unbind();
@@ -159,6 +159,8 @@ void GridRenderer::StepDownGrid()
     
     // Con_Printf("Grid step: %d\n", m_iGridResolution);
     Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
+    
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 void GridRenderer::StepUpGrid()
@@ -168,8 +170,9 @@ void GridRenderer::StepUpGrid()
 
     // Con_Printf("Grid step: %d\n", miGridResolution);
 
-
     Application::GetMainWindow()->UpdateStatusbar(1 << StatusbarField::GridStep);
+
+    ViewportsOrchestrator::Instance()->FlagRepaintAll();
 }
 
 int GridRenderer::GridStep()

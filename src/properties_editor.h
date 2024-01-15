@@ -4,18 +4,20 @@
 */
 
 #pragma once
-#include "igui_panel.h"
+#include "bsp_entities_properties_binding.h"
 #include "object_props.h"
+#include "toolui_panel.h"
 
 class Viewport;
 
-class ObjectPropertiesEditor : public IGUIPanel
+class ObjectPropertiesEditor : public ToolUIPanel
 {
     ImGuiID m_FlagsEditorID = 0;
 
     ObjectPropertiesEditor();
 
-    IObjectPropertiesBinding *m_pPropertiesBinding = nullptr;
+    std::unordered_map<uint32_t, glm::vec3>  m_mapRelativeObjectsPos;
+    GoldSource::BSPEntitiesPropertiesBinder *m_pPropertiesBinding = nullptr;
 
     // Properties
     std::list<VariantValue *> m_lstProperties;
@@ -30,14 +32,20 @@ class ObjectPropertiesEditor : public IGUIPanel
 
     // Gizmo
     int           m_GizmoMode;
-    bool          m_bGuizmoEdited           = false;
-    glm::mat4     m_matGuizmo               = glm::mat4(1);
+    bool          m_bGuizmoEdited  = false;
+    glm::mat4     m_matGuizmo      = glm::mat4(1);
+    glm::mat4     m_matDeltaGuizmo = glm::mat4(1);
+    BoundingBox   m_AllObjectsBounds;
     VariantValue *m_pGuizmoPropertyPosition = nullptr;
     VariantValue *m_pGuizmoPropertyRotation = nullptr;
-    void          SetupGuizmo();
-    void EditTransform(Viewport * pViewport, float *matrix, bool editTransformDecomposition);
 
-    void HandleGizmoChange(float *matrix);
+    void ResetGuizmoScaling();
+    void UpdateAllObjectsBoundingBox();
+    void UpdateRelativePositions();
+
+    void SetupGuizmo();
+    void EditTransform(Viewport *pViewport, bool editTransformDecomposition);
+    void HandleGizmoChange();
 
     bool CheckObjectValidity();
 
@@ -48,19 +56,31 @@ class ObjectPropertiesEditor : public IGUIPanel
 
     void RenderEditor();
 
+    void UpdatePositionDelta(VariantValue *propertyPosition, glm::vec3 delta);
+
 public:
     static ObjectPropertiesEditor *Instance();
     ~ObjectPropertiesEditor();
 
     // Object manipulation
-    void LoadObject(IObjectPropertiesBinding *pBindings);
-    void UnloadObject();
 
-    int  CurrentSerialNumber(); // TODO: refactor this
+    GoldSource::BSPEntitiesPropertiesBinder *GetBindings();
+    void                                     LoadObject(SceneEntityWeakPtr &pObject, bool addToSelection);
+
+    void AddObjectBoxSelection(SceneEntityWeakPtr &pObject);
+    void FinishAddingBoxSelectionObject();
+
+    void UnloadObjects();
+
     void ReloadPropertyValue(int id);
 
     DockPanels GetDockSide() override;
 
-    void RenderGuizmo(Viewport * pViewport);
+    const BoundingBox GetAllObjectsBoundingBox() const;
+
+    void RenderGuizmo(Viewport *pViewport);
     void Render() override;
+    void RenderDebugOctree();
+
+    void ReloadPropertiesFromBinder();
 };
