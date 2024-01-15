@@ -494,6 +494,15 @@
     <ClCompile Include="string_pool.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="brush_face.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="brush_object.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="winding.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -896,6 +905,12 @@
       <Filter>Исходные файлы\Scene</Filter>
     </ClInclude>
     <ClInclude Include="string_pool.h" />
+    <ClInclude Include="brush_object.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="winding.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">

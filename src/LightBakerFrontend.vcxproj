@@ -201,6 +201,8 @@ build.bat
     <ClCompile Include="..\include\tiny-process-library\process_win.cpp" />
     <ClCompile Include="..\include\xatlas\source\xatlas\xatlas.cpp" />
     <ClCompile Include="..\lib\glad\glad.c" />
+    <ClCompile Include="brush_face.cpp" />
+    <ClCompile Include="brush_object.cpp" />
     <ClCompile Include="brush_world.cpp" />
     <ClCompile Include="camera_tool.cpp" />
     <ClCompile Include="color.cpp" />
@@ -280,6 +282,7 @@ build.bat
     <ClCompile Include="ui_common.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="viewports_orchestrator.cpp" />
+    <ClCompile Include="winding.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
     <ClCompile Include="mod_obj_asynch_exporter.cpp" />
@@ -330,6 +333,7 @@ build.bat
     <ClInclude Include="..\include\tiny-process-library\process.hpp" />
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="brush_face.h" />
+    <ClInclude Include="brush_object.h" />
     <ClInclude Include="brush_world.h" />
     <ClInclude Include="camera_tool.h" />
     <ClInclude Include="editing_tool.h" />
@@ -414,6 +418,7 @@ build.bat
     <ClInclude Include="viewport.h" />
     <ClInclude Include="viewports_orchestrator.h" />
     <ClInclude Include="viewport_rendermodes.h" />
+    <ClInclude Include="winding.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />
     <ClInclude Include="mod_obj_asynch_exporter.h" />
