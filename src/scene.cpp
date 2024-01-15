@@ -159,6 +159,11 @@ sceneCameraDescriptor_t &Scene::GetSceneCameraDescriptor(size_t selected)
     return *it;
 }
 
+Scene *Scene::ActiveInstance()
+{
+    return Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetScene();
+}
+
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
 {
     auto newLight = new Lb3kLightEntity(this);

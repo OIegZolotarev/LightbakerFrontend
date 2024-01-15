@@ -113,6 +113,11 @@ const std::list<GoldSource::BSPEntityProperty *> &SceneEntity::GetProperties() c
     return m_lstProperties;
 }
 
+Scene *SceneEntity::GetScene()
+{
+    return m_pScene;
+}
+
 const glm::vec3 SceneEntity::GetAngles() const
 {
     return m_EntVars.angles;

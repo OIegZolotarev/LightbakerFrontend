@@ -138,6 +138,8 @@ CDeleteLightAction::CDeleteLightAction(SceneEntityPtr pObject)
  {
  	m_Object = pObject->Clone();
  	m_Object->SetSelected(false);
+    
+	m_pScene = m_Object->GetScene();
  }
 
 CDeleteLightAction::~CDeleteLightAction()
@@ -147,18 +149,15 @@ CDeleteLightAction::~CDeleteLightAction()
 }
 
 void CDeleteLightAction::Redo()
-{
-	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
-	scene->DeleteEntityWithSerialNumber(m_Object->GetSerialNumber());
+{	
+	m_pScene->DeleteEntityWithSerialNumber(m_Object->GetSerialNumber());
 }
 
 void CDeleteLightAction::Undo()
 {
-	auto scene = Application::GetMainWindow()->GetSceneRenderer()->GetScene();
 
 	auto objPtr = std::shared_ptr<SceneEntity>(m_Object->Clone());
-
-	scene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
+	m_pScene->AddEntityWithSerialNumber(objPtr, m_Object->GetSerialNumber());
 }
 
 EditTransaction::EditTransaction()

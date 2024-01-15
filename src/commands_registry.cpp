@@ -16,6 +16,7 @@
 #include "popup_file_dialog.h"
 #include "text_utils.h"
 #include "viewports_orchestrator.h"
+#include "io_scene.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -130,14 +131,7 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetCommonIcon(CommonIcons::Save);
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
     newCommand->SetCallback([&]() {
-
-        auto lfd = FileDialog::Instance();
-
-        lfd->SetTitle("Save document");
-        lfd->SetFilters(".obj,.bsp");
-        lfd->SetOnSelectCallback();
-
-        PopupsManager::Instance()->ShowPopup(PopupWindows::FileDialog);
+        SceneIOManager::Instance()->PerformSavingDialog();
     });
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
@@ -190,11 +184,11 @@ void CCommandsRegistry::InitializeAllCommands()
 
     newCommand = new CCommand;
     newCommand->SetId(GlobalCommands::DeleteSelection);
-    newCommand->SetDescription("Paste selection");
+    newCommand->SetDescription("Delete selection");
     newCommand->SetKeyStroke("Delete");
     newCommand->SetFlags(0);
     newCommand->SetCallback([&]() {
-        Scene *pActiveDocument = Application::GetActiveDocument();
+        Scene *pActiveDocument = Scene::ActiveInstance();
         assert(pActiveDocument);
 
         pActiveDocument->DoDeleteSelection();

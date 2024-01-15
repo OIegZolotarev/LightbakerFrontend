@@ -187,6 +187,7 @@ public:
 
     void FlagRegisteredInScene(bool state);
     const std::list<GoldSource::BSPEntityProperty *> &GetProperties() const;
+    Scene *                                           GetScene();
 };
 
 template <class T> T *SceneEntity::GetRawSafest(std::weak_ptr<SceneEntity> &weakRef)

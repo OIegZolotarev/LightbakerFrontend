@@ -131,4 +131,5 @@ public:
     void                         DeleteSceneCameraDescriptor(size_t idx);
     void                         UpdateSceneCameraDescriptor(size_t idx, sceneCameraDescriptor_t &newDescriptor);
     sceneCameraDescriptor_t      & GetSceneCameraDescriptor(size_t selected);
+    static Scene *               ActiveInstance();
 };

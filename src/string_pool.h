@@ -10,6 +10,8 @@
 class StringPool
 {
     std::vector<char> m_vecData;
+    std::unordered_map<std::string, size_t> m_ExistingValues;
+
 public:
     StringPool(size_t initialSize = 16384);
 
