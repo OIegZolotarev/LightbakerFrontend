@@ -11,6 +11,7 @@ class Scene;
 
 typedef struct prefabDescrpitor_s
 {
+    size_t      id = 0;
     const char *description         = nullptr;
     bool        canTweakDetailLevel = false;
     size_t      maxDetailLevel      = 0;

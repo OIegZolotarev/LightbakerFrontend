@@ -503,6 +503,12 @@
     <ClCompile Include="winding.cpp">
       <Filter>Исходные файлы\BrushWorld</Filter>
     </ClCompile>
+    <ClCompile Include="prefabs_factory.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="brush_primitives_pd.cpp">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -909,6 +915,12 @@
       <Filter>Исходные файлы\BrushWorld</Filter>
     </ClInclude>
     <ClInclude Include="winding.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="prefabs_factory.h">
+      <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClInclude>
+    <ClInclude Include="brush_primitives_pd.h">
       <Filter>Исходные файлы\BrushWorld</Filter>
     </ClInclude>
   </ItemGroup>

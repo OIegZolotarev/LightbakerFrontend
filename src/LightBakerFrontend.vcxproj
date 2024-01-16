@@ -203,6 +203,7 @@ build.bat
     <ClCompile Include="..\lib\glad\glad.c" />
     <ClCompile Include="brush_face.cpp" />
     <ClCompile Include="brush_object.cpp" />
+    <ClCompile Include="brush_primitives_pd.cpp" />
     <ClCompile Include="brush_world.cpp" />
     <ClCompile Include="camera_tool.cpp" />
     <ClCompile Include="color.cpp" />
@@ -213,6 +214,7 @@ build.bat
     <ClCompile Include="editing_toolbox.cpp" />
     <ClCompile Include="io_scene.cpp" />
     <ClCompile Include="io_scene_lm2.cpp" />
+    <ClCompile Include="prefabs_factory.cpp" />
     <ClCompile Include="r_bvh.cpp" />
     <ClCompile Include="r_bvh_boundingbox.cpp" />
     <ClCompile Include="common_icons.cpp" />
@@ -334,6 +336,7 @@ build.bat
     <ClInclude Include="..\lib\glad\glad.h" />
     <ClInclude Include="brush_face.h" />
     <ClInclude Include="brush_object.h" />
+    <ClInclude Include="brush_primitives_pd.h" />
     <ClInclude Include="brush_world.h" />
     <ClInclude Include="camera_tool.h" />
     <ClInclude Include="editing_tool.h" />
@@ -343,6 +346,7 @@ build.bat
     <ClInclude Include="editing_toolbox.h" />
     <ClInclude Include="io_scene.h" />
     <ClInclude Include="io_scene_lm2.h" />
+    <ClInclude Include="prefabs_factory.h" />
     <ClInclude Include="r_bvh_boundingbox.h" />
     <ClInclude Include="color.h" />
     <ClInclude Include="common_icons.h" />
