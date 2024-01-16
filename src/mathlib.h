@@ -43,7 +43,8 @@ typedef struct plane_s
 
     void CalcSignBits();
     int  BoxOnPlaneSide(const glm::vec3 &emins, const glm::vec3 &emaxs);
-
+    
+    void SetPoints(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3);
 } plane_t;
 
 bool  PlanesGetIntersectionPoint(const plane_t *plane1, const plane_t *plane2, const plane_t *plane3, glm::vec3 &out);

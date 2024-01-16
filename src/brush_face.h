@@ -4,7 +4,27 @@
 */
 
 #pragma once
+#include "brush_object.h"
 #include "gl_texture.h"
+
+enum class FaceOrientation
+{
+    Floor = 0,
+    Ceiling,
+    North,
+    South,
+    East,
+    West,
+    Invalid
+};
+
+enum class TextureAlignment
+{
+    None  = 0x0000,
+    World = 0x0001,
+    Face  = 0x0002,
+    Quake = 0x0004
+};
 
 enum class TextureJustification
 {
@@ -39,9 +59,10 @@ enum class TextureJustification
     (1 << 0) // Hack to prevent plane from being recalculated while building a solid from its planes.
 #define CREATE_FACE_CLIPPING (1 << 1)
 
-#define FL_FACE_REBUILT_FROM_PLANE (1 << 0)
-
 #define TEXTURE_AXIS_ROUND_EPSILON 0.001
+
+// TODO: review
+#define MAPSOLID_MAX_FACES 512
 
 typedef struct brushFaceTextureInfo_s
 {
@@ -55,11 +76,21 @@ typedef struct brushFaceTextureInfo_s
 
 class BrushFace
 {
-    GLTexture *m_pTexture = nullptr;
+    GLTexture *            m_pTexture = nullptr;
     brushFaceTextureInfo_t m_TexInfo;
 
     plane_t m_Plane;
 
+    BrushObject *m_pBrush;
+
+    void ValidateTexturingInfo();
+
 public:
     BrushFace();
+    BrushFace(BrushObject *pBrush, glm::vec3 pts[3]);
+
+    void SetTexture(GLTexture *pTexture);
+
+    const plane_t *GetPlane() const;
+    void           CreateFaceFromWinding(Winding *w, int flags);
 };

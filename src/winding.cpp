@@ -7,6 +7,7 @@
 #include "common.h"
 
 #include "winding.h"
+#include "brush_face.h"
 
 Winding::Winding(const Winding *pOther)
 {
@@ -24,7 +25,7 @@ Winding::Winding(const uint32_t numPoints)
     m_Points.reserve(numPoints);
 }
 
-Winding::Winding(const plane_t &planeFrom)
+Winding::Winding(const plane_t *planeFrom)
 {
     int       i, x;
     float     max, v;
@@ -35,7 +36,7 @@ Winding::Winding(const plane_t &planeFrom)
     x   = -1;
     for (i = 0; i < 3; i++)
     {
-        v = fabs(planeFrom.normal[i]);
+        v = fabs(planeFrom->normal[i]);
         if (v > max)
         {
             x   = i;
@@ -59,13 +60,13 @@ Winding::Winding(const plane_t &planeFrom)
         break;
     }
 
-    v = glm::dot(vup, planeFrom.normal);
-    VectorMA(vup, -v, planeFrom.normal, vup);
+    v = glm::dot(vup, planeFrom->normal);
+    VectorMA(vup, -v, planeFrom->normal, vup);
     vup = glm::normalize(vup);
 
-    org = planeFrom.normal * planeFrom.dist;
+    org = planeFrom->normal * planeFrom->dist;
 
-    vright = glm::cross(vup, planeFrom.normal);
+    vright = glm::cross(vup, planeFrom->normal);
 
     vup    = vup * MAX_TRACE_LENGTH;
     vright = vright * MAX_TRACE_LENGTH;
@@ -210,6 +211,17 @@ void Winding::Clip(plane_t &split)
     delete[] new_pts;
 }
 
+void Winding::Clip(BrushFace *pFace)
+{
+    const plane_t *facePlane = pFace->GetPlane();
+    plane_t        clipPlane;
+
+    clipPlane.normal  = -facePlane->normal;
+    clipPlane.dist    = -facePlane->dist;
+
+    Clip(pFace);
+}
+
 void Winding::RemoveDuplicatePoints(float flMinDist)
 {
     for (size_t i = 0; i < m_Points.size(); i++)
@@ -225,4 +237,14 @@ void Winding::RemoveDuplicatePoints(float flMinDist)
             }
         }
     }
+}
+
+bool Winding::IsEmpty()
+{
+    m_Points.empty();
+}
+
+std::vector<glm::vec3> &Winding::GetPoints()
+{
+    throw std::logic_error("The method or operation is not implemented.");
 }
