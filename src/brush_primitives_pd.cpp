@@ -46,7 +46,7 @@ const prefabDescrpitor_t *BrushPrimitvesDepartament::DesignDesription(size_t idx
     return &m_vecItems[idx];
 }
 
-void BrushPrimitvesDepartament::ConstructBox(Scene *pScene, const BoundingBox &dimensions)
+void BrushPrimitvesDepartament::ConstructBox(Scene *pScene, const BoundingBox &dimensions) const
 {
     float e = 0.5f;
 
@@ -56,7 +56,7 @@ void BrushPrimitvesDepartament::ConstructBox(Scene *pScene, const BoundingBox &d
         {{{-e , -e , e} , {-e  , -e , -e} , {-e , e  , e}}  , "" , {{0.f  , -1.f , 0.f , 0.f} , {0.f , 0.f  , -1.f , -1.f}} , 0.f, {1.f, 1.f}},
         {{{e  , -e , e} , {e   , -e , -e} , {-e , -e , e}}  , "" , {{1.f  , 0.f  , 0.f , 0.f} , {0.f , 0.f  , -1.f , -1.f}} , 0.f, {1.f, 1.f}},
         {{{-e , e  , e} , {-e  , e  , -e} , {e  , e  , e}}  , "" , {{-1.f , 0.f  , 0.f , 0.f} , {0.f , 0.f  , -1.f , -1.f}} , 0.f, {1.f, 1.f}},
-        {{{-e , e  ,-e} ,  {-e , -e , -e} , {e  , e  , -e}} , "" , {{-1.f , 0.f  , 0.f , 0.f} , {0.f , -1.f ,  0.f  , 0.f}} , 0.f, {1.f, 1.f}},
+        {{{-e , e  ,-e} , {-e , -e , -e}  , {e  , e  , -e}} , "" , {{-1.f , 0.f  , 0.f , 0.f} , {0.f , -1.f ,  0.f  , 0.f}} , 0.f, {1.f, 1.f}},
         {{{e  , -e , e} , {-e  , -e , e}  , {e  , e  , e}}  , "" , {{1.f  , 0.f  , 0.f , 0.f} , {0.f , -1.f ,  0.f  , 0.f}} , 0.f, {1.f, 1.f}}
         // clang-format on
     };
