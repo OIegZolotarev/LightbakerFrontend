@@ -114,6 +114,9 @@
     <Filter Include="Исходные файлы\BrushWorld">
       <UniqueIdentifier>{0b25770f-ccd0-49c8-8300-500ccbcd303e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\BrushWorld\hammer_map">
+      <UniqueIdentifier>{0fcdfc9e-fb89-4fab-99b7-c0ed9467e70e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="win_main.cpp">
@@ -508,6 +511,12 @@
     </ClCompile>
     <ClCompile Include="brush_primitives_pd.cpp">
       <Filter>Исходные файлы\BrushWorld</Filter>
+    </ClCompile>
+    <ClCompile Include="hammer_map\hammer_map.bison.cpp">
+      <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
+    </ClCompile>
+    <ClCompile Include="hammer_map.cpp">
+      <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -923,6 +932,9 @@
     <ClInclude Include="brush_primitives_pd.h">
       <Filter>Исходные файлы\BrushWorld</Filter>
     </ClInclude>
+    <ClInclude Include="hammer_map.h">
+      <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="LightBakerFrontend.rc">
@@ -962,6 +974,9 @@
     </None>
     <None Include="..\bin\res\glprogs\solidcolor_geom.glsl">
       <Filter>GLSL</Filter>
+    </None>
+    <None Include="hammer_map\hammer_map.y">
+      <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

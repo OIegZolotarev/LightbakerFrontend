@@ -241,10 +241,10 @@ void Winding::RemoveDuplicatePoints(float flMinDist)
 
 bool Winding::IsEmpty()
 {
-    m_Points.empty();
+    return m_Points.empty();
 }
 
 std::vector<glm::vec3> &Winding::GetPoints()
 {
-    throw std::logic_error("The method or operation is not implemented.");
+    return m_Points;
 }

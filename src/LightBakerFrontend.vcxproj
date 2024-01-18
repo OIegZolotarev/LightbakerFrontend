@@ -116,8 +116,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd /d $(SolutionDir)hammer_fgd/
-build.bat
+      <Command>cd /d $(SolutionDir)
+build_parsers.bat
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -139,8 +139,8 @@ build.bat
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd /d $(SolutionDir)hammer_fgd/
-build.bat
+      <Command>cd /d $(SolutionDir)
+build_parsers.bat
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -158,8 +158,8 @@ build.bat
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd /d $(SolutionDir)hammer_fgd/
-build.bat
+      <Command>cd /d $(SolutionDir)
+build_parsers.bat
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -181,8 +181,8 @@ build.bat
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PreBuildEvent>
-      <Command>cd /d $(SolutionDir)hammer_fgd/
-build.bat
+      <Command>cd /d $(SolutionDir)
+build_parsers.bat
 </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -212,6 +212,8 @@ build.bat
     <ClCompile Include="bsp_entity_property.cpp" />
     <ClCompile Include="btQuickProf.cpp" />
     <ClCompile Include="editing_toolbox.cpp" />
+    <ClCompile Include="hammer_map.cpp" />
+    <ClCompile Include="hammer_map\hammer_map.bison.cpp" />
     <ClCompile Include="io_scene.cpp" />
     <ClCompile Include="io_scene_lm2.cpp" />
     <ClCompile Include="prefabs_factory.cpp" />
@@ -344,6 +346,7 @@ build.bat
     <ClInclude Include="bsp_entity_property.h" />
     <ClInclude Include="btQuickProf.h" />
     <ClInclude Include="editing_toolbox.h" />
+    <ClInclude Include="hammer_map.h" />
     <ClInclude Include="io_scene.h" />
     <ClInclude Include="io_scene_lm2.h" />
     <ClInclude Include="prefabs_factory.h" />
@@ -474,6 +477,7 @@ build.bat
     <None Include="..\bin\res\glprogs\spotlight_cone.frag" />
     <None Include="..\bin\res\glprogs\spotlight_cone.vert" />
     <None Include="hammer_fgd\hammer_fgd.y" />
+    <None Include="hammer_map\hammer_map.y" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\res\bakery-shop.ico" />

@@ -3,10 +3,12 @@
     (c) 2022-2024 CrazyRussian
 */
 
-#include "brush_object.h"
+#include "application.h"
+#include "common.h"
+
 #include "winding.h"
 #include "gl_draw_mesh.h"
-
+#include "brush_object.h"
 
 void BrushObject::RemoveInvalidFaces()
 {
@@ -42,7 +44,7 @@ bool BrushObject::CreateFacesFromPlanes(int flags)
 {
     int i, j, k;
     m_bValid   = true;
-    int nFaces = m_lstFaces.size();
+    size_t nFaces = m_lstFaces.size();
 
     assert(nFaces < MAPSOLID_MAX_FACES);
     RemoveInvalidFaces();

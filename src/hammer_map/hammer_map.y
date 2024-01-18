@@ -20,47 +20,11 @@ struct HammerMapParsingContext
     const char* cursor;
     yy::location loc;
 
-    FGDEntityClass * current_entity = nullptr;
-    FGDPropertyDescriptor* current_property = nullptr;
-
-    GoldSource::HammerFGDFile * fgd;
-
+    HammerMap * m_pMap;
     
-    struct 
+    HammerMapParsingContext(HammerMap* file)
     {
-        glm::vec3 color = { 1,1,1};
-        glm::vec3 mins = {-4,-4,-4};
-        glm::vec3 maxs = {4,4,4};
-
-        glm::vec3 offset = {0,0,0};
-
-        std::string model = "";
-        std::string sprite = "";
-        bool decal = false;
-        std::string editorSprite = "";
-
-        unsigned int flags = 0;
-        
-        std::list<std::string> baseClasses;
-
-        void clear()
-        {
-            color = { 1,1,1};
-            mins = {-4,-4,-4};
-            maxs = {4,4,4};
-            offset = {0,0,0};
-            model = "";
-            sprite = "";
-            decal = false;
-            editorSprite = "";
-            flags = 0;
-        }
-
-    }entityCtorData;
-
-    FGDParsingContext(GoldSource::HammerFGDFile * file)
-    {
-       fgd = file;
+       m_pMap = file;
        cursor = file->Data();
     }
 
@@ -68,20 +32,20 @@ struct HammerMapParsingContext
 
 };
 
-namespace yy { HammerFGDParser::symbol_type yylex(FGDParsingContext* ctx); }
+namespace yy { HammerMapParser::symbol_type yylex(HammerMapParsingContext* ctx); }
 
 
-void ParseFGD(GoldSource::HammerFGDFile * file)
+void ParseMap(HammerMap * file)
 {
 
-    FGDParsingContext ctx(file);    
+    HammerMapParsingContext ctx(file);    
 
     auto fileName = file->FileName();
 
     ctx.loc.begin.filename = &fileName;
     ctx.loc.end.filename   = &fileName;
 
-    yy::HammerFGDParser parser(&ctx);
+    yy::HammerMapParser parser(&ctx);
 
     
     //parser.set_debug_level(999);
@@ -96,10 +60,11 @@ void ParseFGD(GoldSource::HammerFGDFile * file)
 
 #include "..\application.h"
 #include "..\common.h"
-#include "..\hammer_fgd.h"
+#include "..\hammer_map.h"
 
-struct FGDParsingContext;
-using namespace GoldSource;
+struct HammerMapParsingContext;
+
+#pragma warning(disable: 4065)
 
 }
 
@@ -118,6 +83,9 @@ using namespace GoldSource;
 
 %type<float>        Number
 %type<std::string>  StringLiteral TextureName Identifier
+%type<glm::vec3> PlanePoint
+%type<glm::vec4> TextureVector
+%type<map220face_t> brushFace
 
 %%
 
@@ -139,21 +107,21 @@ entityPropertiesOpt: entityPropertiesOpt entityProperty
 
 entityProperty: StringLiteral StringLiteral
 
-brushDefOpt: OpeningCurlyBracket brushFaceRecursive ClosingCurlyBracket
+brushDefOpt: OpeningCurlyBracket brushFaceList ClosingCurlyBracket
 |%empty;
 
-brushFaceRecursive: brushFaceRecursive brushFace
+brushFaceList: brushFaceList brushFace
 |%empty;
 
-brushFace: PlanePoint PlanePoint PlanePoint TextureName TextureVector TextureVector Number Number Number;
+brushFace: PlanePoint PlanePoint PlanePoint TextureName TextureVector TextureVector Number Number Number { $$ = map220face_t($1,$2,$3,$4,$5,$6,$7, glm::vec2($8,$9)); }
 
-PlanePoint: OpeningRoundBracket Number Number Number ClosingRoundBracket;
-TextureVector: OpeningSquareBracket Number Number Number Number ClosingSquareBracket;
+PlanePoint: OpeningRoundBracket Number Number Number ClosingRoundBracket { $$ = glm::vec3($2,$3,$4); }
+TextureVector: OpeningSquareBracket Number Number Number Number ClosingSquareBracket { $$ = glm::vec4($2,$3,$4,$5); }
 
 %%
 
 
-yy::HammerMapParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
+yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 {
     const char* anchor = ctx->cursor;
     ctx->loc.step();
@@ -173,14 +141,14 @@ yy::HammerMapParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
 		
         
         
-		 '\x00' { return s(yy::HammerMapParser::make_EndOfFile); }
-        [-0-9]+                     {                     return s(yy::HammerFGDParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
-        '('                         {                     return s(yy::HammerFGDParser::make_OpeningRoundBracket); }
-        ')'                         {                     return s(yy::HammerFGDParser::make_ClosingRoundBracket); }
-        '['                         {                     return s(yy::HammerFGDParser::make_OpeningSquareBracket); }
-        ']'                         {                     return s(yy::HammerFGDParser::make_ClosingSquareBracket); }       
-								"\"" [^"]* "\""             {                     return s(yy::HammerFGDParser::make_StringLiteral, std::string(anchor+1, ctx->cursor-1)); } 
-        [a-zA-Z_]+[0-9]*[a-zA-Z_]*  {                     return s(yy::HammerFGDParser::make_Identifier, std::string(anchor, ctx->cursor)); }
+		 '\x00'                     {                     return s(yy::HammerMapParser::make_EndOfFile); }
+        [-0-9]+                     {                     return s(yy::HammerMapParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
+        '('                         {                     return s(yy::HammerMapParser::make_OpeningRoundBracket); }
+        ')'                         {                     return s(yy::HammerMapParser::make_ClosingRoundBracket); }
+        '['                         {                     return s(yy::HammerMapParser::make_OpeningSquareBracket); }
+        ']'                         {                     return s(yy::HammerMapParser::make_ClosingSquareBracket); }       
+        "\"" [^"]* "\""             {                     return s(yy::HammerMapParser::make_StringLiteral, std::string(anchor+1, ctx->cursor-1)); } 
+        [a-zA-Z_]+[0-9]*[a-zA-Z_]*  {                     return s(yy::HammerMapParser::make_Identifier, std::string(anchor, ctx->cursor)); }
         "\r\n" | [\r\n]             { ctx->loc.lines();   return yylex(ctx); }
         "//" [^\r\n]*               {                     return yylex(ctx); }
         [\t\v\b\f ]                 { ctx->loc.columns(); return yylex(ctx); }        

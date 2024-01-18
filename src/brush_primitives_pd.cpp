@@ -6,8 +6,9 @@
 #include "application.h"
 #include "common.h"
 
-#include "brush_primitives_pd.h"
+
 #include "prefabs_factory.h"
+#include "brush_primitives_pd.h"
 
 // Brush primitives id
 #define BP_BOX      1
@@ -60,8 +61,4 @@ void BrushPrimitvesDepartament::ConstructBox(Scene *pScene, const BoundingBox &d
         {{{e  , -e , e} , {-e  , -e , e}  , {e  , e  , e}}  , "" , {{1.f  , 0.f  , 0.f , 0.f} , {0.f , -1.f ,  0.f  , 0.f}} , 0.f, {1.f, 1.f}}
         // clang-format on
     };
-}
-
-void BrushPrimitvesDepartament::ConstructBox(Scene *pScene, const BoundingBox &dimensions) const
-{
 }

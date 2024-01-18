@@ -65,6 +65,7 @@ enum class TextureJustification
 #define MAPSOLID_MAX_FACES 512
 
 typedef struct brushFaceTextureInfo_s
+
 {
     char      textureName[32];
     uint32_t  lm_scale;
@@ -73,6 +74,9 @@ typedef struct brushFaceTextureInfo_s
     glm::vec2 scale;
     float     rotation;
 } brushFaceTextureInfo_t;
+
+class BrushObject;
+class Winding;
 
 class BrushFace
 {

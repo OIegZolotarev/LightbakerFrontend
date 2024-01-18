@@ -10,6 +10,7 @@
 #include "scene_entity.h"
 
 class DrawMesh;
+class BrushFace;
 
 //
 // Flags for CreateFromPlanes:

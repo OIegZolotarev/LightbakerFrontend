@@ -48,6 +48,8 @@
 struct FGDParsingContext;
 using namespace GoldSource;
 
+#pragma warning(disable: 4065)
+
 
 
 # include <cassert>
@@ -4263,14 +4265,14 @@ namespace yy {
   const short
   HammerFGDParser::yyrline_[] =
   {
-       0,   266,   266,   270,   271,   274,   275,   276,   280,   283,
-     286,   289,   290,   296,   297,   300,   301,   302,   303,   304,
-     305,   306,   307,   308,   309,   313,   316,   317,   320,   323,
-     326,   329,   332,   335,   338,   341,   343,   344,   349,   350,
-     351,   354,   355,   362,   364,   366,   369,   372,   373,   376,
-     377,   381,   384,   388,   389,   392,   393,   400,   405,   406,
-     412,   417,   418,   419,   420,   421,   422,   423,   424,   425,
-     429,   430,   431,   432,   433,   434,   445,   446
+       0,   268,   268,   272,   273,   276,   277,   278,   282,   285,
+     288,   291,   292,   298,   299,   302,   303,   304,   305,   306,
+     307,   308,   309,   310,   311,   315,   318,   319,   322,   325,
+     328,   331,   334,   337,   340,   343,   345,   346,   351,   352,
+     353,   356,   357,   364,   366,   368,   371,   374,   375,   378,
+     379,   383,   386,   390,   391,   394,   395,   402,   407,   408,
+     414,   419,   420,   421,   422,   423,   424,   425,   426,   427,
+     431,   432,   433,   434,   435,   436,   447,   448
   };
 
   void
@@ -4318,7 +4320,7 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
     };
 
     
-#line 466 "<stdout>"
+#line 468 "<stdout>"
 {
 	char yych;
 	yych = *ctx->cursor;
@@ -4410,20 +4412,20 @@ yy::HammerFGDParser::symbol_type yy::yylex(FGDParsingContext *  ctx)
 yy2:
 yy3:
 	++ctx->cursor;
-#line 471 "hammer_fgd.y"
+#line 473 "hammer_fgd.y"
 	{ return s(yy::HammerFGDParser::make_EndOfFile); }
-#line 560 "<stdout>"
+#line 562 "<stdout>"
 yy5:
 	++ctx->cursor;
-#line 506 "hammer_fgd.y"
+#line 508 "hammer_fgd.y"
 	{ ctx->loc.columns(); return yylex(ctx); }
-#line 565 "<stdout>"
+#line 567 "<stdout>"
 yy7:
 	++ctx->cursor;
 yy8:
-#line 504 "hammer_fgd.y"
+#line 506 "hammer_fgd.y"
 	{ ctx->loc.lines();   return yylex(ctx); }
-#line 571 "<stdout>"
+#line 573 "<stdout>"
 yy9:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4438,19 +4440,19 @@ yy10:
 	}
 yy12:
 	++ctx->cursor;
-#line 480 "hammer_fgd.y"
+#line 482 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_OpeningParenthesis); }
-#line 588 "<stdout>"
+#line 590 "<stdout>"
 yy14:
 	++ctx->cursor;
-#line 481 "hammer_fgd.y"
+#line 483 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_ClosingParenthesis); }
-#line 593 "<stdout>"
+#line 595 "<stdout>"
 yy16:
 	++ctx->cursor;
-#line 478 "hammer_fgd.y"
+#line 480 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Comma); }
-#line 598 "<stdout>"
+#line 600 "<stdout>"
 yy18:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4468,9 +4470,9 @@ yy18:
 	default:	goto yy20;
 	}
 yy20:
-#line 479 "hammer_fgd.y"
+#line 481 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
-#line 618 "<stdout>"
+#line 620 "<stdout>"
 yy21:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4479,14 +4481,14 @@ yy21:
 	}
 yy22:
 	++ctx->cursor;
-#line 477 "hammer_fgd.y"
+#line 479 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Colon); }
-#line 629 "<stdout>"
+#line 631 "<stdout>"
 yy24:
 	++ctx->cursor;
-#line 476 "hammer_fgd.y"
+#line 478 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_EqualsSign); }
-#line 634 "<stdout>"
+#line 636 "<stdout>"
 yy26:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -4567,9 +4569,9 @@ yy27:
 	default:	goto yy29;
 	}
 yy29:
-#line 503 "hammer_fgd.y"
+#line 505 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Identifier, std::string(anchor, ctx->cursor)); }
-#line 717 "<stdout>"
+#line 719 "<stdout>"
 yy30:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -5094,19 +5096,19 @@ yy38:
 	}
 yy39:
 	++ctx->cursor;
-#line 482 "hammer_fgd.y"
+#line 484 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_OpeningBracket); }
-#line 1244 "<stdout>"
+#line 1246 "<stdout>"
 yy41:
 	++ctx->cursor;
-#line 483 "hammer_fgd.y"
+#line 485 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_ClosingBracket); }
-#line 1249 "<stdout>"
+#line 1251 "<stdout>"
 yy43:
 	++ctx->cursor;
-#line 502 "hammer_fgd.y"
+#line 504 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_StringLiteral, std::string(anchor+1, ctx->cursor-1)); }
-#line 1254 "<stdout>"
+#line 1256 "<stdout>"
 yy45:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -5115,9 +5117,9 @@ yy45:
 	default:	goto yy45;
 	}
 yy47:
-#line 505 "hammer_fgd.y"
+#line 507 "hammer_fgd.y"
 	{                     return yylex(ctx); }
-#line 1265 "<stdout>"
+#line 1267 "<stdout>"
 yy48:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -6806,9 +6808,9 @@ yy83:
 	default:	goto yy84;
 	}
 yy84:
-#line 498 "hammer_fgd.y"
+#line 500 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Sky, std::string(anchor, ctx->cursor)) ; }
-#line 2956 "<stdout>"
+#line 2958 "<stdout>"
 yy85:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7189,9 +7191,9 @@ yy93:
 	default:	goto yy94;
 	}
 yy94:
-#line 484 "hammer_fgd.y"
+#line 486 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_BaseDef); }
-#line 3339 "<stdout>"
+#line 3341 "<stdout>"
 yy95:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -7725,9 +7727,9 @@ yy103:
 	default:	goto yy104;
 	}
 yy104:
-#line 485 "hammer_fgd.y"
+#line 487 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_SizeBoundingBox); }
-#line 3875 "<stdout>"
+#line 3877 "<stdout>"
 yy105:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8166,9 +8168,9 @@ yy114:
 	default:	goto yy115;
 	}
 yy115:
-#line 487 "hammer_fgd.y"
+#line 489 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Color); }
-#line 4316 "<stdout>"
+#line 4318 "<stdout>"
 yy116:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8238,9 +8240,9 @@ yy116:
 	default:	goto yy117;
 	}
 yy117:
-#line 491 "hammer_fgd.y"
+#line 493 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Decal) ; }
-#line 4388 "<stdout>"
+#line 4390 "<stdout>"
 yy118:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8310,9 +8312,9 @@ yy118:
 	default:	goto yy119;
 	}
 yy119:
-#line 499 "hammer_fgd.y"
+#line 501 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Flags, std::string(anchor, ctx->cursor)) ; }
-#line 4460 "<stdout>"
+#line 4462 "<stdout>"
 yy120:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8498,9 +8500,9 @@ yy122:
 	default:	goto yy123;
 	}
 yy123:
-#line 496 "hammer_fgd.y"
+#line 498 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Model, std::string(anchor, ctx->cursor)) ; }
-#line 4648 "<stdout>"
+#line 4650 "<stdout>"
 yy124:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -8628,9 +8630,9 @@ yy125:
 	default:	goto yy126;
 	}
 yy126:
-#line 494 "hammer_fgd.y"
+#line 496 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Sound, std::string(anchor, ctx->cursor)) ; }
-#line 4778 "<stdout>"
+#line 4780 "<stdout>"
 yy127:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9133,9 +9135,9 @@ yy138:
 	default:	goto yy139;
 	}
 yy139:
-#line 497 "hammer_fgd.y"
+#line 499 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Offset) ; }
-#line 5283 "<stdout>"
+#line 5285 "<stdout>"
 yy140:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9205,9 +9207,9 @@ yy140:
 	default:	goto yy141;
 	}
 yy141:
-#line 490 "hammer_fgd.y"
+#line 492 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Sprite, std::string(anchor, ctx->cursor)) ; }
-#line 5355 "<stdout>"
+#line 5357 "<stdout>"
 yy142:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9277,9 +9279,9 @@ yy142:
 	default:	goto yy143;
 	}
 yy143:
-#line 501 "hammer_fgd.y"
+#line 503 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_String, std::string(anchor, ctx->cursor)) ; }
-#line 5427 "<stdout>"
+#line 5429 "<stdout>"
 yy144:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9349,9 +9351,9 @@ yy144:
 	default:	goto yy145;
 	}
 yy145:
-#line 495 "hammer_fgd.y"
+#line 497 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Studio, std::string(anchor, ctx->cursor)) ; }
-#line 5499 "<stdout>"
+#line 5501 "<stdout>"
 yy146:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9500,9 +9502,9 @@ yy150:
 	default:	goto yy151;
 	}
 yy151:
-#line 500 "hammer_fgd.y"
+#line 502 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Choices, std::string(anchor, ctx->cursor)) ; }
-#line 5650 "<stdout>"
+#line 5652 "<stdout>"
 yy152:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9636,9 +9638,9 @@ yy154:
 	default:	goto yy155;
 	}
 yy155:
-#line 488 "hammer_fgd.y"
+#line 490 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_IntegerType, std::string(anchor, ctx->cursor)) ; }
-#line 5786 "<stdout>"
+#line 5788 "<stdout>"
 yy156:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -9787,9 +9789,9 @@ yy160:
 	default:	goto yy161;
 	}
 yy161:
-#line 489 "hammer_fgd.y"
+#line 491 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Color255, std::string(anchor, ctx->cursor)) ; }
-#line 5937 "<stdout>"
+#line 5939 "<stdout>"
 yy162:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -10161,9 +10163,9 @@ yy170:
 	}
 yy171:
 	++ctx->cursor;
-#line 474 "hammer_fgd.y"
+#line 476 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_BaseClass); }
-#line 6311 "<stdout>"
+#line 6313 "<stdout>"
 yy173:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -10247,9 +10249,9 @@ yy175:
 	default:	goto yy176;
 	}
 yy176:
-#line 486 "hammer_fgd.y"
+#line 488 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_Iconsprite); }
-#line 6397 "<stdout>"
+#line 6399 "<stdout>"
 yy177:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -10368,14 +10370,14 @@ yy178:
 	}
 yy179:
 	++ctx->cursor;
-#line 475 "hammer_fgd.y"
+#line 477 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_PointClass); }
-#line 6518 "<stdout>"
+#line 6520 "<stdout>"
 yy181:
 	++ctx->cursor;
-#line 473 "hammer_fgd.y"
+#line 475 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_SolidClass); }
-#line 6523 "<stdout>"
+#line 6525 "<stdout>"
 yy183:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -10735,9 +10737,9 @@ yy188:
 	default:	goto yy189;
 	}
 yy189:
-#line 492 "hammer_fgd.y"
+#line 494 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_TargetSource, std::string(anchor, ctx->cursor)) ; }
-#line 6885 "<stdout>"
+#line 6887 "<stdout>"
 yy190:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -11039,11 +11041,11 @@ yy194:
 	default:	goto yy195;
 	}
 yy195:
-#line 493 "hammer_fgd.y"
+#line 495 "hammer_fgd.y"
 	{                     return s(yy::HammerFGDParser::make_TargetDestination, std::string(anchor, ctx->cursor)) ; }
-#line 7189 "<stdout>"
+#line 7191 "<stdout>"
 }
-#line 507 "hammer_fgd.y"
+#line 509 "hammer_fgd.y"
 
 		
 }
