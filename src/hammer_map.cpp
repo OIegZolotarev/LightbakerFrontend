@@ -7,10 +7,14 @@
 #include "common.h"
 #include "hammer_map.h"
 
+extern void ParseMap(HammerMap *file);
+
 HammerMap::HammerMap(FileData *pFileData)
 {
     m_pFileData = pFileData;
     m_pFileData->Ref();
+
+    ParseMap(this);
 }
 
 HammerMap::~HammerMap()
@@ -35,4 +39,17 @@ const char *HammerMap::Data() const
         return nullptr;
 
     return (const char*)m_pFileData->Data();
+}
+
+const size_t HammerMap::Length() const
+{
+    if (!m_pFileData)
+        return 0;
+
+    return m_pFileData->Length();
+}
+
+void HammerMap::AddEntity(map220_entity_t *entity)
+{
+    m_lstEntities.push_back(entity);
 }

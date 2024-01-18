@@ -657,13 +657,33 @@ namespace yy {
       // TextureVector
       char dummy3[sizeof (glm::vec4)];
 
+      // entitiesOpt
+      char dummy4[sizeof (map220ContainerType<map220_entity_t*>)];
+
+      // brushListOpt
+      char dummy5[sizeof (map220ContainerType<map220brush_t*>)];
+
+      // brushFaceList
+      char dummy6[sizeof (map220ContainerType<map220face_t*>)];
+
+      // entityPropertiesOpt
+      char dummy7[sizeof (map220ContainerType<map220keyvalue_t*>)];
+
+      // entityDef
+      char dummy8[sizeof (map220_entity_t*)];
+
+      // brushDef
+      char dummy9[sizeof (map220brush_t*)];
+
       // brushFace
-      char dummy4[sizeof (map220face_t)];
+      char dummy10[sizeof (map220face_t*)];
+
+      // entityProperty
+      char dummy11[sizeof (map220keyvalue_t*)];
 
       // StringLiteral
-      // Identifier
       // TextureName
-      char dummy5[sizeof (std::string)];
+      char dummy12[sizeof (std::string)];
     };
 
     /// The size of the largest semantic type.
@@ -717,15 +737,14 @@ namespace yy {
     YYerror = 256,                 // error
     YYUNDEF = 257,                 // "invalid token"
     StringLiteral = 258,           // StringLiteral
-    Identifier = 259,              // Identifier
-    TextureName = 260,             // TextureName
-    Number = 261,                  // Number
-    OpeningCurlyBracket = 262,     // "{"
-    ClosingCurlyBracket = 263,     // "}"
-    OpeningRoundBracket = 264,     // "("
-    ClosingRoundBracket = 265,     // ")"
-    OpeningSquareBracket = 266,    // "["
-    ClosingSquareBracket = 267     // "]"
+    TextureName = 259,             // TextureName
+    Number = 260,                  // Number
+    OpeningCurlyBracket = 261,     // "{"
+    ClosingCurlyBracket = 262,     // "}"
+    OpeningRoundBracket = 263,     // "("
+    ClosingRoundBracket = 264,     // ")"
+    OpeningSquareBracket = 265,    // "["
+    ClosingSquareBracket = 266     // "]"
       };
       /// Backward compatibility alias (Bison 3.6).
       typedef token_kind_type yytokentype;
@@ -742,28 +761,28 @@ namespace yy {
     {
       enum symbol_kind_type
       {
-        YYNTOKENS = 13, ///< Number of tokens.
+        YYNTOKENS = 12, ///< Number of tokens.
         S_YYEMPTY = -2,
         S_YYEOF = 0,                             // EndOfFile
         S_YYerror = 1,                           // error
         S_YYUNDEF = 2,                           // "invalid token"
         S_StringLiteral = 3,                     // StringLiteral
-        S_Identifier = 4,                        // Identifier
-        S_TextureName = 5,                       // TextureName
-        S_Number = 6,                            // Number
-        S_OpeningCurlyBracket = 7,               // "{"
-        S_ClosingCurlyBracket = 8,               // "}"
-        S_OpeningRoundBracket = 9,               // "("
-        S_ClosingRoundBracket = 10,              // ")"
-        S_OpeningSquareBracket = 11,             // "["
-        S_ClosingSquareBracket = 12,             // "]"
-        S_YYACCEPT = 13,                         // $accept
-        S_Map = 14,                              // Map
-        S_entitiesOpt = 15,                      // entitiesOpt
-        S_entityDef = 16,                        // entityDef
-        S_entityPropertiesOpt = 17,              // entityPropertiesOpt
-        S_entityProperty = 18,                   // entityProperty
-        S_brushDefOpt = 19,                      // brushDefOpt
+        S_TextureName = 4,                       // TextureName
+        S_Number = 5,                            // Number
+        S_OpeningCurlyBracket = 6,               // "{"
+        S_ClosingCurlyBracket = 7,               // "}"
+        S_OpeningRoundBracket = 8,               // "("
+        S_ClosingRoundBracket = 9,               // ")"
+        S_OpeningSquareBracket = 10,             // "["
+        S_ClosingSquareBracket = 11,             // "]"
+        S_YYACCEPT = 12,                         // $accept
+        S_Map = 13,                              // Map
+        S_entitiesOpt = 14,                      // entitiesOpt
+        S_entityDef = 15,                        // entityDef
+        S_entityPropertiesOpt = 16,              // entityPropertiesOpt
+        S_entityProperty = 17,                   // entityProperty
+        S_brushListOpt = 18,                     // brushListOpt
+        S_brushDef = 19,                         // brushDef
         S_brushFaceList = 20,                    // brushFaceList
         S_brushFace = 21,                        // brushFace
         S_PlanePoint = 22,                       // PlanePoint
@@ -816,12 +835,39 @@ namespace yy {
         value.move< glm::vec4 > (std::move (that.value));
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.move< map220ContainerType<map220_entity_t*> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.move< map220ContainerType<map220brush_t*> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.move< map220ContainerType<map220face_t*> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.move< map220ContainerType<map220keyvalue_t*> > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.move< map220_entity_t* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.move< map220brush_t* > (std::move (that.value));
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.move< map220face_t > (std::move (that.value));
+        value.move< map220face_t* > (std::move (that.value));
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.move< map220keyvalue_t* > (std::move (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.move< std::string > (std::move (that.value));
         break;
@@ -892,13 +938,111 @@ namespace yy {
 #endif
 
 #if 201103L <= YY_CPLUSPLUS
-      basic_symbol (typename Base::kind_type t, map220face_t&& v, location_type&& l)
+      basic_symbol (typename Base::kind_type t, map220ContainerType<map220_entity_t*>&& v, location_type&& l)
         : Base (t)
         , value (std::move (v))
         , location (std::move (l))
       {}
 #else
-      basic_symbol (typename Base::kind_type t, const map220face_t& v, const location_type& l)
+      basic_symbol (typename Base::kind_type t, const map220ContainerType<map220_entity_t*>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220ContainerType<map220brush_t*>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220ContainerType<map220brush_t*>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220ContainerType<map220face_t*>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220ContainerType<map220face_t*>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220ContainerType<map220keyvalue_t*>&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220ContainerType<map220keyvalue_t*>& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220_entity_t*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220_entity_t*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220brush_t*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220brush_t*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220face_t*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220face_t*& v, const location_type& l)
+        : Base (t)
+        , value (v)
+        , location (l)
+      {}
+#endif
+
+#if 201103L <= YY_CPLUSPLUS
+      basic_symbol (typename Base::kind_type t, map220keyvalue_t*&& v, location_type&& l)
+        : Base (t)
+        , value (std::move (v))
+        , location (std::move (l))
+      {}
+#else
+      basic_symbol (typename Base::kind_type t, const map220keyvalue_t*& v, const location_type& l)
         : Base (t)
         , value (v)
         , location (l)
@@ -955,12 +1099,39 @@ switch (yykind)
         value.template destroy< glm::vec4 > ();
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.template destroy< map220ContainerType<map220_entity_t*> > ();
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.template destroy< map220ContainerType<map220brush_t*> > ();
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.template destroy< map220ContainerType<map220face_t*> > ();
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.template destroy< map220ContainerType<map220keyvalue_t*> > ();
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.template destroy< map220_entity_t* > ();
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.template destroy< map220brush_t* > ();
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.template destroy< map220face_t > ();
+        value.template destroy< map220face_t* > ();
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.template destroy< map220keyvalue_t* > ();
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.template destroy< std::string > ();
         break;
@@ -1202,21 +1373,6 @@ switch (yykind)
 #if 201103L <= YY_CPLUSPLUS
       static
       symbol_type
-      make_Identifier (std::string v, location_type l)
-      {
-        return symbol_type (token::Identifier, std::move (v), std::move (l));
-      }
-#else
-      static
-      symbol_type
-      make_Identifier (const std::string& v, const location_type& l)
-      {
-        return symbol_type (token::Identifier, v, l);
-      }
-#endif
-#if 201103L <= YY_CPLUSPLUS
-      static
-      symbol_type
       make_TextureName (std::string v, location_type l)
       {
         return symbol_type (token::TextureName, std::move (v), std::move (l));
@@ -1437,7 +1593,7 @@ switch (yykind)
 
 #if YYDEBUG
     // YYRLINE[YYN] -- Source line where rule number YYN was defined.
-    static const signed char yyrline_[];
+    static const unsigned char yyrline_[];
     /// Report on the debug stream that the rule \a r is going to be reduced.
     virtual void yy_reduce_print_ (int r) const;
     /// Print the state stack on the debug stream.
@@ -1664,8 +1820,8 @@ switch (yykind)
     /// Constants.
     enum
     {
-      yylast_ = 25,     ///< Last index in yytable_.
-      yynnts_ = 11,  ///< Number of nonterminal symbols.
+      yylast_ = 27,     ///< Last index in yytable_.
+      yynnts_ = 12,  ///< Number of nonterminal symbols.
       yyfinal_ = 3 ///< Termination state number.
     };
 
@@ -1710,10 +1866,10 @@ switch (yykind)
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       5,     6,     7,     8,     9,    10,    11
     };
     // Last valid token kind.
-    const int code_max = 267;
+    const int code_max = 266;
 
     if (t <= 0)
       return symbol_kind::S_YYEOF;
@@ -1744,12 +1900,39 @@ switch (yykind)
         value.copy< glm::vec4 > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.copy< map220ContainerType<map220_entity_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.copy< map220ContainerType<map220brush_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.copy< map220ContainerType<map220face_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.copy< map220ContainerType<map220keyvalue_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.copy< map220_entity_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.copy< map220brush_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.copy< map220face_t > (YY_MOVE (that.value));
+        value.copy< map220face_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.copy< map220keyvalue_t* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.copy< std::string > (YY_MOVE (that.value));
         break;
@@ -1797,12 +1980,39 @@ switch (yykind)
         value.move< glm::vec4 > (YY_MOVE (s.value));
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.move< map220ContainerType<map220_entity_t*> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.move< map220ContainerType<map220brush_t*> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.move< map220ContainerType<map220face_t*> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.move< map220ContainerType<map220keyvalue_t*> > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.move< map220_entity_t* > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.move< map220brush_t* > (YY_MOVE (s.value));
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.move< map220face_t > (YY_MOVE (s.value));
+        value.move< map220face_t* > (YY_MOVE (s.value));
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.move< map220keyvalue_t* > (YY_MOVE (s.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.move< std::string > (YY_MOVE (s.value));
         break;
@@ -1876,6 +2086,10 @@ switch (yykind)
 
 struct HammerMapParsingContext
 {
+    int progress = -10;
+    size_t length = 0;
+    const char* start;
+
     const char* cursor;
     yy::location loc;
 
@@ -1885,6 +2099,8 @@ struct HammerMapParsingContext
     {
        m_pMap = file;
        cursor = file->Data();
+       length = file->Length();
+       start = cursor;
     }
 
 
@@ -1907,7 +2123,7 @@ void ParseMap(HammerMap * file)
     yy::HammerMapParser parser(&ctx);
 
     
-    //parser.set_debug_level(999);
+    // parser.set_debug_level(999);
 
     parser.parse();  
 }
@@ -2083,12 +2299,39 @@ namespace yy {
         value.YY_MOVE_OR_COPY< glm::vec4 > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.YY_MOVE_OR_COPY< map220ContainerType<map220_entity_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.YY_MOVE_OR_COPY< map220ContainerType<map220brush_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.YY_MOVE_OR_COPY< map220ContainerType<map220face_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.YY_MOVE_OR_COPY< map220ContainerType<map220keyvalue_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.YY_MOVE_OR_COPY< map220_entity_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.YY_MOVE_OR_COPY< map220brush_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.YY_MOVE_OR_COPY< map220face_t > (YY_MOVE (that.value));
+        value.YY_MOVE_OR_COPY< map220face_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.YY_MOVE_OR_COPY< map220keyvalue_t* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.YY_MOVE_OR_COPY< std::string > (YY_MOVE (that.value));
         break;
@@ -2120,12 +2363,39 @@ namespace yy {
         value.move< glm::vec4 > (YY_MOVE (that.value));
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.move< map220ContainerType<map220_entity_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.move< map220ContainerType<map220brush_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.move< map220ContainerType<map220face_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.move< map220ContainerType<map220keyvalue_t*> > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.move< map220_entity_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.move< map220brush_t* > (YY_MOVE (that.value));
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.move< map220face_t > (YY_MOVE (that.value));
+        value.move< map220face_t* > (YY_MOVE (that.value));
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.move< map220keyvalue_t* > (YY_MOVE (that.value));
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.move< std::string > (YY_MOVE (that.value));
         break;
@@ -2157,12 +2427,39 @@ namespace yy {
         value.copy< glm::vec4 > (that.value);
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.copy< map220ContainerType<map220_entity_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.copy< map220ContainerType<map220brush_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.copy< map220ContainerType<map220face_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.copy< map220ContainerType<map220keyvalue_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.copy< map220_entity_t* > (that.value);
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.copy< map220brush_t* > (that.value);
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.copy< map220face_t > (that.value);
+        value.copy< map220face_t* > (that.value);
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.copy< map220keyvalue_t* > (that.value);
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.copy< std::string > (that.value);
         break;
@@ -2193,12 +2490,39 @@ namespace yy {
         value.move< glm::vec4 > (that.value);
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        value.move< map220ContainerType<map220_entity_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        value.move< map220ContainerType<map220brush_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        value.move< map220ContainerType<map220face_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        value.move< map220ContainerType<map220keyvalue_t*> > (that.value);
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        value.move< map220_entity_t* > (that.value);
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        value.move< map220brush_t* > (that.value);
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        value.move< map220face_t > (that.value);
+        value.move< map220face_t* > (that.value);
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        value.move< map220keyvalue_t* > (that.value);
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         value.move< std::string > (that.value);
         break;
@@ -2474,12 +2798,39 @@ namespace yy {
         yylhs.value.emplace< glm::vec4 > ();
         break;
 
+      case symbol_kind::S_entitiesOpt: // entitiesOpt
+        yylhs.value.emplace< map220ContainerType<map220_entity_t*> > ();
+        break;
+
+      case symbol_kind::S_brushListOpt: // brushListOpt
+        yylhs.value.emplace< map220ContainerType<map220brush_t*> > ();
+        break;
+
+      case symbol_kind::S_brushFaceList: // brushFaceList
+        yylhs.value.emplace< map220ContainerType<map220face_t*> > ();
+        break;
+
+      case symbol_kind::S_entityPropertiesOpt: // entityPropertiesOpt
+        yylhs.value.emplace< map220ContainerType<map220keyvalue_t*> > ();
+        break;
+
+      case symbol_kind::S_entityDef: // entityDef
+        yylhs.value.emplace< map220_entity_t* > ();
+        break;
+
+      case symbol_kind::S_brushDef: // brushDef
+        yylhs.value.emplace< map220brush_t* > ();
+        break;
+
       case symbol_kind::S_brushFace: // brushFace
-        yylhs.value.emplace< map220face_t > ();
+        yylhs.value.emplace< map220face_t* > ();
+        break;
+
+      case symbol_kind::S_entityProperty: // entityProperty
+        yylhs.value.emplace< map220keyvalue_t* > ();
         break;
 
       case symbol_kind::S_StringLiteral: // StringLiteral
-      case symbol_kind::S_Identifier: // Identifier
       case symbol_kind::S_TextureName: // TextureName
         yylhs.value.emplace< std::string > ();
         break;
@@ -2504,15 +2855,63 @@ namespace yy {
         {
           switch (yyn)
             {
-  case 13: // brushFace: PlanePoint PlanePoint PlanePoint TextureName TextureVector TextureVector Number Number Number
-                                                                                                         { yylhs.value.as < map220face_t > () = map220face_t(yystack_[8].value.as < glm::vec3 > (),yystack_[7].value.as < glm::vec3 > (),yystack_[6].value.as < glm::vec3 > (),yystack_[5].value.as < std::string > (),yystack_[4].value.as < glm::vec4 > (),yystack_[3].value.as < glm::vec4 > (),yystack_[2].value.as < float > (), glm::vec2(yystack_[1].value.as < float > (),yystack_[0].value.as < float > ())); }
+  case 2: // Map: entitiesOpt
+                 { (void)0;}
     break;
 
-  case 14: // PlanePoint: "(" Number Number Number ")"
+  case 3: // entitiesOpt: entitiesOpt entityDef
+                                   { ctx->m_pMap->AddEntity(yystack_[0].value.as < map220_entity_t* > ()); }
+    break;
+
+  case 4: // entitiesOpt: %empty
+        { (void)0; }
+    break;
+
+  case 5: // entityDef: "{" entityPropertiesOpt brushListOpt "}"
+                                                                                    { yylhs.value.as < map220_entity_t* > () = new map220_entity_t(yystack_[2].value.as < map220ContainerType<map220keyvalue_t*> > (), yystack_[1].value.as < map220ContainerType<map220brush_t*> > ());  }
+    break;
+
+  case 6: // entityPropertiesOpt: entityPropertiesOpt entityProperty
+                                                        { yystack_[1].value.as < map220ContainerType<map220keyvalue_t*> > ().push_back(yystack_[0].value.as < map220keyvalue_t* > ()); yylhs.value.as < map220ContainerType<map220keyvalue_t*> > () = yystack_[1].value.as < map220ContainerType<map220keyvalue_t*> > ();  }
+    break;
+
+  case 7: // entityPropertiesOpt: %empty
+        { (void)0; }
+    break;
+
+  case 8: // entityProperty: StringLiteral StringLiteral
+                                            { yylhs.value.as < map220keyvalue_t* > () = new map220keyvalue_t{std::move(yystack_[1].value.as < std::string > ()),std::move(yystack_[0].value.as < std::string > ())}; }
+    break;
+
+  case 9: // brushListOpt: brushListOpt brushDef
+                                    {yystack_[1].value.as < map220ContainerType<map220brush_t*> > ().push_back(yystack_[0].value.as < map220brush_t* > ()); yylhs.value.as < map220ContainerType<map220brush_t*> > () = yystack_[1].value.as < map220ContainerType<map220brush_t*> > (); }
+    break;
+
+  case 10: // brushListOpt: %empty
+        { (void)0; }
+    break;
+
+  case 11: // brushDef: "{" brushFaceList "}"
+                                                                { map220brush_t * b = new map220brush_s; b->faces = yystack_[1].value.as < map220ContainerType<map220face_t*> > (); yylhs.value.as < map220brush_t* > () = b; }
+    break;
+
+  case 12: // brushFaceList: brushFaceList brushFace
+                                       { yystack_[1].value.as < map220ContainerType<map220face_t*> > ().push_back(yystack_[0].value.as < map220face_t* > ()); yylhs.value.as < map220ContainerType<map220face_t*> > () = yystack_[1].value.as < map220ContainerType<map220face_t*> > (); }
+    break;
+
+  case 13: // brushFaceList: %empty
+        { (void)0; }
+    break;
+
+  case 14: // brushFace: PlanePoint PlanePoint PlanePoint TextureName TextureVector TextureVector Number Number Number
+                                                                                                         { yylhs.value.as < map220face_t* > () = new map220face_t(yystack_[8].value.as < glm::vec3 > (),yystack_[7].value.as < glm::vec3 > (),yystack_[6].value.as < glm::vec3 > (),yystack_[5].value.as < std::string > (),yystack_[4].value.as < glm::vec4 > (),yystack_[3].value.as < glm::vec4 > (),yystack_[2].value.as < float > (), glm::vec2(yystack_[1].value.as < float > (),yystack_[0].value.as < float > ())); }
+    break;
+
+  case 15: // PlanePoint: "(" Number Number Number ")"
                                                                          { yylhs.value.as < glm::vec3 > () = glm::vec3(yystack_[3].value.as < float > (),yystack_[2].value.as < float > (),yystack_[1].value.as < float > ()); }
     break;
 
-  case 15: // TextureVector: "[" Number Number Number Number "]"
+  case 16: // TextureVector: "[" Number Number Number Number "]"
                                                                                      { yylhs.value.as < glm::vec4 > () = glm::vec4(yystack_[4].value.as < float > (),yystack_[3].value.as < float > (),yystack_[2].value.as < float > (),yystack_[1].value.as < float > ()); }
     break;
 
@@ -2868,79 +3267,79 @@ namespace yy {
   }
 
 
-  const signed char HammerMapParser::yypact_ninf_ = -17;
+  const signed char HammerMapParser::yypact_ninf_ = -19;
 
   const signed char HammerMapParser::yytable_ninf_ = -1;
 
   const signed char
   HammerMapParser::yypact_[] =
   {
-     -17,     2,     1,   -17,   -17,   -17,    -3,     6,   -17,   -17,
-       3,   -17,    -2,   -17,   -17,    -1,   -17,     4,     8,     4,
-       9,     5,     7,    10,   -17,    12,    10,    13,    14,    16,
-      17,    18,    19,     0,   -17,   -17
+     -19,     1,     2,   -19,   -19,   -19,     4,     6,   -19,    -3,
+     -19,   -19,   -19,   -19,    -2,   -19,     5,   -19,     3,     7,
+       3,     8,    10,     9,    11,   -19,    12,    11,    14,    15,
+      17,    18,    19,    20,    16,   -19,   -19
   };
 
   const signed char
   HammerMapParser::yydefact_[] =
   {
-       4,     0,     2,     1,     7,     3,    10,     0,    12,     6,
-       0,     8,     0,     5,     9,     0,    11,     0,     0,     0,
-       0,     0,     0,     0,    14,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,    13,    15
+       4,     0,     2,     1,     7,     3,    10,     0,     6,     0,
+       8,    13,     5,     9,     0,    11,     0,    12,     0,     0,
+       0,     0,     0,     0,     0,    15,     0,     0,     0,     0,
+       0,     0,     0,     0,     0,    14,    16
   };
 
   const signed char
   HammerMapParser::yypgoto_[] =
   {
-     -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -17,   -16,
-     -10
+     -19,   -19,   -19,   -19,   -19,   -19,   -19,   -19,   -19,   -19,
+     -18,   -12
   };
 
   const signed char
   HammerMapParser::yydefgoto_[] =
   {
-       0,     1,     2,     5,     6,     9,    10,    12,    16,    17,
-      26
+       0,     1,     2,     5,     6,     8,     9,    13,    14,    17,
+      18,    27
   };
 
   const signed char
   HammerMapParser::yytable_[] =
   {
-       7,    19,     3,    21,     8,    18,    14,    15,     4,    11,
-      23,    13,    35,    15,    20,    22,    28,    24,    27,    29,
-      30,    25,    31,    32,    33,    34
+      20,     3,    22,    11,    12,    15,    16,     7,     4,    10,
+      19,    16,    21,    23,    24,    29,     0,    28,    25,    30,
+      31,    26,    32,    33,    34,    35,     0,    36
   };
 
   const signed char
   HammerMapParser::yycheck_[] =
   {
-       3,    17,     0,    19,     7,     6,     8,     9,     7,     3,
-       5,     8,    12,     9,     6,     6,    26,    10,     6,     6,
-       6,    11,     6,     6,     6,     6
+      18,     0,    20,     6,     7,     7,     8,     3,     6,     3,
+       5,     8,     5,     5,     4,    27,    -1,     5,     9,     5,
+       5,    10,     5,     5,     5,     5,    -1,    11
   };
 
   const signed char
   HammerMapParser::yystos_[] =
   {
-       0,    14,    15,     0,     7,    16,    17,     3,     7,    18,
-      19,     3,    20,     8,     8,     9,    21,    22,     6,    22,
-       6,    22,     6,     5,    10,    11,    23,     6,    23,     6,
-       6,     6,     6,     6,     6,    12
+       0,    13,    14,     0,     6,    15,    16,     3,    17,    18,
+       3,     6,     7,    19,    20,     7,     8,    21,    22,     5,
+      22,     5,    22,     5,     4,     9,    10,    23,     5,    23,
+       5,     5,     5,     5,     5,     5,    11
   };
 
   const signed char
   HammerMapParser::yyr1_[] =
   {
-       0,    13,    14,    15,    15,    16,    17,    17,    18,    19,
-      19,    20,    20,    21,    22,    23
+       0,    12,    13,    14,    14,    15,    16,    16,    17,    18,
+      18,    19,    20,    20,    21,    22,    23
   };
 
   const signed char
   HammerMapParser::yyr2_[] =
   {
-       0,     2,     1,     2,     0,     4,     2,     0,     2,     3,
-       0,     2,     0,     9,     5,     6
+       0,     2,     1,     2,     0,     4,     2,     0,     2,     2,
+       0,     3,     2,     0,     9,     5,     6
   };
 
 
@@ -2951,20 +3350,20 @@ namespace yy {
   const HammerMapParser::yytname_[] =
   {
   "EndOfFile", "error", "\"invalid token\"", "StringLiteral",
-  "Identifier", "TextureName", "Number", "\"{\"", "\"}\"", "\"(\"",
-  "\")\"", "\"[\"", "\"]\"", "$accept", "Map", "entitiesOpt", "entityDef",
-  "entityPropertiesOpt", "entityProperty", "brushDefOpt", "brushFaceList",
-  "brushFace", "PlanePoint", "TextureVector", YY_NULLPTR
+  "TextureName", "Number", "\"{\"", "\"}\"", "\"(\"", "\")\"", "\"[\"",
+  "\"]\"", "$accept", "Map", "entitiesOpt", "entityDef",
+  "entityPropertiesOpt", "entityProperty", "brushListOpt", "brushDef",
+  "brushFaceList", "brushFace", "PlanePoint", "TextureVector", YY_NULLPTR
   };
 #endif
 
 
 #if YYDEBUG
-  const signed char
+  const unsigned char
   HammerMapParser::yyrline_[] =
   {
-       0,    93,    93,    97,    98,   102,   105,   106,   108,   110,
-     111,   113,   114,   116,   118,   119
+       0,   110,   110,   115,   116,   119,   121,   122,   124,   126,
+     127,   129,   131,   132,   134,   136,   137
   };
 
   void
@@ -3002,8 +3401,20 @@ namespace yy {
 
 yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 {
+    const char* marker = ctx->cursor;
     const char* anchor = ctx->cursor;
     ctx->loc.step();
+        
+    
+    size_t offset = ctx->cursor - ctx->start;
+    float currentProgress = offset / (float)ctx->length * 100.f;
+
+    if ((ctx->progress + 10 <= currentProgress))
+    {
+        printf("\rLoading MAP %.3f", currentProgress);
+        fflush(stdout);
+        ctx->progress = currentProgress;
+    }
 
     auto s = [&](auto func, auto&&... params) 
     { 
@@ -3012,9 +3423,9 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
     };
 
     
-#line 139 "<stdout>"
 {
 	char yych;
+	unsigned int yyaccept = 0;
 	yych = *ctx->cursor;
 	switch (yych) {
 	case 0x00:	goto yy3;
@@ -3025,10 +3436,14 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 	case ' ':	goto yy5;
 	case '\n':	goto yy7;
 	case '\r':	goto yy9;
-	case '"':	goto yy10;
-	case '(':	goto yy12;
-	case ')':	goto yy14;
-	case '-':
+	case '!':
+	case '+':	goto yy10;
+	case '"':	goto yy12;
+	case '(':	goto yy14;
+	case ')':	goto yy16;
+	case '-':	goto yy18;
+	case '.':	goto yy21;
+	case '/':	goto yy23;
 	case '0':
 	case '1':
 	case '2':
@@ -3038,8 +3453,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy16;
-	case '/':	goto yy19;
+	case '9':	goto yy24;
 	case 'A':
 	case 'B':
 	case 'C':
@@ -3092,28 +3506,31 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 	case 'w':
 	case 'x':
 	case 'y':
-	case 'z':	goto yy20;
-	case '[':	goto yy23;
-	case ']':	goto yy25;
+	case 'z':	goto yy26;
+	case '[':	goto yy29;
+	case ']':	goto yy31;
+	case '{':	goto yy33;
+	case '}':	goto yy35;
+	case '~':	goto yy37;
 	default:	goto yy2;
 	}
 yy2:
+	ctx->cursor = marker;
+	switch (yyaccept) {
+	case 0: 	goto yy20;
+	case 1: 	goto yy34;
+	default:	goto yy28;
+	}
 yy3:
 	++ctx->cursor;
-#line 144 "hammer_map.y"
 	{                     return s(yy::HammerMapParser::make_EndOfFile); }
-#line 229 "<stdout>"
 yy5:
 	++ctx->cursor;
-#line 154 "hammer_map.y"
 	{ ctx->loc.columns(); return yylex(ctx); }
-#line 234 "<stdout>"
 yy7:
 	++ctx->cursor;
 yy8:
-#line 152 "hammer_map.y"
 	{ ctx->loc.lines();   return yylex(ctx); }
-#line 240 "<stdout>"
 yy9:
 	yych = *++ctx->cursor;
 	switch (yych) {
@@ -3122,23 +3539,344 @@ yy9:
 	}
 yy10:
 	yych = *++ctx->cursor;
+yy11:
 	switch (yych) {
-	case '"':	goto yy27;
-	default:	goto yy10;
+	case '!':
+	case '+':
+	case '-':
+	case '{':	goto yy10;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy26;
+	case '~':	goto yy37;
+	default:	goto yy2;
 	}
 yy12:
-	++ctx->cursor;
-#line 146 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_OpeningRoundBracket); }
-#line 257 "<stdout>"
-yy14:
-	++ctx->cursor;
-#line 147 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_ClosingRoundBracket); }
-#line 262 "<stdout>"
-yy16:
 	yych = *++ctx->cursor;
 	switch (yych) {
+	case '"':	goto yy39;
+	default:	goto yy12;
+	}
+yy14:
+	++ctx->cursor;
+	{                     return s(yy::HammerMapParser::make_OpeningRoundBracket); }
+yy16:
+	++ctx->cursor;
+	{                     return s(yy::HammerMapParser::make_ClosingRoundBracket); }
+yy18:
+	yyaccept = 0;
+	yych = *(marker = ++ctx->cursor);
+	switch (yych) {
+	case '!':
+	case '+':
+	case '{':	goto yy10;
+	case '-':	goto yy18;
+	case '.':	goto yy21;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy24;
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy26;
+	case '~':	goto yy37;
+	default:	goto yy20;
+	}
+yy20:
+	{                     return s(yy::HammerMapParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
+yy21:
+	yych = *++ctx->cursor;
+	switch (yych) {
+	case '-':
+	case '.':
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy21;
+	default:	goto yy20;
+	}
+yy23:
+	yych = *++ctx->cursor;
+	switch (yych) {
+	case '/':	goto yy41;
+	default:	goto yy2;
+	}
+yy24:
+	yych = *++ctx->cursor;
+	switch (yych) {
+	case '-':
+	case '.':	goto yy21;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':	goto yy24;
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':
+	case '~':	goto yy26;
+	default:	goto yy20;
+	}
+yy26:
+	yych = *++ctx->cursor;
+	switch (yych) {
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':
+	case '~':	goto yy26;
+	default:	goto yy28;
+	}
+yy28:
+	{                     return s(yy::HammerMapParser::make_TextureName, std::string(anchor, ctx->cursor)); }
+yy29:
+	++ctx->cursor;
+	{                     return s(yy::HammerMapParser::make_OpeningSquareBracket); }
+yy31:
+	++ctx->cursor;
+	{                     return s(yy::HammerMapParser::make_ClosingSquareBracket); }
+yy33:
+	yyaccept = 1;
+	yych = *(marker = ++ctx->cursor);
+	switch (yych) {
+	case '!':
+	case '+':
 	case '-':
 	case '0':
 	case '1':
@@ -3149,32 +3887,7 @@ yy16:
 	case '6':
 	case '7':
 	case '8':
-	case '9':	goto yy16;
-	default:	goto yy18;
-	}
-yy18:
-#line 145 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_Number, std::stol(std::string(anchor,ctx->cursor))); }
-#line 282 "<stdout>"
-yy19:
-	yych = *++ctx->cursor;
-	switch (yych) {
-	case '/':	goto yy29;
-	default:	goto yy2;
-	}
-yy20:
-	yych = *++ctx->cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy32;
+	case '9':
 	case 'A':
 	case 'B':
 	case 'C':
@@ -3227,174 +3940,110 @@ yy20:
 	case 'w':
 	case 'x':
 	case 'y':
-	case 'z':	goto yy20;
-	default:	goto yy22;
+	case 'z':
+	case '{':
+	case '~':	goto yy11;
+	default:	goto yy34;
 	}
-yy22:
-#line 151 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_Identifier, std::string(anchor, ctx->cursor)); }
-#line 360 "<stdout>"
-yy23:
+yy34:
+	{                     return s(yy::HammerMapParser::make_OpeningCurlyBracket); }
+yy35:
 	++ctx->cursor;
-#line 148 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_OpeningSquareBracket); }
-#line 365 "<stdout>"
-yy25:
+	{                     return s(yy::HammerMapParser::make_ClosingCurlyBracket); }
+yy37:
+	yyaccept = 2;
+	yych = *(marker = ++ctx->cursor);
+	switch (yych) {
+	case '!':
+	case '+':
+	case '-':
+	case '{':	goto yy10;
+	case '0':
+	case '1':
+	case '2':
+	case '3':
+	case '4':
+	case '5':
+	case '6':
+	case '7':
+	case '8':
+	case '9':
+	case 'A':
+	case 'B':
+	case 'C':
+	case 'D':
+	case 'E':
+	case 'F':
+	case 'G':
+	case 'H':
+	case 'I':
+	case 'J':
+	case 'K':
+	case 'L':
+	case 'M':
+	case 'N':
+	case 'O':
+	case 'P':
+	case 'Q':
+	case 'R':
+	case 'S':
+	case 'T':
+	case 'U':
+	case 'V':
+	case 'W':
+	case 'X':
+	case 'Y':
+	case 'Z':
+	case '_':
+	case 'a':
+	case 'b':
+	case 'c':
+	case 'd':
+	case 'e':
+	case 'f':
+	case 'g':
+	case 'h':
+	case 'i':
+	case 'j':
+	case 'k':
+	case 'l':
+	case 'm':
+	case 'n':
+	case 'o':
+	case 'p':
+	case 'q':
+	case 'r':
+	case 's':
+	case 't':
+	case 'u':
+	case 'v':
+	case 'w':
+	case 'x':
+	case 'y':
+	case 'z':	goto yy26;
+	case '~':	goto yy37;
+	default:	goto yy28;
+	}
+yy39:
 	++ctx->cursor;
-#line 149 "hammer_map.y"
-	{                     return s(yy::HammerMapParser::make_ClosingSquareBracket); }
-#line 370 "<stdout>"
-yy27:
-	++ctx->cursor;
-#line 150 "hammer_map.y"
 	{                     return s(yy::HammerMapParser::make_StringLiteral, std::string(anchor+1, ctx->cursor-1)); }
-#line 375 "<stdout>"
-yy29:
+yy41:
 	yych = *++ctx->cursor;
 	switch (yych) {
 	case '\n':
-	case '\r':	goto yy31;
-	default:	goto yy29;
+	case '\r':	goto yy43;
+	default:	goto yy41;
 	}
-yy31:
-#line 153 "hammer_map.y"
+yy43:
 	{                     return yylex(ctx); }
-#line 386 "<stdout>"
-yy32:
-	yych = *++ctx->cursor;
-	switch (yych) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':	goto yy32;
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '_':
-	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy34;
-	default:	goto yy22;
-	}
-yy34:
-	yych = *++ctx->cursor;
-	switch (yych) {
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-	case 'E':
-	case 'F':
-	case 'G':
-	case 'H':
-	case 'I':
-	case 'J':
-	case 'K':
-	case 'L':
-	case 'M':
-	case 'N':
-	case 'O':
-	case 'P':
-	case 'Q':
-	case 'R':
-	case 'S':
-	case 'T':
-	case 'U':
-	case 'V':
-	case 'W':
-	case 'X':
-	case 'Y':
-	case 'Z':
-	case '_':
-	case 'a':
-	case 'b':
-	case 'c':
-	case 'd':
-	case 'e':
-	case 'f':
-	case 'g':
-	case 'h':
-	case 'i':
-	case 'j':
-	case 'k':
-	case 'l':
-	case 'm':
-	case 'n':
-	case 'o':
-	case 'p':
-	case 'q':
-	case 'r':
-	case 's':
-	case 't':
-	case 'u':
-	case 'v':
-	case 'w':
-	case 'x':
-	case 'y':
-	case 'z':	goto yy34;
-	default:	goto yy22;
-	}
 }
-#line 155 "hammer_map.y"
 
 		
 }
 
 void yy::HammerMapParser::error(const location_type& l,const std::string& m)
 {
-    Con_Printf("%s\n",m.c_str());
+    Con_Printf("[%s: line: %d, column: %d]%s\n",l.begin.filename, l.begin.line, l.begin.column ,m.c_str());
 }
 
 
