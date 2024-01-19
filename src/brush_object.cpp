@@ -115,9 +115,19 @@ bool BrushObject::CreateFacesFromPlanes(int flags)
     return m_bValid;
 }
 
- BrushObject::BrushObject(Scene *pScene) : SceneEntity(pScene)
+SceneEntity *BrushObject::Clone()
+{
+    return new BrushObject(this);
+}
+
+BrushObject::BrushObject(Scene *pScene) : SceneEntity(pScene)
 {
 }
+
+ BrushObject::BrushObject(BrushObject *pOther) : SceneEntity(pOther->m_pScene)
+{
+     assert(false && "Implement me!");
+ }
 
 BrushObject::~BrushObject()
 {
@@ -132,7 +142,7 @@ DrawMesh *BrushObject::GetDrawMesh()
     return m_pDrawMesh;
 }
 
-void BrushObject::AddFace(glm::vec3 pts[3])
+void BrushObject::AddFace(const glm::vec3 pts[3])
 {
     BrushFace *pNewFace = new BrushFace(this, pts);
     m_lstFaces.push_back(pNewFace);

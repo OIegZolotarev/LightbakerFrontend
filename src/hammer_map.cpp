@@ -23,7 +23,7 @@ HammerMap::~HammerMap()
 
     ClearPointersVector(m_lstEntities);
     ClearPointersVector(m_lstBrushFaceList);
-    ClearPointersVector(m_lstBrushListOpt);
+    ClearPointersVector(m_lstBrushes);
     ClearPointersVector(m_lstEntityPropertiesOpt);
 }
 
@@ -57,7 +57,7 @@ const size_t HammerMap::Length() const
 void HammerMap::AddNewEntity()
 {
     size_t firstBrush = m_CurrentEntityFirstBrush;
-    size_t numBrushes = m_lstBrushListOpt.size() - m_CurrentEntityFirstBrush;
+    size_t numBrushes = m_lstBrushes.size() - m_CurrentEntityFirstBrush;
 
     size_t firstProperty = m_CurrentEntityFirstProperty;
     size_t numProperties   = m_lstEntityPropertiesOpt.size() - m_CurrentEntityFirstProperty;
@@ -65,7 +65,7 @@ void HammerMap::AddNewEntity()
     map220_entity_t *pNewEntity = new map220_entity_t(firstProperty, numProperties, firstBrush, numBrushes);
 
     m_CurrentEntityFirstProperty = m_lstEntityPropertiesOpt.size();
-    m_CurrentEntityFirstBrush    = m_lstBrushListOpt.size();
+    m_CurrentEntityFirstBrush    = m_lstBrushes.size();
 
     m_lstEntities.push_back(pNewEntity);
 }
@@ -91,7 +91,7 @@ map220brush_t *HammerMap::MakeNewBrush()
     m_CurrentBrushFirstFace = m_lstBrushFaceList.size();
     map220brush_t *result   = new map220brush_t(firstFace, numFaces);
 
-    m_lstBrushListOpt.push_back(result);
+    m_lstBrushes.push_back(result);
 
     return result;
 }
@@ -103,6 +103,24 @@ map220face_t *HammerMap::MakeNewFace(const glm::vec3 pt1, const glm::vec3 pt2, c
     auto result = new map220face_t(pt1, pt2, pt3, _textureName, _uAxis, _vAxis, _rotation, _scale);
     m_lstBrushFaceList.push_back(result);
     return result;
+}
+
+const map220_entity_t * HammerMap::GetEntity(const size_t index) const
+{
+    assert(index < m_lstEntities.size());
+    return m_lstEntities[index];
+}
+
+const map220brush_t *HammerMap::GetBrush(size_t index) const
+{
+    assert(index < m_lstBrushes.size());
+    return m_lstBrushes[index];
+}
+
+const map220face_t* HammerMap::GetFace(size_t index) const
+{
+    assert(index < m_lstBrushFaceList.size());
+    return m_lstBrushFaceList[index];
 }
 
 map220keyvalue_s::map220keyvalue_s(const std::string &_key, const std::string &_value)

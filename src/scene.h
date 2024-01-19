@@ -30,7 +30,8 @@ enum class LevelFormat
 {
     Unknown = 0,
     WavefrontOBJ,
-    BSP
+    BSP,
+    MAP
 };
 
 typedef struct sceneCameraDescriptor_s

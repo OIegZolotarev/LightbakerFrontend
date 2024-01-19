@@ -34,10 +34,13 @@ class BrushObject : public SceneEntity
 
 public:
     BrushObject(Scene * pScene );
+    BrushObject(BrushObject *pOther);
     ~BrushObject();
 
     DrawMesh *GetDrawMesh();
 
-    void AddFace(glm::vec3 pts[3]);
+    void AddFace(const glm::vec3 pts[3]);
     bool CreateFacesFromPlanes(int flags);
+
+    SceneEntity *Clone() override;
 };

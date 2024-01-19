@@ -91,7 +91,7 @@ class BrushFace
 
 public:
     BrushFace();
-    BrushFace(BrushObject *pBrush, glm::vec3 pts[3]);
+    BrushFace(BrushObject *pBrush, const glm::vec3 pts[3]);
 
     void SetTexture(GLTexture *pTexture);
 

@@ -13,7 +13,7 @@ BrushFace::BrushFace()
     memset(&m_Plane, 0, sizeof(m_Plane));
 }
 
-BrushFace::BrushFace(BrushObject *pBrush, glm::vec3 pts[3])
+BrushFace::BrushFace(BrushObject *pBrush, const glm::vec3 pts[3])
 {
     m_pBrush = pBrush;
     m_Plane.SetPoints(pts[0], pts[1], pts[2]);

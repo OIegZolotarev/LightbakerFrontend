@@ -116,7 +116,7 @@ void CCommandsRegistry::InitializeAllCommands()
         auto lfd = FileDialog::Instance();
 
         lfd->SetTitle("Load map\\scene");
-        lfd->SetFilters(".obj,.bsp");
+        lfd->SetFilters(".obj,.bsp,.map");
         lfd->SetOnSelectCallback(callbackLoadScene);
 
         PopupsManager::Instance()->ShowPopup(PopupWindows::FileDialog);

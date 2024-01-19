@@ -7,10 +7,8 @@
 
 #include "common.h"
 
-
 // Vector is 2 times faster in debug and about 4 times faster in release
-template<class T>
-using  map220ContainerType = std::vector<T>;
+template <class T> using map220ContainerType = std::vector<T>;
 
 typedef struct map220face_s
 {
@@ -60,15 +58,15 @@ typedef struct map220keyvalue_s
     std::string key;
     std::string value;
 
-    map220keyvalue_s(const std::string & _key, const std::string & _value);
+    map220keyvalue_s(const std::string &_key, const std::string &_value);
 
 } map220keyvalue_t;
 
 typedef struct map220brush_s
 {
     // map220ContainerType<map220face_t *> faces;
-    size_t                              firstFace;
-    size_t                              numFaces;
+    size_t firstFace;
+    size_t numFaces;
 
     map220brush_s(size_t _firstFace, size_t _numFaces)
     {
@@ -97,22 +95,18 @@ typedef struct map220_entity_s
 
 } map220_entity_t;
 
-
-
 class HammerMap
 {
-    FileData *                 m_pFileData;
+    FileData *                             m_pFileData;
     map220ContainerType<map220_entity_t *> m_lstEntities;
 
-    
-    size_t                                  m_CurrentBrushFirstFace = 0;
-    size_t                                  m_CurrentEntityFirstProperty = 0;
-    size_t                                  m_CurrentEntityFirstBrush = 0;
+    size_t m_CurrentBrushFirstFace      = 0;
+    size_t m_CurrentEntityFirstProperty = 0;
+    size_t m_CurrentEntityFirstBrush    = 0;
 
     map220ContainerType<map220face_t *>     m_lstBrushFaceList;
-    map220ContainerType<map220brush_t *>    m_lstBrushListOpt;
+    map220ContainerType<map220brush_t *>    m_lstBrushes;
     map220ContainerType<map220keyvalue_t *> m_lstEntityPropertiesOpt;
-    
 
 public:
     HammerMap(FileData *pFileData);
@@ -124,11 +118,13 @@ public:
 
     void AddNewEntity();
 
-    map220keyvalue_t *MakeNewKeyValue(const std::string & key, const std::string & value);
-    
+    map220keyvalue_t *MakeNewKeyValue(const std::string &key, const std::string &value);
 
-    map220brush_t *MakeNewBrush();
-    map220face_t * MakeNewFace(const glm::vec3 pt1, const glm::vec3 pt2, const glm::vec3 pt3,
-                               const std::string &_textureName, const glm::vec4 _uAxis, const glm::vec4 _vAxis,
-                               float _rotation, glm::vec2 _scale);
+    map220brush_t *        MakeNewBrush();
+    map220face_t *         MakeNewFace(const glm::vec3 pt1, const glm::vec3 pt2, const glm::vec3 pt3,
+                                       const std::string &_textureName, const glm::vec4 _uAxis, const glm::vec4 _vAxis,
+                                       float _rotation, glm::vec2 _scale);
+    const map220_entity_t *GetEntity(const size_t index) const;
+    const map220brush_t *  GetBrush(size_t i) const;
+    const map220face_t *   GetFace(size_t f) const;
 };
