@@ -14,6 +14,7 @@ enum class ModelType
     StudioV10,
     Sprite,
     HelperPrimitive,
+    Brush,
     Unset,
 };
 

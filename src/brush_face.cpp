@@ -13,9 +13,9 @@ BrushFace::BrushFace()
     memset(&m_Plane, 0, sizeof(m_Plane));
 }
 
-BrushFace::BrushFace(BrushObject *pBrush, const glm::vec3 pts[3])
+BrushFace::BrushFace(BrushModel *pModel, const glm::vec3 pts[3])
 {
-    m_pBrush = pBrush;
+    m_pModel = pModel;
     m_Plane.SetPoints(pts[0], pts[1], pts[2]);
 }
 
@@ -31,9 +31,9 @@ const plane_t *BrushFace::GetPlane() const
 
 void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
 {
-    assert(m_pBrush);
+    assert(m_pModel);
 
-    DrawMesh *m_pBrushMesh = m_pBrush->GetDrawMesh();
+    DrawMesh *m_pBrushMesh = m_pModel->GetDrawMesh();
 
     ValidateTexturingInfo();
 
@@ -51,18 +51,24 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
         float s = glm::dot(glm::vec3(m_TexInfo.uaxis.xyz), vert) / m_TexInfo.scale[0] + m_TexInfo.uaxis[3];
         float t = glm::dot(glm::vec3(m_TexInfo.vaxis.xyz), vert) / m_TexInfo.scale[1] + m_TexInfo.vaxis[3];
 
-        if (m_pTexture->Width())
+        if (m_pTexture && m_pTexture->Width())
             s = s / (float)m_pTexture->Width();
         else
             s = 0;
 
-        if (m_pTexture->Height())
+        if (m_pTexture && m_pTexture->Height())
             t = 1 - (t / (float)m_pTexture->Height());
         else
             t = 0;
 
-        
+        m_pModel->AddPointsToBounds(vert);
         m_pBrushMesh->Vertex3f(vert.x,vert.y,vert.z);
+    }
+
+    if (points.size() < 3)
+    {
+        // FAIL?
+        return;
     }
 
     for (size_t i = 0 ; i < points.size() - 2 ; i++)

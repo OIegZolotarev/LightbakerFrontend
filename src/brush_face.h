@@ -76,6 +76,7 @@ typedef struct brushFaceTextureInfo_s
 } brushFaceTextureInfo_t;
 
 class BrushObject;
+class BrushModel;
 class Winding;
 
 class BrushFace
@@ -85,13 +86,13 @@ class BrushFace
 
     plane_t m_Plane;
 
-    BrushObject *m_pBrush;
+    BrushModel *m_pModel;
 
     void ValidateTexturingInfo();
 
 public:
     BrushFace();
-    BrushFace(BrushObject *pBrush, const glm::vec3 pts[3]);
+    BrushFace(BrushModel *pBrush, const glm::vec3 pts[3]);
 
     void SetTexture(GLTexture *pTexture);
 

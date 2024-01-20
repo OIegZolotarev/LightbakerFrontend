@@ -357,7 +357,7 @@ void Scene::LoadLevel(const char *levelName)
         auto fd = FileSystem::Instance()->LoadFile(levelName);
 
         HammerMap *pMap = new HammerMap(fd);
-        pLevelEntity    = std::make_shared<BrushWorld>(pMap, this);
+        pLevelEntity    = std::make_shared<BrushWorld>(this, pMap);
 
         delete pMap;
     }

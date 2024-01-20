@@ -33,6 +33,9 @@ uberShaderDefs_t g_UberShaderTable[] = {
     {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     // clang-format on
 };
 

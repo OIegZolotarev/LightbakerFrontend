@@ -21,3 +21,15 @@ int ToColorU32(const ColorRGBA &col)
 
     return *(int *)&t;
 }
+
+ColorRGBA PointerHash(void *ptr)
+{
+    int index = (int)ptr % 3600;
+
+    float h = (float)index / 3600.f;
+    float r, g, b;
+
+    ImGui::ColorConvertHSVtoRGB(h, 1, 1, r, g, b);
+
+    return {r,g,b,1};
+}

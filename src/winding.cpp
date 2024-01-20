@@ -219,7 +219,7 @@ void Winding::Clip(BrushFace *pFace)
     clipPlane.normal  = -facePlane->normal;
     clipPlane.dist    = -facePlane->dist;
 
-    Clip(pFace);
+    Clip(clipPlane);
 }
 
 void Winding::RemoveDuplicatePoints(float flMinDist)
@@ -228,6 +228,9 @@ void Winding::RemoveDuplicatePoints(float flMinDist)
     {
         for (size_t j = 0; j < m_Points.size(); j++)
         {
+            if (i == j)
+                continue;
+
             glm::vec3 edge;
             edge = m_Points[i] - m_Points[j];
 
