@@ -185,7 +185,7 @@ private:
     /*! \return
             The index of the allocated node.
      */
-    unsigned int AllocateNode();
+    unsigned int PoolAllocateNode();
 
     void FreeNode(unsigned int node);
 

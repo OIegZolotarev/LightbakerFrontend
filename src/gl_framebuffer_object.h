@@ -40,9 +40,13 @@ public:
     void Enable();
     void Disable();
        
+    glm::vec2 Dimensions()
+    {
+        return glm::vec2(m_Width, m_Height);
+    }
 
     GLuint Width();
-
     GLuint Height();
+
     GLTexture *ColorTexture();
 };

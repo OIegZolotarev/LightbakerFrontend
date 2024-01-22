@@ -14,6 +14,8 @@
 #include "viewport_rendermodes.h"
 #include <nlohmann/json.hpp>
 
+class SharedFBOLeaf;
+
 BETTER_ENUM(AnchoringCorner, int, TopLeft, TopRight, BottomRight, BottomLeft);
 
 enum ViewportMouseHover
@@ -51,6 +53,9 @@ class Viewport : public IEventHandler
     // Rendering
     CameraController *   m_pCamera;
     GLFramebufferObject *m_pFBO;
+    SharedFBOLeaf *      m_pSharedFBOViewport;
+
+
     RenderMode           m_RenderMode = RenderMode::Lightshaded;
     int                  ReadPixel(unsigned int x, unsigned int y);
 

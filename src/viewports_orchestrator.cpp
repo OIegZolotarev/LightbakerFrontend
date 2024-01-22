@@ -6,11 +6,15 @@
 #include "application.h"
 #include "common.h"
 #include "viewports_orchestrator.h"
+#include "gl_framebuffer_object.h"
 #include "imgui_internal.h"
 
 ViewportsOrchestrator::~ViewportsOrchestrator()
 {
     for (auto &it : m_lstViewports)
+        delete it;
+
+    for (auto &it : m_lstSharedFBO)
         delete it;
 }
 
@@ -45,7 +49,7 @@ void ViewportsOrchestrator::OnNewApplicationTick()
 void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFrameDelta)
 {
     BT_PROFILE("ViewportsOrchestrator::RenderViewports()");
-    
+
     for (auto &it : m_lstViewports)
     {
         if (!it->IsVisible())
@@ -56,7 +60,7 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 
         if (it->GetMouseHoveringStatus() != ViewportMouseHover::NotHovered)
         {
-            //assert((m_pHoveredViewport == it) && "Error in hovering logic - multiple viewports seems to be hovered");
+            // assert((m_pHoveredViewport == it) && "Error in hovering logic - multiple viewports seems to be hovered");
             m_pHoveredViewport = it;
         }
         else if (it == m_pHoveredViewport)
@@ -65,7 +69,6 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
         }
 
         it->RenderFrame(flFrameDelta);
-
     }
 }
 
@@ -189,6 +192,64 @@ Viewport *ViewportsOrchestrator::GetHoveredViewport()
     return m_pHoveredViewport;
 }
 
+SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(SharedFBOLeaf *oldLeaf, glm::vec2 extents)
+{
+    btClock sampler;
+
+    if (oldLeaf)
+        oldLeaf->Release();
+
+    for (auto &it : m_lstSharedFBO)
+    {
+        SharedFBOLeaf *pLeaf = it->AllocateViewport(extents);
+
+        if (pLeaf)
+        {
+            glm::vec2 pos = pLeaf->GetPosition();
+
+            Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] (0x%x) (%d ms.)\n", extents.x, extents.y, pos.x,
+                       pos.y, it, sampler.getTimeMilliseconds());
+
+            return pLeaf;
+        }
+    }
+
+    bool bDegubl;
+
+    for (auto &it : m_lstSharedFBO)
+    {
+        SharedFBOLeaf *pLeaf = it->AllocateViewport(extents);
+
+        if (pLeaf)
+        {
+            glm::vec2 pos = pLeaf->GetPosition();
+
+            Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] (0x%x) (%d ms.)\n", extents.x, extents.y, pos.x,
+                       pos.y, it, sampler.getTimeMilliseconds());
+
+            return pLeaf;
+        }
+    }
+
+    AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
+    GLFramebufferObject *pGLFBO     = new GLFramebufferObject(2048, 2048, 2, fboTypes);
+
+    SharedFBO *pNewFBO = new SharedFBO(pGLFBO);
+
+    m_lstSharedFBO.push_back(pNewFBO);
+
+    SharedFBOLeaf *pLeaf = pNewFBO->AllocateViewport(extents);
+
+    assert(pLeaf);
+
+    glm::vec2 pos = pLeaf->GetPosition();
+
+    Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] NEW SHARED FBO (0x%x) (%d ms.)\n", extents.x, extents.y,
+               pos.x, pos.y, pNewFBO, sampler.getTimeMilliseconds());
+
+    return pLeaf;
+}
+
 int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
 {
     int result = 0;
@@ -200,4 +261,324 @@ int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
     }
 
     return result;
+}
+
+SharedFBO::SharedFBO(GLFramebufferObject *pFrameBuffer)
+{
+    m_pFBO      = pFrameBuffer;
+    m_pRootNode = new SharedFBONode(this, nullptr, glm::vec2(0, 0), pFrameBuffer->Dimensions());
+}
+
+SharedFBO::~SharedFBO()
+{
+    for (auto &node : m_Nodes)
+        delete node;
+
+    for (auto &leaf : m_Leafs)
+        delete leaf;
+}
+
+SharedFBONode *SharedFBO::PoolAllocateNode(glm::vec2 position, glm::vec2 extents)
+{
+    SharedFBONode *pResult = nullptr;
+
+    for (auto &it : m_Nodes)
+    {
+        if (it->IsFree())
+        {
+            pResult = it;
+            break;
+        }
+    }
+
+    if (!pResult)
+    {
+        pResult = new SharedFBONode(this, nullptr, position, extents);
+        m_Nodes.push_back(pResult);
+    }
+    else
+    {
+        pResult->SetParent(nullptr);
+        pResult->SetPosition(position);
+        pResult->SetExtents(extents);
+        pResult->Lock();
+    }
+
+    return pResult;
+}
+
+SharedFBOLeaf *SharedFBO::PoolAllocateLeaf(SharedFBONode *parent, glm::vec2 pos, glm::vec2 extents)
+{
+    SharedFBOLeaf *pResult = nullptr;
+
+    for (auto &it : m_Leafs)
+    {
+        if (it->IsFree())
+        {
+            pResult = it;
+            break;
+        }
+    }
+
+    if (!pResult)
+    {
+        pResult = new SharedFBOLeaf(m_pFBO, pos, extents, parent);
+        m_Leafs.push_back(pResult);
+    }
+    else
+    {
+        pResult->SetParent(parent);
+        pResult->SetPosition(pos);
+        pResult->SetExtents(extents);
+    }
+
+    return pResult;
+}
+
+SharedFBOLeaf *SharedFBO::AllocateViewport(glm::vec2 extents)
+{
+    return m_pRootNode->AllocateLeaf(extents);
+}
+
+SharedFBONode::SharedFBONode(SharedFBO *pFBO, SharedFBONode *parent, glm::vec2 position, glm::vec2 extents)
+    : ISharedFBOTreeItem(position, extents, m_pParent)
+{
+    m_pFBO     = pFBO;
+    m_pParent  = parent;
+    m_Position = position;
+    m_Extents  = extents;
+
+    Lock();
+}
+
+SharedFBOLeaf *SharedFBONode::AllocateLeaf(glm::vec2 extents)
+{
+    if (m_Extents.x == extents.x && m_Extents.y == extents.y)
+    {
+        SharedFBOLeaf *pLeaf = m_pFBO->PoolAllocateLeaf(this, m_Position, extents);
+
+        m_pChildren[0] = m_pChildren[1] = pLeaf;
+
+        return pLeaf;
+    }
+
+    bool checkFreeSpace = true;
+
+    if (!m_pChildren[0])
+    {
+        if (extents.y != m_Extents.y)
+        {
+            Split(SplitAxis::Vertical, extents.y);
+        }
+        else
+        {
+            Split(SplitAxis::Horizontal, extents.x);
+        }
+
+        checkFreeSpace = false;
+    }
+
+    for (int i = 0; i < 2; i++)
+    {
+        if (m_pChildren[i]->IsLeaf())
+            continue;
+
+        SharedFBONode *pChildNode = static_cast<SharedFBONode *>(m_pChildren[i]);
+
+        // It is faster to check extents first
+        if (!pChildNode->RectFits(extents))
+            continue;
+
+        if (checkFreeSpace && !pChildNode->HasFreeSpace())
+            continue;
+
+        return pChildNode->AllocateLeaf(extents);
+    }
+
+    return nullptr;
+}
+
+bool SharedFBONode::IsLeaf()
+{
+    return false;
+}
+
+void SharedFBONode::SetPosition(glm::vec2 position)
+{
+    m_Position = position;
+}
+
+void SharedFBONode::SetExtents(glm::vec2 extents)
+{
+    m_Extents = extents;
+}
+
+void SharedFBONode::OnLeafReleased()
+{
+    m_pChildren[0] = m_pChildren[1] = 0;
+
+    // Paranoid check
+    if (m_pParent)
+    {
+        SharedFBONode *pParent = static_cast<SharedFBONode *>(m_pParent);
+        pParent->CondenseFreeSpace(this);
+    }
+}
+
+bool SharedFBONode::HasLeafs()
+{
+    if (!m_pChildren[0])
+        return false;
+
+    // if node has children - it is pointed by both children
+
+    if (m_pChildren[0]->IsLeaf())
+        return true;
+
+    // Otherwise - check child nodes
+    SharedFBONode *pChild1 = static_cast<SharedFBONode *>(m_pChildren[0]);
+    SharedFBONode *pChild2 = static_cast<SharedFBONode *>(m_pChildren[1]);
+
+    return pChild1->HasLeafs() || pChild2->HasLeafs();
+}
+
+void SharedFBONode::CondenseFreeSpace(SharedFBONode *pEmptyNode)
+{
+    // Paranoid check
+    if (!m_pChildren[0])
+        return;
+
+    // if node has children - it is pointed by both children
+
+    if (m_pChildren[0]->IsLeaf())
+        return;
+
+    for (int i = 0; i < 2; i++)
+    {
+        SharedFBONode *pChild = static_cast<SharedFBONode *>(m_pChildren[i]);
+
+        // Skip checking empty node
+
+        if (pChild == pEmptyNode)
+            continue;
+
+        // If other node is also empty - we can condense space
+
+        if (!pChild->HasLeafs())
+        {
+            m_pChildren[0]->Release();
+            m_pChildren[1]->Release();
+
+            m_pChildren[0] = nullptr;
+            m_pChildren[1] = nullptr;
+
+                // Paranoid check
+            if (m_pParent)
+            {
+                SharedFBONode *pParent = static_cast<SharedFBONode *>(m_pParent);
+                pParent->CondenseFreeSpace(this);
+            }
+
+            return;
+        }
+    }
+}
+
+void SharedFBONode::Split(SplitAxis axis, float pos)
+{
+    switch (axis)
+    {
+    case SplitAxis::Horizontal:
+
+        m_pChildren[0] = m_pFBO->PoolAllocateNode(m_Position, {pos, m_Extents.y});
+        m_pChildren[1] = m_pFBO->PoolAllocateNode(m_Position + glm::vec2(pos, 0), {m_Extents.x - pos, m_Extents.y});
+
+        break;
+    case SplitAxis::Vertical:
+
+        m_pChildren[0] = m_pFBO->PoolAllocateNode(m_Position, {m_Extents.x, pos});
+        m_pChildren[1] = m_pFBO->PoolAllocateNode(m_Position + glm::vec2(0, pos), {m_Extents.x, m_Extents.y - pos});
+
+        break;
+    }
+
+    m_pChildren[0]->SetParent(this);
+    m_pChildren[1]->SetParent(this);
+}
+
+bool SharedFBONode::HasFreeSpace()
+{
+    if (!m_pChildren[0])
+        return true;
+
+    if (!m_pChildren[0]->IsLeaf())
+    {
+        SharedFBONode *pChild1 = static_cast<SharedFBONode *>(m_pChildren[0]);
+        SharedFBONode *pChild2 = static_cast<SharedFBONode *>(m_pChildren[1]);
+
+        return pChild1->HasFreeSpace() || pChild2->HasFreeSpace();
+    }
+
+    return false;
+}
+
+SharedFBOLeaf::SharedFBOLeaf(GLFramebufferObject *pFrameBuffer, const glm::vec2 position, const glm::vec2 extents,
+                             SharedFBONode *pParent)
+    : ISharedFBOTreeItem(position, extents, pParent)
+{
+    m_pFBO = pFrameBuffer;
+    Lock();
+}
+
+bool SharedFBOLeaf::IsLeaf()
+{
+    return true;
+}
+
+void SharedFBOLeaf::SetPosition(glm::vec2 position)
+{
+    m_Position = position;
+}
+
+void SharedFBOLeaf::SetExtents(glm::vec2 extents)
+{
+    m_Extents = extents;
+}
+
+glm::vec2 SharedFBOLeaf::GetPosition()
+{
+    return m_Position;
+}
+
+ISharedFBOTreeItem::ISharedFBOTreeItem(glm::vec2 position, glm::vec2 extents, ISharedFBOTreeItem *parent)
+{
+    m_Position = position;
+    m_pParent  = parent;
+    m_Extents  = extents;
+}
+
+bool ISharedFBOTreeItem::RectFits(glm::vec2 extents)
+{
+    return m_Extents.x >= extents.x && m_Extents.y >= extents.y;
+}
+
+void ISharedFBOTreeItem::Lock()
+{
+    m_bFree = false;
+}
+
+void ISharedFBOTreeItem::Release()
+{
+    m_bFree = true;
+
+    if (IsLeaf() && m_pParent)
+    {
+        auto node = static_cast<SharedFBONode *>(m_pParent);
+        node->OnLeafReleased();
+    }
+}
+
+bool ISharedFBOTreeItem::IsFree()
+{
+    return m_bFree;
 }

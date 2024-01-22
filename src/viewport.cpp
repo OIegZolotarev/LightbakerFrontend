@@ -53,6 +53,7 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
 
     // TODO: FBO pool for reusing by viewports
     m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
+        
 
     if (!title)
         m_strName = std::format("Viewport: {0}", (int)counter++);
@@ -163,6 +164,15 @@ void Viewport::DisplayRenderedFrame()
 
         if (abs(viewportSize.x - m_ClientAreaSize.x) > 0.5f || abs(viewportSize.y - m_ClientAreaSize.y) > 0.5f)
             m_bNeedUpdate = true;
+
+        if (m_ClientAreaSize.x != viewportSize.x || m_ClientAreaSize.y != viewportSize.y)
+        {
+
+
+            m_pSharedFBOViewport = ViewportsOrchestrator::Instance()->AllocateSharedFBOViewport(m_pSharedFBOViewport,
+                                                                                    {viewportSize.x, viewportSize.y});
+        }
+
 
         m_ClientAreaSize = {viewportSize.x, viewportSize.y};
 

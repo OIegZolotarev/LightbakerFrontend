@@ -67,7 +67,7 @@ void BVHTree::InsertEntity(SceneEntityPtr &entity)
     //         }
 
     // Allocate a new node for the particle.
-    unsigned int node = AllocateNode();
+    unsigned int node = PoolAllocateNode();
 
     m_vecNodes[node].aabb = entity->GetAbsoulteBoundingBox();
     m_vecNodes[node].aabb.Inflate(m_flSkinThickness);
@@ -307,7 +307,7 @@ void BVHTree::Rebuild()
         unsigned int index1 = nodeIndices[iMin];
         unsigned int index2 = nodeIndices[jMin];
 
-        unsigned int parent       = AllocateNode();
+        unsigned int parent       = PoolAllocateNode();
         m_vecNodes[parent].left   = index1;
         m_vecNodes[parent].right  = index2;
         m_vecNodes[parent].height = 1 + std::max(m_vecNodes[index1].height, m_vecNodes[index2].height);
@@ -391,7 +391,7 @@ void BVHTree::DebugRenderTreeUI()
     ImGui::End();
 }
 
-unsigned int BVHTree::AllocateNode()
+unsigned int BVHTree::PoolAllocateNode()
 {
     // Expand the node pool as needed.
     if (m_uiFreeList == NULL_NODE)
@@ -522,7 +522,7 @@ void BVHTree::InsertLeaf(unsigned int leaf)
 
     // Create a new parent.
     unsigned int oldParent       = m_vecNodes[sibling].parent;
-    unsigned int newParent       = AllocateNode();
+    unsigned int newParent       = PoolAllocateNode();
     m_vecNodes[newParent].parent = oldParent;
     m_vecNodes[newParent].aabb.Merge(leafAABB, m_vecNodes[sibling].aabb);
     m_vecNodes[newParent].height = m_vecNodes[sibling].height + 1;

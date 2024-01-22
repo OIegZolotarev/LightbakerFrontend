@@ -144,11 +144,13 @@ int SelectionTool::HandleLeftClick()
     if (SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver())
         return 0;
 
+    if (!m_pActiveViewport)
+        return 0;
+
     switch (m_SelectionMode)
     {
     case SelectionModes::Picker: {
-        assert(m_pActiveViewport);
-        assert(m_pActiveDocument);
+
 
         bool canSelect = !(SelectionManager::IsGizmoEnabled() && ImGuizmo::IsOver());
 
@@ -177,6 +179,9 @@ int SelectionTool::HandleLeftClick()
 
 void SelectionTool::SelectHoveredObject()
 {
+    if (!m_pActiveViewport)
+        return;
+
     auto obj = m_pActiveDocument->GetEntityBySerialNumber(m_pActiveViewport->GetHoveredObjectID());
 
     if (!obj.expired())
