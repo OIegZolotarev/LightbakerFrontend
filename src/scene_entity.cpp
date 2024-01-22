@@ -226,6 +226,17 @@ IModelWeakPtr SceneEntity::GetModel() const
 void SceneEntity::SetModel(IModelWeakPtr &model)
 {
     m_EntVars.model = model;
+
+    auto ptr = model.lock();
+
+    if (ptr)
+    {
+        auto bbox              = ptr->GetBoundingBox();        
+
+        if (bbox)
+        SetBoundingBox(*bbox);
+    }
+
 }
 
 void SceneEntity::SetFrame(const float newVal)

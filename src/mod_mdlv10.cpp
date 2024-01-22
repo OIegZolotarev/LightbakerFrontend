@@ -517,6 +517,9 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
     // TODO: fix this
     glCullFace(GL_FRONT);
 
+    StudioSeqDescV10 *pSeqDesc = &m_vSequences[m_EntityState->sequence];
+    pEntity->SetBoundingBox(pSeqDesc->GetBoundingBox());
+
     SetupBones();
 
     for (auto &it : currentShader->Uniforms())

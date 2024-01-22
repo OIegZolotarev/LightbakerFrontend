@@ -159,8 +159,12 @@ public:
     const blendInfo_s *GetBlendInfo(size_t index) const;
 
     const int NumBlends() const;
-
     const int AnimsIndex() const;
+
+    const BoundingBox GetBoundingBox()
+    {
+        return BoundingBox(m_vecMin, m_vecMax);
+    }
 };
 
 class StudioSeqGroupV10
@@ -391,6 +395,8 @@ public:
     StudioTextureV10 *GetTexture(short textureIdx);
 
     void Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderMode mode, ShaderProgram* currentShader) override;
+
+    
 };
 
 } // namespace GoldSource

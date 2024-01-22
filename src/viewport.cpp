@@ -28,15 +28,18 @@ bool Viewport::PointInClientRect(glm::vec2 pt)
 
 int Viewport::ReadPixel(unsigned int x, unsigned int y)
 {
+    if (!m_pSharedFBOLeaf)
+        return 0;
+
     int r[4];
 
-    m_pFBO->Enable();
+    m_pSharedFBOLeaf->EnableFBO();
     glReadBuffer(GL_COLOR_ATTACHMENT1);
 
     glReadPixels(x, y, 1, 1, GL_RGB_INTEGER, GL_UNSIGNED_INT, &r);
 
     glReadBuffer(GL_NONE);
-    m_pFBO->Disable();
+    m_pSharedFBOLeaf->DisableFBO();
 
     return r[0];
 }
@@ -168,6 +171,7 @@ void Viewport::DisplayRenderedFrame()
             ViewportsOrchestrator::Instance()->AllocateSharedFBOViewport(this, {viewportSize.x, viewportSize.y});
         }
 
+        // Rendering framebuffer
         auto textureId = m_pSharedFBOLeaf->GetGLTextureNum();
 
         m_ClientAreaSize = {viewportSize.x, viewportSize.y};
