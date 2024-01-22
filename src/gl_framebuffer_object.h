@@ -49,4 +49,5 @@ public:
     GLuint Height();
 
     GLTexture *ColorTexture();
+    
 };

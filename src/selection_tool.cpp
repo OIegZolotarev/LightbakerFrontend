@@ -305,6 +305,9 @@ void SelectionTool::UpdateBoxSelectionFrustum()
 
 void SelectionTool::SelectItemsInSelectionFrustum()
 {
+    if (!m_pActiveViewport)
+        return;
+
     assert(m_pActiveDocument);
 
     BVHTree *pTree = m_pActiveDocument->GetBVHTree();

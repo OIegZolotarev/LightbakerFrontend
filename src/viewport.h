@@ -53,7 +53,7 @@ class Viewport : public IEventHandler
     // Rendering
     CameraController *   m_pCamera;
     GLFramebufferObject *m_pFBO;
-    SharedFBOLeaf *      m_pSharedFBOViewport;
+    SharedFBOLeaf *      m_pSharedFBOLeaf = nullptr;
 
 
     RenderMode           m_RenderMode = RenderMode::Lightshaded;
@@ -115,4 +115,10 @@ public:
     const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const;
 
     void LookAt(const sceneCameraDescriptor_t &it);
+    
+    SharedFBOLeaf *GetSharedFBOLeaf()
+    {
+        return m_pSharedFBOLeaf;
+    }
+    void SetSharedFBOLeaf(SharedFBOLeaf *pLeaf);
 };

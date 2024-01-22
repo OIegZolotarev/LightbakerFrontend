@@ -57,13 +57,18 @@ public:
     void SetExtents(glm::vec2 extents);
 
     glm::vec2 GetPosition();
+    void      EnableFBO();
+    void      DisableFBO();
+    void      ApplyGLViewport();
+    
+    GLuint GetGLTextureNum();
 };
 
 class SharedFBONode : public ISharedFBOTreeItem
 {    
     ISharedFBOTreeItem *m_pChildren[2] = {nullptr, nullptr};
 
-    SharedFBO *m_pFBO = nullptr;
+    SharedFBO *m_pSharedFBO = nullptr;
     void       Split(SplitAxis axis, float pos);
 
     bool HasFreeSpace();
@@ -138,5 +143,8 @@ public:
 
     Viewport *GetHoveredViewport();
 
-    SharedFBOLeaf *AllocateSharedFBOViewport(SharedFBOLeaf *oldLeaf, glm::vec2 extents);
+    SharedFBOLeaf *AllocateSharedFBOViewport(Viewport * pViewport, glm::vec2 newExtents);
+
+private:
+    void SortViewportsByFBO();
 };

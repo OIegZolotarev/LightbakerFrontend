@@ -50,13 +50,36 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 {
     BT_PROFILE("ViewportsOrchestrator::RenderViewports()");
 
+    GLuint currentTexture = 0;
+
     for (auto &it : m_lstViewports)
     {
+        auto sharedFBO = it->GetSharedFBOLeaf();
         if (!it->IsVisible())
+        {
+            if (sharedFBO)
+            {
+                sharedFBO->Release();
+                it->SetSharedFBOLeaf(nullptr);
+            }
             continue;
+        }
 
         if (it->GetPlatformWindow() != pWindow)
             continue;
+
+        
+
+        if (!sharedFBO)
+            continue;
+
+        GLuint fboTex = sharedFBO->GetGLTextureNum();
+
+        if (fboTex != currentTexture)
+        {
+            currentTexture = fboTex;
+            sharedFBO->EnableFBO();
+        }
 
         if (it->GetMouseHoveringStatus() != ViewportMouseHover::NotHovered)
         {
@@ -70,6 +93,8 @@ void ViewportsOrchestrator::RenderViewports(IPlatformWindow *pWindow, float flFr
 
         it->RenderFrame(flFrameDelta);
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void ViewportsOrchestrator::DisplayViewports(IPlatformWindow *pWindow)
@@ -192,9 +217,11 @@ Viewport *ViewportsOrchestrator::GetHoveredViewport()
     return m_pHoveredViewport;
 }
 
-SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(SharedFBOLeaf *oldLeaf, glm::vec2 extents)
+SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(Viewport * pViewport, glm::vec2 extents)
 {
     btClock sampler;
+
+    auto oldLeaf = pViewport->GetSharedFBOLeaf();
 
     if (oldLeaf)
         oldLeaf->Release();
@@ -207,30 +234,15 @@ SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(SharedFBOLeaf *o
         {
             glm::vec2 pos = pLeaf->GetPosition();
 
-            Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] (0x%x) (%d ms.)\n", extents.x, extents.y, pos.x,
-                       pos.y, it, sampler.getTimeMilliseconds());
+            pViewport->SetSharedFBOLeaf(pLeaf);
 
+            SortViewportsByFBO();
             return pLeaf;
         }
     }
 
-    bool bDegubl;
 
-    for (auto &it : m_lstSharedFBO)
-    {
-        SharedFBOLeaf *pLeaf = it->AllocateViewport(extents);
-
-        if (pLeaf)
-        {
-            glm::vec2 pos = pLeaf->GetPosition();
-
-            Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] (0x%x) (%d ms.)\n", extents.x, extents.y, pos.x,
-                       pos.y, it, sampler.getTimeMilliseconds());
-
-            return pLeaf;
-        }
-    }
-
+    // Allocate new shared FBO
     AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
     GLFramebufferObject *pGLFBO     = new GLFramebufferObject(2048, 2048, 2, fboTypes);
 
@@ -244,10 +256,26 @@ SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(SharedFBOLeaf *o
 
     glm::vec2 pos = pLeaf->GetPosition();
 
-    Con_Printf("Placing [%.3fx%.3f] viewport to [%.3fx%.3f] NEW SHARED FBO (0x%x) (%d ms.)\n", extents.x, extents.y,
-               pos.x, pos.y, pNewFBO, sampler.getTimeMilliseconds());
+    pViewport->SetSharedFBOLeaf(pLeaf);
+    SortViewportsByFBO();
 
     return pLeaf;
+}
+
+void ViewportsOrchestrator::SortViewportsByFBO()
+{
+    m_lstViewports.sort([](Viewport *a, Viewport *b) {
+        SharedFBOLeaf *pLeafA = a->GetSharedFBOLeaf();
+        SharedFBOLeaf *pLeafB = b->GetSharedFBOLeaf();
+
+        if (!pLeafA)
+            return false;
+
+        if (!pLeafB)
+            return false;
+
+        return pLeafA->GetGLTextureNum() > pLeafB->GetGLTextureNum();
+    });
 }
 
 int ViewportsOrchestrator::CountViewports(const IPlatformWindow *it)
@@ -343,10 +371,10 @@ SharedFBOLeaf *SharedFBO::AllocateViewport(glm::vec2 extents)
 SharedFBONode::SharedFBONode(SharedFBO *pFBO, SharedFBONode *parent, glm::vec2 position, glm::vec2 extents)
     : ISharedFBOTreeItem(position, extents, m_pParent)
 {
-    m_pFBO     = pFBO;
-    m_pParent  = parent;
-    m_Position = position;
-    m_Extents  = extents;
+    m_pSharedFBO = pFBO;
+    m_pParent    = parent;
+    m_Position   = position;
+    m_Extents    = extents;
 
     Lock();
 }
@@ -355,7 +383,7 @@ SharedFBOLeaf *SharedFBONode::AllocateLeaf(glm::vec2 extents)
 {
     if (m_Extents.x == extents.x && m_Extents.y == extents.y)
     {
-        SharedFBOLeaf *pLeaf = m_pFBO->PoolAllocateLeaf(this, m_Position, extents);
+        SharedFBOLeaf *pLeaf = m_pSharedFBO->PoolAllocateLeaf(this, m_Position, extents);
 
         m_pChildren[0] = m_pChildren[1] = pLeaf;
 
@@ -472,7 +500,7 @@ void SharedFBONode::CondenseFreeSpace(SharedFBONode *pEmptyNode)
             m_pChildren[0] = nullptr;
             m_pChildren[1] = nullptr;
 
-                // Paranoid check
+            // Paranoid check
             if (m_pParent)
             {
                 SharedFBONode *pParent = static_cast<SharedFBONode *>(m_pParent);
@@ -490,14 +518,16 @@ void SharedFBONode::Split(SplitAxis axis, float pos)
     {
     case SplitAxis::Horizontal:
 
-        m_pChildren[0] = m_pFBO->PoolAllocateNode(m_Position, {pos, m_Extents.y});
-        m_pChildren[1] = m_pFBO->PoolAllocateNode(m_Position + glm::vec2(pos, 0), {m_Extents.x - pos, m_Extents.y});
+        m_pChildren[0] = m_pSharedFBO->PoolAllocateNode(m_Position, {pos, m_Extents.y});
+        m_pChildren[1] =
+            m_pSharedFBO->PoolAllocateNode(m_Position + glm::vec2(pos, 0), {m_Extents.x - pos, m_Extents.y});
 
         break;
     case SplitAxis::Vertical:
 
-        m_pChildren[0] = m_pFBO->PoolAllocateNode(m_Position, {m_Extents.x, pos});
-        m_pChildren[1] = m_pFBO->PoolAllocateNode(m_Position + glm::vec2(0, pos), {m_Extents.x, m_Extents.y - pos});
+        m_pChildren[0] = m_pSharedFBO->PoolAllocateNode(m_Position, {m_Extents.x, pos});
+        m_pChildren[1] =
+            m_pSharedFBO->PoolAllocateNode(m_Position + glm::vec2(0, pos), {m_Extents.x, m_Extents.y - pos});
 
         break;
     }
@@ -548,6 +578,26 @@ void SharedFBOLeaf::SetExtents(glm::vec2 extents)
 glm::vec2 SharedFBOLeaf::GetPosition()
 {
     return m_Position;
+}
+
+void SharedFBOLeaf::EnableFBO()
+{
+    m_pFBO->Enable();
+}
+
+void SharedFBOLeaf::DisableFBO()
+{
+    m_pFBO->Disable();
+}
+
+void SharedFBOLeaf::ApplyGLViewport()
+{
+    glViewport(m_Position.x, m_Position.y, m_Extents.x, m_Extents.y);
+}
+
+GLuint SharedFBOLeaf::GetGLTextureNum()
+{
+    return m_pFBO->ColorTexture()->GLTextureNum(0);
 }
 
 ISharedFBOTreeItem::ISharedFBOTreeItem(glm::vec2 position, glm::vec2 extents, ISharedFBOTreeItem *parent)

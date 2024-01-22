@@ -53,7 +53,6 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
 
     // TODO: FBO pool for reusing by viewports
     m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
-        
 
     if (!title)
         m_strName = std::format("Viewport: {0}", (int)counter++);
@@ -85,8 +84,11 @@ void Viewport::RenderFrame(float flFrameDelta)
     if (!m_bNeedUpdate)
         return;
 
-    m_pFBO->Enable();
-    GL_CheckForErrors();
+    if (!m_pSharedFBOLeaf)
+        return;
+
+//     m_pSharedFBOViewport->EnableFBO();
+//     GL_CheckForErrors();
 
 // Debug FBO usage
 #if DEBUG_FBO_AREA_USAGE
@@ -96,15 +98,17 @@ void Viewport::RenderFrame(float flFrameDelta)
 
     auto sr = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 
-    glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
+    m_pSharedFBOLeaf->ApplyGLViewport();
+
+    // glViewport(0, 0, m_ClientAreaSize.x, m_ClientAreaSize.y);
 
     sr->RenderScene(this);
     GL_CheckForErrors();
 
     EditingToolbox::Instance()->RenderTool(flFrameDelta);
 
-    m_pFBO->Disable();
-    GL_CheckForErrors();
+//     m_pSharedFBOViewport->DisableFBO();
+//     GL_CheckForErrors();
 
     m_bNeedUpdate = false;
 }
@@ -149,35 +153,32 @@ void Viewport::DisplayRenderedFrame()
 
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
-        m_bDocked = ImGui::IsWindowDocked();
+        m_bDocked  = ImGui::IsWindowDocked();
         m_bFocused = ImGui::IsWindowFocused();
 
         auto r = GLScreenSpace2DRenderer::Instance();
-
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_BLEND);
-
-        auto textureId = m_pFBO->ColorTexture()->GLTextureNum(0);
 
         ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 
         if (abs(viewportSize.x - m_ClientAreaSize.x) > 0.5f || abs(viewportSize.y - m_ClientAreaSize.y) > 0.5f)
             m_bNeedUpdate = true;
 
-        if (m_ClientAreaSize.x != viewportSize.x || m_ClientAreaSize.y != viewportSize.y)
+        if (m_ClientAreaSize.x != viewportSize.x || m_ClientAreaSize.y != viewportSize.y || !m_pSharedFBOLeaf)
         {
-
-
-            m_pSharedFBOViewport = ViewportsOrchestrator::Instance()->AllocateSharedFBOViewport(m_pSharedFBOViewport,
-                                                                                    {viewportSize.x, viewportSize.y});
+            ViewportsOrchestrator::Instance()->AllocateSharedFBOViewport(this, {viewportSize.x, viewportSize.y});
         }
 
+        auto textureId = m_pSharedFBOLeaf->GetGLTextureNum();
 
         m_ClientAreaSize = {viewportSize.x, viewportSize.y};
 
-        float uv_x = viewportSize.x / (m_FrameBufferSize.x);
-        float uv_y = viewportSize.y / (m_FrameBufferSize.y);
+        glm::vec2 sf_pos = m_pSharedFBOLeaf->GetPosition();
+
+        float uv_x = sf_pos.x / (m_FrameBufferSize.x);
+        float uv_y = sf_pos.y / (m_FrameBufferSize.y);
+
+        float uv_ex = viewportSize.x / (m_FrameBufferSize.x);
+        float uv_ey = viewportSize.y / (m_FrameBufferSize.y);
 
 #if DEBUG_FBO_AREA_USAGE
         uv_x = 1;
@@ -187,7 +188,8 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
-        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(0, uv_y), ImVec2(uv_x, 0), {1, 1, 1, 1});
+        ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(uv_x, uv_y + uv_ey), ImVec2(uv_x + uv_ex, uv_y),
+                     {1, 1, 1, 1});
         // ImGui::SetHoveredID((ImGuiID) this);
 
         if (Application::Instance()->IsMouseCursorVisible())
@@ -359,7 +361,6 @@ int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFr
 {
     if (!(m_bHovered && m_bHoveredImGUI) && !m_pCamera->IsFPSNavigationEngaged())
         return 0;
-    
 
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
@@ -409,7 +410,6 @@ void Viewport::OutputDebug()
         const glm::vec3 world3 = ScreenToWorld(ratPos, 1.f);
         ImGui::Text("World(1.f): %.3f %.3f %.3f", world3.x, world3.y, world3.z);
 #endif
-
     }
 }
 
@@ -521,6 +521,11 @@ void Viewport::LookAt(const sceneCameraDescriptor_t &it)
 {
     m_pCamera->SetOrigin(it.position);
     m_pCamera->SetAngles(it.angles);
+}
+
+void Viewport::SetSharedFBOLeaf(SharedFBOLeaf *pLeaf)
+{
+    m_pSharedFBOLeaf = pLeaf;
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()
