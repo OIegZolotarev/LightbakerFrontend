@@ -326,6 +326,25 @@ void DrawMesh::Element1iv(int *val, size_t count)
         m_Indices.push_back(val[i]);
 }
 
+void DrawMesh::ReverseTrianglesOrder()
+{
+    typedef struct tri_s
+    {
+        int ind[3];
+    };
+
+    tri_s *tris = (tri_s*)m_Indices.data();
+    size_t nTris = m_Indices.size() / 3;
+
+    for (size_t i = 0 ; i < nTris; i++)
+    {
+        int t = tris[i].ind[0];
+        tris[i].ind[0] = tris[i].ind[2];
+        tris[i].ind[2] = t;
+    }
+
+
+}
 
 
 

@@ -100,4 +100,5 @@ public:
 
     void BindAndDraw();
     void Element1iv(int *vals, size_t count);
+    void ReverseTrianglesOrder();
 };

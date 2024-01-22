@@ -515,7 +515,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
     m_EntityState                 = &state;
 
     // TODO: fix this
-    glCullFace(GL_FRONT);
+    // glCullFace(GL_FRONT);
 
     StudioSeqDescV10 *pSeqDesc = &m_vSequences[m_EntityState->sequence];
     pEntity->SetBoundingBox(pSeqDesc->GetBoundingBox());
@@ -543,7 +543,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
 
     // OverlayBones();
 
-    glCullFace(GL_BACK);
+    // glCullFace(GL_BACK);
 }
 
 void StudioModelV10::AdvanceFrame(float dt)
@@ -1018,6 +1018,9 @@ void StudioMeshV10::BuildDrawMesh()
             numVerts++;
         }
     }
+
+    // Make mesh compaitable with default culling order (GL_BACK)
+    m_pDrawMesh->ReverseTrianglesOrder();
 
     m_pDrawMesh->End();
 }
