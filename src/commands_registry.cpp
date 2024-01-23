@@ -13,9 +13,10 @@
 #include "imgui_internal.h"
 #include "imgui_popups.h"
 
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 #include "text_utils.h"
 #include "viewports_orchestrator.h"
+#include "io_scene.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -89,7 +90,7 @@ bool CCommandsRegistry::OnKeyDown()
 
 void CCommandsRegistry::InitializeAllCommands()
 {
-    auto callbackLoadModel = [](std::string &fileName) {
+    auto callbackLoadScene = [](std::string &fileName) {
         Application::GetMainWindow()->GetSceneRenderer()->LoadModel(fileName.c_str(), true);
     };
 
@@ -112,13 +113,13 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetCommonIcon(CommonIcons::Open);
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
     newCommand->SetCallback([&]() {
-        auto lfd = LoadFileDialog::Instance();
+        auto lfd = FileDialog::Instance();
 
         lfd->SetTitle("Load map\\scene");
-        lfd->SetFilters(".obj,.bsp");
-        lfd->SetOnSelectCallback(callbackLoadModel);
+        lfd->SetFilters(".obj,.bsp,.map");
+        lfd->SetOnSelectCallback(callbackLoadScene);
 
-        PopupsManager::Instance()->ShowPopup(PopupWindows::LoadfileDialog);
+        PopupsManager::Instance()->ShowPopup(PopupWindows::FileDialog);
     });
 
     Application::CommandsRegistry()->RegisterCommand(newCommand);
@@ -129,7 +130,9 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetKeyStroke(nullptr);
     newCommand->SetCommonIcon(CommonIcons::Save);
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
-    newCommand->SetCallback([&]() {});
+    newCommand->SetCallback([&]() {
+        SceneIOManager::Instance()->PerformSavingDialog();
+    });
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
     newCommand = new CCommand;
@@ -179,23 +182,18 @@ void CCommandsRegistry::InitializeAllCommands()
     //     newCommand->SetCallback([&]() {});
     //     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
-
     newCommand = new CCommand;
     newCommand->SetId(GlobalCommands::DeleteSelection);
-    newCommand->SetDescription("Paste selection");
-    newCommand->SetKeyStroke("Delete");    
+    newCommand->SetDescription("Delete selection");
+    newCommand->SetKeyStroke("Delete");
     newCommand->SetFlags(0);
-    newCommand->SetCallback(
-        [&]() {
-            
-                Scene *pActiveDocument = Application::GetActiveDocument();
-                assert(pActiveDocument);
+    newCommand->SetCallback([&]() {
+        Scene *pActiveDocument = Scene::ActiveInstance();
+        assert(pActiveDocument);
 
-                pActiveDocument->DoDeleteSelection();
-        
-        });
+        pActiveDocument->DoDeleteSelection();
+    });
     Application::CommandsRegistry()->RegisterCommand(newCommand);
-
 }
 
 void CCommandsRegistry::RegisterCameraTurningCommands()
@@ -234,7 +232,7 @@ void CCommandsRegistry::RegisterCameraTurningCommands()
 
             viewport->GetCamera()->ExecuteTransition(it.angles);
         });
-        
+
         RegisterCommand(newCommand);
     }
 }

@@ -1,5 +1,5 @@
 #include "files_listview_ex.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 
 FilesListViewBindings::FilesListViewBindings(TextUtils::AnsiStringList &container) : m_Items(container)
 {
@@ -7,7 +7,7 @@ FilesListViewBindings::FilesListViewBindings(TextUtils::AnsiStringList &containe
 
 void FilesListViewBindings::AddNewItem()
 {
-    auto lfd = LoadFileDialog::Instance();
+    auto lfd = FileDialog::Instance();
 
     lfd->SetTitle(m_DialogTitle.c_str());
     lfd->SetFilters(m_FileFilter.c_str());

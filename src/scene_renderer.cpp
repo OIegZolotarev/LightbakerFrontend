@@ -15,6 +15,7 @@
 #include "scene.h"
 #include "selection_3d.h"
 #include <unordered_set>
+#include "hammer_map.h"
 
 bool g_useBVH = true;
 
@@ -60,6 +61,7 @@ SceneRenderer::SceneRenderer(MainWindow *pTargetWindow)
     {
         it.shader = GLBackend::Instance()->QueryShader("res/glprogs/scene_geometry.glsl", it.defines);
     }
+
 }
 
 void SceneRenderer::SetupBuildboardsRenderer()

@@ -8,7 +8,7 @@
 #include "inputfield_ex.h"
 #include "imgui_helpers.h"
 #include "imgui_listview_ex.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 
 InputFieldEx::InputFieldEx(const char *title, std::string &container, unsigned int flags /*= 0*/) : m_Container(container)
 {
@@ -87,7 +87,7 @@ void InputFieldEx::OnButtonPressed(Buttons id)
         break;
     case Buttons::ChooseFile: 
     {
-        auto lfd = LoadFileDialog::Instance();
+        auto lfd = FileDialog::Instance();
 
         lfd->SetTitle(m_FileDialogTitle.c_str());
         lfd->SetFilters(m_FileDialogFilters.c_str());

@@ -100,7 +100,7 @@ public:
         return m_lstWindows;
     }
 
-    static Scene *GetActiveDocument();
+    
 };
 
 inline int Con_Printf(const char *fmt, ...)

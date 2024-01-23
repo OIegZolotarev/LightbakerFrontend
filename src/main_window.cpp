@@ -3,9 +3,10 @@
     (c) 2022-2023 CrazyRussian
 */
 
-#include "main_window.h"
 #include "application.h"
+#include "main_window.h"
 
+#include "ui_common.h"
 #include "common_resources.h"
 #include "console_output_panel.h"
 #include "debug_panel.h"
@@ -15,25 +16,24 @@
 #include "loader_thread.h"
 #include "properties_editor.h"
 #include "scene_objects_panel.h"
-#include "ui_common.h"
 #include "ui_styles_manager.h"
 
 #include "hammer_fgd.h"
 #include "r_editor_grid.h"
 
+#include "commands_toolbar_panel.h"
+#include "editing_toolbox.h"
 #include "gl_screenspace_2d_renderer.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 #include "scene_renderer.h"
 #include "secondary_window.h"
+#include "toolbox_panel.h"
 #include "viewport.h"
 #include "viewports_orchestrator.h"
 #include "wad_textures.h"
 #include <list>
-#include "commands_toolbar_panel.h"
-#include "toolbox_panel.h"
-#include "editing_toolbox.h"
 
-bool g_bShowDemo          = false;
+bool g_bShowDemo        = false;
 bool DEBUG_3D_SELECTION = false;
 
 const char *strDockspace     = "DockSpace";
@@ -84,7 +84,6 @@ void MainWindow::InitStuff()
 
     mainToolbar->SetDefaultDockSide(DockPanels::Top);
     m_vPanels.push_back(mainToolbar);
-
 
     CommandsToolbar *editingtoolsBar = new ToolboxPanel(ToolUIPanelID::EditingTools, "Editing tools");
     editingtoolsBar->SetDefaultDockSide(DockPanels::Left);
@@ -260,7 +259,7 @@ void MainWindow::InitBackend()
         printf("[INFO] GLAD Initialized\n");
 
 #ifdef GL_DEBUG
-    #define GL_DEBUG_OUTPUT 0x92E0
+#define GL_DEBUG_OUTPUT 0x92E0
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallbackARB(DebugMessageCallback, 0);
 #endif
@@ -338,7 +337,8 @@ void MainWindow::InitBackgroundRenderer()
 {
     m_pBackgroudColorSetting1 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor1);
     m_pBackgroudColorSetting2 = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::BackgroundColor2);
-    m_pUseGradientBackground = Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
+    m_pUseGradientBackground =
+        Application::GetPersistentStorage()->GetSetting(ApplicationSettings::UseGradientBackground);
 
     m_pBackgroundShader = GLBackend::Instance()->QueryShader("res/glprogs/background.glsl", {});
 
@@ -374,22 +374,25 @@ void MainWindow::InitDocks()
     ImGui::DockBuilderSetNodeSize(gIDMainDockspace, viewport->Size);
 
     auto idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
-     // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f, &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
+    // ImGui::DockBuilderSplitNode(idDockUp, ImGuiDir_Left, 0.5f,
+    // &m_defaultDockSides.idDockUpLeft,&m_defaultDockSides.idDockUpRight);
 
     auto idDockDown = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Down, 0.3f, nullptr, &gIDMainDockspace);
-    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockBottomLeft, &m_defaultDockSides.idDockBottomRight);
+    ImGui::DockBuilderSplitNode(idDockDown, ImGuiDir_Up, 0.5f, &m_defaultDockSides.idDockBottomLeft,
+                                &m_defaultDockSides.idDockBottomRight);
 
     auto idDockLeft = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Left, 0.2f, nullptr, &gIDMainDockspace);
-    //ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop, &m_defaultDockSides.idDockLeftBottom);
+    // ImGui::DockBuilderSplitNode(idDockLeft, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockLeftTop,
+    // &m_defaultDockSides.idDockLeftBottom);
 
     auto idDockRight = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Right, 0.25f, nullptr, &gIDMainDockspace);
     ImGui::DockBuilderSplitNode(idDockRight, ImGuiDir_Down, 0.5f, &m_defaultDockSides.idDockRightTop,
                                 &m_defaultDockSides.idDockRightBottom);
 
-    m_defaultDockSides.idDockTop = idDockUp;
+    m_defaultDockSides.idDockTop    = idDockUp;
     m_defaultDockSides.idDockBottom = idDockDown;
-    m_defaultDockSides.idDockLeft = idDockLeft;
-    m_defaultDockSides.idDockRight = idDockRight;
+    m_defaultDockSides.idDockLeft   = idDockLeft;
+    m_defaultDockSides.idDockRight  = idDockRight;
     m_defaultDockSides.idDockCenter = gIDMainDockspace;
 
     // m_idDockUp = ImGui::DockBuilderSplitNode(gIDMainDockspace, ImGuiDir_Up, 0.2f, nullptr, &gIDMainDockspace);
@@ -699,11 +702,11 @@ void MainWindow::InitCommands()
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::Undo, "Undo", "Left Ctrl-Z", 0, 0,
-                     [&]() { GetSceneRenderer()->GetScene()->GetEditHistory()->Undo(); }));
+                     [&]() { m_pSceneRenderer->GetScene()->GetEditHistory()->Undo(); }));
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::Redo, "Redo", "Left Ctrl-Y", 0, 0,
-                     [&]() { GetSceneRenderer()->GetScene()->GetEditHistory()->Redo(); }));
+                     [&]() { m_pSceneRenderer->GetScene()->GetEditHistory()->Redo(); }));
 
     Application::CommandsRegistry()->RegisterCommand(
         new CCommand(GlobalCommands::SceneScale, "Scene scale", "", 0, 0,
@@ -830,7 +833,6 @@ float MainWindow::RenderMainMenu()
                 ImGui::EndMenu();
             }
 
-
             ImGui::Separator();
 
 #ifdef _DEBUG
@@ -886,7 +888,6 @@ float MainWindow::RenderMainMenu()
     return size;
 }
 
-
 float MainWindow::RenderMainToolbar(float menuHeight)
 {
     // Looks good enough
@@ -913,7 +914,7 @@ float MainWindow::RenderMainToolbar(float menuHeight)
     //         m_bForceUndock = false;
     //     }
 
-       //ImGui::Docking
+    // ImGui::Docking
 
     if (ImGui::Begin("Main toolbar", 0, flags))
     {
@@ -985,7 +986,6 @@ void MainWindow::RenderGUI()
             if (pers->IsFreshFile())
             {
                 InitDocks();
-                
 
                 for (auto &it : m_vPanels)
                 {
@@ -1023,7 +1023,7 @@ void MainWindow::RenderGUI()
 
     EditingToolbox::Instance()->RenderToolUI();
 
-#ifdef _DEBUG    
+#ifdef _DEBUG
     if (g_bShowDemo)
         ImGui::ShowDemoWindow(&g_bShowDemo);
 #endif

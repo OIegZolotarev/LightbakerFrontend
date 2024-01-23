@@ -7,7 +7,6 @@
 #include "scene_entity.h"
 #include "properties_editor.h"
 
-
 void SceneEntity::RecalcAbsBBox()
 {
     m_EntVars.bboxAbsolute = BVHBoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
@@ -25,7 +24,7 @@ const BVHBoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
 
 void SceneEntity::SetClassName(const char *name)
 {
-    m_EntVars.classname = std::string(name);
+    m_EntVars.classname      = std::string(name);
     m_EntVars.classname_hash = std::hash<const char *>{}(name);
 }
 
@@ -109,6 +108,16 @@ void SceneEntity::FlagRegisteredInScene(bool state)
     m_bRegisteredInScene = state;
 }
 
+const std::list<GoldSource::BSPEntityProperty *> &SceneEntity::GetProperties() const
+{
+    return m_lstProperties;
+}
+
+Scene *SceneEntity::GetScene()
+{
+    return m_pScene;
+}
+
 const glm::vec3 SceneEntity::GetAngles() const
 {
     return m_EntVars.angles;
@@ -116,7 +125,7 @@ const glm::vec3 SceneEntity::GetAngles() const
 
 void SceneEntity::SetAngles(const glm::vec3 &angles)
 {
-    m_EntVars.angles = angles;
+    m_EntVars.angles    = angles;
     m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
 }
 
@@ -124,10 +133,10 @@ void SceneEntity::SetAngles(const glm::vec3 &angles)
 // {
 //     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
 //     auto scene         = sceneRenderer->GetScene();
-// 
+//
 //     auto weakRef = scene->GetEntityWeakRef(this);
 //     scene->HintSelected(weakRef);
-// 
+//
 //     ObjectPropertiesEditor::Instance()->LoadObject(binder);
 // }
 
@@ -140,22 +149,22 @@ SceneEntity::SceneEntity(Scene *pScene)
 
 SceneEntity::SceneEntity(SceneEntity &other)
 {
-    m_pScene   = other.m_pScene;
+    m_pScene = other.m_pScene;
 
-    m_EntVars = other.m_EntVars;
+    m_EntVars     = other.m_EntVars;
     m_bDataLoaded = other.m_bDataLoaded;
-    m_EntityClass = other.m_EntityClass;    
-    m_pScene             = other.m_pScene;    
+    m_EntityClass = other.m_EntityClass;
+    m_pScene      = other.m_pScene;
 }
 
- SceneEntity::SceneEntity(SceneEntity *other) : SceneEntity(*other)
+SceneEntity::SceneEntity(SceneEntity *other) : SceneEntity(*other)
 {
 }
 
 SceneEntity::~SceneEntity()
 {
-     Con_Printf("~SceneEntity(): %s (serial=%d)\n", m_EntVars.classname.c_str(), m_EntVars.serialNumber);
- }
+    Con_Printf("~SceneEntity(): %s (serial=%d)\n", m_EntVars.classname.c_str(), m_EntVars.serialNumber);
+}
 
 bool SceneEntity::IsDataLoaded()
 {
@@ -181,7 +190,6 @@ void SceneEntity::SetPosition(const glm::vec3 &pos)
 
     if (m_pScene)
         m_pScene->UpdateEntityBVH(m_EntVars.serialNumber, m_EntVars.bboxAbsolute);
-
 }
 
 const glm::vec3 SceneEntity::GetPosition() const

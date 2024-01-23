@@ -25,22 +25,7 @@ void Frustum::SetPlane(int i, const glm::vec3 p1, const glm::vec3 p2, const glm:
 
     plane_t *p = &m_Planes[i];
 
-    glm::vec3 t1;
-    glm::vec3 t2;
-    glm::vec3 t3;
-
-    for (int i = 0; i < 3; i++)
-    {
-        t1[i] = p1[i] - p2[i];
-        t2[i] = p3[i] - p2[i];
-        t3[i] = p2[i];
-    }
-
-    p->normal = glm::cross(t1, t2);
-    p->normal = glm::normalize(p->normal);
-    p->dist   = glm::dot(t3, p->normal);
-    p->CalcSignBits();
-    p->type = (int)PlaneTypes::AnyZ;
+    p->SetPoints(p1, p2, p3);
 }
 
 void Frustum::LimitFarZDist(float dist)
@@ -155,7 +140,7 @@ FrustumVisiblity Frustum::CullBoxEx2(const BoundingBox &bbox)
 
     for (auto &it : FrustumPlanes::_values())
     {
-        int idx  = it._to_integral();
+        int idx = it._to_integral();
 
         int flag = m_Planes[idx].BoxOnPlaneSide(mins, maxs);
 

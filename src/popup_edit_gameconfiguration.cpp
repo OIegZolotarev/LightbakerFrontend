@@ -6,7 +6,7 @@
 #include "application.h"
 #include "popup_edit_gameconfiguration.h"
 #include "ui_common.h"
-#include "popup_loadfile_dialog.h"
+#include "popup_file_dialog.h"
 
 PopupEditGameconfiguration::PopupEditGameconfiguration() : IImGUIPopup(PopupWindows::EditGameConfiguration)
 {

@@ -75,6 +75,26 @@ glm::mat4 R_RotateForEntity(glm::vec3 pos, glm::vec3 angles)
 
 
 
+void plane_t::SetPoints(const glm::vec3 &p1, const glm::vec3 &p2, const glm::vec3 &p3)
+{
+    glm::vec3 t1;
+    glm::vec3 t2;
+    glm::vec3 t3;
+
+    for (int i = 0; i < 3; i++)
+    {
+        t1[i] = p1[i] - p2[i];
+        t2[i] = p3[i] - p2[i];
+        t3[i] = p2[i];
+    }
+
+    normal = glm::cross(t1, t2);
+    normal = glm::normalize(normal);
+    dist   = glm::dot(t3, normal);
+    CalcSignBits();
+    type = (int)PlaneTypes::AnyZ;
+}
+
 void plane_s::CalcSignBits()
 {
     signbits = 0;

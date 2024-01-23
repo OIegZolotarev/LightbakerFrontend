@@ -23,6 +23,8 @@
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
 #include "editing_toolbox.h"
+#include "io_scene.h"
+#include "prefabs_factory.h"
 
 Application::Application()
 {
@@ -95,11 +97,6 @@ void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWi
     }
 }
 
-Scene *Application::GetActiveDocument()
-{
-    return Instance()->m_pMainWindow->GetSceneRenderer()->GetScene();
-}
-
 Application::~Application()
 {
     // if (m_pMainWindow) delete m_pMainWindow;
@@ -114,9 +111,12 @@ Application::~Application()
     delete m_pCommandsRegistry;
     delete m_pPersistentStorage;
     delete m_pLightBakerApplication;
+    
+    // Clean-up singletons
     delete GameConfigurationsManager::Instance();
-
     delete EditingToolbox::Instance();
+    delete SceneIOManager::Instance();
+    delete PrefabsFactory::Instance();
 }
 
 #include <sdl-event-to-string\sdl_event_to_string.h>

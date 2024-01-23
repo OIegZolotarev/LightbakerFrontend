@@ -203,6 +203,8 @@ void ParseFGD(GoldSource::HammerFGDFile * file)
 struct FGDParsingContext;
 using namespace GoldSource;
 
+#pragma warning(disable: 4065)
+
 }
 
 %token	SolidClass "@SolidClass" 

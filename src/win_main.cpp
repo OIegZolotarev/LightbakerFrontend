@@ -5,18 +5,10 @@
 
 
 
-#include "common.h"
 #include "application.h"
+#include "common.h"
 #include "loader_thread.h"
 #include <windows.h>
-
-// TODO: recompile those as x64
-
-#ifdef _DEBUG
-#pragma comment(lib,"../lib/SDL2_Debug.lib")
-#else
-#pragma comment(lib,"../lib/SDL2_Release.lib")
-#endif
 
 #pragma comment(lib,"winmm.lib")
 #pragma comment(lib,"Setupapi.lib")
@@ -26,9 +18,23 @@ void RedirectIOToConsole();
 
 #include <iostream>
 
+void EnableCRTDebug()
+{
+    int tmp;
+
+    // Get the current bits
+    tmp = _CrtSetDbgFlag(_CRTDBG_REPORT_FLAG);
+
+    // Clear the upper 16 bits and OR in the desired frequency
+    tmp = (tmp & 0x0000FFFF) | _CRTDBG_CHECK_EVERY_16_DF;
+
+    // Set the new bits
+    _CrtSetDbgFlag(tmp);
+}
+
 int __stdcall WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nShowCmd)
 {
-	
+    // EnableCRTDebug();
 #ifdef DEBUG_TO_CONSOLE
 	RedirectIOToConsole();
 #endif

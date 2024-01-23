@@ -66,7 +66,7 @@ class BSPEntityProperty : public VariantValue
     void RebuildFlagsList();
 
     void        ParseAngles(const std::string &value);
-    std::string SerializeValue();
+    
     void        ParseModel(const std::string &value);
 
 public:
@@ -86,6 +86,7 @@ public:
 
     static size_t CalcHash(const std::string &val);
     void          SerializeAsKeyValue(FILE *fp);
+    std::string   SerializeValue();
 
     FGDPropertyDescriptor *PropertyDescriptor();
 

@@ -5,8 +5,10 @@
 
 #include "application.h"
 #include "scene.h"
+#include "brush_world.h"
 #include "gl_backend.h"
 #include "goldsource_bsp_world.h"
+#include "hammer_map.h"
 #include "mod_mdlv10.h"
 #include "mod_obj_asynch_exporter.h"
 #include "mod_obj_atlas_gen.h"
@@ -24,6 +26,8 @@ LevelFormat Scene::DetermineLevelFormatFromFileName(std::string levelName)
         return LevelFormat::WavefrontOBJ;
     else if (ext == ".bsp")
         return LevelFormat::BSP;
+    else if (ext == ".map")
+        return LevelFormat::MAP;
 
     return LevelFormat::Unknown;
 }
@@ -157,6 +161,11 @@ sceneCameraDescriptor_t &Scene::GetSceneCameraDescriptor(size_t selected)
     std::advance(it, selected);
 
     return *it;
+}
+
+Scene *Scene::ActiveInstance()
+{
+    return Application::Instance()->GetMainWindow()->GetSceneRenderer()->GetScene();
 }
 
 SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interactive)
@@ -344,6 +353,15 @@ void Scene::LoadLevel(const char *levelName)
     case LevelFormat::BSP:
         pLevelEntity = std::make_shared<GoldSource::BSPWorld>(levelName, this);
         break;
+    case LevelFormat::MAP: {
+        auto fd = FileSystem::Instance()->LoadFile(levelName);
+
+        HammerMap *pMap = new HammerMap(fd);
+        pLevelEntity    = std::make_shared<BrushWorld>(pMap, this);
+
+        delete pMap;
+    }
+    break;
     default:
         break;
     }

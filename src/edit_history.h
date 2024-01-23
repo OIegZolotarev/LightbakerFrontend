@@ -33,6 +33,7 @@ public:
 
 class CDeleteLightAction : public IEditAction
 {
+    Scene *      m_pScene;
 	SceneEntity* m_Object = nullptr;
 public:
 	CDeleteLightAction(SceneEntityPtr pObject);
