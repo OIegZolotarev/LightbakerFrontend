@@ -108,6 +108,8 @@ public:
     void SetVisible(bool flag);
     bool IsVisible();
 
+    bool IsFocused();
+
     // Mouse
     glm::vec2          CalcRelativeMousePos(bool yAtTop = true);
     ViewportMouseHover GetMouseHoveringStatus();
@@ -121,4 +123,5 @@ public:
         return m_pSharedFBOLeaf;
     }
     void SetSharedFBOLeaf(SharedFBOLeaf *pLeaf);
+    
 };

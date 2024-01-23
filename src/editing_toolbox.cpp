@@ -100,7 +100,7 @@ int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const floa
 
 void EditingToolbox::InitializeToolContext()
 {
-    auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+    auto viewport = ViewportsOrchestrator::Instance()->GetFocusedViewport();
     auto scene    = Scene::ActiveInstance();
 
     m_pCurrentTool->SetActiveViewport(viewport);

@@ -666,12 +666,13 @@ void ObjectPropertiesEditor::EditTransform(Viewport *pViewport, bool editTransfo
     if (bChanged)
     {
         HandleGizmoChange();
-        pViewport->FlagUpdate();
+        
 
         ResetGuizmoScaling();
         UpdateAllObjectsBoundingBox();
 
         UpdateRelativePositions();
+        pViewport->FlagUpdate();
     }
     else
     {
@@ -701,9 +702,11 @@ void ObjectPropertiesEditor::HandleGizmoChange()
     }
 
     glm::vec3 oldCenter = m_AllObjectsBounds.Center();
-    glm::vec3 delta     = m_matGuizmo[3].xyz - oldCenter;
+    glm::vec3 delta     = pos;
 
-    m_pGuizmoPropertyPosition->SetPosition(m_matGuizmo[3].xyz);
+    Con_Printf("%f %f %f\n", delta.x, delta.y, delta.z);
+
+    m_pGuizmoPropertyPosition->SetPosition(delta);
 
     UpdatePositionDelta(m_pGuizmoPropertyPosition, delta);
 

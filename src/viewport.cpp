@@ -51,16 +51,18 @@ Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pC
 
     // TODO: fix later
     static int counter = 0;
+// 
+//     AttachmentTypes fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
+// 
+//     // TODO: FBO pool for reusing by viewports
+//     m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
+// 
+     if (!title)
+         m_strName = std::format("Viewport: {0}", (int)counter++);
+     else
+         m_strName = title;
 
-    AttachmentTypes fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
-
-    // TODO: FBO pool for reusing by viewports
-    m_pFBO = new GLFramebufferObject(m_FrameBufferSize.x, m_FrameBufferSize.y, 2, fboTypes);
-
-    if (!title)
-        m_strName = std::format("Viewport: {0}", (int)counter++);
-    else
-        m_strName = title;
+    m_pSharedFBOLeaf = nullptr;
 
     m_strNamePopupKey = m_strName + "_popup";
 
@@ -192,8 +194,12 @@ void Viewport::DisplayRenderedFrame()
         auto pos        = ImGui::GetCursorPos();
         m_ClientAreaPos = {pos.x, pos.y};
 
+
+        
+        ImVec4 borderColor = m_bFocused ? ImVec4(1, 0, 0, 1) : ImVec4(0, 0, 0, 0);
+
         ImGui::Image((ImTextureID *)textureId, viewportSize, ImVec2(uv_x, uv_y + uv_ey), ImVec2(uv_x + uv_ex, uv_y),
-                     {1, 1, 1, 1});
+                     {1, 1, 1, 1}, borderColor);
         // ImGui::SetHoveredID((ImGuiID) this);
 
         if (Application::Instance()->IsMouseCursorVisible())
@@ -393,9 +399,9 @@ void Viewport::OutputDebug()
     bool bFPSNav = m_pCamera->IsFPSNavigationEngaged();
 
     ImGui::Text(
-        "%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d",
+        "%s : cam at [%.3f %.3f %.3f], ang: [%.3f %.3f %.3f],\nfps_nav: %d, hov: %d, hov (imgui): %d ,docked: %d, focused %d",
         m_strName.c_str(), position.x, position.y, position.z, angles.x, angles.y, angles.z, bFPSNav, m_bHovered,
-        m_bHoveredImGUI, m_bDocked);
+        m_bHoveredImGUI, m_bDocked, m_bFocused);
 
     auto ratPos = CalcRelativeMousePos(false);
 
@@ -530,6 +536,11 @@ void Viewport::LookAt(const sceneCameraDescriptor_t &it)
 void Viewport::SetSharedFBOLeaf(SharedFBOLeaf *pLeaf)
 {
     m_pSharedFBOLeaf = pLeaf;
+}
+
+bool Viewport::IsFocused()
+{
+    return m_bFocused;
 }
 
 IPlatformWindow *Viewport::GetPlatformWindow()

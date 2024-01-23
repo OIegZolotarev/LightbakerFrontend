@@ -121,6 +121,8 @@ class ViewportsOrchestrator : public Singleton<ViewportsOrchestrator>
 
     Viewport *m_pHoveredViewport;
 
+    void SortViewportsByFBO();
+
 public:
     ~ViewportsOrchestrator();
 
@@ -142,9 +144,10 @@ public:
     void EnsureAtLeastOneViewportExists();
 
     Viewport *GetHoveredViewport();
+    Viewport *GetFocusedViewport();
 
     SharedFBOLeaf *AllocateSharedFBOViewport(Viewport * pViewport, glm::vec2 newExtents);
 
-private:
-    void SortViewportsByFBO();
+
+    
 };

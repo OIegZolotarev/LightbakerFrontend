@@ -217,47 +217,82 @@ Viewport *ViewportsOrchestrator::GetHoveredViewport()
     return m_pHoveredViewport;
 }
 
+Viewport *ViewportsOrchestrator::GetFocusedViewport()
+{
+    for (auto & it: m_lstViewports)
+    {
+        if (it->IsFocused() && it->IsVisible())
+        {
+            return it;
+        }
+    }
+
+    return nullptr;
+}
+
 SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(Viewport * pViewport, glm::vec2 extents)
 {
     btClock sampler;
 
     auto oldLeaf = pViewport->GetSharedFBOLeaf();
 
-    if (oldLeaf)
-        oldLeaf->Release();
-
-    for (auto &it : m_lstSharedFBO)
+    for (auto & it1: m_lstViewports)
     {
-        SharedFBOLeaf *pLeaf = it->AllocateViewport(extents);
+        if (!it1->GetSharedFBOLeaf())
+            continue;
 
-        if (pLeaf)
+        for (auto &it2 : m_lstViewports)
         {
-            glm::vec2 pos = pLeaf->GetPosition();
+            if (!it2->GetSharedFBOLeaf())
+                continue;
 
-            pViewport->SetSharedFBOLeaf(pLeaf);
-
-            SortViewportsByFBO();
-            return pLeaf;
+            if (it1->GetSharedFBOLeaf() == it2->GetSharedFBOLeaf() && it1 != it2)
+                __debugbreak();
         }
     }
 
+    if (oldLeaf)
+        oldLeaf->Release();
 
-    // Allocate new shared FBO
-    AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
-    GLFramebufferObject *pGLFBO     = new GLFramebufferObject(2048, 2048, 2, fboTypes);
 
-    SharedFBO *pNewFBO = new SharedFBO(pGLFBO);
+    SharedFBOLeaf *pLeaf = nullptr;
 
-    m_lstSharedFBO.push_back(pNewFBO);
+    for (auto &it : m_lstSharedFBO)
+    {
+        pLeaf = it->AllocateViewport(extents);
 
-    SharedFBOLeaf *pLeaf = pNewFBO->AllocateViewport(extents);
+        if (pLeaf)
+        {
+            break;            
+        }
+    }
 
-    assert(pLeaf);
+    if (!pLeaf)
+    {
+        // Allocate new shared FBO
+        AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
+        GLFramebufferObject *pGLFBO     = new GLFramebufferObject(2048, 2048, 2, fboTypes);
+
+        SharedFBO *pNewFBO = new SharedFBO(pGLFBO);
+        m_lstSharedFBO.push_back(pNewFBO);
+        pLeaf = pNewFBO->AllocateViewport(extents);
+        assert(pLeaf);
+    }
+
+    for (auto & it : m_lstViewports)
+    {
+        if (it == pViewport)
+            continue;
+        
+        if (it->GetSharedFBOLeaf() == pLeaf)
+            __debugbreak();
+    }
 
     glm::vec2 pos = pLeaf->GetPosition();
-
     pViewport->SetSharedFBOLeaf(pLeaf);
     SortViewportsByFBO();
+
+    Con_Printf("Placing %s to [%.3f,%.3f]\n", pViewport->Name(), pos.x, pos.y);
 
     return pLeaf;
 }
