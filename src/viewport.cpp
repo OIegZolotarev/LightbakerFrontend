@@ -391,6 +391,25 @@ RenderMode Viewport::GetRenderMode()
 
 void Viewport::OutputDebug()
 {
+    auto clientPosAbs = GetClientAreaPosAbs();
+
+    auto start = clientPosAbs + glm::vec2(10, 30);
+    auto end   = start + glm::vec2(200, 200);
+
+     std::string debugInfoId  = "###" + m_strNamePopupKey + "_debug";
+ 
+     ImGui::SetNextWindowPos(ImVec2(clientPosAbs.x + 10, clientPosAbs.y + 50));
+     ImGui::BeginChild(debugInfoId.c_str(), {0, 0},
+                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
+                           ImGuiChildFlags_AutoResizeY);
+     // ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+
+
+    //ImGui::BeginTooltip((ImGuiID)this);
+    //ImGui::GetBackgroundDrawList()->AddRectFilled({start.x, start.y}, {end.x, end.y}, ToColorU32({.2,.2,.2,1}),20);
+
+
+    // Debug Info start
     auto      position = m_pCamera->GetPosition();
     glm::vec3 angles   = m_pCamera->GetAngles();
 
@@ -420,6 +439,9 @@ void Viewport::OutputDebug()
 #endif
     }
 
+    // Debug info end
+
+    ImGui::EndChild();
 }
 
 const char *Viewport::Name()
