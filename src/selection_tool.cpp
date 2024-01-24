@@ -147,6 +147,9 @@ int SelectionTool::HandleLeftClick()
     if (!m_pActiveViewport)
         return 0;
 
+    if (m_pActiveViewport->GetMouseHoveringStatus() != Hovered)
+        return 0;
+
     switch (m_SelectionMode)
     {
     case SelectionModes::Picker: {
@@ -160,6 +163,9 @@ int SelectionTool::HandleLeftClick()
     }
     break;
     case SelectionModes::BoxSelection: {
+
+        
+
         m_pDragViewport     = m_pActiveViewport;
         m_bMouseDragValid   = true;
         m_bMouseDragged     = true;

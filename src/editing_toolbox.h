@@ -5,13 +5,11 @@
 #pragma once
 
 #include "common.h"
-#include "helpers.h"
 #include "editing_tool.h"
 #include "event_handler.h"
+#include "helpers.h"
 
-
-class EditingToolbox: public Singleton<EditingToolbox>, 
-    public IEventHandler
+class EditingToolbox : public Singleton<EditingToolbox>, public IEventHandler
 {
     std::list<IEditingTool *> m_lstToolbs;
 
@@ -20,12 +18,11 @@ class EditingToolbox: public Singleton<EditingToolbox>,
     IEditingTool *FindTool(EditingToolId id);
 
 public:
-
     ~EditingToolbox();
     void Initialize();
     void SelectTool(EditingToolId toolId);
-       
-    void RenderToolViewportUI(Viewport * pViewport);
+
+    void RenderToolViewportUI(Viewport *pViewport);
     void RenderToolViewport2DGraphics(float flFrameDelta);
 
     void RenderTool(float flFrameDelta);
@@ -35,10 +32,8 @@ public:
 
     void InitializeToolContext();
 
-    const std::list<IEditingTool *> & GetAllTools() const;
-    const EditingToolId                    SelectedToolId() const;
+    const std::list<IEditingTool *> &GetAllTools() const;
+    const EditingToolId              SelectedToolId() const;
 
-
-
- int Priority() override;
+    int Priority() override;
 };
