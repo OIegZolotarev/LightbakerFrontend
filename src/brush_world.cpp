@@ -55,6 +55,8 @@ void BrushWorld::BuildBrushesOfEntity(const HammerMap *pMap, const map220_entity
         const size_t lastFace  = pBrush->firstFace + pBrush->numFaces;
 
         pNewEntity->GenerateModel(pMap, firstFace, lastFace, b);
+
+        
         m_pScene->AddNewSceneEntity(pNewEntity);
     }
 }

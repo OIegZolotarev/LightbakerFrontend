@@ -24,7 +24,7 @@ int ToColorU32(const ColorRGBA &col)
 
 ColorRGBA PointerHash(void *ptr)
 {
-    int index = (int)ptr % 3600;
+    unsigned int index = (int)ptr % 3600;
 
     float h = (float)index / 3600.f;
     float r, g, b;

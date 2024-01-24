@@ -129,6 +129,9 @@ bool BrushModel::CreateFacesFromPlanes(int flags)
 
     m_pDrawMesh->End();
 
+    m_BoundsAbsolute = m_Bounds;
+    m_Bounds = m_Bounds.ConvertToRelative();
+
     return m_bValid;
 }
 

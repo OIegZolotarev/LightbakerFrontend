@@ -28,6 +28,7 @@ class BrushModel : public IModel
     bool      m_bValid = false;
 
     BoundingBox m_Bounds;
+    BoundingBox m_BoundsAbsolute;
 
 public:
 

@@ -207,7 +207,10 @@ SceneEntityPtr Scene::AddNewLight(glm::vec3 pos, LightTypes type, bool interacti
 
 SceneEntityPtr Scene::AddNewSceneEntity(SceneEntity *entity)
 {
+    entity->SetSerialNumber(AllocSerialNumber());
+
     auto result = SceneEntityPtr(entity);
+
     m_SceneEntities.push_back(result);
     OnEntityRegistered(result);
     return result;

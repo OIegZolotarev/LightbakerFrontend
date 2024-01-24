@@ -1091,10 +1091,8 @@ void BSPLevel::PopulateScene(Scene * pScene)
 	//
 
     for (auto it : m_vEntities)
-    {
-        it->SetSerialNumber(pScene->AllocSerialNumber());
+    {        
         it->PopulateScene();
-
     }
 
 	
