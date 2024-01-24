@@ -193,6 +193,79 @@ bool IPlatformWindow::HasMouseCursorInside()
 
 }
 
+ImGuiID IPlatformWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
+                                               const ImGuiWindowClass *window_class)
+{
+    ImGuiViewport *viewport = ImGui::GetMainViewport();
+
+    ImVec2 pos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + heightAdjust);
+    ImVec2 size = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - heightAdjust);
+
+    ImGui::SetNextWindowPos(pos);
+    ImGui::SetNextWindowSize(size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+
+    ImGuiWindowFlags host_window_flags = 0;
+    host_window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
+                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
+    host_window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+        host_window_flags |= ImGuiWindowFlags_NoBackground;
+
+    char label[32];
+    sprintf_s(label, IM_ARRAYSIZE(label), "DockSpaceViewport_%08X", viewport->ID);
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowBgAlpha(0);
+
+    ImGui::Begin(label, NULL, host_window_flags);
+
+    ImGui::PopStyleVar(3);
+
+    m_DockSpaceId = ImGui::GetID(m_strTitle.c_str());
+
+    ImGui::DockSpace(m_DockSpaceId, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
+
+    // ImGui::ShowStyleSelector("Select style");
+
+    auto c = ImGui::DockBuilderGetCentralNode(m_DockSpaceId);
+
+    int oldViewport[4];
+    for (int i = 0; i < 4; i++)
+        oldViewport[i] = m_i3DViewport[i];
+
+    if (c)
+    {
+        m_i3DViewport[0] = (int)c->Pos.x;
+        m_i3DViewport[1] = (int)m_iWindowHeight - (int)(c->Pos.y + c->Size.y);
+        m_i3DViewport[2] = (int)c->Size.x;
+        m_i3DViewport[3] = (int)c->Size.y;
+    }
+    else
+    {
+        m_i3DViewport[0] = 0;
+        m_i3DViewport[1] = 0;
+        m_i3DViewport[2] = m_iWindowWidth;
+        m_i3DViewport[3] = m_iWindowWidth;
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (m_i3DViewport[i] != oldViewport[i])
+        {
+            ViewportsOrchestrator::Instance()->FlagRepaintAll();
+            break;
+        }
+    }
+
+    ImGui::End();
+
+    return m_DockSpaceId;
+}
+
 IPlatformWindow::~IPlatformWindow()
 {
     m_vEventHandlers.clear();

@@ -20,6 +20,8 @@ class EditingToolbox: public Singleton<EditingToolbox>,
     IEditingTool *FindTool(EditingToolId id);
 
 public:
+
+    ~EditingToolbox();
     void Initialize();
     void SelectTool(EditingToolId toolId);
        

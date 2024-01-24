@@ -7,6 +7,7 @@
 #include "secondary_window.h"
 #include "ui_styles_manager.h"
 #include "viewports_orchestrator.h"
+#include "editing_toolbox.h"
 
 SecondaryWindow::SecondaryWindow(std::string t, int monitorIndex)
 {
@@ -27,6 +28,10 @@ SecondaryWindow::SecondaryWindow(std::string t, int monitorIndex)
 
     // SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     // m_pGLContext = SDL_GL_CreateContext(m_pSDLWindow);
+
+
+    // TODO: fix ownership of instance
+    AddEventHandler(EditingToolbox::Instance());
 }
 
 SecondaryWindow::~SecondaryWindow()
@@ -60,7 +65,9 @@ void SecondaryWindow::RenderUI()
     ImGui_ImplSDL2_NewFrame();
 
     ImGui::NewFrame();
-    ImGui::ShowDemoWindow();
+    
+    DockSpaceOverViewport(0, ImGuiDockNodeFlags_PassthruCentralNode, 0);
+    EditingToolbox::Instance()->RenderToolUI();
 
     if (m_bUpdateImGuiStyleNextFrame)
         UIStyles::Manager::Instance()->ApplyCurrentStyle();

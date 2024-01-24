@@ -23,6 +23,11 @@ IEditingTool *EditingToolbox::FindTool(EditingToolId id)
     return nullptr;
 }
 
+ EditingToolbox::~EditingToolbox()
+{
+    assert(false && "Ownership managment is incorrect, fixme");
+}
+
 void EditingToolbox::Initialize()
 {
     m_lstToolbs.push_back(new SelectionTool());
@@ -100,7 +105,8 @@ int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const floa
 
 void EditingToolbox::InitializeToolContext()
 {
-    auto viewport = ViewportsOrchestrator::Instance()->GetFocusedViewport();
+    // Multiple viewports focus is handled incorrectly when there a secondary window
+    auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
     auto scene    = Scene::ActiveInstance();
 
     m_pCurrentTool->SetActiveViewport(viewport);

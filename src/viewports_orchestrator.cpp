@@ -393,6 +393,7 @@ SharedFBOLeaf *SharedFBO::PoolAllocateLeaf(SharedFBONode *parent, glm::vec2 pos,
         pResult->SetParent(parent);
         pResult->SetPosition(pos);
         pResult->SetExtents(extents);
+        pResult->Lock();
     }
 
     return pResult;

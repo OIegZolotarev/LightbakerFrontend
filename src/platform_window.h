@@ -54,11 +54,16 @@ protected:
 
     bool HasMouseCursorInside();
 
+    
+
+    ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
+                                              const ImGuiWindowClass *window_class);
+    int     m_i3DViewport[4];
+
 private:
     std::list<IEventHandler *> m_vEventHandlers;
-
     bool m_bTerminated = false;
-    
+    ImGuiID                    m_DockSpaceId = 0;
 
 public:
     IPlatformWindow() = default;

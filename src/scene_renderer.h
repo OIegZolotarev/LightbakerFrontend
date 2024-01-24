@@ -45,7 +45,7 @@ typedef struct uberShaderDefs_s
     ShaderProgram *         shader;
 } uberShaderDefs_t;
 
-class SceneRenderer : public IEventHandler
+class SceneRenderer 
 {
 public:
     SceneRenderer(class MainWindow *pTargetWindow);
@@ -71,7 +71,7 @@ public:
     void       SetRenderMode(RenderMode param1);
     RenderMode GetRenderMode();
 
-    int   HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) override;
+    
     float FrameDelta();
 
     // Loading
