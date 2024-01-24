@@ -60,12 +60,12 @@ public:
     void      EnableFBO();
     void      DisableFBO();
     void      ApplyGLViewport();
-    
+
     GLuint GetGLTextureNum();
 };
 
 class SharedFBONode : public ISharedFBOTreeItem
-{    
+{
     ISharedFBOTreeItem *m_pChildren[2] = {nullptr, nullptr};
 
     SharedFBO *m_pSharedFBO = nullptr;
@@ -146,8 +146,7 @@ public:
     Viewport *GetHoveredViewport();
     Viewport *GetFocusedViewport();
 
-    SharedFBOLeaf *AllocateSharedFBOViewport(Viewport * pViewport, glm::vec2 newExtents);
+    SharedFBOLeaf *AllocateSharedFBOViewport(Viewport *pViewport, glm::vec2 newExtents);
 
-
-    
+    void MakeViewportFocused(Viewport *param1);
 };

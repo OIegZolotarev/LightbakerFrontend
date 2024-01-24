@@ -39,4 +39,6 @@ public:
     const EditingToolId                    SelectedToolId() const;
 
 
+
+ int Priority() override;
 };

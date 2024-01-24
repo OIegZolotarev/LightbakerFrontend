@@ -279,6 +279,10 @@ size_t IPlatformWindow::GetId()
 void IPlatformWindow::AddEventHandler(IEventHandler *pHandler)
 {
     m_vEventHandlers.push_back(pHandler);
+
+
+    m_vEventHandlers.sort([](IEventHandler *a, IEventHandler *b) { return a->Priority() < b->Priority();
+    });
 }
 
 const std::list<IEventHandler *> &IPlatformWindow::EventHandlers()

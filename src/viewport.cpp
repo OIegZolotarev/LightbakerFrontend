@@ -159,7 +159,7 @@ void Viewport::DisplayRenderedFrame()
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
         m_bDocked  = ImGui::IsWindowDocked();
-        m_bFocused = ImGui::IsWindowFocused();
+        // m_bFocused = ImGui::IsWindowFocused();
 
         auto r = GLScreenSpace2DRenderer::Instance();
 
@@ -367,8 +367,23 @@ void Viewport::UpdateDisplayWidgetPos()
 
 int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
+
+    if (!IsVisible())
+        return 0; 
+
+   if (e.type == SDL_MOUSEBUTTONDOWN)
+    {
+       ViewportsOrchestrator::Instance()->MakeViewportFocused(this);
+    }
+
     if (!(m_bHovered && m_bHoveredImGUI) && !m_pCamera->IsFPSNavigationEngaged())
         return 0;
+
+    if (e.type == SDL_MOUSEBUTTONDOWN)
+    {
+        ViewportsOrchestrator::Instance()->MakeViewportFocused(this);
+    }
+
 
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
@@ -557,6 +572,11 @@ void Viewport::LookAt(const sceneCameraDescriptor_t &it)
 void Viewport::SetSharedFBOLeaf(SharedFBOLeaf *pLeaf)
 {
     m_pSharedFBOLeaf = pLeaf;
+}
+
+void Viewport::SetFocused(bool flag)
+{
+    m_bFocused = flag;
 }
 
 bool Viewport::IsFocused()

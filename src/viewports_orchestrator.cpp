@@ -297,6 +297,19 @@ SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(Viewport * pView
     return pLeaf;
 }
 
+void ViewportsOrchestrator::MakeViewportFocused(Viewport *param1)
+{
+    for (auto & it : m_lstViewports)
+    {
+        if (it == param1)
+            continue;
+
+        it->SetFocused(false);
+    }
+
+    param1->SetFocused(true);
+}
+
 void ViewportsOrchestrator::SortViewportsByFBO()
 {
     m_lstViewports.sort([](Viewport *a, Viewport *b) {

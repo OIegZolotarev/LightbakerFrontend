@@ -126,3 +126,8 @@ const EditingToolId EditingToolbox::SelectedToolId() const
     return EditingToolId::None;
 }
 
+int EditingToolbox::Priority()
+{
+    return PRIORITY_EDITING_TOOLBOX;
+}
+

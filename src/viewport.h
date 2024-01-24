@@ -124,4 +124,5 @@ public:
     }
     void SetSharedFBOLeaf(SharedFBOLeaf *pLeaf);
     
+void SetFocused(bool param1);
 };
