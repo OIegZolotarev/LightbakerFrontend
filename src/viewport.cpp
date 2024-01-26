@@ -416,7 +416,7 @@ void Viewport::OutputDebug()
      ImGui::SetNextWindowPos(ImVec2(clientPosAbs.x + 10, clientPosAbs.y + 50));
      ImGui::BeginChild(debugInfoId.c_str(), {0, 0},
                        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
-                           ImGuiChildFlags_AutoResizeY);
+                           ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
      // ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
 
 
