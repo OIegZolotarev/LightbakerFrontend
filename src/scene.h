@@ -92,10 +92,10 @@ public:
     void           OnEntityRegistered(SceneEntityPtr &it);
 
     std::list<SceneEntityPtr> &GetSceneObjects();
-    SceneEntityWeakPtr         GetEntityBySerialNumber(size_t serialNumber);
+    SceneEntityWeakPtr GetEntityBySerialNumber(uint32_t serialNumber);
 
     // Editing
-    void          DeleteEntityWithSerialNumber(size_t serialNumber);
+    void DeleteEntityWithSerialNumber(uint32_t serialNumber);
     void          DeleteEntity(SceneEntityWeakPtr l);
     CEditHistory *GetEditHistory() const;
 

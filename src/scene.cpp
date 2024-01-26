@@ -243,7 +243,7 @@ void Scene::AddEntityWithSerialNumber(SceneEntityPtr it, uint32_t sn)
     OnEntityRegistered(it);
 }
 
-SceneEntityWeakPtr Scene::GetEntityBySerialNumber(size_t serialNumber)
+SceneEntityWeakPtr Scene::GetEntityBySerialNumber(uint32_t serialNumber)
 {
     for (auto &it : m_SceneEntities)
     {
@@ -254,7 +254,7 @@ SceneEntityWeakPtr Scene::GetEntityBySerialNumber(size_t serialNumber)
     return SceneEntityWeakPtr();
 }
 
-void Scene::DeleteEntityWithSerialNumber(size_t serialNumber)
+void Scene::DeleteEntityWithSerialNumber(uint32_t serialNumber)
 {
     auto lightPtr = GetEntityBySerialNumber(serialNumber);
     DeleteEntity(lightPtr);
