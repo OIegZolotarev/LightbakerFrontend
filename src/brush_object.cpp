@@ -182,7 +182,7 @@ BrushFace *BrushModel::AddFace(const glm::vec3 pts[3])
 {
     BrushFace *pNewFace = new BrushFace(this, pts);
 
-    pNewFace->m_FaceId = m_lstFaces.size();
+    pNewFace->m_FaceId = m_lstFaces.size() + 1;
 
     m_lstFaces.push_back(pNewFace);
 
@@ -232,7 +232,7 @@ void BrushModel::Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMod
             it->SetFloat3({1.f, 1.f, 1.f});
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pEntity->GetSerialNumber());
+            it->SetInt(pEntity->GetSerialNumber() + 1);
             break;
         case UniformKind::Color2:
             sr->ApplySelectedObjectColor(pEntity, it);

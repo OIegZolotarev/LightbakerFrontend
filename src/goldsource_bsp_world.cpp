@@ -67,7 +67,7 @@ void BSPWorld::Render(RenderMode mode, const SceneRenderer * sr, ShaderProgram *
             sr->ApplySelectedObjectColor(this, it);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(GetSerialNumber());
+            it->SetInt(GetSerialNumber() + 1);
             break;
         }
     }

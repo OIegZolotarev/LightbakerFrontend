@@ -41,7 +41,7 @@ int Viewport::ReadPixel(unsigned int x, unsigned int y)
     glReadBuffer(GL_NONE);
     m_pSharedFBOLeaf->DisableFBO();
 
-    return r[0];
+    return r[0] - 1;    
 }
 
 Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom)

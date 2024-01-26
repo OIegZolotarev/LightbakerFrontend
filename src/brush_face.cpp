@@ -62,7 +62,10 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
             t = 0;
 
         m_pModel->AddPointsToBounds(vert);
+
+        m_pBrushMesh->PartId(m_FaceId);
         m_pBrushMesh->Vertex3f(vert.x,vert.y,vert.z);
+        
     }
 
     if (points.size() < 3)

@@ -49,7 +49,7 @@ void SpriteModel::Render(SceneEntity *pEntity, const SceneRenderer * sr, RenderM
             it->SetFloat3({size.xyy});
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pEntity->GetSerialNumber());
+            it->SetInt(pEntity->GetSerialNumber() + 1);
             break;
         case UniformKind::Color2:
             sr->ApplySelectedObjectColor(pEntity, it);            

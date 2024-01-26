@@ -599,7 +599,7 @@ void StudioModelV10::OverlayBones()
                 it->SetMat4(glm::mat4x4(1.f));
                 break;
             case UniformKind::ObjectSerialNumber:
-                it->SetInt(1);
+                it->SetInt(0);
                 break;
             default:
                 GLBackend::SetUniformValue(it);
@@ -1041,7 +1041,7 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState, ShaderProg
             it->SetMat4(pState->worldTransform);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pState->serialNumber);
+            it->SetInt(pState->serialNumber + 1);
             break;
         }
     }
