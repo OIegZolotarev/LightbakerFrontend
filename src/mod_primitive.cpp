@@ -82,7 +82,7 @@ void PrimitiveModel::Render(SceneEntity *pEntity, const SceneRenderer * sr, Rend
             it->SetFloat3(scale.xyz);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pEntity->GetSerialNumber());
+            it->SetInt(pEntity->GetSerialNumber() + 1);
             break;
         case UniformKind::Color2:
             sr->ApplySelectedObjectColor(pEntity, it);

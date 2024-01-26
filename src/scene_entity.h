@@ -14,6 +14,17 @@
 #include "mathlib.h"
 #include "r_bvh_boundingbox.h"
 
+// Forward declarations
+
+class Scene;
+class ShaderProgram;
+class OctreeNode;
+namespace GoldSource
+{
+class BSPEntityProperty;
+}
+// Forward declarations end
+ 
 enum class EntityClasses
 {
     None = 0,
@@ -92,15 +103,6 @@ typedef struct sentvars_s
     }
 
 } sentvars_t;
-
-
-class Scene;
-class ShaderProgram;
-class OctreeNode;
-namespace GoldSource
-{
-class BSPEntityProperty;
-}
 
 
 

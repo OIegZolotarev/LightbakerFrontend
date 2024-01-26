@@ -324,7 +324,7 @@ void SceneRenderer::DrawBillboard(const glm::vec3 pos, const glm::vec2 size, con
             it->SetFloat3({size.xyy});
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(objectSerialNumber);
+            it->SetInt(objectSerialNumber + 1);
             break;
         }
     }
@@ -680,7 +680,7 @@ void SceneRenderer::RenderPointEntityDefault(const glm::vec3 &m_Position, const 
             it->SetFloat3(scale.xyz);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(objectSerialNumber);
+            it->SetInt(objectSerialNumber + 1);
             break;
         default:
             GLBackend::SetUniformValue(it);
@@ -735,7 +735,7 @@ void SceneRenderer::RenderGenericEntity(SceneEntity *pEntity)
         }
         break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pEntity->GetSerialNumber());
+            it->SetInt(pEntity->GetSerialNumber() + 1);
             break;
         default:
             GLBackend::SetUniformValue(it);

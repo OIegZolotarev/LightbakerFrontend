@@ -188,7 +188,12 @@ void SelectionTool::SelectHoveredObject()
     if (!m_pActiveViewport)
         return;
 
-    auto obj = m_pActiveDocument->GetEntityBySerialNumber(m_pActiveViewport->GetHoveredObjectID());
+    int  objectId = m_pActiveViewport->GetHoveredObjectID();
+
+    if (objectId == -1)
+        return;
+
+    auto obj = m_pActiveDocument->GetEntityBySerialNumber(objectId);
 
     if (!obj.expired())
     {
