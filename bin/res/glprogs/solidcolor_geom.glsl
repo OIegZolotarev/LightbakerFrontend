@@ -19,7 +19,8 @@ uniform vec4 u_Color;
 void main()
 {
 	oFragColor = u_Color;
-	oSelColor = u_ObjectSerialNumber;
+	oSelColor.x = u_ObjectSerialNumber;
+	oSelColor.y = 0;
 } 
 
 #endif

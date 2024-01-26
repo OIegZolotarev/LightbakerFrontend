@@ -15,6 +15,10 @@ out vec2 oLMCoord;
 out vec3 oNormal;
 #endif
 
+#ifdef USING_PARTID
+flat out int oPartId;
+#endif
+
 #ifdef USING_BONES
 uniform mat4 u_BonesTransform[128];
 #endif
@@ -37,6 +41,10 @@ void main()
 #ifdef USING_BONES 
 	vec4 pos = vec4(xyz,1) * u_BonesTransform[bones[0]];
 	gl_Position = _transform(pos.xyz);	
+#endif
+
+#ifdef USING_PARTID
+	oPartId = partId;
 #endif
 
 #ifdef SPRITE
@@ -114,7 +122,13 @@ void main()
 
 	oFragColor = outColor * u_Color2;
 	
-	oSelColor = u_ObjectSerialNumber;  
+	oSelColor.x = u_ObjectSerialNumber;  
+	
+#ifdef USING_PARTID
+	oSelColor.y = oPartId;  
+#else
+	oSelColor.y = 0;  
+#endif
 	//oSelColor = 0;  
 	
 	

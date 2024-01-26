@@ -6,7 +6,7 @@ layout (location = 2) in vec3 tangent;
 
 #ifdef USING_BONES
 layout (location = 3) in ivec4 bones; 	
-#elif USING_PARTID
+#elif  defined(USING_PARTID)
 layout (location = 3) in int partId; 	
 #else
 layout (location = 3) in vec4 color; 

@@ -28,7 +28,8 @@ uniform sampler2D u_Diffuse;
 void main()
 {
 	oFragColor =  texture2D(u_Diffuse,oTexCoord);	
-	oSelColor = u_ObjectSerialNumber;
+	oSelColor.x = u_ObjectSerialNumber;
+	oSelColor.y = 0;
 } 
 
 #endif
