@@ -90,6 +90,11 @@ class BrushFace
 
     void ValidateTexturingInfo();
 
+    friend class BrushModel;
+
+
+    size_t m_FaceId = 0;
+
 public:
     BrushFace();
     BrushFace(BrushModel *pBrush, const glm::vec3 pts[3]);

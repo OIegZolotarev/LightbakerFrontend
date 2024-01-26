@@ -19,12 +19,17 @@
 
 bool g_useBVH = true;
 
+#ifdef DEBUG
+#else 
+#endif // DEBUG
+
+
 uberShaderDefs_t g_UberShaderTable[] = {
-    // clang-format off
+    // clang-format off    
+    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"  , "DIFFUSE"}       , nullptr}       ,
+    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"  , "DIFFUSE"}       , nullptr}       ,
+    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"  , "FLATSHADED"}    , nullptr}       ,    
     {ModelType::StaticLightmapped , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "DIFFUSE"      , "LIGHTMAP"} , nullptr},
-    {ModelType::StudioV10         , RenderMode::Lightshaded , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
-    {ModelType::StudioV10         , RenderMode::Unshaded    , {"USING_BONES"     , "DIFFUSE"}     , nullptr}    ,
-    {ModelType::StudioV10         , RenderMode::Flatshaded  , {"USING_BONES"     , "FLATSHADED"}  , nullptr}    ,    
     {ModelType::StaticLightmapped , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "DIFFUSE"}     , nullptr}    ,
     {ModelType::StaticLightmapped , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "FLATSHADED"}  , nullptr}    ,
     {ModelType::Sprite            , RenderMode::Lightshaded , {"SPRITE"          , "SOLID_COLOR"  , "DIFFUSE"}  , nullptr},
@@ -33,9 +38,9 @@ uberShaderDefs_t g_UberShaderTable[] = {
     {ModelType::HelperPrimitive   , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     {ModelType::HelperPrimitive   , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
-    {ModelType::Brush             , RenderMode::Lightshaded , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
-    {ModelType::Brush             , RenderMode::Unshaded    , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
-    {ModelType::Brush             , RenderMode::Flatshaded  , {"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Lightshaded , {"USING_PARTID" ,"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Unshaded    , {"USING_PARTID" ,"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
+    {ModelType::Brush             , RenderMode::Flatshaded  , {"USING_PARTID" ,"STATIC_GEOMETRY" , "SOLID_COLOR"} , nullptr}    ,
     // clang-format on
 };
 

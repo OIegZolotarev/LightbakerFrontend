@@ -130,7 +130,7 @@ bool BrushModel::CreateFacesFromPlanes(int flags)
     m_pDrawMesh->End();
 
     m_BoundsAbsolute = m_Bounds;
-    m_Bounds = m_Bounds.ConvertToRelative();
+    m_Bounds         = m_Bounds.ConvertToRelative();
 
     return m_bValid;
 }
@@ -178,9 +178,12 @@ DrawMesh *BrushModel::GetDrawMesh()
     return m_pDrawMesh;
 }
 
-BrushFace* BrushModel::AddFace(const glm::vec3 pts[3])
+BrushFace *BrushModel::AddFace(const glm::vec3 pts[3])
 {
     BrushFace *pNewFace = new BrushFace(this, pts);
+
+    pNewFace->m_FaceId = m_lstFaces.size();
+
     m_lstFaces.push_back(pNewFace);
 
     return pNewFace;
