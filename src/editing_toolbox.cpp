@@ -25,7 +25,7 @@ IEditingTool *EditingToolbox::FindTool(EditingToolId id)
 
  EditingToolbox::~EditingToolbox()
 {
-    assert(false && "Ownership managment is incorrect, fixme");
+    // assert(false && "Ownership managment is incorrect, fixme");
 }
 
 void EditingToolbox::Initialize()

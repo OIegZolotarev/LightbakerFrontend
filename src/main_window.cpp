@@ -37,7 +37,7 @@ bool g_bShowDemo        = false;
 bool DEBUG_3D_SELECTION = false;
 
 const char *strDockspace     = "DockSpace";
-ImGuiID     gIDMainDockspace = 0;
+
 
 SDL_Cursor *g_EmptyCursor;
 char        g_IMGuiIniPath[1024];

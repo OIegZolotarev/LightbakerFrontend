@@ -135,6 +135,7 @@ private:
     // Docking
     defaultDockSides_s       m_defaultDockSides;
     std::vector<ToolUIPanel *> m_vPanels;
+    ImGuiID                    gIDMainDockspace = 0;
 
     void    InitDocks();
     
