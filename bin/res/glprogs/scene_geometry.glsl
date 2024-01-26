@@ -1,6 +1,3 @@
-// Version by default
-// #version 330
-
 #ifdef VERTEX_SHADER
 
 #include "common_vertex.h"

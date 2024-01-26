@@ -2,10 +2,14 @@ layout (location = 0) in vec3 xyz;
 layout (location = 1) in vec3 normal; 
 layout (location = 2) in vec3 tangent; 
 
-#ifndef USING_BONES
-layout (location = 3) in vec4 color; 
-#else
+
+
+#ifdef USING_BONES
 layout (location = 3) in ivec4 bones; 	
+#elif USING_PARTID
+layout (location = 3) in int partId; 	
+#else
+layout (location = 3) in vec4 color; 
 #endif
 
 layout (location = 4) in vec3 uv; 

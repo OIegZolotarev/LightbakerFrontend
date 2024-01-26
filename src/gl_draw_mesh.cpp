@@ -103,12 +103,19 @@ void DrawMesh::End()
         glEnableVertexAttribArray(3);
         GL_CheckForErrors();
     }
-    else 
+    else if (m_iFlags & UsingColors)
     {
         glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
         glEnableVertexAttribArray(3);
         GL_CheckForErrors();
     }
+    else if (m_iFlags & UsingPartId)
+    {
+        glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
+        glEnableVertexAttribArray(3);
+        GL_CheckForErrors();
+    }
+
 
     glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, uv));
     glEnableVertexAttribArray(4);
@@ -221,6 +228,7 @@ void DrawMesh::Tangent3fv(float *v)
 void DrawMesh::Color4f(float r, float g, float b, float a)
 {
     assert(!(m_iFlags & UsingBones));
+    assert(!(m_iFlags & UsingPartId));
 
     m_tempVert.ext.color[0]   = r;
     m_tempVert.ext.color[1]  = g;
@@ -233,6 +241,7 @@ void DrawMesh::Color4f(float r, float g, float b, float a)
 void DrawMesh::Color4fv(float *v)
 {
     assert(!(m_iFlags & UsingBones));
+    assert(!(m_iFlags & UsingPartId));
 
     m_tempVert.ext.color[0]   = v[0];
     m_tempVert.ext.color[1]  = v[1];
@@ -245,6 +254,7 @@ void DrawMesh::Color4fv(float *v)
 void DrawMesh::Color3f(float r, float g, float b)
 {
     assert(!(m_iFlags & UsingBones));
+    assert(!(m_iFlags & UsingPartId));
 
     m_tempVert.ext.color[0]   = r;
     m_tempVert.ext.color[1]  = g;
@@ -257,6 +267,7 @@ void DrawMesh::Color3f(float r, float g, float b)
 void DrawMesh::Color3fv(float *v)
 {
     assert(!(m_iFlags & UsingBones));
+    assert(!(m_iFlags & UsingPartId));
 
     m_tempVert.ext.color[0]   = v[0];
     m_tempVert.ext.color[1]  = v[1];
@@ -269,11 +280,22 @@ void DrawMesh::Color3fv(float *v)
 void DrawMesh::Bone1ub(size_t index, byte bone)
 {
     assert(!(m_iFlags & UsingColors));
+    assert(!(m_iFlags & UsingPartId));
     assert(index < 4);
 
     m_tempVert.ext.bones[index] = bone;
 
     m_iFlags |= UsingBones;
+}
+
+void DrawMesh::PartId(int partId)
+{
+    assert(!(m_iFlags & UsingColors));
+    assert(!(m_iFlags & UsingBones));
+
+    m_tempVert.ext.partId = partId;
+
+    m_iFlags |= UsingPartId;
 }
 
 void DrawMesh::TexCoord2f(float u, float v)

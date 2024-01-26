@@ -16,6 +16,7 @@ typedef struct drawVert_s
     union {
         glm::vec4 color;
         byte      bones[4];
+        int       partId;
     } ext;
 
     glm::vec3 uv;
@@ -36,7 +37,8 @@ enum DrawMeshFlags
     HasIndices  = (1 << 2),
     Dynamic     = (1 << 3),
     UsingColors = (1 << 4),
-    UsingBones  = (1 << 5)
+    UsingBones  = (1 << 5),
+    UsingPartId  = (1 << 6)
 };
 
 class DrawMesh
@@ -86,6 +88,7 @@ public:
     void Color3fv(float *v);
 
     void Bone1ub(size_t index,byte bone);
+    void PartId(int partId);
     
 
     void TexCoord2f(float u, float v);
