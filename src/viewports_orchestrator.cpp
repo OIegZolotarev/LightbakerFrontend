@@ -270,7 +270,7 @@ SharedFBOLeaf *ViewportsOrchestrator::AllocateSharedFBOViewport(Viewport * pView
     if (!pLeaf)
     {
         // Allocate new shared FBO
-        AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::R32UI};
+        AttachmentTypes      fboTypes[] = {AttachmentTypes::RGB, AttachmentTypes::RG32UI};
         GLFramebufferObject *pGLFBO     = new GLFramebufferObject(2048, 2048, 2, fboTypes);
 
         SharedFBO *pNewFBO = new SharedFBO(pGLFBO);
