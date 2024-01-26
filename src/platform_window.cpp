@@ -226,7 +226,7 @@ ImGuiID IPlatformWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNode
     ImGui::PopStyleVar(3);
 
     char label2[32];
-    sprintf_s(label2, IM_ARRAYSIZE(label), "DockSpace_%08X", this->GetId());
+    sprintf_s(label2, IM_ARRAYSIZE(label), "DockSpace_%zX", this->GetId());
 
     m_DockSpaceId = ImGui::GetID(label2);
 

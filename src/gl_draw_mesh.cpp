@@ -111,7 +111,7 @@ void DrawMesh::End()
     }
     else if (m_iFlags & UsingPartId)
     {
-        glVertexAttribPointer(3, 1, GL_INT, GL_FALSE, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
+        glVertexAttribIPointer(3, 1, GL_INT, sizeof(drawVert_t), (void *)offsetof(drawVert_t, ext.color));
         glEnableVertexAttribArray(3);
         GL_CheckForErrors();
     }
@@ -353,7 +353,7 @@ void DrawMesh::ReverseTrianglesOrder()
     typedef struct tri_s
     {
         int ind[3];
-    };
+    }tri_t;
 
     tri_s *tris = (tri_s*)m_Indices.data();
     size_t nTris = m_Indices.size() / 3;
