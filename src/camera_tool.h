@@ -6,12 +6,9 @@
 #pragma once
 #include "editing_tool.h"
 
-
-
-class CameraTool: public IEditingTool
+class CameraTool : public IEditingTool
 {
 public:
-
     CameraTool();
 
     void Render(float flFrameDelta) override;

@@ -12,6 +12,7 @@
 #include "popup_options_window.h"
 #include "popup_scene_scale.h"
 #include "ui_common.h"
+#include "popup_textures_browser.h"
 
 IImGUIPopup::IImGUIPopup(PopupWindows id)
 {
@@ -101,6 +102,7 @@ PopupsManager::PopupsManager()
     m_vPopups.push_back(new SceneScaleDialog());
     m_vPopups.push_back(new OptionsDialog());
     m_vPopups.push_back(new PopupEditGameconfiguration());
+    m_vPopups.push_back(new TexturesBrowser());
 }
 
 PopupsManager *PopupsManager::Instance()

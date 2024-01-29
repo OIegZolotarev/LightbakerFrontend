@@ -216,6 +216,7 @@ build_parsers.bat
     <ClCompile Include="hammer_map\hammer_map.bison.cpp" />
     <ClCompile Include="io_scene.cpp" />
     <ClCompile Include="io_scene_lm2.cpp" />
+    <ClCompile Include="popup_textures_browser.cpp" />
     <ClCompile Include="prefabs_factory.cpp" />
     <ClCompile Include="r_bvh.cpp" />
     <ClCompile Include="r_bvh_boundingbox.cpp" />
@@ -269,6 +270,7 @@ build_parsers.bat
     <ClCompile Include="selection_tool.cpp" />
     <ClCompile Include="StringPool.cpp" />
     <ClCompile Include="string_pool.cpp" />
+    <ClCompile Include="texture_application_tool.cpp" />
     <ClCompile Include="toolbox_panel.cpp" />
     <ClCompile Include="toolui_panel.cpp" />
     <ClCompile Include="imgui_helpers.cpp" />
@@ -347,6 +349,7 @@ build_parsers.bat
     <ClInclude Include="btQuickProf.h" />
     <ClInclude Include="editing_toolbox.h" />
     <ClInclude Include="hammer_map.h" />
+    <ClInclude Include="popup_textures_browser.h" />
     <ClInclude Include="io_scene.h" />
     <ClInclude Include="io_scene_lm2.h" />
     <ClInclude Include="prefabs_factory.h" />
@@ -408,6 +411,7 @@ build_parsers.bat
     <ClInclude Include="Icosphere.h" />
     <ClInclude Include="selection_tool.h" />
     <ClInclude Include="string_pool.h" />
+    <ClInclude Include="texture_application_tool.h" />
     <ClInclude Include="toolbox_panel.h" />
     <ClInclude Include="toolui_panel.h" />
     <ClInclude Include="imgui_enum_combobox.h" />

@@ -103,4 +103,6 @@ public:
 
     const plane_t *GetPlane() const;
     void           CreateFaceFromWinding(Winding *w, int flags);
+    void           SetUAxis(glm::vec4 uAxis);
+    void           SetVAxis(glm::vec4 vAxis);
 };

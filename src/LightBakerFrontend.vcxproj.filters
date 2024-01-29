@@ -224,9 +224,6 @@
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClCompile>
-    <ClCompile Include="game_configuration.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="goldsource_bsp_renderer.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
     </ClCompile>
@@ -518,6 +515,15 @@
     <ClCompile Include="hammer_map.cpp">
       <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
     </ClCompile>
+    <ClCompile Include="popup_textures_browser.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_application_tool.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="game_configuration.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -639,9 +645,6 @@
     </ClInclude>
     <ClInclude Include="hammer_fgd.h">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
-    </ClInclude>
-    <ClInclude Include="game_configuration.h">
-      <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_disk_structs.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
@@ -934,6 +937,15 @@
     </ClInclude>
     <ClInclude Include="hammer_map.h">
       <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_textures_browser.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_application_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="game_configuration.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -82,6 +82,16 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
     }
 }
 
+void BrushFace::SetUAxis(glm::vec4 uAxis)
+{
+    m_TexInfo.uaxis = uAxis;
+}
+
+void BrushFace::SetVAxis(glm::vec4 vAxis)
+{
+    m_TexInfo.vaxis = vAxis;
+}
+
 void BrushFace::ValidateTexturingInfo()
 {
     if (m_TexInfo.scale[0] == 0)

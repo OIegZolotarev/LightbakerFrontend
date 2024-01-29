@@ -16,7 +16,8 @@ enum class PopupWindows
 	SceneScaleDialog,
 	ProgramOptions,
 	EditGameConfiguration,
-	MesasgeBox
+	MesasgeBox,
+	TexturesBrowser
 };
 
 class IImGUIPopup

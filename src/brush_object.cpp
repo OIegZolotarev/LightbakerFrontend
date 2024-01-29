@@ -155,7 +155,14 @@ void BrushObject::GenerateModel(const HammerMap *pMap, const size_t firstFace, c
     for (size_t f = firstFace; f < lastFace; f++)
     {
         const map220face_t *pFace = pMap->GetFace(f);
-        m_pModel->AddFace(pFace->points);
+        
+        auto pBrushFace = m_pModel->AddFace(pFace->points);
+
+        GLTexture *pTexture = TextureManager::LoadWADTextureAsynch(pFace->textureName.c_str());
+        pBrushFace->SetTexture(pTexture);
+        pBrushFace->SetUAxis(pFace->uAxis);
+        pBrushFace->SetVAxis(pFace->vAxis);
+
     }
 
     m_pModel->CreateFacesFromPlanes(CREATE_FROM_PLANES_CLIPPING);

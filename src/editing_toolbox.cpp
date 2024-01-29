@@ -10,6 +10,7 @@
 #include "editing_toolbox.h"
 #include "selection_tool.h"
 #include "viewports_orchestrator.h"
+#include "texture_application_tool.h"
 
 IEditingTool *EditingToolbox::FindTool(EditingToolId id)
 {
@@ -32,6 +33,7 @@ void EditingToolbox::Initialize()
 {
     m_lstToolbs.push_back(new SelectionTool());
     m_lstToolbs.push_back(new CameraTool());
+    m_lstToolbs.push_back(new TextureApplicationTool());
 
     for (auto & it: m_lstToolbs)
     {
@@ -79,7 +81,7 @@ void EditingToolbox::RenderToolUI()
     if (!m_pCurrentTool)
         return;
 
-    // InitializeToolContext();
+    InitializeToolContext();
     m_pCurrentTool->RenderUI();
 }
 

@@ -226,7 +226,7 @@ void CCommandsRegistry::RegisterCameraTurningCommands()
         newCommand->SetCommonIcon(CommonIcons::None);
         newCommand->SetFlags(0);
         newCommand->SetCallback([=]() {
-            auto viewport = ViewportsOrchestrator::Instance()->GetHoveredViewport();
+            auto viewport = ViewportsOrchestrator::Instance()->GetFocusedViewport();
             if (!viewport)
                 return;
 

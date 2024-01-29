@@ -266,7 +266,7 @@ public:
     void PurgeTextures();
 
     static GLTexture *LoadWADTextureSynch(char *name);
-    static GLTexture *LoadWADTextureAsynch(char *name);
+    static GLTexture *LoadWADTextureAsynch(const char *name);
     
     static GLTexture *GetWhiteTexture();
     static GLTexture *GetFallbackTexture();

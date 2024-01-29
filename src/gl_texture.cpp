@@ -528,7 +528,7 @@ GLTexture *TextureManager::LoadWADTextureSynch(char *name)
     return pResult;
 }
 
-GLTexture *TextureManager::LoadWADTextureAsynch(char *name)
+GLTexture * TextureManager::LoadWADTextureAsynch(const char *name)
 {
     GLTexture *pResult   = new GLTexture(name, TextureSource::GoldSourceWadFile, true);
     
