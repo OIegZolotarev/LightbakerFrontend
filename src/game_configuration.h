@@ -4,6 +4,7 @@
 */
 
 #pragma once
+#include "material_assets.h"
 #include "persistent.h"
 #include <optional>
 
@@ -24,7 +25,6 @@ class GameConfiguration
     std::shared_ptr<FolderMount> m_pFSRootMount;
 
 protected:
-    
     // Common data
     std::string m_GameDirectory;
     std::string m_Description;
@@ -34,31 +34,14 @@ protected:
 
     GameEngines m_Engine;
 
+    // Assets
+    MaterialAssetsProvider *m_pMaterialAssetsProvider = nullptr;
+
 public:
     GameConfiguration() = default;
     GameConfiguration(std::string description, std::string gameDirectory);
-
-    GameConfiguration(const GameConfiguration & other)
-    {
-        m_GameDirectory = other.m_GameDirectory;
-        m_Description = other.m_Description;
-        m_SavedFileName = other.m_SavedFileName;
-        m_Engine = other.m_Engine;
-        m_pFSRootMount  = other.m_pFSRootMount;
-
-        // TODO: copy FS mount point?
-    }
-
-    GameConfiguration(const GameConfiguration && other)
-    {
-        m_GameDirectory = other.m_GameDirectory;
-        m_Description   = other.m_Description;
-        m_SavedFileName = other.m_SavedFileName;
-        m_Engine        = other.m_Engine;
-
-        m_pFSRootMount = other.m_pFSRootMount;
-        m_bDefault     = other.m_bDefault;
-    }
+    GameConfiguration(const GameConfiguration &other);
+    // GameConfiguration(const GameConfiguration &&other) noexcept;
 
     ~GameConfiguration();
 
@@ -74,7 +57,7 @@ public:
     void SetGameDirectory(std::string &gameDir);
 
     // Data manipulation
-    virtual void Serialize(std::string fileName) const;   
+    virtual void               Serialize(std::string fileName) const;
     virtual GameConfiguration *Clone() = 0;
 
     virtual void EditDialog();
@@ -86,7 +69,9 @@ public:
     // Filesystem
     void MountGameFS();
     void UnmountGameFS();
-    
+
+    // Assets
+    MaterialAssetsProvider *GetMaterialAssetsProvider();
 };
 
 typedef std::tuple<std::string, GameEngines> gamelookupresult_t;

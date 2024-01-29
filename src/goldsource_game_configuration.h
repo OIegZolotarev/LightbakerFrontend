@@ -26,8 +26,7 @@ class HammerGameConfiguration : public GameConfiguration
         std::string rad = ""; // Не особо то и нужно :)
     } m_CompilationPrograms;
 
-    
-    std::list<std::string> m_FGDFiles;
+    std::list<std::string>     m_FGDFiles;
     std::list<HammerFGDFile *> m_lstFGDData;
 
     void ParseLiblistGam();
@@ -43,21 +42,19 @@ class HammerGameConfiguration : public GameConfiguration
 
     void InitListViewBindings();
 
-  public:
+public:
     HammerGameConfiguration();
-    
-    
+
     HammerGameConfiguration(const HammerGameConfiguration &other);
 
-    HammerGameConfiguration(std::string & savedFileName);
+    HammerGameConfiguration(std::string &savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
 
-    
     ~HammerGameConfiguration();
 
     FGDEntityClassWeakPtr LookupFGDClass(const std::string &classname);
 
-    void Deserialize(std::string & fileName);
+    void Deserialize(std::string &fileName);
     void Serialize(std::string fileName) const override;
 
     void EditDialog() override;
@@ -69,7 +66,6 @@ class HammerGameConfiguration : public GameConfiguration
     GameConfiguration *Clone() override;
 
     static HammerGameConfiguration *Get(GameConfigurationWeakPtr pConfigWeakPtr);
-
 };
 
 } // namespace GoldSource

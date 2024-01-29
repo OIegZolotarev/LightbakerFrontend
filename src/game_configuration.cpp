@@ -17,6 +17,31 @@ GameConfiguration::GameConfiguration(std::string descr, std::string gameDirector
     SetGameDirectory(gameDirectory);
 }
 
+//  GameConfiguration::GameConfiguration(const GameConfiguration &&other) noexcept
+// {
+//     m_GameDirectory = other.m_GameDirectory;
+//     m_Description   = other.m_Description;
+//     m_SavedFileName = other.m_SavedFileName;
+//     m_Engine        = other.m_Engine;
+// 
+//     m_pFSRootMount = other.m_pFSRootMount;
+//     m_bDefault     = other.m_bDefault;
+// }
+
+ GameConfiguration::GameConfiguration(const GameConfiguration &other)
+{
+    m_GameDirectory = other.m_GameDirectory;
+    m_Description   = other.m_Description;
+    m_SavedFileName = other.m_SavedFileName;
+    m_Engine        = other.m_Engine;
+    m_pFSRootMount  = other.m_pFSRootMount;
+
+    m_pMaterialAssetsProvider = new MaterialAssetsProvider(*other.m_pMaterialAssetsProvider);
+
+    // TODO: copy FS mount point?
+    
+}
+
 GameConfiguration::~GameConfiguration()
 {
 }
@@ -103,6 +128,11 @@ void GameConfiguration::UnmountGameFS()
     // TODO: Fixme
     if (m_pFSRootMount)
         FileSystem::Instance()->UnmountArchive(m_pFSRootMount.get());
+}
+
+MaterialAssetsProvider *GameConfiguration::GetMaterialAssetsProvider()
+{
+    return m_pMaterialAssetsProvider;
 }
 
 void GameConfigurationsManager::Init(PersistentStorage *storage)

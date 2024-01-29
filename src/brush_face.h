@@ -6,6 +6,7 @@
 #pragma once
 #include "brush_object.h"
 #include "gl_texture.h"
+#include "material_assets.h"
 
 enum class FaceOrientation
 {
@@ -81,7 +82,8 @@ class Winding;
 
 class BrushFace
 {
-    GLTexture *            m_pTexture = nullptr;
+    MaterialAssetPtr m_pMaterialAsset;
+
     brushFaceTextureInfo_t m_TexInfo;
 
     plane_t m_Plane;
@@ -91,7 +93,6 @@ class BrushFace
     void ValidateTexturingInfo();
 
     friend class BrushModel;
-
 
     size_t m_FaceId = 0;
 

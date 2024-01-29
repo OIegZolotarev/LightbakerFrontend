@@ -215,9 +215,6 @@
     <ClCompile Include="byteorder.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="goldsource_lightmap_atlas.cpp">
-      <Filter>Исходные файлы\GoldSource</Filter>
-    </ClCompile>
     <ClCompile Include="hammer_fgd.cpp">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClCompile>
@@ -515,14 +512,23 @@
     <ClCompile Include="hammer_map.cpp">
       <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
     </ClCompile>
+    <ClCompile Include="game_configuration.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="material_assets.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_lightmap_atlas.cpp">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
     <ClCompile Include="popup_textures_browser.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Popups</Filter>
     </ClCompile>
     <ClCompile Include="texture_application_tool.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="game_configuration.cpp">
-      <Filter>Исходные файлы\GoldSource</Filter>
+    <ClCompile Include="wad_assets_provider.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -639,9 +645,6 @@
     </ClInclude>
     <ClInclude Include="byteorder.h">
       <Filter>Исходные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="goldsource_lightmap_atlas.h">
-      <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
     <ClInclude Include="hammer_fgd.h">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
@@ -945,6 +948,15 @@
       <Filter>Исходные файлы\Editor</Filter>
     </ClInclude>
     <ClInclude Include="game_configuration.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="material_assets.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_lightmap_atlas.h">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="wad_assets_provider.h">
       <Filter>Исходные файлы\GoldSource</Filter>
     </ClInclude>
   </ItemGroup>

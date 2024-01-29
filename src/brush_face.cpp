@@ -21,7 +21,7 @@ BrushFace::BrushFace(BrushModel *pModel, const glm::vec3 pts[3])
 
 void BrushFace::SetTexture(GLTexture *pTexture)
 {
-    m_pTexture = pTexture;
+    // m_pTexture = pTexture;
 }
 
 const plane_t *BrushFace::GetPlane() const
@@ -51,15 +51,15 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
         float s = glm::dot(glm::vec3(m_TexInfo.uaxis.xyz), vert) / m_TexInfo.scale[0] + m_TexInfo.uaxis[3];
         float t = glm::dot(glm::vec3(m_TexInfo.vaxis.xyz), vert) / m_TexInfo.scale[1] + m_TexInfo.vaxis[3];
 
-        if (m_pTexture && m_pTexture->Width())
-            s = s / (float)m_pTexture->Width();
-        else
-            s = 0;
-
-        if (m_pTexture && m_pTexture->Height())
-            t = 1 - (t / (float)m_pTexture->Height());
-        else
-            t = 0;
+//         if (m_pTexture && m_pTexture->Width())
+//             s = s / (float)m_pTexture->Width();
+//         else
+//             s = 0;
+// 
+//         if (m_pTexture && m_pTexture->Height())
+//             t = 1 - (t / (float)m_pTexture->Height());
+//         else
+//             t = 0;
 
         m_pModel->AddPointsToBounds(vert);
 
