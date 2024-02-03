@@ -18,7 +18,7 @@ class FileDialog : public IImGUIPopup
 
     pfnOnSelectCallback m_LoadCallback;
 
-  public:
+public:
     FileDialog();
     ~FileDialog();
 
@@ -32,8 +32,6 @@ class FileDialog : public IImGUIPopup
 
     void Show();
 
-  protected:
+protected:
     void OpenPopup() override;
-
-  
 };

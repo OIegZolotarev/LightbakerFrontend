@@ -13,10 +13,12 @@
 #include "imgui_internal.h"
 #include "imgui_popups.h"
 
+#include "game_configuration.h"
+#include "io_scene.h"
 #include "popup_file_dialog.h"
 #include "text_utils.h"
 #include "viewports_orchestrator.h"
-#include "io_scene.h"
+#include "popup_select_from_list_dialog.h"
 
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 
@@ -102,7 +104,20 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetKeyStroke(nullptr);
     newCommand->SetCommonIcon(CommonIcons::NewFile);
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
-    newCommand->SetCallback([&]() {});
+    newCommand->SetCallback([&]() {
+        
+        auto & allConfigs = GameConfigurationsManager::Instance()->AllConfigurations();
+
+        auto selDialog = new SelectFromListDialog;
+
+        for (auto & it: allConfigs)
+        {
+            selDialog->AddItem(it.get());
+        }
+
+        selDialog->Show();
+
+    });
 
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
@@ -130,9 +145,7 @@ void CCommandsRegistry::InitializeAllCommands()
     newCommand->SetKeyStroke(nullptr);
     newCommand->SetCommonIcon(CommonIcons::Save);
     newCommand->SetFlags(CMD_ON_MAINTOOLBAR);
-    newCommand->SetCallback([&]() {
-        SceneIOManager::Instance()->PerformSavingDialog();
-    });
+    newCommand->SetCallback([&]() { SceneIOManager::Instance()->PerformSavingDialog(); });
     Application::CommandsRegistry()->RegisterCommand(newCommand);
 
     newCommand = new CCommand;

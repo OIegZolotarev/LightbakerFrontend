@@ -54,7 +54,6 @@ public:
     void SetCallback(pfnMessageBoxCallback callback);
 
     int RenderingFlags() override;
-    void Show();
-
+    
     bool BeginRendering() override;
 };

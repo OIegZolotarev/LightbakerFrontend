@@ -41,7 +41,7 @@ int Viewport::ReadPixel(unsigned int x, unsigned int y)
     glReadBuffer(GL_NONE);
     m_pSharedFBOLeaf->DisableFBO();
 
-    return r[0] - 1;    
+    return r[0] - 1;
 }
 
 Viewport::Viewport(const char *title, IPlatformWindow *pHostWindow, Viewport *pCopyFrom)
@@ -158,7 +158,7 @@ void Viewport::DisplayRenderedFrame()
 
     if (ImGui::Begin(m_strName.c_str(), &m_bVisible, flags))
     {
-        m_bDocked  = ImGui::IsWindowDocked();
+        m_bDocked = ImGui::IsWindowDocked();
         // m_bFocused = ImGui::IsWindowFocused();
 
         auto r = GLScreenSpace2DRenderer::Instance();
@@ -367,14 +367,8 @@ void Viewport::UpdateDisplayWidgetPos()
 
 int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta)
 {
-
     if (!IsVisible())
-        return 0; 
-
-   if (e.type == SDL_MOUSEBUTTONDOWN)
-    {
-       ViewportsOrchestrator::Instance()->MakeViewportFocused(this);
-    }
+        return 0;
 
     if (!(m_bHovered && m_bHoveredImGUI) && !m_pCamera->IsFPSNavigationEngaged())
         return 0;
@@ -384,6 +378,10 @@ int Viewport::HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFr
         ViewportsOrchestrator::Instance()->MakeViewportFocused(this);
     }
 
+    if (e.type == SDL_MOUSEBUTTONDOWN)
+    {
+        ViewportsOrchestrator::Instance()->MakeViewportFocused(this);
+    }
 
     // Rendering logic will handle m_bHovered flag properly
     if (m_bHovered)
@@ -411,18 +409,16 @@ void Viewport::OutputDebug()
     auto start = clientPosAbs + glm::vec2(10, 30);
     auto end   = start + glm::vec2(200, 200);
 
-     std::string debugInfoId  = "###" + m_strNamePopupKey + "_debug";
- 
-     ImGui::SetNextWindowPos(ImVec2(clientPosAbs.x + 10, clientPosAbs.y + 50));
-     ImGui::BeginChild(debugInfoId.c_str(), {0, 0},
-                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
-                           ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
-     // ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
+    std::string debugInfoId = "###" + m_strNamePopupKey + "_debug";
 
+    ImGui::SetNextWindowPos(ImVec2(clientPosAbs.x + 10, clientPosAbs.y + 50));
+    ImGui::BeginChild(debugInfoId.c_str(), {0, 0},
+                      ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_AlwaysAutoResize | ImGuiChildFlags_AutoResizeX |
+                          ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_FrameStyle);
+    // ImGui::BringWindowToDisplayFront(ImGui::GetCurrentWindow());
 
-    //ImGui::BeginTooltip((ImGuiID)this);
-    //ImGui::GetBackgroundDrawList()->AddRectFilled({start.x, start.y}, {end.x, end.y}, ToColorU32({.2,.2,.2,1}),20);
-
+    // ImGui::BeginTooltip((ImGuiID)this);
+    // ImGui::GetBackgroundDrawList()->AddRectFilled({start.x, start.y}, {end.x, end.y}, ToColorU32({.2,.2,.2,1}),20);
 
     // Debug Info start
     auto      position = m_pCamera->GetPosition();
@@ -567,6 +563,11 @@ void Viewport::LookAt(const sceneCameraDescriptor_t &it)
 {
     m_pCamera->SetOrigin(it.position);
     m_pCamera->SetAngles(it.angles);
+}
+
+SharedFBOLeaf *Viewport::GetSharedFBOLeaf()
+{
+    return m_pSharedFBOLeaf;
 }
 
 void Viewport::SetSharedFBOLeaf(SharedFBOLeaf *pLeaf)

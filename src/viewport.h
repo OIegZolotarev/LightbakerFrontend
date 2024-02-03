@@ -55,9 +55,8 @@ class Viewport : public IEventHandler
     GLFramebufferObject *m_pFBO;
     SharedFBOLeaf *      m_pSharedFBOLeaf = nullptr;
 
-
-    RenderMode           m_RenderMode = RenderMode::Lightshaded;
-    int                  ReadPixel(unsigned int x, unsigned int y);
+    RenderMode m_RenderMode = RenderMode::Lightshaded;
+    int        ReadPixel(unsigned int x, unsigned int y);
 
     // Mouse utils
     bool PointInClientRect(glm::vec2 pt);
@@ -117,12 +116,9 @@ public:
     const glm::vec3 ScreenToWorld(glm::vec2 viewportCoords, float depthFraction, bool yAtBottom) const;
 
     void LookAt(const sceneCameraDescriptor_t &it);
-    
-    SharedFBOLeaf *GetSharedFBOLeaf()
-    {
-        return m_pSharedFBOLeaf;
-    }
+
+    SharedFBOLeaf *GetSharedFBOLeaf();
     void SetSharedFBOLeaf(SharedFBOLeaf *pLeaf);
-    
-void SetFocused(bool param1);
+
+    void SetFocused(bool param1);
 };

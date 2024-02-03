@@ -3,15 +3,16 @@
     (c) 2022 CrazyRussian
 */
 
-#include "imgui_popups.h"
 #include "common.h"
+#include "ui_common.h"
+#include "imgui_popups.h"
 #include "custom_font.h"
 #include "popup_edit_gameconfiguration.h"
-#include "popup_lb3k_config.h"
 #include "popup_file_dialog.h"
+#include "popup_lb3k_config.h"
 #include "popup_options_window.h"
 #include "popup_scene_scale.h"
-#include "ui_common.h"
+#include "popup_select_from_list_dialog.h"
 #include "popup_textures_browser.h"
 
 IImGUIPopup::IImGUIPopup(PopupWindows id)
@@ -27,7 +28,7 @@ bool IImGUIPopup::BeginRendering()
 
 void IImGUIPopup::EndRendering()
 {
-    ImGui::EndPopup();
+    ImGui::PopID();
 }
 
 int IImGUIPopup::RenderingFlags()
@@ -68,11 +69,21 @@ bool IImGUIPopup::IsPersistent()
     return m_bPersistent;
 }
 
+void IImGUIPopup::Show()
+{
+    PopupsManager::Instance()->ShowPopup(this);
+}
+
+void IImGUIPopup::Close()
+{
+    SetVisible(false);
+    ImGui::CloseCurrentPopup();
+}
+
 void IImGUIPopup::SchedulePopupOpen()
 {
     m_bSchedulePopupOpen = true;
 }
-
 
 void IImGUIPopup::OpenPopup()
 {
@@ -119,7 +130,6 @@ PopupsManager::~PopupsManager()
         delete it;
 
     m_vPopups.clear();
-
 }
 
 void PopupsManager::ApplyFileDialogSkins()
@@ -135,7 +145,6 @@ void PopupsManager::ShowPopup(PopupWindows id)
 
     assert(p);
 
-   
     p->SchedulePopupOpen();
     p->OnOpen();
     p->SetVisible(true);
@@ -146,11 +155,12 @@ void PopupsManager::ShowPopup(PopupWindows id)
 void PopupsManager::ShowPopup(IImGUIPopup *pPopup)
 {
     m_vPopups.push_back(pPopup);
-        
+
+    pPopup->m_bPersistent = false;
     pPopup->SetVisible(true);
     pPopup->SchedulePopupOpen();
     pPopup->m_bDontProcessThisFrame = true;
-  
+
     m_lstOpenedPopups.push_back(pPopup);
 }
 
@@ -165,23 +175,23 @@ void PopupsManager::RenderPopups()
             (*it)->m_bDontProcessThisFrame = false;
             continue;
         }
-        
 
         auto ptr = *it;
-        
+
         if (!ptr->IsVisible())
-        {            
-            m_lstOpenedPopups.erase(it++);            
+        {
+            m_lstOpenedPopups.erase(it++);
 
             if (it == m_lstOpenedPopups.end())
                 break;
-            
+
+            if (ptr->IsPersistent())
+                delete ptr;
+
             ptr = *it;
         }
 
         ptr->OpenPopup();
-
-        // TODO: crashes on minimizing-maximizng
 
         if (ptr->BeginRendering())
         {
@@ -190,12 +200,10 @@ void PopupsManager::RenderPopups()
             ImGui::PopID();
             depth++;
         }
-        
     }
 
     for (int i = 0; i < depth; i++)
         ImGui::EndPopup();
 
-    m_vPopups.remove_if([&](IImGUIPopup *test) { return !test->IsVisible() && !test->IsPersistent();
-        });
+    m_vPopups.remove_if([&](IImGUIPopup *test) { return !test->IsVisible() && !test->IsPersistent(); });
 }

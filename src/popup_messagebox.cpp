@@ -111,11 +111,6 @@ int PopupMessageBox::RenderingFlags()
     return ImGuiWindowFlags_NoResize;
 }
 
-void PopupMessageBox::Show()
-{
-    PopupsManager::Instance()->ShowPopup(this);
-}
-
 bool PopupMessageBox::BeginRendering()
 {
     ImGui::SetNextWindowSize(ImVec2(350, 150));

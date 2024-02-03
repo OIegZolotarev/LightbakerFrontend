@@ -4,20 +4,15 @@
 */
 
 #pragma once
-#include "imgui_popups.h"
 #include "game_configuration.h"
+#include "imgui_popups.h"
 
 class PopupEditGameconfiguration : public IImGUIPopup
 {
-    float m_flScale         = 0;
-    float m_flScaleOriginal = 0;
-
     GameConfigurationWeakPtr m_pCurrentConfiguration;
-    
     GameConfiguration *m_pEditedConfiguration = nullptr;
 
- public:
- 
+public:
     PopupEditGameconfiguration();
     ~PopupEditGameconfiguration();
 
