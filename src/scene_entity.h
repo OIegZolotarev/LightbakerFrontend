@@ -13,6 +13,7 @@
 
 #include "mathlib.h"
 #include "r_bvh_boundingbox.h"
+#include "user_presentable_object.h"
 
 // Forward declarations
 
@@ -106,7 +107,7 @@ typedef struct sentvars_s
 
 
 
-class SceneEntity : public ISelectableObject
+class SceneEntity : public ISelectableObject, public IUserPresentableObject
 {
     bool          m_bDataLoaded = true;
     EntityClasses m_EntityClass;
@@ -175,7 +176,10 @@ public:
     void OnUnhovered() override;
     void InvokeSelect();
 
-    virtual const char *Description();
+
+    virtual const char *Description() const override;
+
+
     virtual bool        IsLightEntity();
     virtual void        OnAdditionToScene(class Scene *pScene);
 

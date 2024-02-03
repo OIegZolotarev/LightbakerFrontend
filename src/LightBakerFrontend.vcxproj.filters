@@ -530,6 +530,12 @@
     <ClCompile Include="wad_assets_provider.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="popup_select_from_list_dialog.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="user_presentable_object.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -958,6 +964,12 @@
     </ClInclude>
     <ClInclude Include="wad_assets_provider.h">
       <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_select_from_list_dialog.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="user_presentable_object.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

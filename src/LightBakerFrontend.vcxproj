@@ -216,7 +216,9 @@ build_parsers.bat
     <ClCompile Include="hammer_map\hammer_map.bison.cpp" />
     <ClCompile Include="io_scene.cpp" />
     <ClCompile Include="io_scene_lm2.cpp" />
+    <ClCompile Include="user_presentable_object.cpp" />
     <ClCompile Include="material_assets.cpp" />
+    <ClCompile Include="popup_select_from_list_dialog.cpp" />
     <ClCompile Include="popup_textures_browser.cpp" />
     <ClCompile Include="prefabs_factory.cpp" />
     <ClCompile Include="r_bvh.cpp" />
@@ -351,7 +353,9 @@ build_parsers.bat
     <ClInclude Include="btQuickProf.h" />
     <ClInclude Include="editing_toolbox.h" />
     <ClInclude Include="hammer_map.h" />
+    <ClInclude Include="user_presentable_object.h" />
     <ClInclude Include="material_assets.h" />
+    <ClInclude Include="popup_select_from_list_dialog.h" />
     <ClInclude Include="popup_textures_browser.h" />
     <ClInclude Include="io_scene.h" />
     <ClInclude Include="io_scene_lm2.h" />

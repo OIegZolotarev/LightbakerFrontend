@@ -431,7 +431,7 @@ SceneEntity *ModelOBJ::Clone()
     throw std::logic_error("The method or operation is not implemented.");
 }
 
-const char *ModelOBJ::Description()
+const char *ModelOBJ::Description() const
 {
     return "<world - obj model>";
 }

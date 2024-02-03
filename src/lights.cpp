@@ -326,7 +326,7 @@ void Lb3kLightEntity::OnUnSelect()
 	ObjectPropertiesEditor::Instance()->UnloadObjects();
 }
 
-const char* Lb3kLightEntity::Description()
+const char* Lb3kLightEntity::Description() const
 {
 	switch (type)
 	{

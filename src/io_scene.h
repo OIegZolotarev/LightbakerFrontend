@@ -12,7 +12,7 @@ enum class SceneIOClasses
 
 #define SCENE_IO_CAPS_CAMERAS (1 << 0)
 
-class SceneIO
+class SceneIO: public IUserPresentableObject
 {
 protected:
     
@@ -23,7 +23,7 @@ protected:
     virtual SceneIOClasses FormatID() = 0;
 public:
     
-    virtual const char *Description();
+    virtual const char *Description() const;
     virtual int         Caps();
 
     virtual void Serialize(const char* fileName, Scene *pScene){};

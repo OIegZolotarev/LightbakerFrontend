@@ -52,7 +52,7 @@ class Lb3kLightEntity : public SceneEntity
 
     void OnUnSelect() override;
 
-    const char *Description() override;
+    const char *Description() const override;
 
     bool IsLightEntity() override;
 

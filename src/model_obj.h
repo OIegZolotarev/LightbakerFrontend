@@ -74,7 +74,7 @@ public:
 
     void CommonDrawGeometryWithShader(const ISceneShader *shader);
 
-    const char *Description() override;
+    const char *Description() const override;
 
     mobjdata_t *GetModelData();
     mobjdata_t *GetLMData();

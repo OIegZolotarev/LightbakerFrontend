@@ -7,6 +7,7 @@
 #include "material_assets.h"
 #include "persistent.h"
 #include <optional>
+#include "user_presentable_object.h"
 
 enum class GameEngines
 {
@@ -16,7 +17,7 @@ enum class GameEngines
 
 class FolderMount;
 
-class GameConfiguration
+class GameConfiguration: public IUserPresentableObject
 {
     friend class GameConfigurationsManager;
     bool m_bDefault = false;
@@ -47,7 +48,7 @@ public:
 
     // Data
     const char *Name() const;
-    const char *Description() const;
+    virtual const char *Description() const override;
 
     // Helpers
     bool MatchesGameDirectoryMask(std::string &levelFilePath) const;

@@ -270,7 +270,7 @@ void SceneEntity::OnUnhovered()
 {
 }
 
-const char *SceneEntity::Description()
+const char *SceneEntity::Description() const
 {
     return m_EntVars.classname.c_str();
 }

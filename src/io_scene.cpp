@@ -11,7 +11,7 @@
 #include "io_scene_lm2.h"
 #include "popup_file_dialog.h"
 
-const char *SceneIO::Description()
+const char *SceneIO::Description() const
 {
     return "SceneIO::Description()";
 }
