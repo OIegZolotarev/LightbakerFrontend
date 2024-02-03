@@ -19,10 +19,17 @@ void MaterialAssetsGroup::ReservePool(size_t count)
     m_vecAssets.reserve(count);
 }
 
+void MaterialAssetsGroup::SetGroupName(const char *name)
+{
+    strlcpy(m_strGroupName, name, sizeof(m_strGroupName));
+}
+
 MaterialAssetsGroup::MaterialAssetsGroup(const char *groupName, const MaterialAssetsProvider *pProvider)
 {
      m_pProvider = pProvider;
-    strlcpy(m_strGroupName, groupName, sizeof(m_strGroupName));
+     
+     if (groupName)
+        strlcpy(m_strGroupName, groupName, sizeof(m_strGroupName));
 }
 
 MaterialAssetsGroup::~MaterialAssetsGroup()
@@ -30,13 +37,24 @@ MaterialAssetsGroup::~MaterialAssetsGroup()
     ClearPointersVector(m_vecAssets);
 }
 
-MaterialAsset::MaterialAsset(const char *m_strAssetName, const MaterialAssetsGroup *pGroup)
+const char *MaterialAssetsGroup::Description() const
+{
+    return m_strGroupName;
+}
+
+MaterialAsset::MaterialAsset(const char *strAssetName, const MaterialAssetsGroup *pGroup)
 {
     m_pAssetsGroup = pGroup;
+    strlcpy(m_strAssetName, strAssetName, sizeof(strAssetName));
 }
 
 MaterialAsset::~MaterialAsset()
 {
+}
+
+const char *MaterialAsset::Description() const
+{
+    return m_strAssetName;
 }
 
 void MaterialAssetsProvider::AddAssetsGroup(MaterialAssetsGroup *pGroup)

@@ -92,13 +92,14 @@ public:
 // Версии для несуществующих путей
 #define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
 
-    static std::string ExtractFilePath(const char *path);
+    static std::string ExtractFilePath(const char *path); // /home/user/file.txt -> /home/user/ 
 
-    static std::string ExtractFileBase(const char *path);
+    static std::string ExtractFileBase(const char *path); // /home/user/file.txt -> file
 
-    static std::string ExtractFileExtension(const char *path);
+    static std::string ExtractFileExtension(const char *path); // /home/user/file.txt -> txt
 
-    static std::string         ExtractFileName(const char *path);
+    
+    static std::string         ExtractFileName(const char *path); // /home/user/file.txt - > file.txt
     static [[nodiscard]] FILE *OpenFileForWriting(std::string &fileName);
     static void                MakeDir(std::string path);
 

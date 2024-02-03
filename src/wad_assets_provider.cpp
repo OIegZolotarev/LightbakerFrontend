@@ -8,6 +8,7 @@
 
 #include "wad_assets_provider.h"
 #include "wad_textures.h"
+#include "fs_core.h"
 
 
 using namespace GoldSource;
@@ -24,8 +25,10 @@ WADMaterialAsset::~WADMaterialAsset()
 {
 }
 
-WADAssetsGroup::WADAssetsGroup(const char *wadName, const WADAssetsProvider *pProvider): MaterialAssetsGroup(wadName, pProvider)
+WADAssetsGroup::WADAssetsGroup(const char *wadName, const WADAssetsProvider *pProvider): MaterialAssetsGroup(nullptr, pProvider)
 {
+    SetGroupName(FileSystem::ExtractFileName(wadName).c_str());
+
     m_pWADPool = TextureManager::Instance()->RegisterWAD(wadName, true);
 
     ReservePool(m_pWADPool->NumItems());

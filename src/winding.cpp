@@ -114,7 +114,7 @@ void Winding::Clip(plane_t &split)
     int   counts[3];
     float dot;
 
-    glm::vec3 *p1, *p2, *mid;
+    glm::vec3 *p1, *p2;
 
     int maxpts;
 

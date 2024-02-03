@@ -527,14 +527,14 @@
     <ClCompile Include="texture_application_tool.cpp">
       <Filter>Исходные файлы\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="wad_assets_provider.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="user_presentable_object.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="popup_select_from_list_dialog.cpp">
       <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="wad_assets_provider.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

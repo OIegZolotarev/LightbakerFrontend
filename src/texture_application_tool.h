@@ -14,4 +14,7 @@ public:
 
     void Render(float flFrameDelta) override;
     void RenderUI() override;
+
+private:
+    MaterialAssetsGroup *m_pSelectedAssetsGroup = nullptr;
 };

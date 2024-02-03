@@ -5,13 +5,14 @@
 
 #pragma once
 #include "common.h"
+#include "user_presentable_object.h"
 
 class MaterialAssetsProvider;
 class MaterialAssetsGroup;
 class GameConfiguration;
 class GLTexture;
 
-class MaterialAsset
+class MaterialAsset : public IUserPresentableObject
 {
     bool       m_bLoaded      = false;
     bool       m_bAnimated    = false;
@@ -25,9 +26,11 @@ class MaterialAsset
 public:
     MaterialAsset(const char *m_strAssetName, const MaterialAssetsGroup *pGroup);
     virtual ~MaterialAsset();
+
+    const char *Description() const override;
 };
 
-class MaterialAssetsGroup
+class MaterialAssetsGroup : public IUserPresentableObject
 {
     std::vector<MaterialAsset *>  m_vecAssets;
     char                          m_strGroupName[128];
@@ -35,12 +38,20 @@ class MaterialAssetsGroup
 
 protected:
     void AddAsset(MaterialAsset *item);
-
     void ReservePool(size_t count);
+
+    void SetGroupName(const char *name);
 
 public:
     MaterialAssetsGroup(const char *groupName, const MaterialAssetsProvider *pProvider);
     virtual ~MaterialAssetsGroup();
+
+    const char *Description() const override;
+
+    const std::vector<MaterialAsset *> &Assets() const
+    {
+        return m_vecAssets;
+    }
 };
 
 class MaterialAssetsProvider
@@ -49,12 +60,17 @@ class MaterialAssetsProvider
     std::vector<MaterialAssetsGroup *> m_vecGroups;
 
 protected:
-
     void AddAssetsGroup(MaterialAssetsGroup *pGroup);
     void ReservePool(size_t newSize);
 
 public:
     MaterialAssetsProvider(const GameConfiguration *pGameConfiguration);
+
+    const std::vector<MaterialAssetsGroup *> &AssetsGroups()
+    {
+        return m_vecGroups;
+    }
+
     virtual ~MaterialAssetsProvider();
 };
 
