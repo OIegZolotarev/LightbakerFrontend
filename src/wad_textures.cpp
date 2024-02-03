@@ -79,6 +79,16 @@ const char* GoldSource::WADTexturePool::FileName()
     return m_pFileHandle->FileName();
 }
 
+const GoldSource::lumpinfo_t *WADTexturePool::Items() const
+{
+    return m_pLumpInfo;
+}
+
+const size_t WADTexturePool::NumItems() const
+{
+    return m_NumEntries;
+}
+
 WADPool* WADPool::Instance()
 {
 	static WADPool* sInstance = new WADPool;

@@ -9,7 +9,17 @@
 #include "text_utils.h"
 
 
- MaterialAssetsGroup::MaterialAssetsGroup(const char *groupName, const MaterialAssetsProvider *pProvider)
+void MaterialAssetsGroup::AddAsset(MaterialAsset *item)
+{
+    m_vecAssets.push_back(item);
+}
+
+void MaterialAssetsGroup::ReservePool(size_t count)
+{
+    m_vecAssets.reserve(count);
+}
+
+MaterialAssetsGroup::MaterialAssetsGroup(const char *groupName, const MaterialAssetsProvider *pProvider)
 {
      m_pProvider = pProvider;
     strlcpy(m_strGroupName, groupName, sizeof(m_strGroupName));
@@ -29,6 +39,16 @@ MaterialAsset::~MaterialAsset()
 {
 }
 
+void MaterialAssetsProvider::AddAssetsGroup(MaterialAssetsGroup *pGroup)
+{
+    m_vecGroups.push_back(pGroup);
+}
+
+void MaterialAssetsProvider::ReservePool(size_t newSize)
+{
+    m_vecGroups.reserve(newSize);
+}
+
 MaterialAssetsProvider::MaterialAssetsProvider(const GameConfiguration *pGameConfiguration)
 {
     m_pGameConfiguration = pGameConfiguration;
@@ -36,6 +56,6 @@ MaterialAssetsProvider::MaterialAssetsProvider(const GameConfiguration *pGameCon
 
 MaterialAssetsProvider::~MaterialAssetsProvider()
 {
-    ClearPointersVector(m_vecProviders);
+    ClearPointersVector(m_vecGroups);
 }
 

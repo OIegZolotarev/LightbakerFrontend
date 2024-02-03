@@ -72,6 +72,10 @@ public:
 
 	miptex_t * LoadMipTex(const char* name);
     const char* FileName();
+
+	const lumpinfo_t *Items() const;
+
+    const size_t NumItems() const;
 };
 
 
@@ -81,6 +85,7 @@ class WADPool
 
 	std::vector<WADTexturePool*> m_vecWadFiles;
 public:
+	
 	WADTexturePool* LoadWad(const char* fileName);
 	~WADPool();
 

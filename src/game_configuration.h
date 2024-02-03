@@ -43,7 +43,7 @@ public:
     GameConfiguration(const GameConfiguration &other);
     // GameConfiguration(const GameConfiguration &&other) noexcept;
 
-    ~GameConfiguration();
+    virtual ~GameConfiguration();
 
     // Data
     const char *Name() const;

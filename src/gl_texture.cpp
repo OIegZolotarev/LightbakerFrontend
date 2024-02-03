@@ -341,12 +341,14 @@ TextureManager::~TextureManager()
     }
 }
 
-void TextureManager::RegisterWAD(const char *fileName, bool shared)
+GoldSource::WADTexturePool* TextureManager::RegisterWAD(const char *fileName, bool shared)
 {
     IFileHandle *fd = FileSystem::Instance()->OpenFileHandle(fileName);
 
     GoldSource::WADTexturePool *pool = new GoldSource::WADTexturePool(fd, shared);
     m_lstWADSPool.push_back(pool);
+
+    return pool;
 }
 
 void TextureManager::UnregisterWAD(const char *fileName)
@@ -358,6 +360,13 @@ void TextureManager::UnregisterWAD(const char *fileName)
         }
 
         return false;
+    });
+}
+
+void TextureManager::UnregisterWAD(GoldSource::WADTexturePool *pWad)
+{
+    m_lstWADSPool.remove_if([&](GoldSource::WADTexturePool *wt) {
+         return pWad == wt;
     });
 }
 

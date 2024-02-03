@@ -18,13 +18,15 @@
 #include <corecrt_malloc.h>
 #endif
 
+#include "editing_toolbox.h"
 #include "hammer_fgd.h"
+#include "imgui_popups.h"
+#include "io_scene.h"
+#include "prefabs_factory.h"
 #include "r_editor_grid.h"
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
-#include "editing_toolbox.h"
-#include "io_scene.h"
-#include "prefabs_factory.h"
+#include "wad_textures.h"
 
 Application::Application()
 {
@@ -111,18 +113,22 @@ Application::~Application()
     delete m_pCommandsRegistry;
     delete m_pPersistentStorage;
     delete m_pLightBakerApplication;
-    
+
     // Clean-up singletons
     delete GameConfigurationsManager::Instance();
     delete EditingToolbox::Instance();
     delete SceneIOManager::Instance();
     delete PrefabsFactory::Instance();
+
+    delete TextureManager::Instance();
+    delete PopupsManager::Instance();
+    delete GoldSource::WADPool::Instance();
 }
 
 #include <sdl-event-to-string\sdl_event_to_string.h>
 
 void Application::Run()
-{    
+{
     CProfileManager::Reset();
 
     bool loop = false;
@@ -185,7 +191,7 @@ void Application::Run()
             {
                 std::string str = sdlEventToString(event);
 
-                //Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
+                // Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
 
                 bool bResult = pTarget->HandleEvent(event);
 
@@ -221,8 +227,7 @@ void Application::InitMainWindow()
     ShowMouseCursor();
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() 
-            {
+        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() {
             int displayIndex = SuggestMonitorForNewWindow();
 
             static size_t    m_counter  = 1;
@@ -403,7 +408,7 @@ void Application::ParseLightBakerProgressMessage(std::string &captured)
 }
 
 void Application::ShowMouseCursor()
-{   
+{
     if (!m_bMouseCursorVisible)
         Con_Printf("Application::ShowMouseCursor()\n");
     m_bMouseCursorVisible = true;
@@ -414,7 +419,7 @@ void Application::HideMouseCursor()
     if (m_bMouseCursorVisible)
         Con_Printf("Application::HideMouseCursor()\n");
 
-    m_bMouseCursorVisible = false;    
+    m_bMouseCursorVisible = false;
 }
 
 const char *date     = __DATE__;

@@ -44,6 +44,8 @@ GameConfiguration::GameConfiguration(std::string descr, std::string gameDirector
 
 GameConfiguration::~GameConfiguration()
 {
+    if (m_pMaterialAssetsProvider)
+        delete m_pMaterialAssetsProvider;
 }
 
 const char *GameConfiguration::Name() const

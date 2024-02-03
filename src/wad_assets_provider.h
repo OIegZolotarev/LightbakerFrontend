@@ -6,27 +6,40 @@
 #pragma once
 #include "material_assets.h"
 #include "wad_textures.h"
+#include "goldsource_game_configuration.h"
+
+namespace GoldSource { class HammerGameConfiguration; }
+
+namespace GoldSource
+{
 
 class WADAssetsProvider;
-class WADAssetsGroups;
+class WADAssetsGroup;
+
 
 class WADMaterialAsset : public MaterialAsset
 {
     GoldSource::lumpinfo_t m_LumpInfo;
+    GLTexture *m_pTexture;
 
 public:
-    WADMaterialAsset(GoldSource::lumpinfo_t *pWadEntry, const WADAssetsGroups * pGroup);
+    WADMaterialAsset(const GoldSource::lumpinfo_t *pWadEntry, const WADAssetsGroup *pGroup);
     ~WADMaterialAsset();
 };
 
-class WADAssetsGroups : public MaterialAssetsGroup
+class WADAssetsGroup : public MaterialAssetsGroup
 {
+    WADTexturePool *m_pWADPool;
+
 public:
-    WADAssetsGroups(const char *wadName, const WADAssetsProvider *pProvider);
+    WADAssetsGroup(const char *wadName, const WADAssetsProvider *pProvider);
+    ~WADAssetsGroup();
 };
 
-class WADAssetsProvider: public MaterialAssetsProvider
+class WADAssetsProvider : public MaterialAssetsProvider
 {
 public:
-    WADAssetsProvider(const GameConfiguration *pGameConfiguration);
+    WADAssetsProvider(const GoldSource::HammerGameConfiguration * pGameConfig);    
 };
+
+} // namespace GoldSource

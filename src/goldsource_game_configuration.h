@@ -44,9 +44,7 @@ class HammerGameConfiguration : public GameConfiguration
 
 public:
     HammerGameConfiguration();
-
     HammerGameConfiguration(const HammerGameConfiguration &other);
-
     HammerGameConfiguration(std::string &savedFileName);
     HammerGameConfiguration(std::string gameRootDir, GameEngines engineHint);
 
@@ -66,6 +64,11 @@ public:
     GameConfiguration *Clone() override;
 
     static HammerGameConfiguration *Get(GameConfigurationWeakPtr pConfigWeakPtr);
+
+    const std::list<std::string> &GetWADFiles() const
+    {
+        return m_WadFiles;
+    }
 };
 
 } // namespace GoldSource
