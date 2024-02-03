@@ -100,7 +100,7 @@ MainWindow::~MainWindow()
     delete m_pBackgroundMesh;
     delete m_pBackgroundShader;
 
-    delete TextureManager::Instance();
+    
 
     // FreeGLTextures();
 
@@ -110,8 +110,6 @@ MainWindow::~MainWindow()
 
     ImGui::DestroyContext(m_pImGUIContext);
 
-    delete PopupsManager::Instance();
-    delete GoldSource::WADPool::Instance();
 
     SDL_DestroyWindow(m_pSDLWindow);
     SDL_GL_DeleteContext(m_pGLContext);

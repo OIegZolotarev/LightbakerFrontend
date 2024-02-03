@@ -15,14 +15,17 @@ void ToolboxPanel::RenderItems(ImGuiAxis toolbar_axis)
     float size = 21;
     int   n    = 0;
 
-    auto &items = EditingToolbox::Instance()->GetAllTools();
-    auto cmdRegistry = Application::Instance()->CommandsRegistry();
+    auto &items       = EditingToolbox::Instance()->GetAllTools();
+    auto  cmdRegistry = Application::Instance()->CommandsRegistry();
 
-    auto &style = ImGui::GetStyle();
+    auto & style          = ImGui::GetStyle();
     auto & colorActivated = style.Colors[ImGuiCol_ButtonHovered];
-    ImVec4 colorDefault = {1, 1, 1, 1};
+    ImVec4 colorDefault   = {1, 1, 1, 1};
+    ImVec4 colorDisabled  = {.25f, .25f, .25f, .25f};
 
     EditingToolId selectedToolId = EditingToolbox::Instance()->SelectedToolId();
+
+    bool hasActiveDocument = Scene::ActiveInstance() != nullptr;
 
     for (auto it : items)
     {
@@ -39,14 +42,20 @@ void ToolboxPanel::RenderItems(ImGuiAxis toolbar_axis)
         else
         {
             CCommand *cmd = cmdRegistry->FindCommandByGlobalId(it->GetBoundCommand());
-
             assert(cmd);
 
-            ImVec4 &tint = (selectedToolId == it->GetToolId()) ? colorActivated : colorDefault;
-
-            if (ImGuiHelpers::ButtonWithCommonIcon(cmd->GetCommonIcon(), cmd->GetDescription(), size, tint))
+            if (hasActiveDocument)
             {
-                cmd->Execute();
+                ImVec4 &tint = (selectedToolId == it->GetToolId()) ? colorActivated : colorDefault;
+
+                if (ImGuiHelpers::ButtonWithCommonIcon(cmd->GetCommonIcon(), cmd->GetDescription(), size, tint))
+                {
+                    cmd->Execute();
+                }
+            }
+            else
+            {
+                ImGuiHelpers::ButtonWithCommonIcon(cmd->GetCommonIcon(), cmd->GetDescription(), size, colorDisabled);
             }
         }
 

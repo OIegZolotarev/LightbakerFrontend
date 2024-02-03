@@ -754,8 +754,8 @@ void SceneRenderer::FocusCameraOnObject(SceneEntityPtr it)
 
 Scene *SceneRenderer::GetScene()
 {
-    if (!m_pScene)
-        m_pScene = new Scene();
+//     if (!m_pScene)
+//         m_pScene = new Scene();
 
     return m_pScene;
 }

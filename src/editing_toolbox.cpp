@@ -9,8 +9,8 @@
 #include "camera_tool.h"
 #include "editing_toolbox.h"
 #include "selection_tool.h"
-#include "viewports_orchestrator.h"
 #include "texture_application_tool.h"
+#include "viewports_orchestrator.h"
 
 IEditingTool *EditingToolbox::FindTool(EditingToolId id)
 {
@@ -24,7 +24,7 @@ IEditingTool *EditingToolbox::FindTool(EditingToolId id)
     return nullptr;
 }
 
- EditingToolbox::~EditingToolbox()
+EditingToolbox::~EditingToolbox()
 {
     // assert(false && "Ownership managment is incorrect, fixme");
 }
@@ -35,7 +35,7 @@ void EditingToolbox::Initialize()
     m_lstToolbs.push_back(new CameraTool());
     m_lstToolbs.push_back(new TextureApplicationTool());
 
-    for (auto & it: m_lstToolbs)
+    for (auto &it : m_lstToolbs)
     {
         it->RegisterBoundCommand();
     }
@@ -49,9 +49,12 @@ void EditingToolbox::SelectTool(EditingToolId toolId)
     m_pCurrentTool      = pTool;
 }
 
-void EditingToolbox::RenderToolViewportUI(Viewport * pViewport)
+void EditingToolbox::RenderToolViewportUI(Viewport *pViewport)
 {
     if (!m_pCurrentTool)
+        return;
+
+    if (!Scene::ActiveInstance())
         return;
 
     // InitializeToolContext();
@@ -63,6 +66,9 @@ void EditingToolbox::RenderToolViewport2DGraphics(float flFrameDelta)
     if (!m_pCurrentTool)
         return;
 
+    if (!Scene::ActiveInstance())
+        return;
+
     // InitializeToolContext();
     m_pCurrentTool->RenderViewport2DGraphics(flFrameDelta);
 }
@@ -70,6 +76,9 @@ void EditingToolbox::RenderToolViewport2DGraphics(float flFrameDelta)
 void EditingToolbox::RenderTool(float flFrameDelta)
 {
     if (!m_pCurrentTool)
+        return;
+
+    if (!Scene::ActiveInstance())
         return;
 
     // InitializeToolContext();
@@ -81,6 +90,9 @@ void EditingToolbox::RenderToolUI()
     if (!m_pCurrentTool)
         return;
 
+    if (!Scene::ActiveInstance())
+        return;
+
     InitializeToolContext();
     m_pCurrentTool->RenderUI();
 }
@@ -90,13 +102,16 @@ int EditingToolbox::HandleEvent(bool bWasHandled, const SDL_Event &e, const floa
     if (!m_pCurrentTool)
         return 0;
 
+    if (!Scene::ActiveInstance())
+        return 0;
+
     InitializeToolContext();
 
     switch (e.type)
     {
-    case SDL_MOUSEBUTTONDOWN:        
+    case SDL_MOUSEBUTTONDOWN:
     case SDL_MOUSEBUTTONUP:
-        return m_pCurrentTool->HandleMouseEvent(bWasHandled, e, flFrameDelta);        
+        return m_pCurrentTool->HandleMouseEvent(bWasHandled, e, flFrameDelta);
     case SDL_KEYDOWN:
     case SDL_KEYUP:
         return m_pCurrentTool->HandleKeyboardEvent(bWasHandled, e, flFrameDelta);
@@ -132,4 +147,3 @@ int EditingToolbox::Priority()
 {
     return PRIORITY_EDITING_TOOLBOX;
 }
-
