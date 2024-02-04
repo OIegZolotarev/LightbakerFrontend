@@ -40,9 +40,7 @@ PersistentStorage::PersistentStorage(Application *appInstance)
 
     SetDefaultValues();
     LoadFromFile(appInstance);
-       
-    // To make default game configuration avaible
-    GameConfigurationsManager::Instance()->Init(this);
+    
 }
 
 void PersistentStorage::SetDefaultValues()

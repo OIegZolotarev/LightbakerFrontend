@@ -198,8 +198,12 @@ void GLTexture::UploadRawTexture(RawTexture *pTexture)
         glTexImage2D(GL_TEXTURE_2D, rawImage->mipLevel, rawImage->glInternalFormat, rawImage->width, rawImage->height,
                      0, rawImage->glFormat, GL_UNSIGNED_BYTE, rawImage->data);
 
-        m_iWidth  = rawImage->width;
-        m_iHeight = rawImage->height;
+        if (!m_iWidth)
+        {
+            m_iWidth  = rawImage->width;
+            m_iHeight = rawImage->height;
+        }
+
         m_bLoaded = true;
     }
 }

@@ -24,10 +24,32 @@ class MaterialAsset : public IUserPresentableObject
     const MaterialAssetsGroup *m_pAssetsGroup = nullptr;
 
 public:
+
     MaterialAsset(const char *m_strAssetName, const MaterialAssetsGroup *pGroup);
     virtual ~MaterialAsset();
 
     const char *Description() const override;
+
+    GLTexture *GetEditorImage()
+    {
+        return m_pEditorImage;
+    }
+
+    GLTexture *DiffuseImage()
+    {
+        return m_pDiffuseMap;
+    }
+
+    void SetEditorImage(GLTexture * pTexture)
+    {
+        m_pEditorImage = pTexture;
+    }
+
+    void SetDiffuseImage(GLTexture* pTexture)
+    {
+        m_pDiffuseMap = pTexture;
+    }
+    
 };
 
 class MaterialAssetsGroup : public IUserPresentableObject

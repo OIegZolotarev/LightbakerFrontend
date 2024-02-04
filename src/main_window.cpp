@@ -312,6 +312,10 @@ void MainWindow::InitBackend()
     InitBackgroundRenderer();
     TextureManager::Instance()->OnGLInit();
 
+       
+    // To make default game configuration avaible
+    GameConfigurationsManager::Instance()->Init(Application::GetPersistentStorage());
+
     InitViewports();
     GL_CheckForErrors();
 }

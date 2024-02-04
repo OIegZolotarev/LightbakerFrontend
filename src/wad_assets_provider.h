@@ -20,8 +20,7 @@ class WADAssetsGroup;
 class WADMaterialAsset : public MaterialAsset
 {
     GoldSource::lumpinfo_t m_LumpInfo;
-    GLTexture *m_pTexture;
-
+    
 public:
     WADMaterialAsset(const GoldSource::lumpinfo_t *pWadEntry, const WADAssetsGroup *pGroup);
     ~WADMaterialAsset();

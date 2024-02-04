@@ -17,8 +17,11 @@ WADMaterialAsset::WADMaterialAsset(const GoldSource::lumpinfo_t *pWadEntry, cons
     : MaterialAsset(pWadEntry->name, pGroup)
 {
     memcpy(&m_LumpInfo, pWadEntry, sizeof(lumpinfo_t));
+    
+    GLTexture *pDiffuseImage = TextureManager::Instance()->LoadWADTextureAsynch(pWadEntry->name);
 
-    m_pTexture = TextureManager::GetWhiteTexture();
+    SetDiffuseImage(pDiffuseImage);
+    SetEditorImage(pDiffuseImage);
 }
 
 WADMaterialAsset::~WADMaterialAsset()

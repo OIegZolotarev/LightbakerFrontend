@@ -75,39 +75,40 @@ void TextureApplicationTool::RenderUI()
         ImGui::EndCombo();
     }
 
-    ImVec2 scrolling_child_size = ImVec2(0, ImGui::GetFrameHeightWithSpacing() * 7 + 30);
+    ImVec2 scrolling_child_size = ImVec2(0, ImGui::GetFrameHeightWithSpacing() * 15 + 30);
 
 
     if (ImGui::BeginChild("scrolling", scrolling_child_size, ImGuiChildFlags_Border,
                           ImGuiWindowFlags_AlwaysVerticalScrollbar))
     {
-        for (auto &it : m_pSelectedAssetsGroup->Assets())
-        {
-            //         // Display random stuff. For the sake of this trivial demo we are using basic Button() +
-            //         SameLine()
-            //         // If you want to create your own time line for a real application you may be better off
-            //         manipulating
-            //         // the cursor position yourself, aka using SetCursorPos/SetCursorScreenPos to position the
-            //         widgets
-            //         // yourself. You may also want to use the lower-level ImDrawList API.
-            //         int num_buttons = 10 + ((line & 1) ? line * 9 : line * 3);
-            //         for (int n = 0; n < num_buttons; n++)
-            //         {
-            //             if (n > 0)
-            //                 ImGui::SameLine();
-            //             ImGui::PushID(n + line * 1000);
-            //             char num_buf[16];
-            //             sprintf(num_buf, "%d", n);
-            //             const char *label = (!(n % 15)) ? "FizzBuzz" : (!(n % 3)) ? "Fizz" : (!(n % 5)) ? "Buzz" :
-            //             num_buf; float       hue   = n * 0.05f; ImGui::PushStyleColor(ImGuiCol_Button,
-            //             (ImVec4)ImColor::HSV(hue, 0.6f, 0.6f)); ImGui::PushStyleColor(ImGuiCol_ButtonHovered,
-            //             (ImVec4)ImColor::HSV(hue, 0.7f, 0.7f)); ImGui::PushStyleColor(ImGuiCol_ButtonActive,
-            //             (ImVec4)ImColor::HSV(hue, 0.8f, 0.8f)); ImGui::Button(label, ImVec2(40.0f + sinf((float)(line
-            //             + n)) * 20.0f, 0.0f)); ImGui::PopStyleColor(3); ImGui::PopID();
-            //         }
 
-            ImGui::Button(it->Description());
+
+        int i = 0;
+
+        if (m_pSelectedAssetsGroup != nullptr)
+        {
+            for (auto &it : m_pSelectedAssetsGroup->Assets())
+            {
+
+                auto texture = it->GetEditorImage();
+
+                if (i < 10)
+                {
+                    ImGui::SameLine();
+                }
+                else
+                {
+
+                    i = 0;
+                }
+
+                ImGui::ImageButton((ImTextureID)texture->GLTextureNum(),
+                                   ImVec2(texture->Width() * 2, texture->Height() * 2));
+
+                i++;
+            }
         }
+
         float scroll_x     = ImGui::GetScrollX();
         float scroll_max_x = ImGui::GetScrollMaxX();
         ImGui::EndChild();
