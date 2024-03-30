@@ -441,7 +441,13 @@ Viewport *MainWindow::GetViewport(int index)
 
 void MainWindow::SetTitle(std::string &fileName)
 {
-    m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} - {0}", fileName, Application::Q_buildnum());
+#if defined(__clang__)
+    const char *compiler = "clang";
+#else
+    const char *    compiler   = "MSVC";
+#endif
+
+    m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} ({2}) - {0}", fileName, Application::Q_buildnum(), compiler);
     SDL_SetWindowTitle(m_pSDLWindow, m_strTitle.c_str());
 }
 

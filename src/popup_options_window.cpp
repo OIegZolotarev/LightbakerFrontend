@@ -111,8 +111,6 @@ void OptionsDialog::Render()
     if (!RenderHeader())
         return;
 
-    ImVec2 size(-FLT_MIN, -FLT_MIN);
-
     uiOptionPage_t *pageToRender = nullptr;
 
     if (ImGui::BeginTabBar("###Category"))

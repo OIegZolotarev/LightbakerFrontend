@@ -718,7 +718,7 @@ UniformKind ShaderUniform::Kind()
 void ShaderUniform::UpdateUniformValue()
 {
 #ifdef GL_DEBUG
-    
+
     GLint prog = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
@@ -803,3 +803,5 @@ void ShaderUniform::UpdateUniformValue()
 
     GL_CheckForErrors();
 }
+
+

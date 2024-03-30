@@ -126,9 +126,9 @@ UserDefinedStyle::UserDefinedStyle(const char *fileName)
         m_bValid = true;
 
         // special iterator member functions for objects
-        for (auto &it : items.items())
+        for (auto &iter : items.items())
         {
-            auto &record = it.value();
+            auto &record = iter.value();
 
             auto it = record.items().begin();
 

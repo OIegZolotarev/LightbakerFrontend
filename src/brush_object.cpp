@@ -227,6 +227,7 @@ void BrushModel::Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMod
 
     for (auto &it : currentShader->Uniforms())
     {
+
         switch (it->Kind())
         {
         case UniformKind::Color:
@@ -246,6 +247,8 @@ void BrushModel::Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMod
             break;
         }
         }
+
+
     }
 
     m_pDrawMesh->BindAndDraw();

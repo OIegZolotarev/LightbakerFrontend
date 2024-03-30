@@ -524,6 +524,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
 
     for (auto &it : currentShader->Uniforms())
     {
+        //BEGIN_UNIFORM_SETUP_BLOCK
         switch (it->Kind())
         {
         case UniformKind::Color2:
@@ -533,6 +534,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
             it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
             break;
         }
+        //END_UNIFORM_SETUP_BLOCK
     }
 
     for (int i = 0; i < (int)m_vBodyParts.size(); i++)

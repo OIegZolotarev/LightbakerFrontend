@@ -51,7 +51,7 @@ void PopupMessageBox::Render()
         ImGui::Spacing();
         ImGuiHelpers::DisplayCommonIcon(icon, 48);
         ImGui::SameLine();
-        ImGui::Text(m_Message.c_str());
+        ImGui::Text("%s", m_Message.c_str());
     }
 
     ImGui::EndChild();

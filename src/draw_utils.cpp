@@ -174,7 +174,7 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
     } icoVert_t;
 
     icoVert_t *data = (icoVert_t *)s.getInterleavedVertices();
-    size_t count    = s.getInterleavedVertexCount();
+    //size_t count    = s.getInterleavedVertexCount();
 
     auto indices  = s.getIndices();
     auto indCount = s.getIndexCount();

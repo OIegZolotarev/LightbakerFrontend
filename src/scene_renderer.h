@@ -98,8 +98,7 @@ private:
     // RenderChain m_TransparentEntitiesChain;
 
     RenderMode m_RenderMode        = RenderMode::Lightshaded;
-    bool       m_bWireframeOverlay = false;
-
+    
     void Debug_DrawGround();
 
     CameraController *    m_pCamera;

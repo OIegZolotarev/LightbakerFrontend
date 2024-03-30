@@ -52,7 +52,7 @@ class LightmapAtlas
 	byte* lightmap_buffer;// [LIGHTMAP_BYTES * BLOCK_WIDTH * BLOCK_HEIGHT] ;
 
 	GLuint m_LightmapTextures[MAX_LIGHTMAPS];
-	GLuint m_CurrentLightmapTexture;
+	GLuint m_CurrentLightmapTexture = 0;
 
 	size_t m_BlockWidth;
 	size_t m_BlockHeight;

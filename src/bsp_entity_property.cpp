@@ -5,7 +5,7 @@
 
 #include "application.h"
 
-#include "Scene.h"
+#include "scene.h"
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
 #include "fs_core.h"

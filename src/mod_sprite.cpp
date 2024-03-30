@@ -3,8 +3,6 @@
     (c) 2023 CrazyRussian
 */
 
-#pragma once
-
 #include "application.h"
 #include "common.h"
 
