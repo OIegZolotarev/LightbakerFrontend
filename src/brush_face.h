@@ -106,4 +106,9 @@ public:
     void           CreateFaceFromWinding(Winding *w, int flags);
     void           SetUAxis(glm::vec4 uAxis);
     void           SetVAxis(glm::vec4 vAxis);
+    const char *   GetTextureName() const;
+
+    const MaterialAssetPtr &GetMaterialAsset() const;
+    void                    SetMaterialAsset(const MaterialAssetPtr &ptr);
+
 };

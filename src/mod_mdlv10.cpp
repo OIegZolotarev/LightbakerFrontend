@@ -955,7 +955,7 @@ void StudioMeshV10::BuildDrawMesh()
 
     uint32_t numVerts = 0;
 
-    while (i = *triCmds++)
+    while ((i = *triCmds++))
     {
         int  vertexState = 0;
         bool strip       = false;

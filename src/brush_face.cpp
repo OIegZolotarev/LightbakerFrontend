@@ -64,8 +64,9 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
         m_pModel->AddPointsToBounds(vert);
 
         m_pBrushMesh->PartId(m_FaceId);
+        m_pBrushMesh->TexCoord2f(s, t);
         m_pBrushMesh->Vertex3f(vert.x,vert.y,vert.z);
-        m_pBrushMesh->PartId(m_FaceId);
+        
     }
 
     if (points.size() < 3)
@@ -90,6 +91,21 @@ void BrushFace::SetUAxis(glm::vec4 uAxis)
 void BrushFace::SetVAxis(glm::vec4 vAxis)
 {
     m_TexInfo.vaxis = vAxis;
+}
+
+const char *BrushFace::GetTextureName() const
+{
+    return m_TexInfo.textureName;
+}
+
+const MaterialAssetPtr &BrushFace::GetMaterialAsset() const
+{
+    return m_pMaterialAsset;
+}
+
+void BrushFace::SetMaterialAsset(const MaterialAssetPtr &ptr)
+{
+    m_pMaterialAsset = ptr;
 }
 
 void BrushFace::ValidateTexturingInfo()

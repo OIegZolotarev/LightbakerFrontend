@@ -11,12 +11,25 @@
 #include "scene_entity.h"
 #include "hammer_map.h"
 
+#include "material_assets.h"
+
 class DrawMesh;
 class BrushFace;
+
+
+typedef struct brushModelMesh_s
+{
+    MaterialAssetPtr asset;
+    size_t           first_element;
+    size_t           num_elements;
+}brushModelMesh_t;
 
 class BrushModel : public IModel
 {
     std::list<BrushFace *> m_lstFaces;
+    
+    size_t m_nMeshes = 0;
+    brushModelMesh_t *m_pMeshes = 0;
 
     // Faces helpers
     void       RemoveFace(size_t idx);
@@ -24,15 +37,20 @@ class BrushModel : public IModel
 
     void RemoveInvalidFaces();
 
-    DrawMesh *m_pDrawMesh = nullptr;
+    DrawMesh *m_pDrawBuffer = nullptr;
     bool      m_bValid = false;
 
     BoundingBox m_Bounds;
     BoundingBox m_BoundsAbsolute;
 
+    size_t UniqueMaterialsCount();
+
 public:
 
     BrushModel(const char* modelName);
+    ~BrushModel();
+
+    void ReleaseMeshes();
 
     const std::optional<BoundingBox> GetBoundingBox() const override;
     void Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMode mode, ShaderProgram *currentShader) override;

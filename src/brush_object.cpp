@@ -55,29 +55,74 @@ void BrushModel::RemoveInvalidFaces()
     }
 }
 
+size_t BrushModel::UniqueMaterialsCount()
+{
+    std::set<MaterialAsset *> m_uniqueMaterials;
+
+    for (auto &it : m_lstFaces)
+    {
+        m_uniqueMaterials.insert(it->GetMaterialAsset().get());
+    }
+
+    return m_uniqueMaterials.size();
+}
+
 bool BrushModel::CreateFacesFromPlanes(int flags)
 {
     int i, j, k;
     m_bValid      = true;
     size_t nFaces = m_lstFaces.size();
 
+    m_lstFaces.sort([](const BrushFace * a, const BrushFace * b) -> bool {
+        
+            return strcmp(a->GetTextureName(), b->GetTextureName());
+        });
+
     assert(nFaces < MAPSOLID_MAX_FACES);
     RemoveInvalidFaces();
 
     bool bGotFaces = false;
 
-    if (m_pDrawMesh)
-        delete m_pDrawMesh;
+    if (m_pDrawBuffer)
+        delete m_pDrawBuffer;
 
     m_Bounds = BoundingBox(1);
 
-    m_pDrawMesh = new DrawMesh();
-    m_pDrawMesh->Begin(GL_TRIANGLES);
+    m_pDrawBuffer = new DrawMesh();
+    m_pDrawBuffer->Begin(GL_TRIANGLES);
+
+    // 
+
+    m_nMeshes = UniqueMaterialsCount();
+    m_pMeshes = new brushModelMesh_t[m_nMeshes];
+
+    size_t first_mesh_element = 0;
+    size_t num_mesh_elements  = 0;
+    size_t mesh_index         = 0;
+
+    MaterialAssetPtr currentMaterial = MaterialAssetPtr();
 
     for (i = 0; i < nFaces; i++)
     {
         BrushFace *    pFace = GetFace(i);
         const plane_t *f     = pFace->GetPlane();
+
+        if (pFace->GetMaterialAsset() != currentMaterial)
+        {
+
+            if (num_mesh_elements > 0)
+            {
+                m_pMeshes[mesh_index].first_element = first_mesh_element;
+                m_pMeshes[mesh_index].num_elements = num_mesh_elements;
+                m_pMeshes[mesh_index].asset = currentMaterial;
+                mesh_index++;
+            }
+
+
+            first_mesh_element = m_pDrawBuffer->CurrentElement();
+            num_mesh_elements  = 0;
+            currentMaterial    = pFace->GetMaterialAsset();
+        }
 
         Winding *w = new Winding(f);
 
@@ -127,7 +172,15 @@ bool BrushModel::CreateFacesFromPlanes(int flags)
         }
     }
 
-    m_pDrawMesh->End();
+    if (num_mesh_elements > 0)
+    {
+        m_pMeshes[mesh_index].first_element = first_mesh_element;
+        m_pMeshes[mesh_index].num_elements  = num_mesh_elements;
+        m_pMeshes[mesh_index].asset         = currentMaterial;
+        mesh_index++;
+    }
+
+    m_pDrawBuffer->End();
 
     m_BoundsAbsolute = m_Bounds;
     m_Bounds         = m_Bounds.ConvertToRelative();
@@ -177,12 +230,14 @@ void BrushObject::GenerateModel(const HammerMap *pMap, const size_t firstFace, c
 
 void BrushObject::Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader)
 {
+    
+
     m_pModel->Render(this, sr, mode, shader);
 }
 
 DrawMesh *BrushModel::GetDrawMesh()
 {
-    return m_pDrawMesh;
+    return m_pDrawBuffer;
 }
 
 BrushFace *BrushModel::AddFace(const glm::vec3 pts[3])
@@ -216,7 +271,27 @@ BrushModel::BrushModel(const char *modelName) : IModel(modelName)
     SetType(ModelType::Brush);
 }
 
-const std::optional<BoundingBox> BrushModel::GetBoundingBox() const
+ BrushModel::~BrushModel()
+{
+     for (auto &it : m_lstFaces)
+         delete it;
+
+     m_lstFaces.clear();
+
+     ReleaseMeshes();
+
+ }
+
+void BrushModel::ReleaseMeshes()
+ {
+     if (m_pMeshes)
+     {
+         delete[] m_pMeshes;
+         m_nMeshes = 0;
+     }
+ }
+
+ const std::optional<BoundingBox> BrushModel::GetBoundingBox() const
 {
     return m_Bounds;
 }
@@ -227,13 +302,12 @@ void BrushModel::Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMod
 
     for (auto &it : currentShader->Uniforms())
     {
-
         switch (it->Kind())
         {
         case UniformKind::Color:
             it->SetFloat4(color);
             break;
-        case UniformKind::TransformMatrix: {
+        case UniformKind::TransformMatrix:
             it->SetMat4(glm::mat4x4(1.f));
             break;
         case UniformKind::Scale:
@@ -246,10 +320,13 @@ void BrushModel::Render(SceneEntity *pEntity, const SceneRenderer *sr, RenderMod
             sr->ApplySelectedObjectColor(pEntity, it);
             break;
         }
-        }
-
-
     }
 
-    m_pDrawMesh->BindAndDraw();
+    for (size_t i = 0; i < m_nMeshes; i++)
+    {
+        auto mesh = &m_pMeshes[i];
+        GLBackend::BindTexture(0, mesh->asset->DiffuseImage());
+
+        m_pDrawBuffer->Draw(mesh->first_element, mesh->num_elements);
+    }
 }

@@ -79,7 +79,7 @@ public:
     BSPEntityProperty(const BSPEntity *pOwner, const std::string &name, const std::string &value,
                       const FGDPropertyDescriptor *pDescr);
 
-    ~BSPEntityProperty();
+    virtual ~BSPEntityProperty();
 
     std::string &Name();
     size_t       Hash();

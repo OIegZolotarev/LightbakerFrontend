@@ -189,7 +189,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *  ctx)
 
 void yy::HammerMapParser::error(const location_type& l,const std::string& m)
 {
-    Con_Printf("[%s: line: %d, column: %d]%s\n",l.begin.filename, l.begin.line, l.begin.column ,m.c_str());
+    Con_Printf("[%s: line: %d, column: %d]%s\n",l.begin.filename.c_str(), l.begin.line, l.begin.column ,m.c_str());
 }
 
 

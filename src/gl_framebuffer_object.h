@@ -25,8 +25,7 @@ class GLFramebufferObject
     GLTexture *m_pDepthTexture;
 
     GLuint m_uiDepthRenderbuffer;
-
-    int m_uiDimensions;
+        
     int m_Width;
     int m_Height;
 

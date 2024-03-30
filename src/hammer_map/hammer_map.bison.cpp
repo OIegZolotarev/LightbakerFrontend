@@ -176,6 +176,7 @@ struct HammerMapParsingContext;
 
 namespace yy
 {
+
 /// A point in a source file.
 class position
 {
@@ -1232,7 +1233,7 @@ public:
 
     private:
         const HammerMapParser &yyparser_;
-        const symbol_type &    yyla_;
+        const symbol_type     &yyla_;
     };
 
 private:
@@ -1707,7 +1708,7 @@ struct HammerMapParsingContext
     size_t      length   = 0;
     const char *start;
 
-    const char * cursor;
+    const char  *cursor;
     yy::location loc;
 
     HammerMap *m_pMap;
@@ -1837,6 +1838,7 @@ void ParseMap(HammerMap *file)
 
 namespace yy
 {
+
 /// Build a parser object.
 HammerMapParser::HammerMapParser(HammerMapParsingContext *ctx_yyarg)
 #if YYDEBUG
@@ -2971,7 +2973,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *ctx)
         }
     yy7:
         ++ctx->cursor;
-    yy8 : {
+    yy8: {
         ctx->loc.lines();
         return yylex(ctx);
     }
@@ -3165,7 +3167,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *ctx)
         default:
             goto yy20;
         }
-    yy20 : {
+    yy20: {
         return s(yy::HammerMapParser::make_Number, std::stol(std::string(anchor, ctx->cursor)));
     }
     yy21:
@@ -3345,7 +3347,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *ctx)
         default:
             goto yy28;
         }
-    yy28 : {
+    yy28: {
         return s(yy::HammerMapParser::make_TextureName, std::string(anchor, ctx->cursor));
     }
     yy29:
@@ -3435,7 +3437,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *ctx)
         default:
             goto yy34;
         }
-    yy34 : {
+    yy34: {
         return s(yy::HammerMapParser::make_OpeningCurlyBracket);
     }
     yy35:
@@ -3537,7 +3539,7 @@ yy::HammerMapParser::symbol_type yy::yylex(HammerMapParsingContext *ctx)
         default:
             goto yy41;
         }
-    yy43 : {
+    yy43: {
         return yylex(ctx);
     }
     }

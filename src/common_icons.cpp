@@ -3,8 +3,6 @@
     (c) 2022-2024, CrazyRussian
 */
 
-#pragma once
-
 #include "application.h"
 #include "common_icons.h"
 
