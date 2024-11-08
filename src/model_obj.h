@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /*
     LightBaker3000 Frontend project,
     (c) 2022 CrazyRussian
@@ -84,3 +85,91 @@ public:
 
     SceneEntity *Clone() override;
 };
+=======
+/*
+    LightBaker3000 Frontend project,
+    (c) 2022 CrazyRussian
+*/
+
+#pragma once
+
+
+#include "mtl_library.h"
+#include "mod_obj_data.h"
+
+#include "fs_core.h"
+#include "gl_backend.h"
+#include "gl_texture.h"
+#include "lb3k_wrapper.h"
+
+
+#include "scene_entity.h"
+#include "scene_renderer.h"
+
+class ModelOBJ : public SceneEntity
+{
+    mobjdata_t m_ModelData;
+    mobjdata_t m_LightmapModelData;
+
+    std::string m_strModelName;
+    std::string m_strDiffuseName;
+
+    DrawMesh    mesh;
+    bool        m_hasLMMesh = false;
+    std::string m_strLMModelPath;
+    void        PrepareLights();
+
+public:
+    ModelOBJ(const char *fileName, Scene *pScene);
+    ~ModelOBJ();
+
+    void LoadLMMesh();
+    void DrawDebug();
+
+    std::string GetModelFileName();
+    std::string GetModelTextureName();
+
+    void ReloadTextures();
+
+    void ReloadLightmapTextures();
+
+    // Возвращает путь к файлу ЛМ-модели
+    std::string &Export(const char *fileName, lightBakerSettings_t *lb3kOptions, glm::vec3 envColor);
+
+    void UpdateLMMesh();
+
+    void ClearLightDefinitions();
+    void AddLight(lightDefPtr_t &it);
+
+    void SetLightmapDimensions(int w, int h);
+
+    DrawMesh *GetDrawMesh();
+    void      BuildDrawMesh();
+
+    void ValidateLightmap();
+
+    float GetSceneScale();
+
+    // Selectable object
+    void OnHovered() override;
+    void OnMouseMove(glm::vec2 delta) override;
+    void OnSelect(ISelectableObjectWeakRef myWeakRef) override;
+    void OnUnSelect() override;
+    void OnUnhovered() override;
+
+    // Scene entity
+    void Render(RenderMode mode, const SceneRenderer *sr, ShaderProgram *shader) override;
+
+    void CommonDrawGeometryWithShader(const ISceneShader *shader);
+
+    const char *Description() const override;
+
+    mobjdata_t *GetModelData();
+    mobjdata_t *GetLMData();
+
+    void AddLightsIntoScene();
+    void FlagHasLMMesh();
+
+    SceneEntity *Clone() override;
+};
+>>>>>>> Stashed changes

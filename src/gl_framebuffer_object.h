@@ -13,6 +13,7 @@ enum class AttachmentTypes
     RGBA = 0,
     RGB,
     R32UI,
+    RG32UI,
     ListEnd
 };
 
@@ -24,8 +25,7 @@ class GLFramebufferObject
     GLTexture *m_pDepthTexture;
 
     GLuint m_uiDepthRenderbuffer;
-
-    int m_uiDimensions;
+        
     int m_Width;
     int m_Height;
 
@@ -40,9 +40,14 @@ public:
     void Enable();
     void Disable();
        
+    glm::vec2 Dimensions()
+    {
+        return glm::vec2(m_Width, m_Height);
+    }
 
     GLuint Width();
-
     GLuint Height();
+
     GLTexture *ColorTexture();
+    
 };

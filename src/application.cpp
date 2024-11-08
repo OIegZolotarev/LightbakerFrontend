@@ -13,18 +13,23 @@
 #include "lb3k_wrapper.h"
 #include <nlohmann/json.hpp>
 #include <regex>
+#include <utility>
+
+#include <format>
 
 #ifndef LINUX
 #include <corecrt_malloc.h>
 #endif
 
+#include "editing_toolbox.h"
 #include "hammer_fgd.h"
+#include "imgui_popups.h"
+#include "io_scene.h"
+#include "prefabs_factory.h"
 #include "r_editor_grid.h"
 #include "secondary_window.h"
 #include "viewports_orchestrator.h"
-#include "editing_toolbox.h"
-#include "io_scene.h"
-#include "prefabs_factory.h"
+#include "wad_textures.h"
 
 Application::Application()
 {
@@ -34,11 +39,9 @@ Application::Application()
     m_pLightBakerApplication = new LightBaker3000("lb3k/LightBaker3000.exe");
 }
 
-int Application::SuggestMonitorForNewWindow()
+int Application::SuggestMonitorForNewWindow() const
 {
-    int nMonitors = SDL_GetNumVideoDisplays();
-
-    if (nMonitors > 1)
+    if (int nMonitors = SDL_GetNumVideoDisplays(); nMonitors > 1)
     {
         int *monitorsUsage = new int[nMonitors];
         memset(monitorsUsage, 0, sizeof(int) * nMonitors);
@@ -69,10 +72,10 @@ int Application::SuggestMonitorForNewWindow()
     return 0;
 }
 
-IPlatformWindow *Application::FindWindowBySDLId(size_t sdlid)
+IPlatformWindow *Application::FindWindowBySDLId(const size_t sdlId) const
 {
-    for (auto &it : m_lstWindows)
-        if (it->GetId() == sdlid)
+    for (const auto &it : m_lstWindows)
+        if (it->GetId() == sdlId)
             return it;
 
     return nullptr;
@@ -80,7 +83,7 @@ IPlatformWindow *Application::FindWindowBySDLId(size_t sdlid)
 
 //#include <windows.h>
 
-void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow)
+void Application::SetupEventsRedirection(const bool enabled, IPlatformWindow *targetWindow)
 {
     m_bEventsRedirectionEnabled = enabled;
     m_pEventsRedirectionTarget  = targetWindow;
@@ -90,8 +93,8 @@ void Application::SetupEventsRedirection(bool enabled, IPlatformWindow *targetWi
         // TODO: save pointer position before enabling redirection
         // and returning it back there?
 
-        SDL_Window *pWindow     = targetWindow->SDLHandle();
-        glm::ivec2  centerPoint = targetWindow->CenterPointGlobal();
+        SDL_Window      *pWindow     = targetWindow->SDLHandle();
+        const glm::ivec2  centerPoint = targetWindow->CenterPointGlobal();
 
         SDL_WarpMouseGlobal((int)centerPoint.x, (int)centerPoint.y);
     }
@@ -111,18 +114,22 @@ Application::~Application()
     delete m_pCommandsRegistry;
     delete m_pPersistentStorage;
     delete m_pLightBakerApplication;
-    
+
     // Clean-up singletons
     delete GameConfigurationsManager::Instance();
     delete EditingToolbox::Instance();
     delete SceneIOManager::Instance();
     delete PrefabsFactory::Instance();
+
+    delete TextureManager::Instance();
+    delete PopupsManager::Instance();
+    delete GoldSource::WADPool::Instance();
 }
 
-#include <sdl-event-to-string\sdl_event_to_string.h>
+#include <sdl-event-to-string/sdl_event_to_string.h>
 
 void Application::Run()
-{    
+{
     CProfileManager::Reset();
 
     bool loop = false;
@@ -185,11 +192,9 @@ void Application::Run()
             {
                 std::string str = sdlEventToString(event);
 
-                //Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
+                // Con_Printf("%s -> %s\n", str.c_str(), pTarget->GetDescription());
 
-                bool bResult = pTarget->HandleEvent(event);
-
-                if (!bResult)
+                if (bool bResult = pTarget->HandleEvent(event); !bResult)
                     pTarget->SetTerminated(true);
                 else
                     loop = true;
@@ -221,12 +226,11 @@ void Application::InitMainWindow()
     ShowMouseCursor();
 
     Application::CommandsRegistry()->RegisterCommand(
-        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() 
-            {
+        new CCommand(GlobalCommands::OpenNewWindow, "Open new window", nullptr, nullptr, 0, [&]() {
             int displayIndex = SuggestMonitorForNewWindow();
 
             static size_t    m_counter  = 1;
-            SecondaryWindow *pNewWindow = new SecondaryWindow(std::format("New window {0}", m_counter++), displayIndex);
+            auto *pNewWindow = new SecondaryWindow(std::format("New window {0}", m_counter++), displayIndex);
 
             m_lstWindows.push_back(pNewWindow);
         }));
@@ -236,7 +240,7 @@ void Application::InitMainWindow()
 
 void Application::Init(std::string cmdLine)
 {
-    m_strFileToLoad = cmdLine;
+    m_strFileToLoad = std::move(cmdLine);
 }
 
 MainWindow *Application::GetMainWindow()
@@ -255,7 +259,11 @@ void Application::EPICFAIL(const char *format, ...)
 
     va_list argp;
     va_start(argp, format);
+#ifdef WINDOWS
     vsprintf_s(tmp, sizeof(tmp), format, argp);
+#else
+    vsprintf(tmp, format, argp);
+#endif
     va_end(argp);
 
     SDL_Window *window = nullptr;
@@ -403,7 +411,7 @@ void Application::ParseLightBakerProgressMessage(std::string &captured)
 }
 
 void Application::ShowMouseCursor()
-{   
+{
     if (!m_bMouseCursorVisible)
         Con_Printf("Application::ShowMouseCursor()\n");
     m_bMouseCursorVisible = true;
@@ -414,7 +422,7 @@ void Application::HideMouseCursor()
     if (m_bMouseCursorVisible)
         Con_Printf("Application::HideMouseCursor()\n");
 
-    m_bMouseCursorVisible = false;    
+    m_bMouseCursorVisible = false;
 }
 
 const char *date     = __DATE__;

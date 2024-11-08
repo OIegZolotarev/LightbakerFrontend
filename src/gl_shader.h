@@ -206,3 +206,20 @@ public:
 private:
     std::string m_FileName;
 };
+
+//// Make clang happy
+//#if defined(__clang__)
+//
+//#define DO_PRAGMA(x) _Pragma(#x)
+//#define NOWARN(warnoption, ...)                                                                                        \
+//    DO_PRAGMA(GCC diagnostic push)                                                                                     \
+//    DO_PRAGMA(GCC diagnostic ignored #warnoption)                                                                      \
+//    __VA_ARGS__                                                                                                        \
+//    DO_PRAGMA(GCC diagnostic pop)
+//
+//#define BEGIN_UNIFORM_SETUP_BLOCK NOWARN(-wswitch)
+//#define END_UNIFORM_SETUP_BLOCK   
+//
+//#else
+//
+//#endif

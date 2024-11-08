@@ -92,6 +92,7 @@ class GLBackend
 
 void _GL_CheckForErrors(const char *filename, int line);
 
+// #define GL_DEBUG
 #ifdef GL_DEBUG
 #define GL_CheckForErrors() _GL_CheckForErrors(__FILE__, __LINE__)
 #else

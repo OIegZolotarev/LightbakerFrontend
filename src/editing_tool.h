@@ -12,8 +12,7 @@ enum class EditingToolId
 {
     Selection,
     Camera,
-    Brushwork,
-    Entities,
+    TexturesApplication,
     None
 };
 

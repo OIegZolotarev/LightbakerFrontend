@@ -56,33 +56,43 @@ public:
 
     void ChangeCurrentDirectoryToFileDirectory(const std::string &fileName);
 
-    // Return file name without extension from path, file must exist!
-    // Examples:
-    //		/home/user/path/to/file.txt -> file
-    //		C:\User\Documents\file.txt -> file
+    /*
+     Return file name without extension from path, file must exist!
+     Examples:
+    		/home/user/path/to/file.txt -> file
+    		C:\User\Documents\file.txt -> file
+    */
     std::string BaseNameFromPath(std::string &path);
 
-    // Returns parent path from full file path, file must exist!
-    // Examples:
-    //      /home/user/path/to/file.txt -> /home/user/path/to/
-    //      C:\User\Documents\file.txt -> C:\User\Documents\ 
-	std::string BaseDirectoryFromPath(const std::string& fileName);
+    /*/
+     Returns parent path from full file path, file must exist!
+     Examples:
+          /home/user/path/to/file.txt -> /home/user/path/to/
+          C:\User\Documents\file.txt -> C:\User\Documents\ 
+    */
+    std::string BaseDirectoryFromPath(const std::string &fileName);
 
-    // Return file extension with dot, file must exist!
-    // Examples:
-    //      /home/user/path/to/file.txt -> .txt
-    //      C:\User\Documents\file.bsp -> .bsp
+    /* 
+      Return file extension with dot,
+        file must exist !
+      Examples:
+          /home/user/path/to/file.txt -> .txt
+          C:\User\Documents\file.bsp -> .bsp
+    */
     std::string ExtensionFromPath(const std::string &path);
 
-    // ��������� ��� ����� �� �������
-    // ����������� ��� ���� ������� � ��� �� �������� ��� � �������� ����
-    // ��������� �������
-    //	{0} - ������� � ������� ��������� ����
-    //	{1} - ��� ����� ��� ����������
-    //	{2} - ���������� ����� (� ������ - ".txt")
-    //
-    //	������:
-    //		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
+    /*
+     ��������� ��� ����� �� �������
+     ����������� ��� ���� ������� � ��� �� �������� ��� � �������� ����
+     ��������� �������
+    	{0} - ������� � ������� ��������� ����
+    	{1} - ��� ����� ��� ����������
+    	{2} - ���������� ����� (� ������ - ".txt")
+    
+    	������:
+    		MakeTemplatePath("/home/user/file.obj","{0}.lm.png") -> /home/user/file.lm.png
+    */
+
     std::string MakeTemplatePath(const char *fileName, const char *templ);
 
     static bool FileExists(std::string fileName);
@@ -92,14 +102,15 @@ public:
 // Версии для несуществующих путей
 #define PATHSEPARATOR(c) ((c) == '\\' || (c) == '/')
 
-    static std::string ExtractFilePath(const char *path);
+    static std::string ExtractFilePath(const char *path); // /home/user/file.txt -> /home/user/ 
 
-    static std::string ExtractFileBase(const char *path);
+    static std::string ExtractFileBase(const char *path); // /home/user/file.txt -> file
 
-    static std::string ExtractFileExtension(const char *path);
+    static std::string ExtractFileExtension(const char *path); // /home/user/file.txt -> txt
 
-    static std::string         ExtractFileName(const char *path);
-    static [[nodiscard]] FILE *OpenFileForWriting(std::string &fileName);
+    
+    static std::string         ExtractFileName(const char *path); // /home/user/file.txt - > file.txt
+    static FILE *OpenFileForWriting(std::string &fileName);
     static void                MakeDir(std::string path);
 
     static std::string SanitizeFileName(std::string result);

@@ -135,12 +135,12 @@ private:
     // Docking
     defaultDockSides_s       m_defaultDockSides;
     std::vector<ToolUIPanel *> m_vPanels;
+    ImGuiID                    gIDMainDockspace = 0;
 
     void    InitDocks();
-    ImGuiID DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
-                                  const ImGuiWindowClass *window_class);
+    
 
-    int   m_i3DViewport[4];
+    
     float m_flBakingProgress = 0;
 
     // Fancy backgound

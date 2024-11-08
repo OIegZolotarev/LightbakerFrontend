@@ -14,7 +14,7 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/mat4x4.hpp>
-
+#include <glm/gtc/type_ptr.hpp>
 
 enum class PlaneTypes
 {

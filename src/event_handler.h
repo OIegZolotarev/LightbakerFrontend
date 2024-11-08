@@ -12,8 +12,17 @@
 
 #define EVENT_FINISHED (EVENT_CONSUMED | EVENT_HANDLED)
 
+#define PRIORITY_VIEWPORT 0
+#define PRIORITY_EDITING_TOOLBOX 1
+
 class IEventHandler
 {
 public:
 	virtual int HandleEvent(bool bWasHandled, const SDL_Event &e, const float flFrameDelta) = 0;
+
+    virtual int Priority()
+    {
+        // Bigger number - less important, lesser number - more important
+        return 0;
+    }
 };

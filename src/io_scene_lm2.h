@@ -70,7 +70,7 @@ class SceneIOLm2 : public SceneIO
 
 public:
     int         Caps() override;
-    const char *Description() override;
+    const char *Description() const override;
 
     void Deserialize(Scene *pNewScene) override;
     void Serialize(const char *fileName, Scene *pScene) override;

@@ -7,6 +7,9 @@
 #include "common.h"
 
 #include "bsp_entities_properties_binding.h"
+
+#include <format>
+
 #include "bsp_entity.h"
 #include "bsp_entity_property.h"
 #include "properties_editor.h"
@@ -23,8 +26,8 @@ void BSPEntitiesPropertiesBinder::SelectEntity(SceneEntityWeakPtr ptr)
     // Dont't add if already selected
     for (auto &it : m_lstSelectedObjects)
     {
-        auto ptr = it.lock();
-        if (ptr.get() == rawBSP)
+        auto ptrStrong = it.lock();
+        if (ptrStrong.get() == rawBSP)
             return;
     }
 
@@ -42,11 +45,11 @@ void BSPEntitiesPropertiesBinder::BuildSelectionRepresentation()
 {
     bool multipleClasses = false;
 
-    if (m_lstSelectedObjects.size() == 0)
+    if (m_lstSelectedObjects.empty())
         return;
 
-    auto       it     = m_lstSelectedObjects.begin();
-    BSPEntity *rawBSP = SceneEntity::GetRawSafest<BSPEntity>(*it);
+    const auto       it     = m_lstSelectedObjects.begin();
+    auto *rawBSP = SceneEntity::GetRawSafest<BSPEntity>(*it);
 
     auto &firstClass = rawBSP->GetClassName();
 

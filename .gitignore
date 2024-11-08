@@ -17,3 +17,4 @@ bin/tests/*
 bin/test.raw
 bin/LightBakerFrontend.lib
 build/*
+cmake-build-debug/*

@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 /*
     LightBaker3000 Frontend project,
     (c) 2023-2024 CrazyRussian
@@ -277,3 +278,295 @@ EntityClasses SceneEntity::EntityClass()
 {
     return EntityClasses::GenericEntity;
 }
+=======
+/*
+    LightBaker3000 Frontend project,
+    (c) 2023-2024 CrazyRussian
+*/
+
+#include "application.h"
+#include "scene_entity.h"
+#include "properties_editor.h"
+
+void SceneEntity::RecalcAbsBBox()
+{
+    m_EntVars.bboxAbsolute = BVHBoundingBox(m_EntVars.origin, m_EntVars.bboxRelative);
+}
+
+const BoundingBox &SceneEntity::GetRelativeBoundingBox() const
+{
+    return m_EntVars.bboxRelative;
+}
+
+const BVHBoundingBox &SceneEntity::GetAbsoulteBoundingBox() const
+{
+    return m_EntVars.bboxAbsolute;
+}
+
+void SceneEntity::SetClassName(const char *name)
+{
+    m_EntVars.classname      = std::string(name);
+    m_EntVars.classname_hash = std::hash<const char *>{}(name);
+}
+
+void SceneEntity::FlagDataLoaded()
+{
+    m_bDataLoaded = true;
+}
+
+void SceneEntity::InvokeSelect()
+{
+    auto weakRef = m_pScene->GetEntityWeakRef(this);
+    m_bSelected  = true;
+
+    OnSelect(weakRef);
+    SelectionManager::Instance()->UnSelectEverythingBut(this);
+}
+
+const std::string &SceneEntity::GetClassName() const
+{
+    return m_EntVars.classname;
+}
+
+void SceneEntity::SetTransform(glm::mat4 m_matGuizmo)
+{
+    m_EntVars.transform = m_matGuizmo;
+}
+
+void SceneEntity::Debug_RenderTransform()
+{
+    BT_PROFILE("SceneEntity::Debug_RenderTransform()");
+
+    auto drawAxis = [](glm::vec3 pos, glm::vec3 dir, float size, glm::vec4 color) {
+        auto shader = GLBackend::Instance()->SolidColorGeometryShader();
+        shader->Bind();
+
+        for (auto &it : shader->Uniforms())
+        {
+            switch (it->Kind())
+            {
+            case UniformKind::Color:
+                it->SetFloat4(color);
+                break;
+            case UniformKind::TransformMatrix:
+                it->SetMat4(glm::mat4(1));
+                break;
+            case UniformKind::ObjectSerialNumber:
+                it->SetInt(0);
+                break;
+            default:
+                GLBackend::SetUniformValue(it);
+                break;
+            }
+        }
+
+        static DrawMesh mesh(DrawMeshFlags::Dynamic);
+
+        mesh.Begin(GL_LINES);
+
+        auto p2 = (pos + dir * size);
+
+        mesh.Vertex3fv(&pos.x);
+        mesh.Vertex3fv(&p2.x);
+
+        mesh.End();
+        mesh.BindAndDraw();
+
+        shader->Unbind();
+    };
+
+    glm::vec3 forward = m_EntVars.transform[0];
+    glm::vec3 right   = m_EntVars.transform[2];
+    glm::vec3 up      = m_EntVars.transform[1];
+
+    drawAxis(m_EntVars.origin, forward, 100, {1, 0, 0, 1});
+    drawAxis(m_EntVars.origin, right, 100, {0, 1, 0, 1});
+    drawAxis(m_EntVars.origin, up, 100, {0, 0, 1, 1});
+}
+
+void SceneEntity::FlagRegisteredInScene(bool state)
+{
+    m_bRegisteredInScene = state;
+}
+
+const std::list<GoldSource::BSPEntityProperty *> &SceneEntity::GetProperties() const
+{
+    return m_lstProperties;
+}
+
+Scene *SceneEntity::GetScene()
+{
+    return m_pScene;
+}
+
+const glm::vec3 SceneEntity::GetAngles() const
+{
+    return m_EntVars.angles;
+}
+
+void SceneEntity::SetAngles(const glm::vec3 &angles)
+{
+    m_EntVars.angles    = angles;
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
+}
+
+// void SceneEntity::LoadPropertiesToPropsEditor(IObjectPropertiesBinding *binder)
+// {
+//     auto sceneRenderer = Application::Instance()->GetMainWindow()->GetSceneRenderer();
+//     auto scene         = sceneRenderer->GetScene();
+//
+//     auto weakRef = scene->GetEntityWeakRef(this);
+//     scene->HintSelected(weakRef);
+//
+//     ObjectPropertiesEditor::Instance()->LoadObject(binder);
+// }
+
+SceneEntity::SceneEntity(Scene *pScene)
+{
+    m_pScene = pScene;
+
+    SetRenderColor({1, 1, 1, 1});
+}
+
+SceneEntity::SceneEntity(SceneEntity &other)
+{
+    m_pScene = other.m_pScene;
+
+    m_EntVars     = other.m_EntVars;
+    m_bDataLoaded = other.m_bDataLoaded;
+    m_EntityClass = other.m_EntityClass;
+    m_pScene      = other.m_pScene;
+}
+
+SceneEntity::SceneEntity(SceneEntity *other) : SceneEntity(*other)
+{
+}
+
+SceneEntity::~SceneEntity()
+{
+    Con_Printf("~SceneEntity(): %s (serial=%d)\n", m_EntVars.classname.c_str(), m_EntVars.serialNumber);
+}
+
+bool SceneEntity::IsDataLoaded()
+{
+    return m_bDataLoaded;
+}
+
+void SceneEntity::SetSerialNumber(const uint32_t newNum)
+{
+    m_EntVars.serialNumber = newNum;
+}
+
+const uint32_t SceneEntity::GetSerialNumber() const
+{
+    return m_EntVars.serialNumber;
+}
+
+void SceneEntity::SetPosition(const glm::vec3 &pos)
+{
+    m_EntVars.origin = pos;
+    RecalcAbsBBox();
+
+    m_EntVars.transform = R_RotateForEntity(m_EntVars.origin, m_EntVars.angles);
+
+    if (m_pScene)
+        m_pScene->UpdateEntityBVH(m_EntVars.serialNumber, m_EntVars.bboxAbsolute);
+}
+
+const glm::vec3 SceneEntity::GetPosition() const
+{
+    return m_EntVars.origin;
+}
+
+const glm::mat4 SceneEntity::GetTransform()
+{
+    return m_EntVars.transform;
+}
+
+void SceneEntity::SetBoundingBox(const BoundingBox &bbox)
+{
+    m_EntVars.bboxRelative = bbox;
+    RecalcAbsBBox();
+}
+
+void SceneEntity::SetRenderColor(const ColorRGBA &color)
+{
+    m_EntVars.rendercolor = color;
+}
+
+const ColorRGBA SceneEntity::GetRenderColor() const
+{
+    return m_EntVars.rendercolor;
+}
+
+IModelWeakPtr SceneEntity::GetModel() const
+{
+    return m_EntVars.model;
+}
+
+void SceneEntity::SetModel(IModelWeakPtr &model)
+{
+    m_EntVars.model = model;
+
+    auto ptr = model.lock();
+
+    if (ptr)
+    {
+        auto bbox              = ptr->GetBoundingBox();        
+
+        if (bbox)
+        SetBoundingBox(*bbox);
+    }
+
+}
+
+void SceneEntity::SetFrame(const float newVal)
+{
+    m_EntVars.frame = newVal;
+}
+
+const float SceneEntity::GetFrame() const
+{
+    return m_EntVars.frame;
+}
+
+void SceneEntity::OnHovered()
+{
+}
+
+void SceneEntity::OnMouseMove(glm::vec2 delta)
+{
+}
+
+void SceneEntity::OnSelect(ISelectableObjectWeakRef myWeakRef)
+{
+    ObjectPropertiesEditor::Instance()->UnloadObjects();
+}
+
+void SceneEntity::OnUnSelect()
+{
+}
+
+void SceneEntity::OnUnhovered()
+{
+}
+
+const char *SceneEntity::Description() const
+{
+    return m_EntVars.classname.c_str();
+}
+
+bool SceneEntity::IsLightEntity()
+{
+    return false;
+}
+
+void SceneEntity::OnAdditionToScene(class Scene *pScene)
+{
+}
+
+EntityClasses SceneEntity::EntityClass()
+{
+    return EntityClasses::GenericEntity;
+}
+>>>>>>> Stashed changes

@@ -40,12 +40,12 @@ class Application
     bool                         m_bEventsRedirectionEnabled = false;
     IPlatformWindow *            m_pEventsRedirectionTarget  = nullptr;
 
-    int SuggestMonitorForNewWindow();
+    int SuggestMonitorForNewWindow() const;
 
     bool m_bMouseCursorVisible = true;
 
 public:
-    // Конструкторы\доступ
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ\пїЅпїЅпїЅпїЅпїЅпїЅ
     ~Application();
     static Application *Instance();
 
@@ -53,7 +53,7 @@ public:
 
     bool IsMouseCursorVisible();
 
-    // Функционал
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     void Run();
     void InitMainWindow();
     void Init(std::string cmdLine);
@@ -92,7 +92,7 @@ public:
     static IPlatformWindow *FindPlatformWindow(size_t id);
 
     void             Terminate();
-    IPlatformWindow *FindWindowBySDLId(size_t sdlid);
+    IPlatformWindow *FindWindowBySDLId(size_t sdlId)const;
     void             SetupEventsRedirection(bool enabled, IPlatformWindow *targetWindow);
 
     std::list<IPlatformWindow *> &GetAllWindows()

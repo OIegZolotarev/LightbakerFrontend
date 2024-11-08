@@ -38,7 +38,7 @@ public:
     FileHandleOS(const char* fileName);
     ~FileHandleOS();
 
-    size_t TotalSize();
+    size_t TotalSize() override;
     size_t Position() override;
     size_t Read(size_t elementSize, size_t elementsCount, void *destBuffer) override;
     bool Seek(size_t position, SeekOrigin origin) override;

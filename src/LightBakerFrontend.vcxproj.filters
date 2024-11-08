@@ -215,17 +215,11 @@
     <ClCompile Include="byteorder.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="goldsource_lightmap_atlas.cpp">
-      <Filter>Исходные файлы\GoldSource</Filter>
-    </ClCompile>
     <ClCompile Include="hammer_fgd.cpp">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
     </ClCompile>
     <ClCompile Include="hammer_fgd\hammer_fgd.bison.cpp">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
-    </ClCompile>
-    <ClCompile Include="game_configuration.cpp">
-      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="goldsource_bsp_renderer.cpp">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
@@ -518,6 +512,30 @@
     <ClCompile Include="hammer_map.cpp">
       <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
     </ClCompile>
+    <ClCompile Include="game_configuration.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="material_assets.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="goldsource_lightmap_atlas.cpp">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_textures_browser.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="texture_application_tool.cpp">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="user_presentable_object.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="popup_select_from_list_dialog.cpp">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClCompile>
+    <ClCompile Include="wad_assets_provider.cpp">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common.h">
@@ -634,14 +652,8 @@
     <ClInclude Include="byteorder.h">
       <Filter>Исходные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="goldsource_lightmap_atlas.h">
-      <Filter>Исходные файлы\GoldSource</Filter>
-    </ClInclude>
     <ClInclude Include="hammer_fgd.h">
       <Filter>Исходные файлы\GoldSource\FGD</Filter>
-    </ClInclude>
-    <ClInclude Include="game_configuration.h">
-      <Filter>Исходные файлы</Filter>
     </ClInclude>
     <ClInclude Include="goldsource_bsp_disk_structs.h">
       <Filter>Исходные файлы\GoldSource\BSP</Filter>
@@ -934,6 +946,30 @@
     </ClInclude>
     <ClInclude Include="hammer_map.h">
       <Filter>Исходные файлы\BrushWorld\hammer_map</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_textures_browser.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="texture_application_tool.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="game_configuration.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="material_assets.h">
+      <Filter>Исходные файлы\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="goldsource_lightmap_atlas.h">
+      <Filter>Исходные файлы\GoldSource\BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="wad_assets_provider.h">
+      <Filter>Исходные файлы\GoldSource</Filter>
+    </ClInclude>
+    <ClInclude Include="popup_select_from_list_dialog.h">
+      <Filter>Исходные файлы\Popups</Filter>
+    </ClInclude>
+    <ClInclude Include="user_presentable_object.h">
+      <Filter>Исходные файлы</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

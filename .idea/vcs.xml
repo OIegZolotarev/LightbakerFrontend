@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/ImGuiFileDialog" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/ImGuizmo" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/better-enums" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/json" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/libexecstream" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/stb" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/tiny-process-library" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/include/xatlas" vcs="Git" />
+  </component>
+</project>

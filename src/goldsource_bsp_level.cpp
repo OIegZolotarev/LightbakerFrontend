@@ -155,7 +155,7 @@ void BSPLevel::Mod_LoadLighting(lump_t* l)
 	}
 	else if (m_Version == Q1_BSPVERSION)
 	{		
-		// Конвертируем чб-лайтмапу первокваки в цветную 
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ-пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ 
 		//
 		m_pLightData = new byte[l->filelen * 3];
 		color24_t* pixels = (color24_t*)m_pLightData;
@@ -950,7 +950,7 @@ void BSPLevel::BuildSurfaceDisplayList(msurface_t *fa)
     // poly = (glpoly_t*)Mem_Alloc(loadmodel->mem_pool, sizeof(glpoly_t) + (lnumverts - 4) * VERTEXSIZE *
     // sizeof(float));
 
-    // TODO: это неправильно, надо разобраться в ядреном матане сверху, сейчас отжирает больше нужного
+    // TODO: пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     poly = (glpoly_t *)new glpoly_t[lnumverts];
 
     poly->next     = fa->polys;
@@ -1091,10 +1091,8 @@ void BSPLevel::PopulateScene(Scene * pScene)
 	//
 
     for (auto it : m_vEntities)
-    {
-        it->SetSerialNumber(pScene->AllocSerialNumber());
+    {        
         it->PopulateScene();
-
     }
 
 	

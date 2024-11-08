@@ -40,7 +40,7 @@ void BSPModelAdapter::Render(SceneEntity *pEntity, const SceneRenderer * sr, Ren
         switch (it->Kind())
         {
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pEntity->GetSerialNumber());
+            it->SetInt(pEntity->GetSerialNumber() + 1);
             break;
         case UniformKind::Color2:
             sr->ApplySelectedObjectColor(pEntity, it);

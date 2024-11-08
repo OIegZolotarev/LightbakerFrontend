@@ -114,6 +114,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -131,12 +132,16 @@ build_parsers.bat
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -156,6 +161,7 @@ build_parsers.bat
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -173,12 +179,16 @@ build_parsers.bat
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <Optimization>MaxSpeed</Optimization>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PreBuildEvent>
       <Command>cd /d $(SolutionDir)
@@ -216,6 +226,10 @@ build_parsers.bat
     <ClCompile Include="hammer_map\hammer_map.bison.cpp" />
     <ClCompile Include="io_scene.cpp" />
     <ClCompile Include="io_scene_lm2.cpp" />
+    <ClCompile Include="user_presentable_object.cpp" />
+    <ClCompile Include="material_assets.cpp" />
+    <ClCompile Include="popup_select_from_list_dialog.cpp" />
+    <ClCompile Include="popup_textures_browser.cpp" />
     <ClCompile Include="prefabs_factory.cpp" />
     <ClCompile Include="r_bvh.cpp" />
     <ClCompile Include="r_bvh_boundingbox.cpp" />
@@ -269,6 +283,7 @@ build_parsers.bat
     <ClCompile Include="selection_tool.cpp" />
     <ClCompile Include="StringPool.cpp" />
     <ClCompile Include="string_pool.cpp" />
+    <ClCompile Include="texture_application_tool.cpp" />
     <ClCompile Include="toolbox_panel.cpp" />
     <ClCompile Include="toolui_panel.cpp" />
     <ClCompile Include="imgui_helpers.cpp" />
@@ -286,6 +301,7 @@ build_parsers.bat
     <ClCompile Include="ui_common.cpp" />
     <ClCompile Include="viewport.cpp" />
     <ClCompile Include="viewports_orchestrator.cpp" />
+    <ClCompile Include="wad_assets_provider.cpp" />
     <ClCompile Include="winding.cpp" />
     <ClCompile Include="world_entity.cpp" />
     <ClCompile Include="loader_thread.cpp" />
@@ -347,6 +363,10 @@ build_parsers.bat
     <ClInclude Include="btQuickProf.h" />
     <ClInclude Include="editing_toolbox.h" />
     <ClInclude Include="hammer_map.h" />
+    <ClInclude Include="user_presentable_object.h" />
+    <ClInclude Include="material_assets.h" />
+    <ClInclude Include="popup_select_from_list_dialog.h" />
+    <ClInclude Include="popup_textures_browser.h" />
     <ClInclude Include="io_scene.h" />
     <ClInclude Include="io_scene_lm2.h" />
     <ClInclude Include="prefabs_factory.h" />
@@ -408,6 +428,7 @@ build_parsers.bat
     <ClInclude Include="Icosphere.h" />
     <ClInclude Include="selection_tool.h" />
     <ClInclude Include="string_pool.h" />
+    <ClInclude Include="texture_application_tool.h" />
     <ClInclude Include="toolbox_panel.h" />
     <ClInclude Include="toolui_panel.h" />
     <ClInclude Include="imgui_enum_combobox.h" />
@@ -425,6 +446,7 @@ build_parsers.bat
     <ClInclude Include="viewport.h" />
     <ClInclude Include="viewports_orchestrator.h" />
     <ClInclude Include="viewport_rendermodes.h" />
+    <ClInclude Include="wad_assets_provider.h" />
     <ClInclude Include="winding.h" />
     <ClInclude Include="world_entity.h" />
     <ClInclude Include="loader_thread.h" />

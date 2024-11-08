@@ -25,7 +25,7 @@ enum class LightTypes
     Direct
 };
 
-// TODO: нужно ли оставить привязки свойств или же сделать этот объект провайдером свойств?
+// TODO: пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ?
 class Lb3kLightEntity : public SceneEntity
 {
   public:
@@ -52,7 +52,7 @@ class Lb3kLightEntity : public SceneEntity
 
     void OnUnSelect() override;
 
-    const char *Description() override;
+    const char *Description() const override;
 
     bool IsLightEntity() override;
 

@@ -17,7 +17,7 @@ int SceneIOLm2::Caps()
     return SCENE_IO_CAPS_CAMERAS;
 }
 
-const char *SceneIOLm2::Description()
+const char *SceneIOLm2::Description() const
 {
     return "Lb3k frontend scene (*.lm2)";
 }

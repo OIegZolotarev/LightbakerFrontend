@@ -48,7 +48,8 @@ void main()
 #endif
 
 
-	oSelColor = u_ObjectSerialNumber;
+	oSelColor.x = u_ObjectSerialNumber;
+	oSelColor.y = 0;
 
 } 
 

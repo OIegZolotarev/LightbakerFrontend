@@ -194,7 +194,7 @@ GLuint ShaderProgram::MakeShader(const char *fileName, GLuint type)
 
 GLuint ShaderProgram::MakeShader(std::string &source, ShaderTypes type, std::list<const char *> &defines)
 {
-    int num_blocks = (int)(defines.size() + 3); // Shader type and shader source
+    int num_blocks = (int)(defines.size() + 3); // [<size> amount of defines] + [version declaration] + [shader type] + [main source]
 
     std::string *definesText = new std::string[defines.size()];
 
@@ -718,7 +718,7 @@ UniformKind ShaderUniform::Kind()
 void ShaderUniform::UpdateUniformValue()
 {
 #ifdef GL_DEBUG
-    
+
     GLint prog = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &prog);
 
@@ -803,3 +803,5 @@ void ShaderUniform::UpdateUniformValue()
 
     GL_CheckForErrors();
 }
+
+

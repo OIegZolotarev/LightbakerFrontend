@@ -515,12 +515,16 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
     m_EntityState                 = &state;
 
     // TODO: fix this
-    glCullFace(GL_FRONT);
+    // glCullFace(GL_FRONT);
+
+    StudioSeqDescV10 *pSeqDesc = &m_vSequences[m_EntityState->sequence];
+    pEntity->SetBoundingBox(pSeqDesc->GetBoundingBox());
 
     SetupBones();
 
     for (auto &it : currentShader->Uniforms())
     {
+        //BEGIN_UNIFORM_SETUP_BLOCK
         switch (it->Kind())
         {
         case UniformKind::Color2:
@@ -530,6 +534,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
             it->SetMat4Array(g_StudioRenderState.boneTransform, 128);
             break;
         }
+        //END_UNIFORM_SETUP_BLOCK
     }
 
     for (int i = 0; i < (int)m_vBodyParts.size(); i++)
@@ -540,7 +545,7 @@ void GoldSource::StudioModelV10::Render(SceneEntity *pEntity, const SceneRendere
 
     // OverlayBones();
 
-    glCullFace(GL_BACK);
+    // glCullFace(GL_BACK);
 }
 
 void StudioModelV10::AdvanceFrame(float dt)
@@ -596,7 +601,7 @@ void StudioModelV10::OverlayBones()
                 it->SetMat4(glm::mat4x4(1.f));
                 break;
             case UniformKind::ObjectSerialNumber:
-                it->SetInt(1);
+                it->SetInt(0);
                 break;
             default:
                 GLBackend::SetUniformValue(it);
@@ -950,7 +955,7 @@ void StudioMeshV10::BuildDrawMesh()
 
     uint32_t numVerts = 0;
 
-    while (i = *triCmds++)
+    while ((i = *triCmds++))
     {
         int  vertexState = 0;
         bool strip       = false;
@@ -1016,6 +1021,9 @@ void StudioMeshV10::BuildDrawMesh()
         }
     }
 
+    // Make mesh compaitable with default culling order (GL_BACK)
+    m_pDrawMesh->ReverseTrianglesOrder();
+
     m_pDrawMesh->End();
 }
 
@@ -1035,7 +1043,7 @@ void GoldSource::StudioMeshV10::DrawPoints(StudioEntityState *pState, ShaderProg
             it->SetMat4(pState->worldTransform);
             break;
         case UniformKind::ObjectSerialNumber:
-            it->SetInt(pState->serialNumber);
+            it->SetInt(pState->serialNumber + 1);
             break;
         }
     }

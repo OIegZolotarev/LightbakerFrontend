@@ -131,20 +131,20 @@ DrawMesh *DrawUtils::MakeWireframeCone(float detail /*= 36*/, float r /*= 1*/, f
         ptB.y = sin(b) * r / 2;
         ptB.z = -h;
 
-        // Расширяемый сегмент
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
         pResult->TexCoord2f(1, 1);
         pResult->Vertex3f(ptA.x, ptA.y, ptA.z);
         pResult->Vertex3f(ptB.x, ptB.y, ptB.z);
 
-        // Линия 1
+        // пїЅпїЅпїЅпїЅпїЅ 1
         pResult->TexCoord2f(1, 1);
         pResult->Vertex3f(ptA.x, ptA.y, ptA.z);
 
         pResult->TexCoord2f(0, 0);
         pResult->Vertex3f(0, 0, 0);
 
-        // Линия 2
+        // пїЅпїЅпїЅпїЅпїЅ 2
         pResult->TexCoord2f(1, 1);
         pResult->Vertex3f(ptB.x, ptB.y, ptB.z);
 
@@ -174,7 +174,7 @@ DrawMesh *DrawUtils::MakeIcosphere(int detailLevel)
     } icoVert_t;
 
     icoVert_t *data = (icoVert_t *)s.getInterleavedVertices();
-    size_t count    = s.getInterleavedVertexCount();
+    //size_t count    = s.getInterleavedVertexCount();
 
     auto indices  = s.getIndices();
     auto indCount = s.getIndexCount();

@@ -37,7 +37,7 @@ bool g_bShowDemo        = false;
 bool DEBUG_3D_SELECTION = false;
 
 const char *strDockspace     = "DockSpace";
-ImGuiID     gIDMainDockspace = 0;
+
 
 SDL_Cursor *g_EmptyCursor;
 char        g_IMGuiIniPath[1024];
@@ -61,7 +61,7 @@ void MainWindow::InitStuff()
     InitBackend();
 
     m_pSceneRenderer = new SceneRenderer(this);
-    AddEventHandler(m_pSceneRenderer);
+    // AddEventHandler(m_pSceneRenderer);
 
     InitCommonResources();
     InitCommands();
@@ -100,7 +100,7 @@ MainWindow::~MainWindow()
     delete m_pBackgroundMesh;
     delete m_pBackgroundShader;
 
-    delete TextureManager::Instance();
+    
 
     // FreeGLTextures();
 
@@ -110,8 +110,6 @@ MainWindow::~MainWindow()
 
     ImGui::DestroyContext(m_pImGUIContext);
 
-    delete PopupsManager::Instance();
-    delete GoldSource::WADPool::Instance();
 
     SDL_DestroyWindow(m_pSDLWindow);
     SDL_GL_DeleteContext(m_pGLContext);
@@ -314,6 +312,10 @@ void MainWindow::InitBackend()
     InitBackgroundRenderer();
     TextureManager::Instance()->OnGLInit();
 
+       
+    // To make default game configuration avaible
+    GameConfigurationsManager::Instance()->Init(Application::GetPersistentStorage());
+
     InitViewports();
     GL_CheckForErrors();
 }
@@ -403,78 +405,6 @@ void MainWindow::InitDocks()
     ImGui::DockBuilderFinish(gIDMainDockspace);
 }
 
-ImGuiID MainWindow::DockSpaceOverViewport(float heightAdjust, ImGuiDockNodeFlags dockspace_flags,
-                                          const ImGuiWindowClass *window_class)
-{
-    ImGuiViewport *viewport = ImGui::GetMainViewport();
-
-    ImVec2 pos  = ImVec2(viewport->WorkPos.x, viewport->WorkPos.y + heightAdjust);
-    ImVec2 size = ImVec2(viewport->WorkSize.x, viewport->WorkSize.y - heightAdjust);
-
-    ImGui::SetNextWindowPos(pos);
-    ImGui::SetNextWindowSize(size);
-    ImGui::SetNextWindowViewport(viewport->ID);
-
-    ImGuiWindowFlags host_window_flags = 0;
-    host_window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
-                         ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDocking;
-    host_window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-        host_window_flags |= ImGuiWindowFlags_NoBackground;
-
-    char label[32];
-    sprintf_s(label, IM_ARRAYSIZE(label), "DockSpaceViewport_%08X", viewport->ID);
-
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::SetNextWindowBgAlpha(0);
-
-    ImGui::Begin(label, NULL, host_window_flags);
-
-    ImGui::PopStyleVar(3);
-
-    gIDMainDockspace = ImGui::GetID(strDockspace);
-
-    ImGui::DockSpace(gIDMainDockspace, ImVec2(0.0f, 0.0f), dockspace_flags, window_class);
-
-    // ImGui::ShowStyleSelector("Select style");
-
-    auto c = ImGui::DockBuilderGetCentralNode(gIDMainDockspace);
-
-    int oldViewport[4];
-    for (int i = 0; i < 4; i++)
-        oldViewport[i] = m_i3DViewport[i];
-
-    if (c)
-    {
-        m_i3DViewport[0] = (int)c->Pos.x;
-        m_i3DViewport[1] = (int)m_iWindowHeight - (int)(c->Pos.y + c->Size.y);
-        m_i3DViewport[2] = (int)c->Size.x;
-        m_i3DViewport[3] = (int)c->Size.y;
-    }
-    else
-    {
-        m_i3DViewport[0] = 0;
-        m_i3DViewport[1] = 0;
-        m_i3DViewport[2] = m_iWindowWidth;
-        m_i3DViewport[3] = m_iWindowWidth;
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        if (m_i3DViewport[i] != oldViewport[i])
-        {
-            ViewportsOrchestrator::Instance()->FlagRepaintAll();
-            break;
-        }
-    }
-
-    ImGui::End();
-
-    return gIDMainDockspace;
-}
-
 bool MainWindow::IsMainWindow()
 {
     return true;
@@ -511,7 +441,13 @@ Viewport *MainWindow::GetViewport(int index)
 
 void MainWindow::SetTitle(std::string &fileName)
 {
-    m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} - {0}", fileName, Application::Q_buildnum());
+#if defined(__clang__)
+    const char *compiler = "clang";
+#else
+    const char *    compiler   = "MSVC";
+#endif
+
+    m_strTitle = std::format("LightBaker3000 FrontEnd, build #{1} ({2}) - {0}", fileName, Application::Q_buildnum(), compiler);
     SDL_SetWindowTitle(m_pSDLWindow, m_strTitle.c_str());
 }
 
@@ -1003,7 +939,7 @@ void MainWindow::RenderGUI()
     float menuHeight = RenderMainMenu();
 
     float toolbarHeight = 0;
-    DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
+    gIDMainDockspace = DockSpaceOverViewport(toolbarHeight, ImGuiDockNodeFlags_PassthruCentralNode, 0);
 
     // RenderMainToolbar(menuHeight);
 

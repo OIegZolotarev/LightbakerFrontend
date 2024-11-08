@@ -11,17 +11,18 @@ BrushFace::BrushFace()
 {
     memset(&m_TexInfo, 0, sizeof(m_TexInfo));
     memset(&m_Plane, 0, sizeof(m_Plane));
+    m_pModel = nullptr;
 }
 
-BrushFace::BrushFace(BrushObject *pBrush, const glm::vec3 pts[3])
+BrushFace::BrushFace(BrushModel *pModel, const glm::vec3 pts[3])
 {
-    m_pBrush = pBrush;
+    m_pModel = pModel;
     m_Plane.SetPoints(pts[0], pts[1], pts[2]);
 }
 
 void BrushFace::SetTexture(GLTexture *pTexture)
 {
-    m_pTexture = pTexture;
+    // m_pTexture = pTexture;
 }
 
 const plane_t *BrushFace::GetPlane() const
@@ -31,9 +32,9 @@ const plane_t *BrushFace::GetPlane() const
 
 void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
 {
-    assert(m_pBrush);
+    assert(m_pModel);
 
-    DrawMesh *m_pBrushMesh = m_pBrush->GetDrawMesh();
+    DrawMesh *m_pBrushMesh = m_pModel->GetDrawMesh();
 
     ValidateTexturingInfo();
 
@@ -48,21 +49,31 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
         //
         // Generate texture coordinates.
         //
-        float s = glm::dot(glm::vec3(m_TexInfo.uaxis.xyz), vert) / m_TexInfo.scale[0] + m_TexInfo.uaxis[3];
-        float t = glm::dot(glm::vec3(m_TexInfo.vaxis.xyz), vert) / m_TexInfo.scale[1] + m_TexInfo.vaxis[3];
+        float s = glm::dot(glm::vec3(m_TexInfo.uaxis.xyz()), vert) / m_TexInfo.scale[0] + m_TexInfo.uaxis[3];
+        float t = glm::dot(glm::vec3(m_TexInfo.vaxis.xyz()), vert) / m_TexInfo.scale[1] + m_TexInfo.vaxis[3];
 
-        if (m_pTexture->Width())
-            s = s / (float)m_pTexture->Width();
-        else
-            s = 0;
+//         if (m_pTexture && m_pTexture->Width())
+//             s = s / (float)m_pTexture->Width();
+//         else
+//             s = 0;
+// 
+//         if (m_pTexture && m_pTexture->Height())
+//             t = 1 - (t / (float)m_pTexture->Height());
+//         else
+//             t = 0;
 
-        if (m_pTexture->Height())
-            t = 1 - (t / (float)m_pTexture->Height());
-        else
-            t = 0;
+        m_pModel->AddPointsToBounds(vert);
 
-        
+        m_pBrushMesh->PartId(m_FaceId);
+        m_pBrushMesh->TexCoord2f(s, t);
         m_pBrushMesh->Vertex3f(vert.x,vert.y,vert.z);
+        
+    }
+
+    if (points.size() < 3)
+    {
+        // FAIL?
+        return;
     }
 
     for (size_t i = 0 ; i < points.size() - 2 ; i++)
@@ -71,6 +82,31 @@ void BrushFace::CreateFaceFromWinding(Winding *w, int flags)
         m_pBrushMesh->Element1i(startIndex + (i + 1));
         m_pBrushMesh->Element1i(startIndex);
     }
+}
+
+void BrushFace::SetUAxis(glm::vec4 uAxis)
+{
+    m_TexInfo.uaxis = uAxis;
+}
+
+void BrushFace::SetVAxis(glm::vec4 vAxis)
+{
+    m_TexInfo.vaxis = vAxis;
+}
+
+const char *BrushFace::GetTextureName() const
+{
+    return m_TexInfo.textureName;
+}
+
+const MaterialAssetPtr &BrushFace::GetMaterialAsset() const
+{
+    return m_pMaterialAsset;
+}
+
+void BrushFace::SetMaterialAsset(const MaterialAssetPtr &ptr)
+{
+    m_pMaterialAsset = ptr;
 }
 
 void BrushFace::ValidateTexturingInfo()

@@ -13,6 +13,7 @@
 #include "lb3k_imgui_icons.h"
 #include "text_utils.h"
 #include <boost/algorithm/string.hpp>
+#include "wad_assets_provider.h"
 
 using namespace GoldSource;
 
@@ -33,6 +34,8 @@ GoldSource::HammerGameConfiguration::HammerGameConfiguration(std::string gameRoo
         ParseGameInfo();
         break;
     }
+
+    m_pMaterialAssetsProvider = new WADAssetsProvider(this);
 }
 
 GoldSource::HammerGameConfiguration *HammerGameConfiguration::Get(GameConfigurationWeakPtr pConfigWeakPtr)
@@ -66,6 +69,8 @@ HammerGameConfiguration::HammerGameConfiguration(const HammerGameConfiguration &
     m_SavedFileName = other.m_SavedFileName;
     m_FGDFiles      = other.m_FGDFiles;
     m_lstFGDData    = other.m_lstFGDData;
+
+    m_pMaterialAssetsProvider = new WADAssetsProvider(this);
 
     InitListViewBindings();
 }
@@ -158,6 +163,8 @@ HammerGameConfiguration::HammerGameConfiguration(std::string &savedFileName) : H
         m_lstFGDData.push_back(new GoldSource::HammerFGDFile(fd));
         fd->UnRef();
     }
+
+    m_pMaterialAssetsProvider = new WADAssetsProvider(this);
 }
 
 void HammerGameConfiguration::EditDialog()

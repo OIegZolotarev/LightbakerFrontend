@@ -252,8 +252,9 @@ public:
         return sInstance;
     }
 
-    void RegisterWAD(const char *fileName, bool shared);
+    GoldSource::WADTexturePool* RegisterWAD(const char *fileName, bool shared);
     void UnregisterWAD(const char *fileName);
+    void UnregisterWAD(GoldSource::WADTexturePool * pWad);
 
     static GLTexture *LoadTextureSynch(const char *fileName, TextureSource source = TextureSource::GuessByItself);
     static GLTexture *LoadTextureSynch(void *data, size_t len, const char *name, TextureSource source = TextureSource::GuessByItself);
@@ -266,7 +267,7 @@ public:
     void PurgeTextures();
 
     static GLTexture *LoadWADTextureSynch(char *name);
-    static GLTexture *LoadWADTextureAsynch(char *name);
+    static GLTexture *LoadWADTextureAsynch(const char *name);
     
     static GLTexture *GetWhiteTexture();
     static GLTexture *GetFallbackTexture();
